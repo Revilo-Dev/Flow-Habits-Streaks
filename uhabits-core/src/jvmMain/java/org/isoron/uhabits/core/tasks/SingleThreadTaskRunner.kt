@@ -18,13 +18,11 @@
  */
 package org.isoron.uhabits.core.tasks
 
-import java.util.LinkedList
-
 class SingleThreadTaskRunner : TaskRunner {
     override val activeTaskCount: Int
         get() = 0
 
-    private val listeners: MutableList<TaskRunner.Listener> = LinkedList()
+    private val listeners: MutableList<TaskRunner.Listener> = mutableListOf()
     override fun addListener(listener: TaskRunner.Listener) {
         listeners.add(listener)
     }

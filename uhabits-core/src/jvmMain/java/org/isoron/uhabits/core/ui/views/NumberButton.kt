@@ -23,26 +23,25 @@ import org.isoron.platform.gui.Canvas
 import org.isoron.platform.gui.Color
 import org.isoron.platform.gui.Font
 import org.isoron.platform.gui.View
-import java.lang.String.format
 import kotlin.math.round
 
 fun Double.toShortString(): String = when {
-    this >= 1e9 -> format("%.1fG", this / 1e9)
-    this >= 1e8 -> format("%.0fM", this / 1e6)
-    this >= 1e7 -> format("%.1fM", this / 1e6)
-    this >= 1e6 -> format("%.1fM", this / 1e6)
-    this >= 1e5 -> format("%.0fk", this / 1e3)
-    this >= 1e4 -> format("%.1fk", this / 1e3)
-    this >= 1e3 -> format("%.1fk", this / 1e3)
-    this >= 1e2 -> format("%.0f", this)
+    this >= 1e9 -> "%.1fG".format(this / 1e9)
+    this >= 1e8 -> "%.0fM".format(this / 1e6)
+    this >= 1e7 -> "%.1fM".format(this / 1e6)
+    this >= 1e6 -> "%.1fM".format(this / 1e6)
+    this >= 1e5 -> "%.0fk".format(this / 1e3)
+    this >= 1e4 -> "%.1fk".format(this / 1e3)
+    this >= 1e3 -> "%.1fk".format(this / 1e3)
+    this >= 1e2 -> "%.0f".format(this)
     this >= 1e1 -> when {
-        round(this) == this -> format("%.0f", this)
-        else -> format("%.1f", this)
+        round(this) == this -> "%.0f".format(this)
+        else -> "%.1f".format(this)
     }
     else -> when {
-        round(this) == this -> format("%.0f", this)
-        round(this * 10) == this * 10 -> format("%.1f", this)
-        else -> format("%.2f", this)
+        round(this) == this -> "%.0f".format(this)
+        round(this * 10) == this * 10 -> "%.1f".format(this)
+        else -> "%.2f".format(this)
     }
 }
 

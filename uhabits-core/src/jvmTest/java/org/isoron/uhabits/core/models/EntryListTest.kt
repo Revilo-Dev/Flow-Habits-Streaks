@@ -28,7 +28,7 @@ import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
 import org.junit.Test
-import java.util.Random
+import kotlin.random.Random
 import kotlin.test.assertEquals
 
 class EntryListTest {

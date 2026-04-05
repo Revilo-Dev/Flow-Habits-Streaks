@@ -21,16 +21,12 @@ package org.isoron.uhabits.core.models.memory
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
-import java.util.ArrayList
-import java.util.Comparator
-import java.util.LinkedList
-import java.util.Objects
 
 /**
  * In-memory implementation of [HabitList].
  */
 class MemoryHabitList : HabitList {
-    private val list = LinkedList<Habit>()
+    private val list = mutableListOf<Habit>()
 
     @get:Synchronized
     override var primaryOrder = Order.BY_POSITION
@@ -74,7 +70,7 @@ class MemoryHabitList : HabitList {
         val id = habit.id
         if (id != null && getById(id) != null) throw RuntimeException("duplicate id")
         if (id == null) habit.id = list.size.toLong()
-        list.addLast(habit)
+        list.add(habit)
         resort()
     }
 
@@ -89,7 +85,7 @@ class MemoryHabitList : HabitList {
 
     @Synchronized
     override fun getByUUID(uuid: String?): Habit? {
-        for (h in list) if (Objects.requireNonNull(h.uuid) == uuid) return h
+        for (h in list) if (h.uuid!! == uuid) return h
         return null
     }
 
@@ -171,7 +167,7 @@ class MemoryHabitList : HabitList {
 
     @Synchronized
     override fun iterator(): Iterator<Habit> {
-        return ArrayList(list).iterator()
+        return list.toMutableList().iterator()
     }
 
     @Synchronized

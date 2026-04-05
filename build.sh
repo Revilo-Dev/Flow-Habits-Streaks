@@ -378,6 +378,8 @@ main() {
         build)
             shift; _parse_opts "$@"
             clean
+            log_info "Formatting code..."
+            gradle_run ktlintFormat || fail
             core_build
             android_build
             ;;

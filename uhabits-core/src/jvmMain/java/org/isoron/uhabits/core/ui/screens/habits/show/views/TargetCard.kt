@@ -26,7 +26,6 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.models.countSkippedDays
 import org.isoron.uhabits.core.models.groupedSum
 import org.isoron.uhabits.core.ui.views.Theme
-import java.util.ArrayList
 import kotlin.math.max
 
 data class TargetCardState(
@@ -135,21 +134,21 @@ class TargetCardPresenter {
             targetThisQuarter = max(0.0, targetThisQuarter - dailyTarget * skippedDaysThisQuarter)
             targetThisYear = max(0.0, targetThisYear - dailyTarget * skippedDaysThisYear)
 
-            val values = ArrayList<Double>()
+            val values = mutableListOf<Double>()
             if (habit.frequency.denominator <= 1) values.add(valueToday / 1e3)
             if (habit.frequency.denominator <= 7) values.add(valueThisWeek / 1e3)
             values.add(valueThisMonth / 1e3)
             values.add(valueThisQuarter / 1e3)
             values.add(valueThisYear / 1e3)
 
-            val targets = ArrayList<Double>()
+            val targets = mutableListOf<Double>()
             if (habit.frequency.denominator <= 1) targets.add(targetToday)
             if (habit.frequency.denominator <= 7) targets.add(targetThisWeek)
             targets.add(targetThisMonth)
             targets.add(targetThisQuarter)
             targets.add(targetThisYear)
 
-            val intervals = ArrayList<Int>()
+            val intervals = mutableListOf<Int>()
             if (habit.frequency.denominator <= 1) intervals.add(1)
             if (habit.frequency.denominator <= 7) intervals.add(7)
             intervals.add(30)

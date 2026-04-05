@@ -18,14 +18,10 @@
  */
 package org.isoron.uhabits.core.models
 
-import java.util.LinkedList
-import javax.annotation.concurrent.ThreadSafe
-
 /**
  * A ModelObservable allows objects to subscribe themselves to it and receive
  * notifications whenever the model is changed.
  */
-@ThreadSafe
 class ModelObservable {
     private val listeners: MutableList<Listener>
 
@@ -80,6 +76,6 @@ class ModelObservable {
      * Creates a new ModelObservable with no listeners.
      */
     init {
-        listeners = LinkedList()
+        listeners = mutableListOf()
     }
 }

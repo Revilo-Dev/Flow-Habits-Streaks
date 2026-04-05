@@ -22,14 +22,13 @@ import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
-import java.util.LinkedList
 
 @AppScope
 @Inject
 open class CommandRunner(
     private val taskRunner: TaskRunner
 ) {
-    private val listeners: LinkedList<Listener> = LinkedList()
+    private val listeners: MutableList<Listener> = mutableListOf()
 
     open fun run(command: Command) {
         taskRunner.execute(

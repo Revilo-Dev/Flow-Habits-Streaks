@@ -20,16 +20,12 @@ package org.isoron.uhabits.core.models
 
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.Score.Companion.compute
-import java.util.ArrayList
-import java.util.HashMap
-import javax.annotation.concurrent.ThreadSafe
 import kotlin.math.max
 import kotlin.math.min
 
-@ThreadSafe
 class ScoreList {
 
-    private val map = HashMap<LocalDate, Score>()
+    private val map = mutableMapOf<LocalDate, Score>()
 
     /**
      * Returns the score for a given day. If the date given happens before the first
@@ -52,7 +48,7 @@ class ScoreList {
         from: LocalDate,
         to: LocalDate
     ): List<Score> {
-        val result: MutableList<Score> = ArrayList()
+        val result: MutableList<Score> = mutableListOf()
         if (from.isNewerThan(to)) return result
         var current = to
         while (!current.isOlderThan(from)) {

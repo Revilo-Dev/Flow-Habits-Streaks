@@ -30,9 +30,6 @@ import org.isoron.uhabits.core.models.NumericalHabitType
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
-import java.util.HashMap
-import java.util.Locale
-import java.util.Objects
 
 @AppScope
 @Inject
@@ -42,7 +39,7 @@ class NotificationTray(
     private val preferences: Preferences,
     private val systemTray: SystemTray
 ) : CommandRunner.Listener, Preferences.Listener {
-    private val active: HashMap<Habit, NotificationData> = HashMap()
+    private val active: MutableMap<Habit, NotificationData> = mutableMapOf()
     fun cancel(habit: Habit) {
         val notificationId = getNotificationId(habit)
         systemTray.removeNotification(notificationId)
@@ -123,43 +120,19 @@ class NotificationTray(
         override fun onPostExecute() {
             systemTray.log("Showing notification for habit=" + habit.id)
             if (isCompleted && habit.targetType != NumericalHabitType.AT_MOST) {
-                systemTray.log(
-                    String.format(
-                        Locale.US,
-                        "Habit %d already checked. Skipping.",
-                        habit.id
-                    )
-                )
+                systemTray.log("Habit ${habit.id} already checked. Skipping.")
                 return
             }
             if (!habit.hasReminder()) {
-                systemTray.log(
-                    String.format(
-                        Locale.US,
-                        "Habit %d does not have a reminder. Skipping.",
-                        habit.id
-                    )
-                )
+                systemTray.log("Habit ${habit.id} does not have a reminder. Skipping.")
                 return
             }
             if (habit.isArchived) {
-                systemTray.log(
-                    String.format(
-                        Locale.US,
-                        "Habit %d is archived. Skipping.",
-                        habit.id
-                    )
-                )
+                systemTray.log("Habit ${habit.id} is archived. Skipping.")
                 return
             }
             if (!shouldShowReminderToday()) {
-                systemTray.log(
-                    String.format(
-                        Locale.US,
-                        "Habit %d not supposed to run today. Skipping.",
-                        habit.id
-                    )
-                )
+                systemTray.log("Habit ${habit.id} not supposed to run today. Skipping.")
                 return
             }
             systemTray.showNotification(
@@ -173,7 +146,7 @@ class NotificationTray(
         private fun shouldShowReminderToday(): Boolean {
             if (!habit.hasReminder()) return false
             val reminder = habit.reminder
-            val reminderDays = Objects.requireNonNull(reminder)!!.days.toArray()
+            val reminderDays = reminder!!.days.toArray()
             val weekday = (date.dayOfWeek.daysSinceSunday + 1) % 7
             return reminderDays[weekday]
         }

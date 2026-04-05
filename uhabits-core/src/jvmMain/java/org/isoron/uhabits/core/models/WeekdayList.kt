@@ -18,10 +18,6 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.apache.commons.lang3.builder.EqualsBuilder
-import org.apache.commons.lang3.builder.HashCodeBuilder
-import java.util.Arrays
-
 class WeekdayList {
     private val weekdays: BooleanArray
 
@@ -35,7 +31,7 @@ class WeekdayList {
     }
 
     constructor(weekdays: BooleanArray?) {
-        this.weekdays = Arrays.copyOf(weekdays, 7)
+        this.weekdays = weekdays!!.copyOf(7)
     }
 
     val isEmpty: Boolean
@@ -60,13 +56,12 @@ class WeekdayList {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val that = other as WeekdayList
-        return EqualsBuilder().append(weekdays, that.weekdays).isEquals
+        if (other !is WeekdayList) return false
+        return weekdays.contentEquals(other.weekdays)
     }
 
     override fun hashCode(): Int {
-        return HashCodeBuilder(17, 37).append(weekdays).toHashCode()
+        return weekdays.contentHashCode()
     }
 
     override fun toString() = "{weekdays: [${weekdays.joinToString(separator = ",")}]}"

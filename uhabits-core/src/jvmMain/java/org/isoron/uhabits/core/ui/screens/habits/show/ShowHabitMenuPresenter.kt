@@ -30,9 +30,12 @@ import org.isoron.uhabits.core.tasks.ExportCSVTask
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
 import java.io.File
-import java.util.Random
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 
 class ShowHabitMenuPresenter(
     private val commandRunner: CommandRunner,
@@ -86,21 +89,26 @@ class ShowHabitMenuPresenter(
     }
 
     fun onRandomize() {
-        val random = Random()
         habit.originalEntries.clear()
         var strength = 50.0
         for (i in 0 until 365 * 5) {
-            if (i % 7 == 0) strength = max(0.0, min(100.0, strength + 10 * random.nextGaussian()))
-            if (random.nextInt(100) > strength) continue
+            if (i % 7 == 0) strength = max(0.0, min(100.0, strength + 10 * nextGaussian()))
+            if (kotlin.random.Random.nextInt(100) > strength) continue
             var value = Entry.YES_MANUAL
             if (habit.isNumerical) {
                 value =
-                    (1000 + 250 * random.nextGaussian() * strength / 100).toInt() * 1000
+                    (1000 + 250 * nextGaussian() * strength / 100).toInt() * 1000
             }
             habit.originalEntries.add(Entry(getToday().minus(i), value))
         }
         habit.recompute()
         screen.refresh()
+    }
+
+    private fun nextGaussian(): Double {
+        val u1 = kotlin.random.Random.nextDouble()
+        val u2 = kotlin.random.Random.nextDouble()
+        return sqrt(-2.0 * ln(u1)) * cos(2.0 * PI * u2)
     }
 
     enum class Message {

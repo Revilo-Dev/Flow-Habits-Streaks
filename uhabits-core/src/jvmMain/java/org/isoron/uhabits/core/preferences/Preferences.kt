@@ -25,7 +25,6 @@ import org.isoron.platform.utils.StringUtils.Companion.joinLongs
 import org.isoron.platform.utils.StringUtils.Companion.splitLongs
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.ui.ThemeSwitcher
-import java.util.LinkedList
 import kotlin.math.max
 import kotlin.math.min
 
@@ -282,7 +281,7 @@ open class Preferences(private val storage: Storage) {
     }
 
     init {
-        listeners = LinkedList()
+        listeners = mutableListOf()
         storage.onAttached(this)
     }
 }

@@ -19,8 +19,10 @@
 package org.isoron.uhabits.core.models
 
 import org.isoron.platform.time.getToday
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 data class Habit(
     var color: PaletteColor = PaletteColor(8),
     var description: String = "",
@@ -42,7 +44,7 @@ data class Habit(
     val streaks: StreakList
 ) {
     init {
-        if (uuid == null) this.uuid = UUID.randomUUID().toString().replace("-", "")
+        if (uuid == null) this.uuid = Uuid.random().toHexString()
     }
 
     var observable = ModelObservable()

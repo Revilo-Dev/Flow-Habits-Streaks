@@ -26,14 +26,10 @@ import org.isoron.uhabits.core.models.Entry.Companion.SKIP
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
-import java.util.ArrayList
-import java.util.Calendar
-import javax.annotation.concurrent.ThreadSafe
 import kotlin.collections.set
 import kotlin.math.max
 import kotlin.math.min
 
-@ThreadSafe
 open class EntryList {
 
     private val entriesByDate: HashMap<LocalDate, Entry> = HashMap()
@@ -304,7 +300,7 @@ private fun truncateDate(
  */
 fun List<Entry>.groupedSum(
     truncateField: TruncateField,
-    firstWeekday: Int = Calendar.SATURDAY,
+    firstWeekday: Int = 7,
     isNumerical: Boolean
 ): List<Entry> {
     val firstWeekdayEnum = DayOfWeek.values()[firstWeekday - 1]
@@ -332,7 +328,7 @@ fun List<Entry>.groupedSum(
  */
 fun List<Entry>.countSkippedDays(
     truncateField: TruncateField,
-    firstWeekday: Int = Calendar.SATURDAY
+    firstWeekday: Int = 7
 ): List<Entry> {
     val firstWeekdayEnum = DayOfWeek.values()[firstWeekday - 1]
     return this.map { (date, value) ->

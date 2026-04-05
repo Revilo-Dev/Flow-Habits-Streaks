@@ -19,10 +19,9 @@
 package org.isoron.uhabits.core.models
 
 import com.opencsv.CSVWriter
+import org.isoron.platform.io.format
 import java.io.IOException
 import java.io.Writer
-import java.util.LinkedList
-import java.util.Locale
 import javax.annotation.concurrent.ThreadSafe
 
 /**
@@ -125,8 +124,7 @@ abstract class HabitList : Iterable<Habit> {
      * Removes all the habits from the list.
      */
     open fun removeAll() {
-        val copy: MutableList<Habit> = LinkedList()
-        for (h in this) copy.add(h)
+        val copy = toList()
         for (h in copy) remove(h)
         observable.notifyListeners()
     }
@@ -199,7 +197,7 @@ abstract class HabitList : Iterable<Habit> {
         for (habit in this) {
             val (numerator, denominator) = habit.frequency
             val cols = arrayOf(
-                String.format(Locale.US, "%03d", indexOf(habit) + 1),
+                format("%03d", indexOf(habit) + 1),
                 habit.name,
                 habit.type.name,
                 habit.question,

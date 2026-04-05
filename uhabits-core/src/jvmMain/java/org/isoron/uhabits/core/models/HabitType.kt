@@ -1,7 +1,5 @@
 package org.isoron.uhabits.core.models
 
-import java.lang.IllegalStateException
-
 enum class HabitType(val value: Int) {
     YES_NO(0), NUMERICAL(1);
 

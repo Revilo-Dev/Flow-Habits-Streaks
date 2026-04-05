@@ -27,7 +27,6 @@ import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry.Companion.SKIP
 import org.junit.Before
 import org.junit.Test
-import java.util.ArrayList
 import kotlin.test.assertTrue
 
 open class BaseScoreListTest : BaseUnitTest() {
@@ -151,7 +150,7 @@ class YesNoScoreListTest : BaseScoreListTest() {
         // If the habit should be performed 3 times per week and the user misses 1 repetition
         // each week, score should converge to 66%.
         habit.frequency = Frequency(3, 7)
-        val values = ArrayList<Int>()
+        val values = mutableListOf<Int>()
         for (k in 0..99) {
             values.add(Entry.YES_MANUAL)
             values.add(Entry.YES_MANUAL)
@@ -175,7 +174,7 @@ class YesNoScoreListTest : BaseScoreListTest() {
         // If the user performs habit perfectly each week, but on different weekdays,
         // score should still converge to 100%
         habit.frequency = Frequency(1, 7)
-        val values = ArrayList<Int>()
+        val values = mutableListOf<Int>()
         for (k in 0..99) {
             // Week 0
             values.add(Entry.YES_MANUAL)
@@ -256,7 +255,7 @@ class YesNoScoreListTest : BaseScoreListTest() {
         habit.recompute()
     }
 
-    private fun check(values: ArrayList<Int>) {
+    private fun check(values: MutableList<Int>) {
         val entries = habit.originalEntries
         for (i in values.indices) if (values[i] == Entry.YES_MANUAL) {
             entries.add(

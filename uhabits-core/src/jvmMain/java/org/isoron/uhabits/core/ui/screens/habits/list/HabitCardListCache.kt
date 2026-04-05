@@ -19,7 +19,6 @@
 package org.isoron.uhabits.core.ui.screens.habits.list
 
 import me.tatarka.inject.annotations.Inject
-import org.apache.commons.lang3.ArrayUtils
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.Command
@@ -32,11 +31,6 @@ import org.isoron.uhabits.core.models.HabitList.Order
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.HashMap
-import java.util.LinkedList
-import java.util.TreeSet
 
 /**
  * A HabitCardListCache fetches and keeps a cache of all the data necessary to
@@ -210,11 +204,11 @@ class HabitCardListCache(
     }
 
     private inner class CacheData {
-        val idToHabit: HashMap<Long?, Habit> = HashMap()
+        val idToHabit: MutableMap<Long?, Habit> = mutableMapOf()
         val habits: MutableList<Habit>
-        val checkmarks: HashMap<Long?, IntArray>
-        val scores: HashMap<Long?, Double>
-        val notes: HashMap<Long?, Array<String>>
+        val checkmarks: MutableMap<Long?, IntArray>
+        val scores: MutableMap<Long?, Double>
+        val notes: MutableMap<Long?, Array<String>>
 
         @Synchronized
         fun copyCheckmarksFrom(oldData: CacheData) {
@@ -267,10 +261,10 @@ class HabitCardListCache(
          * Creates a new CacheData without any content.
          */
         init {
-            habits = LinkedList()
-            checkmarks = HashMap()
-            scores = HashMap()
-            notes = HashMap()
+            habits = mutableListOf()
+            checkmarks = mutableMapOf()
+            scores = mutableMapOf()
+            notes = mutableMapOf()
         }
     }
 
@@ -310,15 +304,14 @@ class HabitCardListCache(
                 val habit = newData.habits[position]
                 if (targetId != null && targetId != habit.id) continue
                 newData.scores[habit.id] = habit.scores[today].value
-                val list: MutableList<Int> = ArrayList()
-                val notes: MutableList<String> = ArrayList()
+                val checkmarkList = mutableListOf<Int>()
+                val noteList = mutableListOf<String>()
                 for ((_, value, note) in habit.computedEntries.getByInterval(dateFrom, today)) {
-                    list.add(value)
-                    notes.add(note)
+                    checkmarkList.add(value)
+                    noteList.add(note)
                 }
-                val entries = list.toTypedArray()
-                newData.checkmarks[habit.id] = ArrayUtils.toPrimitive(entries)
-                newData.notes[habit.id] = notes.toTypedArray()
+                newData.checkmarks[habit.id] = checkmarkList.toIntArray()
+                newData.notes[habit.id] = noteList.toTypedArray()
                 runner!!.publishProgress(this, position)
             }
         }
@@ -380,8 +373,8 @@ class HabitCardListCache(
             val newNoteIndicators = newData.notes[id]!!
             var unchanged = true
             if (oldScore != newScore) unchanged = false
-            if (!Arrays.equals(oldCheckmarks, newCheckmarks)) unchanged = false
-            if (!Arrays.equals(oldNoteIndicators, newNoteIndicators)) unchanged = false
+            if (!oldCheckmarks.contentEquals(newCheckmarks)) unchanged = false
+            if (!oldNoteIndicators.contentEquals(newNoteIndicators)) unchanged = false
             if (unchanged) return
             data.scores[id] = newScore
             data.checkmarks[id] = newCheckmarks
@@ -413,8 +406,7 @@ class HabitCardListCache(
         private fun processRemovedHabits() {
             val before: Set<Long?> = data.idToHabit.keys
             val after: Set<Long?> = newData.idToHabit.keys
-            val removed: MutableSet<Long?> = TreeSet(before)
-            removed.removeAll(after)
+            val removed = before - after
             for (id in removed) remove(id!!)
         }
     }

@@ -1,7 +1,5 @@
 package org.isoron.uhabits.core.models
 
-import java.lang.IllegalStateException
-
 enum class NumericalHabitType(val value: Int) {
     AT_LEAST(0), AT_MOST(1);
 

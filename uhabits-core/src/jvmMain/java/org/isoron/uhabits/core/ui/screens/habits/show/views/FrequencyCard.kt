@@ -24,8 +24,6 @@ import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.ui.views.Theme
-import java.util.HashMap
-
 data class FrequencyCardState(
     val color: PaletteColor,
     val firstWeekday: DayOfWeek,

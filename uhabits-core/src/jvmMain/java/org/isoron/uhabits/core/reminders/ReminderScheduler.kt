@@ -29,8 +29,6 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.WidgetPreferences
 import org.isoron.uhabits.core.utils.DateUtils
-import java.util.Locale
-import java.util.Objects
 
 @AppScope
 @Inject
@@ -57,19 +55,11 @@ class ReminderScheduler(
             sys.log("ReminderScheduler", "habit=" + habit.id + " has no reminder. Skipping.")
             return
         }
-        var reminderTime = Objects.requireNonNull(habit.reminder)!!.timeInMillis
+        var reminderTime = habit.reminder!!.timeInMillis
         val snoozeReminderTime = widgetPreferences.getSnoozeTime(habit.id!!)
         if (snoozeReminderTime != 0L) {
             val now = DateUtils.applyTimezone(DateUtils.getLocalTime())
-            sys.log(
-                "ReminderScheduler",
-                String.format(
-                    Locale.US,
-                    "Habit %d has been snoozed until %d",
-                    habit.id,
-                    snoozeReminderTime
-                )
-            )
+            sys.log("ReminderScheduler", "Habit ${habit.id} has been snoozed until $snoozeReminderTime")
             if (snoozeReminderTime > now) {
                 sys.log("ReminderScheduler", "Snooze time is in the future. Accepting.")
                 reminderTime = snoozeReminderTime
@@ -93,16 +83,7 @@ class ReminderScheduler(
             return
         }
         val timestamp = DateUtils.getStartOfDayWithOffset(DateUtils.removeTimezone(reminderTime), 0, 0)
-        sys.log(
-            "ReminderScheduler",
-            String.format(
-                Locale.US,
-                "reminderTime=%d removeTimezone=%d timestamp=%d",
-                reminderTime,
-                DateUtils.removeTimezone(reminderTime),
-                timestamp
-            )
-        )
+        sys.log("ReminderScheduler", "reminderTime=$reminderTime removeTimezone=${DateUtils.removeTimezone(reminderTime)} timestamp=$timestamp")
         sys.scheduleShowReminder(reminderTime, habit, timestamp)
     }
 
