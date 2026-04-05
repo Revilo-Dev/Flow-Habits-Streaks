@@ -20,11 +20,11 @@ package org.isoron.uhabits.core.commands
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getTodayWithOffset
 import org.junit.Before
 import org.junit.Test
 
@@ -32,7 +32,7 @@ class EditHabitCommandTest : BaseUnitTest() {
     private lateinit var command: EditHabitCommand
     private lateinit var habit: Habit
     private lateinit var modified: Habit
-    private lateinit var today: Timestamp
+    private lateinit var today: LocalDate
 
     @Before
     @Throws(Exception::class)
@@ -47,7 +47,7 @@ class EditHabitCommandTest : BaseUnitTest() {
         modified.copyFrom(habit)
         modified.name = "modified"
         habitList.add(modified)
-        today = getTodayWithOffset()
+        today = getToday()
     }
 
     @Test

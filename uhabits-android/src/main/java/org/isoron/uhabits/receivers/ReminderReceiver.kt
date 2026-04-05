@@ -25,10 +25,10 @@ import android.content.Intent
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.util.Log
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfTodayWithOffset
 
 /**
  * The Android BroadcastReceiver for Loop Habit Tracker.
@@ -47,11 +47,11 @@ class ReminderReceiver : BroadcastReceiver() {
         val reminderController = appComponent.reminderController
         Log.i(TAG, String.format("Received intent: %s", intent.toString()))
         var habit: Habit? = null
-        val today: Long = getStartOfTodayWithOffset()
+        val todayMillis = getToday().unixTime
         val data = intent.data
         if (data != null) habit = habits.getById(ContentUris.parseId(data))
-        val timestamp = intent.getLongExtra("timestamp", today)
-        val reminderTime = intent.getLongExtra("reminderTime", today)
+        val timestamp = intent.getLongExtra("timestamp", todayMillis)
+        val reminderTime = intent.getLongExtra("reminderTime", todayMillis)
         try {
             when (intent.action) {
                 ACTION_SHOW_REMINDER -> {
@@ -67,7 +67,7 @@ class ReminderReceiver : BroadcastReceiver() {
                     )
                     reminderController.onShowReminder(
                         habit,
-                        Timestamp(timestamp),
+                        LocalDate.fromUnixTime(timestamp),
                         reminderTime
                     )
                 }

@@ -27,10 +27,7 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.WidgetPreferences
-import org.isoron.uhabits.core.utils.DateUtils.Companion.applyTimezone
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getLocalTime
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfDayWithOffset
-import org.isoron.uhabits.core.utils.DateUtils.Companion.removeTimezone
+import org.isoron.uhabits.core.utils.DateUtils
 import java.util.Locale
 import java.util.Objects
 import javax.inject.Inject
@@ -62,7 +59,7 @@ class ReminderScheduler @Inject constructor(
         var reminderTime = Objects.requireNonNull(habit.reminder)!!.timeInMillis
         val snoozeReminderTime = widgetPreferences.getSnoozeTime(habit.id!!)
         if (snoozeReminderTime != 0L) {
-            val now = applyTimezone(getLocalTime())
+            val now = DateUtils.applyTimezone(DateUtils.getLocalTime())
             sys.log(
                 "ReminderScheduler",
                 String.format(
@@ -94,14 +91,14 @@ class ReminderScheduler @Inject constructor(
             sys.log("ReminderScheduler", "habit=" + habit.id + " is archived. Skipping.")
             return
         }
-        val timestamp = getStartOfDayWithOffset(removeTimezone(reminderTime))
+        val timestamp = DateUtils.getStartOfDayWithOffset(DateUtils.removeTimezone(reminderTime), 0, 0)
         sys.log(
             "ReminderScheduler",
             String.format(
                 Locale.US,
                 "reminderTime=%d removeTimezone=%d timestamp=%d",
                 reminderTime,
-                removeTimezone(reminderTime),
+                DateUtils.removeTimezone(reminderTime),
                 timestamp
             )
         )
@@ -132,7 +129,7 @@ class ReminderScheduler @Inject constructor(
 
     @Synchronized
     fun snoozeReminder(habit: Habit, minutes: Long) {
-        val now = applyTimezone(getLocalTime())
+        val now = DateUtils.applyTimezone(DateUtils.getLocalTime())
         val snoozedUntil = now + minutes * 60 * 1000
         widgetPreferences.setSnoozeTime(habit.id!!, snoozedUntil)
         schedule(habit)

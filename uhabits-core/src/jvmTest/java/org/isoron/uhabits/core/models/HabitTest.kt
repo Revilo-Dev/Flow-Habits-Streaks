@@ -21,8 +21,8 @@ package org.isoron.uhabits.core.models
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import kotlin.test.assertEquals

@@ -23,6 +23,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.view.View
 import org.isoron.platform.gui.toInt
+import org.isoron.platform.time.DayOfWeek
 import org.isoron.uhabits.activities.common.views.FrequencyChart
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.ui.views.WidgetTheme
@@ -32,7 +33,7 @@ class FrequencyWidget(
     context: Context,
     widgetId: Int,
     private val habit: Habit,
-    private val firstWeekday: Int,
+    private val firstWeekday: DayOfWeek,
     stacked: Boolean = false
 ) : BaseWidget(context, widgetId, stacked) {
     override val defaultHeight: Int = 200

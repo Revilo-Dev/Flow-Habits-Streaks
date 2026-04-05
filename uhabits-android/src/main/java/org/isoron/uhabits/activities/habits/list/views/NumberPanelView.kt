@@ -20,10 +20,10 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.NumericalHabitType
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.inject.ActivityContext
 import javax.inject.Inject
 
@@ -78,7 +78,7 @@ class NumberPanelView(
             setupButtons()
         }
 
-    var onEdit: (Timestamp) -> Unit = { _ -> }
+    var onEdit: (LocalDate) -> Unit = { _ -> }
         set(value) {
             field = value
             setupButtons()
@@ -88,10 +88,10 @@ class NumberPanelView(
 
     @Synchronized
     override fun setupButtons() {
-        val today = DateUtils.getTodayWithOffset()
+        val today = getToday()
 
         buttons.forEachIndexed { index, button ->
-            val timestamp = today.minus(index + dataOffset)
+            val date = today.minus(index + dataOffset)
             button.value = when {
                 index + dataOffset < values.size -> values[index + dataOffset]
                 else -> 0.0
@@ -104,7 +104,7 @@ class NumberPanelView(
             button.targetType = targetType
             button.threshold = threshold
             button.units = units
-            button.onEdit = { onEdit(timestamp) }
+            button.onEdit = { onEdit(date) }
         }
     }
 }

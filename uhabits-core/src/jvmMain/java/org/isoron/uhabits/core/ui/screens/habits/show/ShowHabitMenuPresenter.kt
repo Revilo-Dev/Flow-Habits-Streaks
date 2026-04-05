@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.show
 
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.commands.ArchiveHabitsCommand
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.DeleteHabitsCommand
@@ -28,7 +29,6 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.tasks.ExportCSVTask
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
-import org.isoron.uhabits.core.utils.DateUtils
 import java.io.File
 import java.util.Random
 import kotlin.math.max
@@ -97,7 +97,7 @@ class ShowHabitMenuPresenter(
                 value =
                     (1000 + 250 * random.nextGaussian() * strength / 100).toInt() * 1000
             }
-            habit.originalEntries.add(Entry(DateUtils.getToday().minus(i), value))
+            habit.originalEntries.add(Entry(getToday().minus(i), value))
         }
         habit.recompute()
         screen.refresh()

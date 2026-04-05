@@ -18,14 +18,17 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 
 /**
  * Provides a list of hints to be shown at the application startup, and takes
  * care of deciding when a new hint should be shown.
  */
-open class HintList(private val prefs: Preferences, private val hints: Array<String>) {
+open class HintList(
+    private val prefs: Preferences,
+    private val hints: Array<String>
+) {
     /**
      * Returns a new hint to be shown to the user.
      *
@@ -50,7 +53,7 @@ open class HintList(private val prefs: Preferences, private val hints: Array<Str
      */
     open fun shouldShow(): Boolean {
         val today = getToday()
-        val lastHintTimestamp = prefs.lastHintTimestamp
-        return lastHintTimestamp?.isOlderThan(today) == true
+        val lastHintDate = prefs.lastHintDate
+        return lastHintDate != null && lastHintDate < today
     }
 }

@@ -21,6 +21,7 @@ package org.isoron.uhabits.core.ui.screens.habits.show.views
 
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.models.Entry
@@ -32,7 +33,6 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.NumericalHabitType.AT_LEAST
 import org.isoron.uhabits.core.models.NumericalHabitType.AT_MOST
 import org.isoron.uhabits.core.models.PaletteColor
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
 import org.isoron.uhabits.core.ui.views.HistoryChart
@@ -43,7 +43,6 @@ import org.isoron.uhabits.core.ui.views.HistoryChart.Square.OFF
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.ON
 import org.isoron.uhabits.core.ui.views.OnDateClickedListener
 import org.isoron.uhabits.core.ui.views.Theme
-import org.isoron.uhabits.core.utils.DateUtils
 import kotlin.math.roundToInt
 
 data class HistoryCardState(
@@ -65,35 +64,33 @@ class HistoryCardPresenter(
 ) : OnDateClickedListener {
 
     override fun onDateLongPress(date: LocalDate) {
-        val timestamp = Timestamp.fromLocalDate(date)
         screen.showFeedback()
         if (habit.isNumerical) {
-            showNumberPopup(timestamp)
+            showNumberPopup(date)
         } else {
             if (preferences.isShortToggleEnabled) {
-                showCheckmarkPopup(timestamp)
+                showCheckmarkPopup(date)
             } else {
-                toggle(timestamp)
+                toggle(date)
             }
         }
     }
 
     override fun onDateShortPress(date: LocalDate) {
-        val timestamp = Timestamp.fromLocalDate(date)
         screen.showFeedback()
         if (habit.isNumerical) {
-            showNumberPopup(timestamp)
+            showNumberPopup(date)
         } else {
             if (preferences.isShortToggleEnabled) {
-                toggle(timestamp)
+                toggle(date)
             } else {
-                showCheckmarkPopup(timestamp)
+                showCheckmarkPopup(date)
             }
         }
     }
 
-    private fun showCheckmarkPopup(timestamp: Timestamp) {
-        val entry = habit.computedEntries.get(timestamp)
+    private fun showCheckmarkPopup(date: LocalDate) {
+        val entry = habit.computedEntries.get(date)
         screen.showCheckmarkPopup(
             entry.value,
             entry.notes,
@@ -103,7 +100,7 @@ class HistoryCardPresenter(
                 CreateRepetitionCommand(
                     habitList,
                     habit,
-                    timestamp,
+                    date,
                     newValue,
                     newNotes
                 )
@@ -111,8 +108,8 @@ class HistoryCardPresenter(
         }
     }
 
-    private fun toggle(timestamp: Timestamp) {
-        val entry = habit.computedEntries.get(timestamp)
+    private fun toggle(date: LocalDate) {
+        val entry = habit.computedEntries.get(date)
         val nextValue = Entry.nextToggleValue(
             value = entry.value,
             isSkipEnabled = preferences.isSkipEnabled,
@@ -122,15 +119,15 @@ class HistoryCardPresenter(
             CreateRepetitionCommand(
                 habitList,
                 habit,
-                timestamp,
+                date,
                 nextValue,
                 entry.notes
             )
         )
     }
 
-    private fun showNumberPopup(timestamp: Timestamp) {
-        val entry = habit.computedEntries.get(timestamp)
+    private fun showNumberPopup(date: LocalDate) {
+        val entry = habit.computedEntries.get(date)
         val oldValue = entry.value
         screen.showNumberPopup(
             value = oldValue / 1000.0,
@@ -141,7 +138,7 @@ class HistoryCardPresenter(
                 CreateRepetitionCommand(
                     habitList,
                     habit,
-                    timestamp,
+                    date,
                     thousands,
                     newNotes
                 )
@@ -159,8 +156,8 @@ class HistoryCardPresenter(
             firstWeekday: DayOfWeek,
             theme: Theme
         ): HistoryCardState {
-            val today = DateUtils.getTodayWithOffset()
-            val oldest = habit.computedEntries.getKnown().lastOrNull()?.timestamp ?: today
+            val today = getToday()
+            val oldest = habit.computedEntries.getKnown().lastOrNull()?.date ?: today
             val entries = habit.computedEntries.getByInterval(oldest, today)
             val series = if (habit.isNumerical) {
                 entries.map {
@@ -192,7 +189,7 @@ class HistoryCardPresenter(
             return HistoryCardState(
                 color = habit.color,
                 firstWeekday = firstWeekday,
-                today = today.toLocalDate(),
+                today = today,
                 theme = theme,
                 series = series,
                 defaultSquare = OFF,

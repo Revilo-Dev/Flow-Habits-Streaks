@@ -18,6 +18,8 @@
  */
 package org.isoron.uhabits.core.test
 
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
@@ -26,11 +28,12 @@ import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.NumericalHabitType
 import org.isoron.uhabits.core.models.PaletteColor
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.models.sqlite.SQLiteEntryList
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 
-class HabitFixtures(private val modelFactory: ModelFactory, private val habitList: HabitList) {
+class HabitFixtures(
+    private val modelFactory: ModelFactory,
+    private val habitList: HabitList
+) {
     private var NON_DAILY_HABIT_CHECKS = booleanArrayOf(
         true, false, false, true, true, true, false, false, true, true
     )
@@ -103,7 +106,7 @@ class HabitFixtures(private val modelFactory: ModelFactory, private val habitLis
         return habit
     }
 
-    fun createLongNumericalHabit(reference: Timestamp): Habit {
+    fun createLongNumericalHabit(reference: LocalDate): Habit {
         val habit = modelFactory.buildHabit()
         habit.type = HabitType.NUMERICAL
         habit.name = "Walk"

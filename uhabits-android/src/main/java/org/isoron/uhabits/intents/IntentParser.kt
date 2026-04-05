@@ -22,25 +22,28 @@ package org.isoron.uhabits.intents
 import android.content.ContentUris.parseId
 import android.content.Intent
 import android.net.Uri
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils
 import javax.inject.Inject
 
 @AppScope
 class IntentParser
-@Inject constructor(private val habits: HabitList) {
+@Inject constructor(
+    private val habits: HabitList
+) {
 
     fun parseCheckmarkIntent(intent: Intent): CheckmarkIntentData {
         val uri = intent.data ?: throw IllegalArgumentException("uri is null")
-        return CheckmarkIntentData(parseHabit(uri), parseTimestamp(intent))
+        return CheckmarkIntentData(parseHabit(uri), parseDate(intent))
     }
 
     fun copyIntentData(source: Intent, destination: Intent) {
         destination.data = source.data
-        destination.putExtra("timestamp", source.getLongExtra("timestamp", DateUtils.getTodayWithOffset().unixTime))
+        val todayMillis = getToday().unixTime
+        destination.putExtra("timestamp", source.getLongExtra("timestamp", todayMillis))
     }
 
     private fun parseHabit(uri: Uri): Habit {
@@ -48,17 +51,17 @@ class IntentParser
             ?: throw IllegalArgumentException("habit not found")
     }
 
-    private fun parseTimestamp(intent: Intent): Timestamp {
-        val today = DateUtils.getTodayWithOffset().unixTime
-        var timestamp = intent.getLongExtra("timestamp", today)
-        timestamp = DateUtils.getStartOfDay(timestamp)
+    private fun parseDate(intent: Intent): LocalDate {
+        val todayMillis = getToday().unixTime
+        var timestamp = intent.getLongExtra("timestamp", todayMillis)
+        timestamp = LocalDate.fromUnixTime(timestamp).unixTime
 
-        if (timestamp < 0 || timestamp > today) {
+        if (timestamp < 0 || timestamp > todayMillis) {
             throw IllegalArgumentException("timestamp is not valid")
         }
 
-        return Timestamp(timestamp)
+        return LocalDate.fromUnixTime(timestamp)
     }
 
-    class CheckmarkIntentData(var habit: Habit, var timestamp: Timestamp)
+    class CheckmarkIntentData(var habit: Habit, var date: LocalDate)
 }

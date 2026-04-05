@@ -38,11 +38,5 @@ class DateFormats {
 
         @JvmStatic fun getBackupDateFormat(): SimpleDateFormat =
             fromSkeleton("yyyy-MM-dd HHmmss", Locale.US)
-
-        @JvmStatic fun getCSVDateFormat(): SimpleDateFormat =
-            fromSkeleton("yyyy-MM-dd", Locale.US)
-
-        @JvmStatic fun getDialogDateFormat(): SimpleDateFormat =
-            fromSkeleton("MMM dd, yyyy", Locale.US)
     }
 }

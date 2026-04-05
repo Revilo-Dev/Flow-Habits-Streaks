@@ -21,13 +21,13 @@ package org.isoron.uhabits.receivers
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.reminders.ReminderScheduler
 import org.isoron.uhabits.core.ui.NotificationTray
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getUpcomingTimeInMillis
+import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.notifications.SnoozeDelayPickerActivity
 import javax.inject.Inject
 
@@ -43,10 +43,10 @@ class ReminderController @Inject constructor(
 
     fun onShowReminder(
         habit: Habit,
-        timestamp: Timestamp,
+        date: LocalDate,
         reminderTime: Long
     ) {
-        notificationTray.show(habit, timestamp, reminderTime)
+        notificationTray.show(habit, date, reminderTime)
         reminderScheduler.scheduleAll()
     }
 
@@ -60,7 +60,7 @@ class ReminderController @Inject constructor(
     }
 
     fun onSnoozeTimePicked(habit: Habit?, hour: Int, minute: Int) {
-        val time: Long = getUpcomingTimeInMillis(hour, minute)
+        val time: Long = DateUtils.getUpcomingTimeInMillis(hour, minute)
         reminderScheduler.scheduleAtTime(habit!!, time)
         notificationTray.cancel(habit)
     }

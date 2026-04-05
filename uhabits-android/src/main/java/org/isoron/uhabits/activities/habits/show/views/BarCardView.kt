@@ -41,7 +41,7 @@ class BarCardView(context: Context, attrs: AttributeSet) : LinearLayout(context,
         binding.chart.view = BarChart(state.theme, JavaLocalDateFormatter(Locale.getDefault())).apply {
             series = mutableListOf(state.entries.map { it.value / 1000.0 })
             colors = mutableListOf(theme.color(state.color.paletteIndex))
-            axis = state.entries.map { it.timestamp.toLocalDate() }
+            axis = state.entries.map { it.date }
         }
         binding.chart.resetDataOffset()
         binding.chart.postInvalidate()

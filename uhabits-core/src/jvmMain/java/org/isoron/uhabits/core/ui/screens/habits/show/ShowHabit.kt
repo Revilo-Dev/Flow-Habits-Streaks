@@ -124,7 +124,7 @@ class ShowHabitPresenter(
                 ),
                 frequency = FrequencyCardPresenter.buildState(
                     habit = habit,
-                    firstWeekday = preferences.firstWeekdayInt,
+                    firstWeekday = preferences.firstWeekday,
                     theme = theme
                 ),
                 history = HistoryCardPresenter.buildState(

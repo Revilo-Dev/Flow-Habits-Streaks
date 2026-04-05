@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.time.LocalDate
 import javax.annotation.concurrent.ThreadSafe
 import kotlin.math.min
 
@@ -36,14 +37,14 @@ class StreakList {
     @Synchronized
     fun recompute(
         computedEntries: EntryList,
-        from: Timestamp,
-        to: Timestamp,
+        from: LocalDate,
+        to: LocalDate,
         isNumerical: Boolean,
         targetValue: Double,
         targetType: NumericalHabitType
     ) {
         list.clear()
-        val timestamps = computedEntries
+        val dates = computedEntries
             .getByInterval(from, to)
             .filter {
                 val value = it.value
@@ -56,15 +57,15 @@ class StreakList {
                     value > 0
                 }
             }
-            .map { it.timestamp }
+            .map { it.date }
             .toTypedArray()
 
-        if (timestamps.isEmpty()) return
+        if (dates.isEmpty()) return
 
-        var begin = timestamps[0]
-        var end = timestamps[0]
-        for (i in 1 until timestamps.size) {
-            val current = timestamps[i]
+        var begin = dates[0]
+        var end = dates[0]
+        for (i in 1 until dates.size) {
+            val current = dates[i]
             if (current == begin.minus(1)) {
                 begin = current
             } else {

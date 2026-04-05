@@ -24,11 +24,11 @@ import android.content.Context
 import android.view.View
 import org.isoron.platform.gui.AndroidDataView
 import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.ui.screens.habits.show.views.HistoryCardPresenter
 import org.isoron.uhabits.core.ui.views.HistoryChart
 import org.isoron.uhabits.core.ui.views.WidgetTheme
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.widgets.views.GraphWidgetView
 import java.util.Locale
 
@@ -68,7 +68,7 @@ class HistoryWidget(
             context,
             AndroidDataView(context).apply {
                 view = HistoryChart(
-                    today = DateUtils.getTodayWithOffset().toLocalDate(),
+                    today = getToday(),
                     paletteColor = habit.color,
                     theme = WidgetTheme(),
                     dateFormatter = JavaLocalDateFormatter(Locale.getDefault()),

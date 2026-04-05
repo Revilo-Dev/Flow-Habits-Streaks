@@ -21,12 +21,11 @@ package org.isoron.uhabits.core.ui.screens.habits.list
 import org.apache.commons.io.FileUtils
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getTodayWithOffset
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.KArgumentCaptor
@@ -78,14 +77,14 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
 
     @Test
     fun testOnEdit() {
-        behavior.onEdit(habit2, getToday(), 0f, 0f)
+        val today = getToday()
+        behavior.onEdit(habit2, today, 0f, 0f)
         verify(screen).showNumberPopup(
             eq(0.1),
             eq(""),
             picker.capture()
         )
         picker.lastValue.onNumberPicked(100.0, "")
-        val today = getTodayWithOffset()
         assertThat(habit2.computedEntries.get(today).value, equalTo(100000))
     }
 
@@ -166,7 +165,7 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
         assertTrue(habit1.isCompletedToday())
         behavior.onToggle(
             habit = habit1,
-            timestamp = getToday(),
+            date = getToday(),
             value = Entry.NO,
             notes = "",
             x = 0f,

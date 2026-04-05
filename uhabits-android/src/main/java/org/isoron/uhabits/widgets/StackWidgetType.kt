@@ -20,9 +20,9 @@ package org.isoron.uhabits.widgets
 
 import android.app.PendingIntent
 import android.content.Intent
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.intents.PendingIntentFactory
 import java.lang.IllegalStateException
 
@@ -100,14 +100,14 @@ enum class StackWidgetType(val value: Int) {
             widgetType: StackWidgetType,
             habit: Habit,
             allHabitsInStackWidget: List<Habit>,
-            timestamp: Timestamp
+            today: LocalDate
         ): Intent {
             val containsNumerical = allHabitsInStackWidget.any { it.isNumerical }
             return when (widgetType) {
                 CHECKMARK -> if (containsNumerical) {
-                    factory.showNumberPickerFillIn(habit, timestamp)
+                    factory.showNumberPickerFillIn(habit, today)
                 } else {
-                    factory.toggleCheckmarkFillIn(habit, timestamp)
+                    factory.toggleCheckmarkFillIn(habit, today)
                 }
                 FREQUENCY, SCORE, HISTORY, STREAKS, TARGET -> factory.showHabitFillIn(habit)
             }

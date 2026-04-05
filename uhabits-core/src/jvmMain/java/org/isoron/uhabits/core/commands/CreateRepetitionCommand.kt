@@ -18,21 +18,21 @@
  */
 package org.isoron.uhabits.core.commands
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
-import org.isoron.uhabits.core.models.Timestamp
 
 data class CreateRepetitionCommand(
     val habitList: HabitList,
     val habit: Habit,
-    val timestamp: Timestamp,
+    val date: LocalDate,
     val value: Int,
     val notes: String
 ) : Command {
     override fun run() {
         val entries = habit.originalEntries
-        entries.add(Entry(timestamp, value, notes))
+        entries.add(Entry(date, value, notes))
         habit.recompute()
         habitList.resort()
     }

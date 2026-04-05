@@ -19,13 +19,12 @@
 
 package org.isoron.uhabits.core.models.sqlite
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest.Companion.buildMemoryDatabase
 import org.isoron.uhabits.core.database.Repository
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
-import org.isoron.uhabits.core.utils.DateUtils
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -36,7 +35,7 @@ class SQLiteEntryListTest {
     private val database = buildMemoryDatabase()
     private val repository = Repository(EntryRecord::class.java, database)
     private val entries = SQLiteEntryList(database)
-    private val today = DateUtils.getToday()
+    private val today = LocalDate(2015, 1, 25)
 
     @Before
     fun setUp() {
@@ -50,7 +49,7 @@ class SQLiteEntryListTest {
 
     @Test
     fun testLoad() {
-        val today = DateUtils.getToday()
+        val today = LocalDate(2015, 1, 25)
         repository.save(
             EntryRecord().apply {
                 habitId = entries.habitId
@@ -66,15 +65,15 @@ class SQLiteEntryListTest {
             }
         )
         assertEquals(
-            Entry(timestamp = today, value = 500),
+            Entry(date = today, value = 500),
             entries.get(today)
         )
         assertEquals(
-            Entry(timestamp = today.minus(1), value = UNKNOWN),
+            Entry(date = today.minus(1), value = UNKNOWN),
             entries.get(today.minus(1))
         )
         assertEquals(
-            Entry(timestamp = today.minus(5), value = 300),
+            Entry(date = today.minus(5), value = 300),
             entries.get(today.minus(5))
         )
     }
@@ -96,11 +95,11 @@ class SQLiteEntryListTest {
         assertEquals(replacement, retrieved2.toEntry())
     }
 
-    private fun getByTimestamp(habitId: Int, timestamp: Timestamp): EntryRecord? {
+    private fun getByTimestamp(habitId: Int, date: LocalDate): EntryRecord? {
         return repository.findFirst(
             "where habit = ? and timestamp = ?",
             habitId.toString(),
-            timestamp.unixTime.toString()
+            date.unixTime.toString()
         )
     }
 }

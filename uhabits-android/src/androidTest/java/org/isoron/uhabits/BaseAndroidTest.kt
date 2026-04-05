@@ -29,14 +29,14 @@ import androidx.test.uiautomator.UiDevice
 import junit.framework.TestCase
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.computeToday
+import org.isoron.platform.time.getToday
+import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.TaskRunner
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
-import org.isoron.uhabits.core.utils.DateUtils.Companion.setFixedLocalTime
-import org.isoron.uhabits.core.utils.DateUtils.Companion.setStartDayOffset
 import org.isoron.uhabits.inject.ActivityContextModule
 import org.isoron.uhabits.inject.AppContextModule
 import org.isoron.uhabits.inject.HabitsModule
@@ -75,8 +75,6 @@ abstract class BaseAndroidTest : TestCase() {
     public override fun setUp() {
         if (Looper.myLooper() == null) Looper.prepare()
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        setFixedLocalTime(FIXED_LOCAL_TIME)
-        setStartDayOffset(0, 0)
         setResolution(2.0f)
         setTheme(R.style.AppBaseTheme)
         setLocale("en", "US")
@@ -92,6 +90,7 @@ abstract class BaseAndroidTest : TestCase() {
         prefs = appComponent.preferences
         habitList = appComponent.habitList
         taskRunner = appComponent.taskRunner
+        setToday(computeToday(appComponent.preferences.midnightDelayHours, 0))
         modelFactory = appComponent.modelFactory
         prefs.clear()
         fixtures = HabitFixtures(modelFactory, habitList)
@@ -143,7 +142,7 @@ abstract class BaseAndroidTest : TestCase() {
         }
     }
 
-    protected fun day(offset: Int): Timestamp {
+    protected fun day(offset: Int): LocalDate {
         return getToday().minus(offset)
     }
 
@@ -211,8 +210,5 @@ abstract class BaseAndroidTest : TestCase() {
         setSystemTime(savedCalendar)
     }
 
-    companion object {
-        // 8:00am, January 25th, 2015 (UTC)
-        const val FIXED_LOCAL_TIME = 1422172800000L
-    }
+    companion object
 }

@@ -23,11 +23,11 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.preferences.WidgetPreferences
-import org.isoron.uhabits.core.utils.DateUtils.Companion.applyTimezone
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfTodayCalendar
-import org.isoron.uhabits.core.utils.DateUtils.Companion.removeTimezone
-import org.isoron.uhabits.core.utils.DateUtils.Companion.setFixedLocalTime
-import org.isoron.uhabits.core.utils.DateUtils.Companion.setFixedTimeZone
+import org.isoron.uhabits.core.utils.DateUtils
+import org.isoron.uhabits.core.utils.DateUtils.removeTimezone
+import org.isoron.uhabits.core.utils.DateUtils.setFixedLocalTime
+import org.isoron.uhabits.core.utils.DateUtils.setFixedTimeZone
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +37,6 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import java.util.Calendar
 import java.util.TimeZone
 
 @RunWith(MockitoJUnitRunner::class)
@@ -58,6 +57,13 @@ class ReminderSchedulerTest : BaseUnitTest() {
         reminderScheduler =
             ReminderScheduler(commandRunner, habitList, sys, widgetPreferences)
         setFixedTimeZone(TimeZone.getTimeZone("GMT-4"))
+    }
+
+    @After
+    override fun tearDown() {
+        super.tearDown()
+        setFixedLocalTime(null)
+        setFixedTimeZone(null)
     }
 
     @Test
@@ -100,7 +106,7 @@ class ReminderSchedulerTest : BaseUnitTest() {
         setFixedLocalTime(now)
         val snoozeTimeInFuture = unixTime(2015, 1, 1, 21, 0)
         val snoozeTimeInPast = unixTime(2015, 1, 1, 7, 0)
-        val regularReminderTime = applyTimezone(unixTime(2015, 1, 2, 8, 30))
+        val regularReminderTime = DateUtils.applyTimezone(unixTime(2015, 1, 2, 8, 30))
         val todayCheckmarkTime = unixTime(2015, 1, 1, 0, 0)
         val tomorrowCheckmarkTime = unixTime(2015, 1, 2, 0, 0)
         habit.reminder = Reminder(8, 30, WeekdayList.EVERY_DAY)
@@ -139,8 +145,9 @@ class ReminderSchedulerTest : BaseUnitTest() {
     }
 
     override fun unixTime(year: Int, month: Int, day: Int, hour: Int, minute: Int, milliseconds: Long): Long {
-        val cal: Calendar = getStartOfTodayCalendar()
-        cal[year, month, day, hour] = minute
+        val cal = java.util.GregorianCalendar(TimeZone.getTimeZone("GMT"))
+        cal.set(year, month, day, hour, minute, 0)
+        cal.set(java.util.GregorianCalendar.MILLISECOND, 0)
         return cal.timeInMillis
     }
 

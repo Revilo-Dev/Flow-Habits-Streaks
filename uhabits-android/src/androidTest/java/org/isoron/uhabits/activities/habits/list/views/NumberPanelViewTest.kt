@@ -23,9 +23,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseViewTest
 import org.isoron.uhabits.core.models.NumericalHabitType
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.utils.PaletteUtils
 import org.junit.After
 import org.junit.Before
@@ -75,22 +75,22 @@ class NumberPanelViewTest : BaseViewTest() {
 
     @Test
     fun testEdit() {
-        val timestamps = mutableListOf<Timestamp>()
-        view.onEdit = { t -> timestamps.plusAssign(t) }
+        val dates = mutableListOf<LocalDate>()
+        view.onEdit = { t -> dates.plusAssign(t) }
         view.buttons[0].performLongClick()
         view.buttons[2].performLongClick()
         view.buttons[3].performLongClick()
-        assertThat(timestamps, equalTo(listOf(day(0), day(2), day(3))))
+        assertThat(dates, equalTo(listOf(day(0), day(2), day(3))))
     }
 
     @Test
     fun testEdit_withOffset() {
-        val timestamps = mutableListOf<Timestamp>()
+        val dates = mutableListOf<LocalDate>()
         view.dataOffset = 3
-        view.onEdit = { t -> timestamps += t }
+        view.onEdit = { t -> dates += t }
         view.buttons[0].performLongClick()
         view.buttons[2].performLongClick()
         view.buttons[3].performLongClick()
-        assertThat(timestamps, equalTo(listOf(day(3), day(5), day(6))))
+        assertThat(dates, equalTo(listOf(day(3), day(5), day(6))))
     }
 }

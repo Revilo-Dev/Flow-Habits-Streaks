@@ -23,11 +23,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseViewTest
 import org.isoron.uhabits.core.models.Entry.Companion.NO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.utils.PaletteUtils
 import org.junit.After
 import org.junit.Before
@@ -76,22 +76,22 @@ class EntryPanelViewTest : BaseViewTest() {
 
     @Test
     fun testToggle() {
-        val timestamps = mutableListOf<Timestamp>()
-        view.onToggle = { t, _, _ -> timestamps.add(t) }
+        val dates = mutableListOf<LocalDate>()
+        view.onToggle = { t, _, _ -> dates.add(t) }
         view.buttons[0].performLongClick()
         view.buttons[2].performLongClick()
         view.buttons[3].performLongClick()
-        assertThat(timestamps, equalTo(listOf(day(0), day(2), day(3))))
+        assertThat(dates, equalTo(listOf(day(0), day(2), day(3))))
     }
 
     @Test
     fun testToggle_withOffset() {
-        val timestamps = mutableListOf<Timestamp>()
+        val dates = mutableListOf<LocalDate>()
         view.dataOffset = 3
-        view.onToggle = { t, _, _ -> timestamps += t }
+        view.onToggle = { t, _, _ -> dates += t }
         view.buttons[0].performLongClick()
         view.buttons[2].performLongClick()
         view.buttons[3].performLongClick()
-        assertThat(timestamps, equalTo(listOf(day(3), day(5), day(6))))
+        assertThat(dates, equalTo(listOf(day(3), day(5), day(6))))
     }
 }

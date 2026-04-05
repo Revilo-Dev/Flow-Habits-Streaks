@@ -47,6 +47,10 @@ fun LocalDate.toGregorianCalendar(): GregorianCalendar {
     return cal
 }
 
+fun getFirstWeekdayNumberAccordingToLocale(): Int {
+    return GregorianCalendar(Locale.getDefault()).firstDayOfWeek
+}
+
 class JavaLocalDateFormatter(private val locale: Locale) : LocalDateFormatter {
     override fun shortMonthName(date: LocalDate): String {
         val cal = date.toGregorianCalendar()
@@ -59,7 +63,7 @@ class JavaLocalDateFormatter(private val locale: Locale) : LocalDateFormatter {
 
     override fun shortWeekdayName(weekday: DayOfWeek): String {
         val cal = GregorianCalendar()
-        cal.set(DAY_OF_WEEK, weekday.daysSinceSunday - 1)
+        cal.set(DAY_OF_WEEK, weekday.daysSinceSunday + 1)
         return shortWeekdayName(LocalDate(cal.get(YEAR), cal.get(MONTH) + 1, cal.get(DAY_OF_MONTH)))
     }
 
@@ -68,9 +72,28 @@ class JavaLocalDateFormatter(private val locale: Locale) : LocalDateFormatter {
         return cal.getDisplayName(DAY_OF_WEEK, SHORT, locale)
     }
 
+    override fun longWeekdayName(weekday: DayOfWeek): String {
+        val cal = GregorianCalendar()
+        cal.set(DAY_OF_WEEK, weekday.daysSinceSunday + 1)
+        return cal.getDisplayName(DAY_OF_WEEK, LONG, locale)
+    }
+
+    override fun longMonthName(date: LocalDate): String {
+        val cal = date.toGregorianCalendar()
+        return cal.getDisplayName(MONTH, LONG, locale)
+    }
+
     fun longFormat(date: LocalDate): String {
         val df = DateFormat.getDateInstance(DateFormat.LONG, locale)
         df.timeZone = TimeZone.getTimeZone("UTC")
         return df.format(date.toGregorianCalendar().time)
+    }
+
+    fun shortWeekdayNames(firstWeekday: DayOfWeek): Array<String> {
+        return getWeekdaySequence(firstWeekday).map { shortWeekdayName(it) }.toTypedArray()
+    }
+
+    fun longWeekdayNames(firstWeekday: DayOfWeek): Array<String> {
+        return getWeekdaySequence(firstWeekday).map { longWeekdayName(it) }.toTypedArray()
     }
 }

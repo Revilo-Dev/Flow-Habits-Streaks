@@ -19,12 +19,12 @@
 package org.isoron.uhabits.core.preferences
 
 import org.isoron.platform.time.DayOfWeek
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getFirstWeekdayNumberAccordingToLocale
 import org.isoron.platform.utils.StringUtils.Companion.joinLongs
 import org.isoron.platform.utils.StringUtils.Companion.splitLongs
 import org.isoron.uhabits.core.models.HabitList
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.ui.ThemeSwitcher
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getFirstWeekdayNumberAccordingToLocale
 import java.util.LinkedList
 import kotlin.math.max
 import kotlin.math.min
@@ -86,11 +86,12 @@ open class Preferences(private val storage: Storage) {
         }
     val lastHintNumber: Int
         get() = storage.getInt("last_hint_number", -1)
-    open val lastHintTimestamp: Timestamp?
+    open val lastHintDate: LocalDate?
         get() {
             val unixTime = storage.getLong("last_hint_timestamp", -1)
-            return if (unixTime < 0) null else Timestamp(unixTime)
+            return if (unixTime < 0) null else LocalDate.fromUnixTime(unixTime)
         }
+
     var showArchived: Boolean
         get() = storage.getBoolean("pref_show_archived", false)
         set(showArchived) {
@@ -183,9 +184,16 @@ open class Preferences(private val storage: Storage) {
             for (l in listeners) l.onCheckmarkSequenceChanged()
         }
 
-    fun updateLastHint(number: Int, timestamp: Timestamp) {
+    val midnightDelayHours: Int
+        get() = if (isMidnightDelayEnabled) MIDNIGHT_DELAY_HOURS else 0
+
+    companion object {
+        const val MIDNIGHT_DELAY_HOURS = 3
+    }
+
+    fun updateLastHint(number: Int, date: LocalDate) {
         storage.putInt("last_hint_number", number)
-        storage.putLong("last_hint_timestamp", timestamp.unixTime)
+        storage.putLong("last_hint_timestamp", date.unixTime)
     }
 
     var lastAppVersion: Int

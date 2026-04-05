@@ -19,8 +19,20 @@
 
 package org.isoron.platform.time
 
-import kotlin.math.abs
 import kotlin.math.ceil
+
+private var currentToday: LocalDate? = null
+
+fun getToday(): LocalDate =
+    currentToday ?: error("getToday() called before setToday()")
+
+fun setToday(date: LocalDate) {
+    currentToday = date
+}
+
+fun resetToday() {
+    currentToday = null
+}
 
 enum class DayOfWeek(val daysSinceSunday: Int) {
     SUNDAY(0),
@@ -32,7 +44,9 @@ enum class DayOfWeek(val daysSinceSunday: Int) {
     SATURDAY(6)
 }
 
-data class LocalDate(val daysSince2000: Int) {
+data class LocalDate(val daysSince2000: Int) : Comparable<LocalDate> {
+    override fun compareTo(other: LocalDate): Int =
+        daysSince2000.compareTo(other.daysSince2000)
 
     var yearCache = -1
     var monthCache = -1
@@ -43,7 +57,9 @@ data class LocalDate(val daysSince2000: Int) {
 
     val dayOfWeek: DayOfWeek
         get() {
-            return when (daysSince2000 % 7) {
+            val rem = daysSince2000 % 7
+            val mod = if (rem < 0) rem + 7 else rem
+            return when (mod) {
                 0 -> DayOfWeek.SATURDAY
                 1 -> DayOfWeek.SUNDAY
                 2 -> DayOfWeek.MONDAY
@@ -78,6 +94,9 @@ data class LocalDate(val daysSince2000: Int) {
             2 -> if (isLeapYear(year)) 29 else 28
             else -> 31
         }
+
+    val yearLength: Int
+        get() = if (isLeapYear(year)) 366 else 365
 
     private fun updateYearMonthDayCache() {
         var currYear = 2000
@@ -126,12 +145,48 @@ data class LocalDate(val daysSince2000: Int) {
         return LocalDate(daysSince2000 - days)
     }
 
-    fun distanceTo(other: LocalDate): Int {
-        return abs(daysSince2000 - other.daysSince2000)
+    fun daysUntil(other: LocalDate): Int {
+        return other.daysSince2000 - this.daysSince2000
+    }
+
+    val unixTime: Long
+        get() = EPOCH_2000_MILLIS + daysSince2000.toLong() * MILLIS_PER_DAY
+
+    fun startOfWeek(firstWeekday: DayOfWeek): LocalDate {
+        var delta = dayOfWeek.daysSinceSunday - firstWeekday.daysSinceSunday
+        if (delta < 0) delta += 7
+        return minus(delta)
+    }
+
+    fun startOfMonth(): LocalDate = LocalDate(year, month, 1)
+
+    fun startOfQuarter(): LocalDate {
+        val quarterMonth = ((month - 1) / 3) * 3 + 1
+        return LocalDate(year, quarterMonth, 1)
+    }
+
+    fun startOfYear(): LocalDate = LocalDate(year, 1, 1)
+
+    fun toCSVString(): String {
+        val y = year.toString().padStart(4, '0')
+        val m = month.toString().padStart(2, '0')
+        val d = day.toString().padStart(2, '0')
+        return "$y-$m-$d"
     }
 
     override fun toString(): String {
         return "LocalDate($year-$month-$day)"
+    }
+
+    companion object {
+        private const val EPOCH_2000_MILLIS = 946684800000L
+        private const val MILLIS_PER_DAY = 86400000L
+
+        fun fromUnixTime(millis: Long): LocalDate {
+            val diff = millis - EPOCH_2000_MILLIS
+            val days = if (diff >= 0) diff / MILLIS_PER_DAY else (diff - MILLIS_PER_DAY + 1) / MILLIS_PER_DAY
+            return LocalDate(days.toInt())
+        }
     }
 }
 
@@ -139,6 +194,8 @@ interface LocalDateFormatter {
     fun shortWeekdayName(weekday: DayOfWeek): String
     fun shortWeekdayName(date: LocalDate): String
     fun shortMonthName(date: LocalDate): String
+    fun longWeekdayName(weekday: DayOfWeek): String
+    fun longMonthName(date: LocalDate): String
 }
 
 private fun isLeapYear(year: Int): Boolean {
@@ -166,4 +223,24 @@ private fun daysSince2000(year: Int, month: Int, day: Int): Int {
     }
     result += (day - 1)
     return result
+}
+
+enum class TruncateField {
+    DAY, WEEK_NUMBER, MONTH, QUARTER, YEAR
+}
+
+fun getWeekdaySequence(firstWeekday: DayOfWeek): List<DayOfWeek> {
+    val allDays = DayOfWeek.entries
+    return (0 until 7).map { offset ->
+        allDays[(firstWeekday.daysSinceSunday + offset) % 7]
+    }
+}
+
+fun countWeekdayOccurrencesInMonth(startOfMonth: LocalDate): Array<Int> {
+    val weekday = (startOfMonth.dayOfWeek.daysSinceSunday + 1) % 7
+    val freq = Array(7) { 0 }
+    for (day in weekday until weekday + startOfMonth.monthLength) {
+        freq[day % 7] += 1
+    }
+    return freq
 }

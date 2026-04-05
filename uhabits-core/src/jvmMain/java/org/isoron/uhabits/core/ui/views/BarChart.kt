@@ -139,7 +139,7 @@ class BarChart(
             canvas.setFontSize(theme.smallTextSize)
             var prevMonth = -1
             var prevYear = -1
-            val isLargeInterval = axis.size < 2 || (axis[0].distanceTo(axis[1]) > 300)
+            val isLargeInterval = axis.size < 2 || (axis[0].daysUntil(axis[1]) > 300)
 
             for (c in 0 until nColumns) {
                 val x = barGroupOffset(c)

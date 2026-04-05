@@ -26,17 +26,16 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Streak
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 import org.isoron.uhabits.utils.InterfaceUtils.dpToPixels
 import org.isoron.uhabits.utils.InterfaceUtils.getDimension
 import org.isoron.uhabits.utils.StyledResources
-import java.text.DateFormat
 import java.util.LinkedList
+import java.util.Locale
 import java.util.Random
-import java.util.TimeZone
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -52,7 +51,7 @@ class StreakChart : View {
     private var primaryColor = 0
     private var streaks: List<Streak>? = null
     private var isBackgroundTransparent = false
-    private var dateFormat: DateFormat? = null
+    private var dateFormatter: JavaLocalDateFormatter? = null
     private var internalWidth = 0
     private var em = 0f
     private var maxLabelWidth = 0f
@@ -78,7 +77,7 @@ class StreakChart : View {
         get() = floor((measuredHeight / baseSize).toDouble()).toInt()
 
     fun populateWithRandomData() {
-        var start: Timestamp = getToday()
+        var start = getToday()
         val streaks: MutableList<Streak> = LinkedList()
         for (i in 0..9) {
             val length = Random().nextInt(100)
@@ -177,8 +176,9 @@ class StreakChart : View {
             paint!!
         )
         if (shouldShowLabels) {
-            val startLabel = dateFormat!!.format(streak.start.toJavaDate())
-            val endLabel = dateFormat!!.format(streak.end.toJavaDate())
+            val df = dateFormatter!!
+            val startLabel = df.longFormat(streak.start)
+            val endLabel = df.longFormat(streak.end)
             paint!!.color = textColors[1]
             paint!!.textAlign = Paint.Align.RIGHT
             canvas.drawText(startLabel, gap - textMargin, yOffset, paint!!)
@@ -191,9 +191,7 @@ class StreakChart : View {
         initPaints()
         initColors()
         streaks = emptyList()
-        val newDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM)
-        if (!isInEditMode) newDateFormat.timeZone = TimeZone.getTimeZone("GMT")
-        dateFormat = newDateFormat
+        dateFormatter = JavaLocalDateFormatter(Locale.getDefault())
         rect = RectF()
         baseSize = resources.getDimensionPixelSize(R.dimen.baseSize)
     }
@@ -234,11 +232,12 @@ class StreakChart : View {
         maxLength = 0
         minLength = Long.MAX_VALUE
         shouldShowLabels = true
+        val df = dateFormatter ?: return
         for (s in streaks!!) {
             maxLength = max(maxLength, s.length.toLong())
             minLength = min(minLength, s.length.toLong())
-            val lw1 = paint!!.measureText(dateFormat!!.format(s.start.toJavaDate()))
-            val lw2 = paint!!.measureText(dateFormat!!.format(s.end.toJavaDate()))
+            val lw1 = paint!!.measureText(df.longFormat(s.start))
+            val lw2 = paint!!.measureText(df.longFormat(s.end))
             maxLabelWidth = max(maxLabelWidth, max(lw1, lw2))
         }
         if (internalWidth - 2 * maxLabelWidth < internalWidth * 0.25f) {

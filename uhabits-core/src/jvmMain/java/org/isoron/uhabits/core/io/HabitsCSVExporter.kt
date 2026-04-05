@@ -19,14 +19,13 @@
 package org.isoron.uhabits.core.io
 
 import com.opencsv.CSVWriter
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.Score
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateFormats
-import org.isoron.uhabits.core.utils.DateUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -104,17 +103,16 @@ class HabitsCSVExporter(
         val path = habitDirName + "Scores.csv"
         val out = FileWriter(exportDirName + path)
         generatedFilenames.add(path)
-        val dateFormat = DateFormats.getCSVDateFormat()
-        val today = DateUtils.getTodayWithOffset()
+        val today = getToday()
         var oldest = today
         val known = habit.computedEntries.getKnown()
-        if (known.isNotEmpty()) oldest = known[known.size - 1].timestamp
+        if (known.isNotEmpty()) oldest = known[known.size - 1].date
         val csv = CSVWriter(out)
         csv.writeNext(arrayOf("Date", "Score"), false)
-        for ((timestamp1, value) in habit.scores.getByInterval(oldest, today)) {
-            val timestamp = dateFormat.format(timestamp1.unixTime)
-            val score = String.format(Locale.US, "%.4f", value)
-            csv.writeNext(arrayOf(timestamp, score), false)
+        for (s in habit.scores.getByInterval(oldest, today)) {
+            val date = s.date.toCSVString()
+            val score = String.format(Locale.US, "%.4f", s.value)
+            csv.writeNext(arrayOf(date, score), false)
         }
         csv.close()
         out.close()
@@ -124,11 +122,10 @@ class HabitsCSVExporter(
         val filename = habitDirName + "Checkmarks.csv"
         val out = FileWriter(exportDirName + filename)
         generatedFilenames.add(filename)
-        val dateFormat = DateFormats.getCSVDateFormat()
         val csv = CSVWriter(out)
         csv.writeNext(arrayOf("Date", "Value", "Notes"), false)
         for (entry in entries.getKnown()) {
-            val date = dateFormat.format(entry.timestamp.toJavaDate())
+            val date = entry.date.toCSVString()
             csv.writeNext(
                 arrayOf(
                     date,
@@ -162,7 +159,7 @@ class HabitsCSVExporter(
 
         val timeframe = getTimeframe()
         val oldest = timeframe[0]
-        val newest = DateUtils.getTodayWithOffset()
+        val newest = getToday()
         val checkmarks: MutableList<ArrayList<Entry>> = ArrayList()
         val scores: MutableList<ArrayList<Score>> = ArrayList()
         for (habit in selectedHabits) {
@@ -171,10 +168,8 @@ class HabitsCSVExporter(
         }
 
         val days = oldest.daysUntil(newest)
-        val dateFormat = DateFormats.getCSVDateFormat()
         for (i in 0..days) {
-            val day = newest.minus(i).toJavaDate()
-            val date = dateFormat.format(day)
+            val date = newest.minus(i).toCSVString()
             val sb = StringBuilder()
             sb.append(date).append(delimiter)
             checksWriter.write(sb.toString())
@@ -218,14 +213,14 @@ class HabitsCSVExporter(
      *
      * @return the timeframe containing the oldest timestamp and the newest timestamp
      */
-    private fun getTimeframe(): Array<Timestamp> {
-        var oldest = Timestamp.ZERO.plus(1000000)
-        var newest = Timestamp.ZERO
+    private fun getTimeframe(): Array<LocalDate> {
+        var oldest = LocalDate(1000000)
+        var newest = LocalDate(0)
         for (habit in selectedHabits) {
             val entries = habit.originalEntries.getKnown()
             if (entries.isEmpty()) continue
-            val currNew = entries[0].timestamp
-            val currOld = entries[entries.size - 1].timestamp
+            val currNew = entries[0].date
+            val currOld = entries[entries.size - 1].date
             oldest = if (currOld.isOlderThan(oldest)) currOld else oldest
             newest = if (currNew.isNewerThan(newest)) currNew else newest
         }
@@ -233,8 +228,7 @@ class HabitsCSVExporter(
     }
 
     private fun writeZipFile(): String {
-        val dateFormat = DateFormats.getCSVDateFormat()
-        val date = dateFormat.format(DateUtils.getStartOfToday())
+        val date = getToday().toCSVString()
         val zipFilename = String.format("%s/Loop Habits CSV %s.zip", exportDirName, date)
         val fos = FileOutputStream(zipFilename)
         val zos = ZipOutputStream(fos)

@@ -19,11 +19,13 @@
 
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.time.DayOfWeek
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.TruncateField
 import org.isoron.uhabits.core.models.Entry.Companion.SKIP
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
-import org.isoron.uhabits.core.utils.DateUtils
 import java.util.ArrayList
 import java.util.Calendar
 import javax.annotation.concurrent.ThreadSafe
@@ -34,15 +36,15 @@ import kotlin.math.min
 @ThreadSafe
 open class EntryList {
 
-    private val entriesByTimestamp: HashMap<Timestamp, Entry> = HashMap()
+    private val entriesByDate: HashMap<LocalDate, Entry> = HashMap()
 
     /**
-     * Returns the entry corresponding to the given timestamp. If no entry with such timestamp
-     * has been previously added, returns Entry(timestamp, UNKNOWN).
+     * Returns the entry corresponding to the given date. If no entry with such date
+     * has been previously added, returns Entry(date, UNKNOWN).
      */
     @Synchronized
-    open fun get(timestamp: Timestamp): Entry {
-        return entriesByTimestamp[timestamp] ?: Entry(timestamp, UNKNOWN)
+    open fun get(date: LocalDate): Entry {
+        return entriesByDate[date] ?: Entry(date, UNKNOWN)
     }
 
     /**
@@ -51,7 +53,7 @@ open class EntryList {
      * included.
      */
     @Synchronized
-    open fun getByInterval(from: Timestamp, to: Timestamp): List<Entry> {
+    open fun getByInterval(from: LocalDate, to: LocalDate): List<Entry> {
         val result = mutableListOf<Entry>()
         if (from.isNewerThan(to)) return result
         var current = to
@@ -63,21 +65,21 @@ open class EntryList {
     }
 
     /**
-     * Adds the given entry to the list. If another entry with the same timestamp already exists,
+     * Adds the given entry to the list. If another entry with the same date already exists,
      * replaces it.
      */
     @Synchronized
     open fun add(entry: Entry) {
-        entriesByTimestamp[entry.timestamp] = entry
+        entriesByDate[entry.date] = entry
     }
 
     /**
-     * Returns all entries whose values are known, sorted by timestamp. The first element
+     * Returns all entries whose values are known, sorted by date. The first element
      * corresponds to the newest entry, and the last element corresponds to the oldest.
      */
     @Synchronized
     open fun getKnown(): List<Entry> {
-        return entriesByTimestamp.values.sortedBy { it.timestamp }.reversed()
+        return entriesByDate.values.sortedBy { it.date }.reversed()
     }
 
     /**
@@ -109,7 +111,7 @@ open class EntryList {
      */
     @Synchronized
     open fun clear() {
-        entriesByTimestamp.clear()
+        entriesByDate.clear()
     }
 
     /**
@@ -125,33 +127,29 @@ open class EntryList {
      * @return total number of checkmarks by month versus day of week
      */
     @Synchronized
-    fun computeWeekdayFrequency(isNumerical: Boolean): HashMap<Timestamp, Array<Int>> {
+    fun computeWeekdayFrequency(isNumerical: Boolean): HashMap<LocalDate, Array<Int>> {
         val entries = getKnown()
-        val map = hashMapOf<Timestamp, Array<Int>>()
-        for ((originalTimestamp, value) in entries) {
-            val weekday = originalTimestamp.weekday
-            val truncatedTimestamp = Timestamp(
-                originalTimestamp.toCalendar().apply {
-                    set(Calendar.DAY_OF_MONTH, 1)
-                }.timeInMillis
-            )
+        val map = hashMapOf<LocalDate, Array<Int>>()
+        for (entry in entries) {
+            val weekday = (entry.date.dayOfWeek.daysSinceSunday + 1) % 7
+            val monthStart = entry.date.startOfMonth()
 
-            var list = map[truncatedTimestamp]
+            var list = map[monthStart]
             if (list == null) {
                 list = arrayOf(0, 0, 0, 0, 0, 0, 0)
-                map[truncatedTimestamp] = list
+                map[monthStart] = list
             }
 
             if (isNumerical) {
-                list[weekday] += value
-            } else if (value == YES_MANUAL) {
+                list[weekday] += entry.value
+            } else if (entry.value == YES_MANUAL) {
                 list[weekday] += 1
             }
         }
         return map
     }
 
-    data class Interval(val begin: Timestamp, val center: Timestamp, val end: Timestamp) {
+    data class Interval(val begin: LocalDate, val center: LocalDate, val end: LocalDate) {
         val length: Int
             get() = begin.daysUntil(end) + 1
     }
@@ -162,7 +160,7 @@ open class EntryList {
          * interval receive value UNKNOWN. Entries that fall within an interval but do not appear
          * in [original] receive value YES_AUTO. Entries provided in [original] are copied over.
          *
-         * The intervals should be sorted by timestamp. The first element in the list should
+         * The intervals should be sorted by date. The first element in the list should
          * correspond to the newest interval.
          */
         fun buildEntriesFromInterval(
@@ -172,12 +170,12 @@ open class EntryList {
             val result = arrayListOf<Entry>()
             if (original.isEmpty()) return result
 
-            var from = original[0].timestamp
-            var to = original[0].timestamp
+            var from = original[0].date
+            var to = original[0].date
 
             for (e in original) {
-                if (e.timestamp < from) from = e.timestamp
-                if (e.timestamp > to) to = e.timestamp
+                if (e.date < from) from = e.date
+                if (e.date > to) to = e.date
             }
             for (interval in intervals) {
                 if (interval.begin < from) from = interval.begin
@@ -203,7 +201,7 @@ open class EntryList {
 
             // Copy original entries
             original.forEach { entry ->
-                val offset = entry.timestamp.daysUntil(to)
+                val offset = entry.date.daysUntil(to)
                 val value = if (
                     result[offset].value == UNKNOWN ||
                     entry.value == SKIP ||
@@ -213,7 +211,7 @@ open class EntryList {
                 } else {
                     YES_AUTO
                 }
-                result[offset] = Entry(entry.timestamp, value, entry.notes)
+                result[offset] = Entry(entry.date, value, entry.notes)
             }
 
             return result
@@ -224,7 +222,7 @@ open class EntryList {
          * intervals backwards into the past, so that gaps are eliminated and
          * streaks are maximized.
          *
-         * The intervals should be sorted by timestamp. The first element in the list should
+         * The intervals should be sorted by date. The first element in the list should
          * correspond to the newest interval.
          */
         fun snapIntervalsTogether(intervals: ArrayList<Interval>) {
@@ -253,15 +251,14 @@ open class EntryList {
             val den = freq.denominator
             val intervals = arrayListOf<Interval>()
             for (i in num - 1 until filtered.size) {
-                val (begin, _) = filtered[i]
-                val (center, _) = filtered[i - num + 1]
+                val begin = filtered[i].date
+                val center = filtered[i - num + 1].date
                 var size = den
                 if (den == 30 || den == 31) {
-                    val beginDate = begin.toLocalDate()
-                    size = if (beginDate.day == beginDate.monthLength) {
-                        beginDate.plus(1).monthLength
+                    size = if (begin.day == begin.monthLength) {
+                        begin.plus(1).monthLength
                     } else {
-                        beginDate.monthLength
+                        begin.monthLength
                     }
                 }
                 if (begin.daysUntil(center) < size) {
@@ -274,10 +271,24 @@ open class EntryList {
     }
 }
 
+private fun truncateDate(
+    date: LocalDate,
+    field: TruncateField,
+    firstWeekday: DayOfWeek
+): LocalDate {
+    return when (field) {
+        TruncateField.DAY -> date
+        TruncateField.WEEK_NUMBER -> date.startOfWeek(firstWeekday)
+        TruncateField.MONTH -> date.startOfMonth()
+        TruncateField.QUARTER -> date.startOfQuarter()
+        TruncateField.YEAR -> date.startOfYear()
+    }
+}
+
 /**
- * Given a list of entries, truncates the timestamp of each entry (according to the field given),
- * groups the entries according to this truncated timestamp, then creates a new entry (t,v) for
- * each group, where t is the truncated timestamp and v is the sum of the values of all entries in
+ * Given a list of entries, truncates the date of each entry (according to the field given),
+ * groups the entries according to this truncated date, then creates a new entry (d,v) for
+ * each group, where d is the truncated date and v is the sum of the values of all entries in
  * the group.
  *
  * For numerical habits, non-positive entry values are converted to zero. For boolean habits, each
@@ -285,60 +296,56 @@ open class EntryList {
  *
  * SKIP values are converted to zero (if they weren't, each SKIP day would count as 0.003).
  *
- * The returned list is sorted by timestamp, with the newest entry coming first and the oldest entry
+ * The returned list is sorted by date, with the newest entry coming first and the oldest entry
  * coming last. If the original list has gaps in it (for example, weeks or months without any
  * entries), then the list produced by this method will also have gaps.
  *
  * The argument [firstWeekday] is only relevant when truncating by week.
  */
 fun List<Entry>.groupedSum(
-    truncateField: DateUtils.TruncateField,
+    truncateField: TruncateField,
     firstWeekday: Int = Calendar.SATURDAY,
     isNumerical: Boolean
 ): List<Entry> {
-    return this.map { (timestamp, value) ->
+    val firstWeekdayEnum = DayOfWeek.values()[firstWeekday - 1]
+    return this.map { (date, value) ->
         if (isNumerical) {
             if (value == SKIP) {
-                Entry(timestamp, 0)
+                Entry(date, 0)
             } else {
-                Entry(timestamp, max(0, value))
+                Entry(date, max(0, value))
             }
         } else {
-            Entry(timestamp, if (value == YES_MANUAL) 1000 else 0)
+            Entry(date, if (value == YES_MANUAL) 1000 else 0)
         }
     }.groupBy { entry ->
-        entry.timestamp.truncate(
-            truncateField,
-            firstWeekday
-        )
-    }.entries.map { (timestamp, entries) ->
-        Entry(timestamp, entries.sumOf { it.value })
-    }.sortedBy { (timestamp, _) ->
-        -timestamp.unixTime
+        truncateDate(entry.date, truncateField, firstWeekdayEnum)
+    }.entries.map { (date, entries) ->
+        Entry(date, entries.sumOf { it.value })
+    }.sortedBy { (date, _) ->
+        -date.daysSince2000
     }
 }
 
 /**
- * Counts the number of days with vaLue SKIP in the given period.
+ * Counts the number of days with value SKIP in the given period.
  */
 fun List<Entry>.countSkippedDays(
-    truncateField: DateUtils.TruncateField,
+    truncateField: TruncateField,
     firstWeekday: Int = Calendar.SATURDAY
 ): List<Entry> {
-    return this.map { (timestamp, value) ->
+    val firstWeekdayEnum = DayOfWeek.values()[firstWeekday - 1]
+    return this.map { (date, value) ->
         if (value == SKIP) {
-            Entry(timestamp, 1)
+            Entry(date, 1)
         } else {
-            Entry(timestamp, 0)
+            Entry(date, 0)
         }
     }.groupBy { entry ->
-        entry.timestamp.truncate(
-            truncateField,
-            firstWeekday
-        )
-    }.entries.map { (timestamp, entries) ->
-        Entry(timestamp, entries.sumOf { it.value })
-    }.sortedBy { (timestamp, _) ->
-        -timestamp.unixTime
+        truncateDate(entry.date, truncateField, firstWeekdayEnum)
+    }.entries.map { (date, entries) ->
+        Entry(date, entries.sumOf { it.value })
+    }.sortedBy { (date, _) ->
+        -date.daysSince2000
     }
 }

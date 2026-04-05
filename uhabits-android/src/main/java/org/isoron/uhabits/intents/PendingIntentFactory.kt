@@ -29,11 +29,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.activities.habits.list.ListHabitsActivity
 import org.isoron.uhabits.activities.habits.show.ShowHabitActivity
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.receivers.ReminderReceiver
 import org.isoron.uhabits.receivers.WidgetReceiver
@@ -46,14 +46,14 @@ class PendingIntentFactory
     private val intentFactory: IntentFactory
 ) {
 
-    fun addCheckmark(habit: Habit, timestamp: Timestamp?): PendingIntent =
+    fun addCheckmark(habit: Habit, date: LocalDate?): PendingIntent =
         getBroadcast(
             context,
             1,
             Intent(context, WidgetReceiver::class.java).apply {
                 data = Uri.parse(habit.uriString)
                 action = WidgetReceiver.ACTION_ADD_REPETITION
-                if (timestamp != null) putExtra("timestamp", timestamp.unixTime)
+                if (date != null) putExtra("timestamp", date.unixTime)
             },
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
@@ -69,14 +69,14 @@ class PendingIntentFactory
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
 
-    fun removeRepetition(habit: Habit, timestamp: Timestamp?): PendingIntent =
+    fun removeRepetition(habit: Habit, date: LocalDate?): PendingIntent =
         getBroadcast(
             context,
             3,
             Intent(context, WidgetReceiver::class.java).apply {
                 action = WidgetReceiver.ACTION_REMOVE_REPETITION
                 data = Uri.parse(habit.uriString)
-                if (timestamp != null) putExtra("timestamp", timestamp.unixTime)
+                if (date != null) putExtra("timestamp", date.unixTime)
             },
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
@@ -156,14 +156,14 @@ class PendingIntentFactory
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
 
-    fun showNumberPicker(habit: Habit, timestamp: Timestamp): PendingIntent? {
+    fun showNumberPicker(habit: Habit, date: LocalDate): PendingIntent? {
         return getActivity(
             context,
             (habit.id!! % Integer.MAX_VALUE).toInt() + 1,
             Intent(context, ListHabitsActivity::class.java).apply {
                 action = ListHabitsActivity.ACTION_EDIT
                 putExtra("habit", habit.id)
-                putExtra("timestamp", timestamp.unixTime)
+                putExtra("timestamp", date.unixTime)
             },
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
@@ -180,9 +180,9 @@ class PendingIntentFactory
         )
     }
 
-    fun showNumberPickerFillIn(habit: Habit, timestamp: Timestamp) = Intent().apply {
+    fun showNumberPickerFillIn(habit: Habit, date: LocalDate) = Intent().apply {
         putExtra("habit", habit.id)
-        putExtra("timestamp", timestamp.unixTime)
+        putExtra("timestamp", date.unixTime)
     }
 
     private fun getIntentTemplateFlags(): Int {
@@ -203,8 +203,8 @@ class PendingIntentFactory
             getIntentTemplateFlags()
         )
 
-    fun toggleCheckmarkFillIn(habit: Habit, timestamp: Timestamp) = Intent().apply {
+    fun toggleCheckmarkFillIn(habit: Habit, date: LocalDate) = Intent().apply {
         data = Uri.parse(habit.uriString)
-        putExtra("timestamp", timestamp.unixTime)
+        putExtra("timestamp", date.unixTime)
     }
 }

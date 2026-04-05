@@ -18,9 +18,9 @@
  */
 package org.isoron.uhabits.receivers
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseAndroidJVMTest
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.reminders.ReminderScheduler
 import org.isoron.uhabits.core.ui.NotificationTray
@@ -58,8 +58,9 @@ class ReminderControllerTest : BaseAndroidJVMTest() {
     @Throws(Exception::class)
     fun testOnShowReminder() {
         val habit: Habit = mock()
-        controller.onShowReminder(habit, Timestamp.ZERO.plus(100), 456)
-        verify(notificationTray).show(habit, Timestamp.ZERO.plus(100), 456)
+        val date = LocalDate(2015, 1, 25)
+        controller.onShowReminder(habit, date, 456)
+        verify(notificationTray).show(habit, date, 456)
         verify(reminderScheduler).scheduleAll()
     }
 

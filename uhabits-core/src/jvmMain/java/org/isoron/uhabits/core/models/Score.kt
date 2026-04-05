@@ -18,14 +18,14 @@
  */
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.time.LocalDate
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 data class Score(
-    val timestamp: Timestamp,
+    val date: LocalDate,
     val value: Double
 ) {
-
     companion object {
         /**
          * Given the frequency of the habit, the previous score, and the value of

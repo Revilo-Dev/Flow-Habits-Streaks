@@ -25,6 +25,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import dagger.Lazy
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListController
@@ -32,7 +33,6 @@ import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBehavior
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
 import javax.inject.Inject
@@ -118,7 +118,7 @@ class ListHabitsSelectionMenu @Inject constructor(
 
             R.id.action_notify -> {
                 for (h in listAdapter.selected)
-                    notificationTray.show(h, DateUtils.getToday(), 0)
+                    notificationTray.show(h, getToday(), 0)
                 return true
             }
 

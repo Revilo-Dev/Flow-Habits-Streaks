@@ -20,11 +20,11 @@ package org.isoron.uhabits.core.ui.screens.habits.list
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.commands.DeleteHabitsCommand
 import org.isoron.uhabits.core.models.Entry
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
@@ -34,7 +34,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 class HabitCardListCacheTest : BaseUnitTest() {
     private lateinit var cache: HabitCardListCache
     private lateinit var listener: HabitCardListCache.Listener
-    var today = getToday()
+    var today = LocalDate(2015, 1, 25)
 
     @Throws(Exception::class)
     override fun setUp() {

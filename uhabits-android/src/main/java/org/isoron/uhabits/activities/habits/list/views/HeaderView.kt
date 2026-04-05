@@ -27,17 +27,18 @@ import android.graphics.RectF
 import android.graphics.Typeface
 import android.text.TextPaint
 import android.view.View.MeasureSpec.EXACTLY
+import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.ScrollableChart
 import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.dp
 import org.isoron.uhabits.utils.isRTL
 import org.isoron.uhabits.utils.sres
 import org.isoron.uhabits.utils.toMeasureSpec
-import java.util.GregorianCalendar
+import java.util.Locale
 
 class HeaderView(
     context: Context,
@@ -102,6 +103,7 @@ class HeaderView(
 
     private inner class Drawer {
         private val rect = RectF()
+        private val dateFormatter = JavaLocalDateFormatter(Locale.getDefault())
         private val paint = TextPaint().apply {
             color = Color.BLACK
             isAntiAlias = true
@@ -112,12 +114,11 @@ class HeaderView(
         }
 
         fun draw(canvas: Canvas) {
-            val day = DateUtils.getStartOfTodayCalendarWithOffset()
+            val today = getToday()
             val width = dim(R.dimen.checkmarkWidth)
             val height = dim(R.dimen.checkmarkHeight)
             val isReversed = prefs.isCheckmarkSequenceReversed
 
-            day.add(GregorianCalendar.DAY_OF_MONTH, -dataOffset)
             val em = paint.measureText("m")
 
             repeat(buttonCount) { index ->
@@ -139,12 +140,13 @@ class HeaderView(
                     )
                 }
 
+                val date = today.minus(index + dataOffset)
+                val dayOfWeek = dateFormatter.shortWeekdayName(date).uppercase()
+                val dayOfMonth = date.day.toString()
                 val y1 = rect.centerY() - 0.25 * em
                 val y2 = rect.centerY() + 1.25 * em
-                val lines = DateUtils.formatHeaderDate(day).uppercase().split("\n")
-                canvas.drawText(lines[0], rect.centerX(), y1.toFloat(), paint)
-                canvas.drawText(lines[1], rect.centerX(), y2.toFloat(), paint)
-                day.add(GregorianCalendar.DAY_OF_MONTH, -1)
+                canvas.drawText(dayOfWeek, rect.centerX(), y1.toFloat(), paint)
+                canvas.drawText(dayOfMonth, rect.centerX(), y2.toFloat(), paint)
             }
         }
     }

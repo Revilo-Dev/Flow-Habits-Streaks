@@ -32,10 +32,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.checkSelfPermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseExceptionHandler
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.ThemeSwitcher.Companion.THEME_DARK
@@ -177,10 +177,11 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         if (intent == null) return
         if (intent.action == ACTION_EDIT) {
             val habitId = intent.extras?.getLong("habit")
-            val timestamp = intent.extras?.getLong("timestamp")
-            if (habitId != null && timestamp != null) {
+            val timestampMillis = intent.extras?.getLong("timestamp")
+            if (habitId != null && timestampMillis != null) {
                 val habit = appComponent.habitList.getById(habitId)!!
-                component.listHabitsBehavior.onEdit(habit, Timestamp(timestamp), 0f, 0f)
+                val date = LocalDate.fromUnixTime(timestampMillis)
+                component.listHabitsBehavior.onEdit(habit, date, 0f, 0f)
             }
         }
         intent = null

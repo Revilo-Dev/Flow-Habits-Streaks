@@ -19,13 +19,13 @@
 
 package org.isoron.uhabits.core.ui.screens.habits.show.views
 
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.models.groupedSum
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.views.Theme
-import org.isoron.uhabits.core.utils.DateUtils
 
 data class BarCardState(
     val theme: Theme,
@@ -57,8 +57,8 @@ class BarCardPresenter(
             } else {
                 boolBucketSizes[boolSpinnerPosition]
             }
-            val today = DateUtils.getTodayWithOffset()
-            val oldest = habit.computedEntries.getKnown().lastOrNull()?.timestamp ?: today
+            val today = getToday()
+            val oldest = habit.computedEntries.getKnown().lastOrNull()?.date ?: today
             val entries = habit.computedEntries.getByInterval(oldest, today).groupedSum(
                 truncateField = ScoreCardPresenter.getTruncateField(bucketSize),
                 firstWeekday = firstWeekday,

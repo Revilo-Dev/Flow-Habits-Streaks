@@ -27,18 +27,14 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
 import android.util.AttributeSet
+import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Score
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfTodayCalendarWithOffset
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 import org.isoron.uhabits.utils.InterfaceUtils.dpToPixels
 import org.isoron.uhabits.utils.InterfaceUtils.getDimension
 import org.isoron.uhabits.utils.StyledResources
-import org.isoron.uhabits.utils.toSimpleDataFormat
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.GregorianCalendar
 import java.util.LinkedList
 import java.util.Locale
 import java.util.Random
@@ -48,9 +44,7 @@ import kotlin.math.min
 class ScoreChart : ScrollableChart {
     private var pGrid: Paint? = null
     private var em = 0f
-    private var dfMonth: SimpleDateFormat? = null
-    private var dfDay: SimpleDateFormat? = null
-    private var dfYear: SimpleDateFormat? = null
+    private var dateFormatter: JavaLocalDateFormatter? = null
     private var pText: Paint? = null
     private var pGraph: Paint? = null
     private var rect: RectF? = null
@@ -87,12 +81,12 @@ class ScoreChart : ScrollableChart {
         val random = Random()
         val newScores = LinkedList<Score>()
         var previous = 0.5
-        val timestamp: Timestamp = getToday()
+        val today = getToday()
         for (i in 1..99) {
             val step = 0.1
             var current = previous + random.nextDouble() * step * 2 - step
             current = max(0.0, min(1.0, current))
-            newScores.add(Score(timestamp.minus(i), current))
+            newScores.add(Score(today.minus(i), current))
             previous = current
         }
         scores = newScores
@@ -142,7 +136,7 @@ class ScoreChart : ScrollableChart {
             val offset = nColumns - k - 1 + dataOffset
             if (offset >= scores!!.size) continue
             val score = scores!![offset].value
-            val timestamp = scores!![offset].timestamp
+            val date = scores!![offset].date
             val height = (columnHeight * score).toInt()
             rect!![0f, 0f, baseSize.toFloat()] = baseSize.toFloat()
             rect!!.offset(
@@ -159,7 +153,7 @@ class ScoreChart : ScrollableChart {
             prevRect!!.set(rect!!)
             rect!![0f, 0f, columnWidth] = columnHeight.toFloat()
             rect!!.offset(k * columnWidth, internalPaddingTop.toFloat())
-            drawFooter(activeCanvas, rect, timestamp)
+            drawFooter(activeCanvas, rect, date)
         }
         if (activeCanvas !== canvas) canvas.drawBitmap(internalDrawingCache!!, 0f, 0f, null)
     }
@@ -199,16 +193,15 @@ class ScoreChart : ScrollableChart {
         if (isTransparencyEnabled) initCache(width, height)
     }
 
-    private fun drawFooter(canvas: Canvas?, rect: RectF?, currentDate: Timestamp) {
-        val yearText = dfYear!!.format(currentDate.toJavaDate())
-        val monthText = dfMonth!!.format(currentDate.toJavaDate())
-        val dayText = dfDay!!.format(currentDate.toJavaDate())
-        val calendar = currentDate.toCalendar()
+    private fun drawFooter(canvas: Canvas?, rect: RectF?, date: LocalDate) {
+        val df = dateFormatter ?: return
+        val yearText = date.year.toString()
+        val monthText = df.shortMonthName(date)
+        val dayText = date.day.toString()
         val text: String
-        val year = calendar[Calendar.YEAR]
         var shouldPrintYear = true
         if (yearText == previousYearText) shouldPrintYear = false
-        if (bucketSize >= 365 && year % 2 != 0) shouldPrintYear = false
+        if (bucketSize >= 365 && date.year % 2 != 0) shouldPrintYear = false
         if (skipYear > 0) {
             skipYear--
             shouldPrintYear = false
@@ -294,24 +287,22 @@ class ScoreChart : ScrollableChart {
 
     private val maxDayWidth: Float
         private get() {
+            val df = dateFormatter ?: return 0f
             var maxDayWidth = 0f
-            val day: GregorianCalendar =
-                getStartOfTodayCalendarWithOffset()
-            for (i in 0..27) {
-                day[Calendar.DAY_OF_MONTH] = i
-                val monthWidth = pText!!.measureText(dfMonth!!.format(day.time))
+            for (i in 1..12) {
+                val date = LocalDate(2020, i, 1)
+                val monthWidth = pText!!.measureText(df.shortMonthName(date))
                 maxDayWidth = max(maxDayWidth, monthWidth)
             }
             return maxDayWidth
         }
     private val maxMonthWidth: Float
         private get() {
+            val df = dateFormatter ?: return 0f
             var maxMonthWidth = 0f
-            val day: GregorianCalendar =
-                getStartOfTodayCalendarWithOffset()
-            for (i in 0..11) {
-                day[Calendar.MONTH] = i
-                val monthWidth = pText!!.measureText(dfMonth!!.format(day.time))
+            for (i in 1..12) {
+                val date = LocalDate(2020, i, 1)
+                val monthWidth = pText!!.measureText(df.shortMonthName(date))
                 maxMonthWidth = max(maxMonthWidth, monthWidth)
             }
             return maxMonthWidth
@@ -340,15 +331,7 @@ class ScoreChart : ScrollableChart {
     }
 
     private fun initDateFormats() {
-        if (isInEditMode) {
-            dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
-            dfYear = SimpleDateFormat("yyyy", Locale.getDefault())
-            dfDay = SimpleDateFormat("d", Locale.getDefault())
-        } else {
-            dfMonth = "MMM".toSimpleDataFormat()
-            dfYear = "yyyy".toSimpleDataFormat()
-            dfDay = "d".toSimpleDataFormat()
-        }
+        dateFormatter = JavaLocalDateFormatter(Locale.getDefault())
     }
 
     private fun initPaints() {

@@ -18,7 +18,7 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.isoron.uhabits.core.utils.DateUtils
+import org.isoron.platform.time.getToday
 import java.util.UUID
 
 data class Habit(
@@ -56,7 +56,7 @@ data class Habit(
     fun hasReminder(): Boolean = reminder != null
 
     fun isCompletedToday(): Boolean {
-        val today = DateUtils.getTodayWithOffset()
+        val today = getToday()
         val value = computedEntries.get(today).value
         return if (isNumerical) {
             when (targetType) {
@@ -69,7 +69,7 @@ data class Habit(
     }
 
     fun isEnteredToday(): Boolean {
-        val today = DateUtils.getTodayWithOffset()
+        val today = getToday()
         val value = computedEntries.get(today).value
         return value != Entry.UNKNOWN
     }
@@ -81,10 +81,10 @@ data class Habit(
             isNumerical = isNumerical
         )
 
-        val today = DateUtils.getTodayWithOffset()
+        val today = getToday()
         val to = today.plus(30)
         val entries = computedEntries.getKnown()
-        var from = entries.lastOrNull()?.timestamp ?: today
+        var from = entries.lastOrNull()?.date ?: today
         if (from.isNewerThan(to)) from = to
 
         scores.recompute(

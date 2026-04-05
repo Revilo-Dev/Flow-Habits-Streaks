@@ -21,9 +21,10 @@ package org.isoron.uhabits.core.models
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.number.IsCloseTo
 import org.hamcrest.number.OrderingComparison
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry.Companion.SKIP
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 import org.junit.Before
 import org.junit.Test
 import java.util.ArrayList
@@ -31,7 +32,7 @@ import kotlin.test.assertTrue
 
 open class BaseScoreListTest : BaseUnitTest() {
     protected lateinit var habit: Habit
-    protected lateinit var today: Timestamp
+    protected lateinit var today: LocalDate
 
     @Before
     @Throws(Exception::class)

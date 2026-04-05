@@ -19,6 +19,8 @@
 package org.isoron.uhabits.core
 
 import org.apache.commons.io.IOUtils
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.DatabaseOpener
@@ -26,13 +28,9 @@ import org.isoron.uhabits.core.database.JdbcDatabase
 import org.isoron.uhabits.core.database.MigrationHelper
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.models.memory.MemoryModelFactory
 import org.isoron.uhabits.core.tasks.SingleThreadTaskRunner
 import org.isoron.uhabits.core.test.HabitFixtures
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfTodayCalendar
-import org.isoron.uhabits.core.utils.DateUtils.Companion.setFixedLocalTime
-import org.isoron.uhabits.core.utils.DateUtils.Companion.setStartDayOffset
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +46,8 @@ import java.io.InputStream
 import java.nio.file.Paths
 import java.sql.DriverManager
 import java.sql.SQLException
+import java.util.GregorianCalendar
+import java.util.TimeZone
 
 @RunWith(MockitoJUnitRunner::class)
 open class BaseUnitTest {
@@ -76,8 +76,7 @@ open class BaseUnitTest {
     @Before
     @Throws(Exception::class)
     open fun setUp() {
-        setFixedLocalTime(FIXED_LOCAL_TIME)
-        setStartDayOffset(0, 0)
+        setToday(LocalDate(2015, 1, 25))
         val memoryModelFactory = MemoryModelFactory()
         habitList = spy(memoryModelFactory.buildHabitList())
         fixtures = HabitFixtures(memoryModelFactory, habitList)
@@ -90,8 +89,6 @@ open class BaseUnitTest {
     @Throws(Exception::class)
     open fun tearDown() {
         validateMockitoUsage()
-        setFixedLocalTime(null)
-        setStartDayOffset(0, 0)
     }
 
     fun unixTime(year: Int, month: Int, day: Int): Long {
@@ -99,13 +96,10 @@ open class BaseUnitTest {
     }
 
     open fun unixTime(year: Int, month: Int, day: Int, hour: Int, minute: Int, milliseconds: Long = 0): Long {
-        val cal = getStartOfTodayCalendar()
-        cal.set(year, month, day, hour, minute)
+        val cal = GregorianCalendar(TimeZone.getTimeZone("GMT"))
+        cal.set(year, month, day, hour, minute, 0)
+        cal.set(GregorianCalendar.MILLISECOND, 0)
         return cal.timeInMillis + milliseconds
-    }
-
-    fun timestamp(year: Int, month: Int, day: Int): Timestamp {
-        return Timestamp(unixTime(year, month, day))
     }
 
     @Test
@@ -139,8 +133,6 @@ open class BaseUnitTest {
     }
 
     companion object {
-        // 8:00am, January 25th, 2015 (UTC)
-        const val FIXED_LOCAL_TIME = 1422172800000L
         fun buildMemoryDatabase(): Database {
             return try {
                 val db: Database = JdbcDatabase(

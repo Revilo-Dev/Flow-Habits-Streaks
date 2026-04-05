@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.database.Cursor
 import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.DatabaseOpener
@@ -27,9 +28,7 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.Reminder
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.models.WeekdayList
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.core.utils.isSQLite3File
 import java.io.File
 import javax.inject.Inject
@@ -129,13 +128,11 @@ class RewireDBImporter
             )
             if (!c.moveToNext()) return
             do {
-                val date = c.getString(0)
-                val year = date!!.substring(0, 4).toInt()
-                val month = date.substring(4, 6).toInt()
-                val day = date.substring(6, 8).toInt()
-                val cal = DateUtils.getStartOfTodayCalendar()
-                cal[year, month - 1] = day
-                habit.originalEntries.add(Entry(Timestamp(cal), Entry.YES_MANUAL))
+                val dateStr = c.getString(0)
+                val year = dateStr!!.substring(0, 4).toInt()
+                val month = dateStr.substring(4, 6).toInt()
+                val day = dateStr.substring(6, 8).toInt()
+                habit.originalEntries.add(Entry(LocalDate(year, month, day), Entry.YES_MANUAL))
             } while (c.moveToNext())
         } finally {
             c?.close()

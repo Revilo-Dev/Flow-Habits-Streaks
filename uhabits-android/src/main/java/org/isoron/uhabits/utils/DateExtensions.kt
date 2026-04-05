@@ -21,12 +21,12 @@ package org.isoron.uhabits.utils
 
 import android.content.Context
 import android.text.format.DateFormat
+import org.isoron.platform.time.DayOfWeek
+import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.utils.DateFormats
-import org.isoron.uhabits.core.utils.DateUtils
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -37,8 +37,9 @@ fun String.toSimpleDataFormat(): SimpleDateFormat {
 }
 
 fun WeekdayList.toFormattedString(context: Context): String {
-    val shortDayNames = DateUtils.getShortWeekdayNames(Calendar.SATURDAY)
-    val longDayNames = DateUtils.getLongWeekdayNames(Calendar.SATURDAY)
+    val formatter = JavaLocalDateFormatter(Locale.getDefault())
+    val shortDayNames = formatter.shortWeekdayNames(DayOfWeek.SATURDAY)
+    val longDayNames = formatter.longWeekdayNames(DayOfWeek.SATURDAY)
     val buffer = StringBuilder()
     var count = 0
     var first = 0

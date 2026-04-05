@@ -20,10 +20,10 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.inject.ActivityContext
 import javax.inject.Inject
 
@@ -60,13 +60,13 @@ class CheckmarkPanelView(
             setupButtons()
         }
 
-    var onToggle: (Timestamp, Int, String) -> Unit = { _, _, _ -> }
+    var onToggle: (LocalDate, Int, String) -> Unit = { _, _, _ -> }
         set(value) {
             field = value
             setupButtons()
         }
 
-    var onEdit: (Timestamp) -> Unit = { _ -> }
+    var onEdit: (LocalDate) -> Unit = { _ -> }
         set(value) {
             field = value
             setupButtons()
@@ -76,10 +76,10 @@ class CheckmarkPanelView(
 
     @Synchronized
     override fun setupButtons() {
-        val today = DateUtils.getTodayWithOffset()
+        val today = getToday()
 
         buttons.forEachIndexed { index, button ->
-            val timestamp = today.minus(index + dataOffset)
+            val date = today.minus(index + dataOffset)
             button.value = when {
                 index + dataOffset < values.size -> values[index + dataOffset]
                 else -> UNKNOWN
@@ -89,8 +89,8 @@ class CheckmarkPanelView(
                 else -> ""
             }
             button.color = color
-            button.onToggle = { value, notes -> onToggle(timestamp, value, notes) }
-            button.onEdit = { onEdit(timestamp) }
+            button.onToggle = { value, notes -> onToggle(date, value, notes) }
+            button.onEdit = { onEdit(date) }
         }
     }
 }

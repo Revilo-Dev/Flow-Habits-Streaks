@@ -23,10 +23,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.Component
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.ui.widgets.WidgetBehavior
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.inject.HabitsApplicationComponent
 import org.isoron.uhabits.receivers.ReceiverScope
 
@@ -51,15 +51,15 @@ class FireSettingReceiver : BroadcastReceiver() {
             .build()
         allHabits = app.component.habitList
         val args = SettingUtils.parseIntent(intent, allHabits) ?: return
-        val timestamp = DateUtils.getTodayWithOffset()
+        val today = getToday()
         val controller = component.widgetController
 
         when (args.action) {
-            ACTION_CHECK -> controller.onAddRepetition(args.habit, timestamp)
-            ACTION_UNCHECK -> controller.onRemoveRepetition(args.habit, timestamp)
-            ACTION_TOGGLE -> controller.onToggleRepetition(args.habit, timestamp)
-            ACTION_INCREMENT -> controller.onIncrement(args.habit, timestamp, 1000)
-            ACTION_DECREMENT -> controller.onDecrement(args.habit, timestamp, 1000)
+            ACTION_CHECK -> controller.onAddRepetition(args.habit, today)
+            ACTION_UNCHECK -> controller.onRemoveRepetition(args.habit, today)
+            ACTION_TOGGLE -> controller.onToggleRepetition(args.habit, today)
+            ACTION_INCREMENT -> controller.onIncrement(args.habit, today, 1000)
+            ACTION_DECREMENT -> controller.onDecrement(args.habit, today, 1000)
         }
     }
 

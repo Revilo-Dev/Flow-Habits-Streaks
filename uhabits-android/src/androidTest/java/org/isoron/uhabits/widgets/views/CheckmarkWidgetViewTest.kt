@@ -20,9 +20,9 @@ package org.isoron.uhabits.widgets.views
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.BaseViewTest
 import org.isoron.uhabits.R
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getTodayWithOffset
 import org.isoron.uhabits.utils.PaletteUtils.getAndroidTestColor
 import org.junit.Before
 import org.junit.Ignore
@@ -43,7 +43,7 @@ class CheckmarkWidgetViewTest : BaseViewTest() {
         val habit = fixtures.createShortHabit()
         val computedEntries = habit.computedEntries
         val scores = habit.scores
-        val today = getTodayWithOffset()
+        val today = getToday()
         val score = scores[today].value
         view = CheckmarkWidgetView(targetContext).apply {
             activeColor = getAndroidTestColor(0)

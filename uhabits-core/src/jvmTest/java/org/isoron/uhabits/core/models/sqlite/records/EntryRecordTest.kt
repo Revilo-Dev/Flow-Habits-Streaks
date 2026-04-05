@@ -20,16 +20,16 @@ package org.isoron.uhabits.core.models.sqlite.records
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
-import org.isoron.uhabits.core.models.Timestamp
 import org.junit.Test
 
 class EntryRecordTest : BaseUnitTest() {
     @Test
     @Throws(Exception::class)
     fun testRecord() {
-        val check = Entry(Timestamp.ZERO.plus(100), 50)
+        val check = Entry(LocalDate(100), 50)
         val record = EntryRecord()
         record.copyFrom(check)
         assertThat(check, equalTo(record.toEntry()))

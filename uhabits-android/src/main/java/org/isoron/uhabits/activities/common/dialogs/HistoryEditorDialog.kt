@@ -24,6 +24,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatDialogFragment
 import org.isoron.platform.gui.AndroidDataView
 import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
@@ -35,7 +36,6 @@ import org.isoron.uhabits.core.ui.screens.habits.show.views.HistoryCardPresenter
 import org.isoron.uhabits.core.ui.views.HistoryChart
 import org.isoron.uhabits.core.ui.views.LightTheme
 import org.isoron.uhabits.core.ui.views.OnDateClickedListener
-import org.isoron.uhabits.core.utils.DateUtils
 import java.util.Locale
 import kotlin.math.min
 
@@ -67,7 +67,7 @@ class HistoryEditorDialog : AppCompatDialogFragment(), CommandRunner.Listener {
             defaultSquare = HistoryChart.Square.OFF,
             notesIndicators = emptyList(),
             theme = themeSwitcher.currentTheme,
-            today = DateUtils.getTodayWithOffset().toLocalDate(),
+            today = getToday(),
             onDateClickedListener = onDateClickedListener ?: object : OnDateClickedListener {},
             padding = 10.0
         )

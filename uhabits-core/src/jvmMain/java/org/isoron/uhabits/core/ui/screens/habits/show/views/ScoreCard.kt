@@ -19,12 +19,14 @@
 
 package org.isoron.uhabits.core.ui.screens.habits.show.views
 
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.TruncateField
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.models.Score
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.views.Theme
-import org.isoron.uhabits.core.utils.DateUtils
 
 data class ScoreCardState(
     val scores: List<Score>,
@@ -40,14 +42,14 @@ class ScoreCardPresenter(
 ) {
     companion object {
         val BUCKET_SIZES = intArrayOf(1, 7, 31, 92, 365)
-        fun getTruncateField(bucketSize: Int): DateUtils.TruncateField {
+        fun getTruncateField(bucketSize: Int): TruncateField {
             return when (bucketSize) {
-                1 -> DateUtils.TruncateField.DAY
-                7 -> DateUtils.TruncateField.WEEK_NUMBER
-                31 -> DateUtils.TruncateField.MONTH
-                92 -> DateUtils.TruncateField.QUARTER
-                365 -> DateUtils.TruncateField.YEAR
-                else -> DateUtils.TruncateField.MONTH
+                1 -> TruncateField.DAY
+                7 -> TruncateField.WEEK_NUMBER
+                31 -> TruncateField.MONTH
+                92 -> TruncateField.QUARTER
+                365 -> TruncateField.YEAR
+                else -> TruncateField.MONTH
             }
         }
 
@@ -58,21 +60,20 @@ class ScoreCardPresenter(
             theme: Theme
         ): ScoreCardState {
             val bucketSize = BUCKET_SIZES[spinnerPosition]
-            val today = DateUtils.getTodayWithOffset()
-            val oldest = habit.computedEntries.getKnown().lastOrNull()?.timestamp ?: today
+            val today = getToday()
+            val oldest = habit.computedEntries.getKnown().lastOrNull()?.date ?: today
 
-            val field = getTruncateField(bucketSize)
-            val scores = habit.scores.getByInterval(oldest, today).groupBy {
-                DateUtils.truncate(field, it.timestamp, firstWeekday)
-            }.map { (timestamp, scores) ->
+            val scores = habit.scores.getByInterval(oldest, today).groupBy { score ->
+                truncateDate(getTruncateField(bucketSize), score.date, firstWeekday)
+            }.map { (date, scores) ->
                 Score(
-                    timestamp,
+                    date,
                     scores.map {
                         it.value
                     }.average()
                 )
             }.sortedBy {
-                it.timestamp
+                it.date
             }.reversed()
 
             return ScoreCardState(
@@ -82,6 +83,23 @@ class ScoreCardPresenter(
                 spinnerPosition = spinnerPosition,
                 theme = theme
             )
+        }
+
+        private fun truncateDate(
+            field: TruncateField,
+            date: LocalDate,
+            firstWeekday: Int
+        ): LocalDate {
+            // firstWeekday: 1=Sunday, 2=Monday, ..., 7=Saturday
+            // DayOfWeek enum: SUNDAY(0), MONDAY(1), ..., SATURDAY(6)
+            val firstWeekdayDow = org.isoron.platform.time.DayOfWeek.entries[firstWeekday - 1]
+            return when (field) {
+                TruncateField.WEEK_NUMBER -> date.startOfWeek(firstWeekdayDow)
+                TruncateField.MONTH -> date.startOfMonth()
+                TruncateField.QUARTER -> date.startOfQuarter()
+                TruncateField.YEAR -> date.startOfYear()
+                else -> date
+            }
         }
     }
 

@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.database.Cursor
 import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.DatabaseOpener
@@ -26,8 +27,6 @@ import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.core.utils.isSQLite3File
 import java.io.File
 import javax.inject.Inject
@@ -79,9 +78,7 @@ class TickmateDBImporter @Inject constructor(
                 val year = c.getInt(0)!!
                 val month = c.getInt(1)!!
                 val day = c.getInt(2)!!
-                val cal = DateUtils.getStartOfTodayCalendar()
-                cal[year, month] = day
-                habit.originalEntries.add(Entry(Timestamp(cal), Entry.YES_MANUAL))
+                habit.originalEntries.add(Entry(LocalDate(year, month + 1, day), Entry.YES_MANUAL))
             } while (c.moveToNext())
         } finally {
             c?.close()

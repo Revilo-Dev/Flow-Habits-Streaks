@@ -32,10 +32,10 @@ import androidx.core.app.NotificationCompat.Action
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.WearableExtender
 import androidx.core.app.NotificationManagerCompat
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.inject.AppContext
@@ -65,11 +65,11 @@ class AndroidNotificationTray
     override fun showNotification(
         habit: Habit,
         notificationId: Int,
-        timestamp: Timestamp,
+        date: LocalDate,
         reminderTime: Long
     ) {
         val notificationManager = NotificationManagerCompat.from(context)
-        val notification = buildNotification(habit, reminderTime, timestamp)
+        val notification = buildNotification(habit, reminderTime, date)
         createAndroidNotificationChannel(context)
         try {
             notificationManager.notify(notificationId, notification)
@@ -82,7 +82,7 @@ class AndroidNotificationTray
             val n = buildNotification(
                 habit,
                 reminderTime,
-                timestamp,
+                date,
                 disableSound = true
             )
             notificationManager.notify(notificationId, n)
@@ -93,25 +93,25 @@ class AndroidNotificationTray
     fun buildNotification(
         habit: Habit,
         reminderTime: Long,
-        timestamp: Timestamp,
+        date: LocalDate,
         disableSound: Boolean = false
     ): Notification {
         val addRepetitionAction = Action(
             R.drawable.ic_action_check,
             context.getString(R.string.yes),
-            pendingIntents.addCheckmark(habit, timestamp)
+            pendingIntents.addCheckmark(habit, date)
         )
 
         val removeRepetitionAction = Action(
             R.drawable.ic_action_cancel,
             context.getString(R.string.no),
-            pendingIntents.removeRepetition(habit, timestamp)
+            pendingIntents.removeRepetition(habit, date)
         )
 
         val enterAction = Action(
             R.drawable.ic_action_check,
             context.getString(R.string.enter),
-            pendingIntents.showNumberPicker(habit, timestamp)
+            pendingIntents.showNumberPicker(habit, date)
         )
 
         val wearableBg = decodeResource(context.resources, R.drawable.stripe)

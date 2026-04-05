@@ -20,14 +20,15 @@ package org.isoron.uhabits.core.models
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 import org.junit.Test
 
 class StreakListTest : BaseUnitTest() {
     private lateinit var habit: Habit
     private lateinit var streaks: StreakList
-    private lateinit var today: Timestamp
+    private lateinit var today: LocalDate
 
     @Throws(Exception::class)
     override fun setUp() {

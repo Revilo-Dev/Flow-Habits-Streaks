@@ -35,13 +35,13 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import org.isoron.platform.gui.toInt
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.RingView
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.ModelObservable
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dp
@@ -153,13 +153,13 @@ class HabitCardView(
         }
 
         checkmarkPanel = checkmarkPanelFactory.create().apply {
-            onToggle = { timestamp, value, notes ->
-                triggerRipple(timestamp)
-                val location = getAbsoluteButtonLocation(timestamp)
+            onToggle = { date, value, notes ->
+                triggerRipple(date)
+                val location = getAbsoluteButtonLocation(date)
                 habit?.let {
                     behavior.onToggle(
                         it,
-                        timestamp,
+                        date,
                         value,
                         notes,
                         location.x,
@@ -167,19 +167,19 @@ class HabitCardView(
                     )
                 }
             }
-            onEdit = { timestamp ->
-                triggerRipple(timestamp)
-                val location = getAbsoluteButtonLocation(timestamp)
-                habit?.let { behavior.onEdit(it, timestamp, location.x, location.y) }
+            onEdit = { date ->
+                triggerRipple(date)
+                val location = getAbsoluteButtonLocation(date)
+                habit?.let { behavior.onEdit(it, date, location.x, location.y) }
             }
         }
 
         numberPanel = numberPanelFactory.create().apply {
             visibility = GONE
-            onEdit = { timestamp ->
-                triggerRipple(timestamp)
-                val location = getAbsoluteButtonLocation(timestamp)
-                habit?.let { behavior.onEdit(it, timestamp, location.x, location.y) }
+            onEdit = { date ->
+                triggerRipple(date)
+                val location = getAbsoluteButtonLocation(date)
+                habit?.let { behavior.onEdit(it, date, location.x, location.y) }
             }
         }
 
@@ -218,14 +218,14 @@ class HabitCardView(
         updateBackground(isSelected)
     }
 
-    fun triggerRipple(timestamp: Timestamp) {
-        val location = getRelativeButtonLocation(timestamp)
+    fun triggerRipple(date: LocalDate) {
+        val location = getRelativeButtonLocation(date)
         triggerRipple(location.x, location.y)
     }
 
-    private fun getRelativeButtonLocation(timestamp: Timestamp): PointF {
-        val today = DateUtils.getTodayWithOffset()
-        val offset = timestamp.daysUntil(today) - dataOffset
+    private fun getRelativeButtonLocation(date: LocalDate): PointF {
+        val today = getToday()
+        val offset = date.daysUntil(today) - dataOffset
         val panel = when (habit!!.isNumerical) {
             true -> numberPanel
             false -> checkmarkPanel
@@ -236,10 +236,10 @@ class HabitCardView(
         return PointF(x, y)
     }
 
-    private fun getAbsoluteButtonLocation(timestamp: Timestamp): PointF {
+    private fun getAbsoluteButtonLocation(date: LocalDate): PointF {
         val containerLocation = IntArray(2)
         this.getLocationInWindow(containerLocation)
-        val relButtonLocation = getRelativeButtonLocation(timestamp)
+        val relButtonLocation = getRelativeButtonLocation(date)
         val windowInsets = rootWindowInsets
         val xInset = windowInsets?.displayCutout?.safeInsetLeft ?: 0
         val yInset = if (SDK_INT <= Build.VERSION_CODES.VANILLA_ICE_CREAM) {

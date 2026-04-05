@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.Command
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -25,7 +26,6 @@ import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.commands.DeleteHabitsCommand
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.NumericalHabitType
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
@@ -63,8 +63,8 @@ class NotificationTray @Inject constructor(
         reshowAll()
     }
 
-    fun show(habit: Habit, timestamp: Timestamp, reminderTime: Long) {
-        val data = NotificationData(timestamp, reminderTime)
+    fun show(habit: Habit, date: LocalDate, reminderTime: Long) {
+        val data = NotificationData(date, reminderTime)
         active[habit] = data
         taskRunner.execute(ShowNotificationTask(habit, data))
     }
@@ -101,18 +101,18 @@ class NotificationTray @Inject constructor(
         fun showNotification(
             habit: Habit,
             notificationId: Int,
-            timestamp: Timestamp,
+            date: LocalDate,
             reminderTime: Long
         )
 
         fun log(msg: String)
     }
 
-    internal class NotificationData(val timestamp: Timestamp, val reminderTime: Long)
+    internal class NotificationData(val date: LocalDate, val reminderTime: Long)
     private inner class ShowNotificationTask(private val habit: Habit, data: NotificationData) :
         Task {
         var isCompleted = false
-        private val timestamp: Timestamp = data.timestamp
+        private val date: LocalDate = data.date
         private val reminderTime: Long = data.reminderTime
 
         override fun doInBackground() {
@@ -164,7 +164,7 @@ class NotificationTray @Inject constructor(
             systemTray.showNotification(
                 habit,
                 getNotificationId(habit),
-                timestamp,
+                date,
                 reminderTime
             )
         }
@@ -173,7 +173,7 @@ class NotificationTray @Inject constructor(
             if (!habit.hasReminder()) return false
             val reminder = habit.reminder
             val reminderDays = Objects.requireNonNull(reminder)!!.days.toArray()
-            val weekday = timestamp.weekday
+            val weekday = (date.dayOfWeek.daysSinceSunday + 1) % 7
             return reminderDays[weekday]
         }
     }

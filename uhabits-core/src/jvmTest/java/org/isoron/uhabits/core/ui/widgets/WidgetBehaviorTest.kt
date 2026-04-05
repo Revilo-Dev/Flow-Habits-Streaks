@@ -18,15 +18,15 @@
  */
 package org.isoron.uhabits.core.ui.widgets
 
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.nextToggleValue
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getTodayWithOffset
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
@@ -40,7 +40,7 @@ class WidgetBehaviorTest : BaseUnitTest() {
     private lateinit var preferences: Preferences
     private lateinit var behavior: WidgetBehavior
     private lateinit var habit: Habit
-    private lateinit var today: Timestamp
+    private lateinit var today: LocalDate
 
     @Before
     @Throws(Exception::class)
@@ -51,7 +51,7 @@ class WidgetBehaviorTest : BaseUnitTest() {
         notificationTray = mock()
         preferences = mock()
         behavior = WidgetBehavior(habitList, commandRunner, notificationTray, preferences)
-        today = getTodayWithOffset()
+        today = getToday()
     }
 
     @Test

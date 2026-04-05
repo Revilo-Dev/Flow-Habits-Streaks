@@ -21,13 +21,13 @@ package org.isoron.uhabits.core.models
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.TruncateField
 import org.isoron.uhabits.core.models.Entry.Companion.NO
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
-import org.isoron.uhabits.core.utils.DateUtils
 import org.junit.Test
-import java.util.Calendar
 import java.util.Random
 import kotlin.test.assertEquals
 
@@ -35,7 +35,7 @@ class EntryListTest {
     @Test
     fun testEmptyList() {
         val entries = EntryList()
-        val today = DateUtils.getToday()
+        val today = LocalDate(2015, 1, 25)
 
         assertEquals(Entry(today.minus(0), UNKNOWN), entries.get(today.minus(0)))
         assertEquals(Entry(today.minus(2), UNKNOWN), entries.get(today.minus(2)))
@@ -67,7 +67,7 @@ class EntryListTest {
 
     @Test
     fun testComputeBoolean() {
-        val today = DateUtils.getToday()
+        val today = LocalDate(2015, 1, 25)
 
         val original = EntryList()
         original.add(Entry(today.minus(4), YES_MANUAL))
@@ -97,7 +97,7 @@ class EntryListTest {
 
     @Test
     fun testComputeNumerical() {
-        val today = DateUtils.getToday()
+        val today = LocalDate(2015, 1, 25)
 
         val original = EntryList()
         original.add(Entry(today.minus(4), 100))
@@ -136,37 +136,37 @@ class EntryListTest {
             370, 187, 208, 231, 341, 312
         )
 
-        val reference = Timestamp.from(2014, Calendar.JUNE, 1)
+        val reference = LocalDate(2014, 6, 1)
         val entries = EntryList()
         offsets.indices.forEach {
             entries.add(Entry(reference.minus(offsets[it]), values[it]))
         }
 
         val byMonth = entries.getKnown().groupedSum(
-            truncateField = DateUtils.TruncateField.MONTH,
+            truncateField = TruncateField.MONTH,
             isNumerical = true
         )
         assertThat(byMonth.size, equalTo(17))
-        assertThat(byMonth[0], equalTo(Entry(Timestamp.from(2014, Calendar.JUNE, 1), 230)))
-        assertThat(byMonth[6], equalTo(Entry(Timestamp.from(2013, Calendar.DECEMBER, 1), 1988)))
-        assertThat(byMonth[12], equalTo(Entry(Timestamp.from(2013, Calendar.MAY, 1), 1271)))
+        assertThat(byMonth[0], equalTo(Entry(LocalDate(2014, 6, 1), 230)))
+        assertThat(byMonth[6], equalTo(Entry(LocalDate(2013, 12, 1), 1988)))
+        assertThat(byMonth[12], equalTo(Entry(LocalDate(2013, 5, 1), 1271)))
 
         val byQuarter = entries.getKnown().groupedSum(
-            truncateField = DateUtils.TruncateField.QUARTER,
+            truncateField = TruncateField.QUARTER,
             isNumerical = true
         )
         assertThat(byQuarter.size, equalTo(6))
-        assertThat(byQuarter[0], equalTo(Entry(Timestamp.from(2014, Calendar.APRIL, 1), 3263)))
-        assertThat(byQuarter[3], equalTo(Entry(Timestamp.from(2013, Calendar.JULY, 1), 3838)))
-        assertThat(byQuarter[5], equalTo(Entry(Timestamp.from(2013, Calendar.JANUARY, 1), 4975)))
+        assertThat(byQuarter[0], equalTo(Entry(LocalDate(2014, 4, 1), 3263)))
+        assertThat(byQuarter[3], equalTo(Entry(LocalDate(2013, 7, 1), 3838)))
+        assertThat(byQuarter[5], equalTo(Entry(LocalDate(2013, 1, 1), 4975)))
 
         val byYear = entries.getKnown().groupedSum(
-            truncateField = DateUtils.TruncateField.YEAR,
+            truncateField = TruncateField.YEAR,
             isNumerical = true
         )
         assertThat(byYear.size, equalTo(2))
-        assertThat(byYear[0], equalTo(Entry(Timestamp.from(2014, Calendar.JANUARY, 1), 8227)))
-        assertThat(byYear[1], equalTo(Entry(Timestamp.from(2013, Calendar.JANUARY, 1), 16172)))
+        assertThat(byYear[0], equalTo(Entry(LocalDate(2014, 1, 1), 8227)))
+        assertThat(byYear[1], equalTo(Entry(LocalDate(2013, 1, 1), 16172)))
     }
 
     @Test
@@ -180,37 +180,37 @@ class EntryListTest {
             455, 460, 462, 465, 470, 471, 479, 481, 485, 489, 494, 495, 500, 501, 503, 507
         )
 
-        val reference = Timestamp.from(2014, Calendar.JUNE, 1)
+        val reference = LocalDate(2014, 6, 1)
         val entries = EntryList()
         offsets.indices.forEach {
             entries.add(Entry(reference.minus(offsets[it]), YES_MANUAL))
         }
 
         val byMonth = entries.getKnown().groupedSum(
-            truncateField = DateUtils.TruncateField.MONTH,
+            truncateField = TruncateField.MONTH,
             isNumerical = false
         )
         assertThat(byMonth.size, equalTo(17))
-        assertThat(byMonth[0], equalTo(Entry(Timestamp.from(2014, Calendar.JUNE, 1), 1_000)))
-        assertThat(byMonth[6], equalTo(Entry(Timestamp.from(2013, Calendar.DECEMBER, 1), 7_000)))
-        assertThat(byMonth[12], equalTo(Entry(Timestamp.from(2013, Calendar.MAY, 1), 6_000)))
+        assertThat(byMonth[0], equalTo(Entry(LocalDate(2014, 6, 1), 1_000)))
+        assertThat(byMonth[6], equalTo(Entry(LocalDate(2013, 12, 1), 7_000)))
+        assertThat(byMonth[12], equalTo(Entry(LocalDate(2013, 5, 1), 6_000)))
 
         val byQuarter = entries.getKnown().groupedSum(
-            truncateField = DateUtils.TruncateField.QUARTER,
+            truncateField = TruncateField.QUARTER,
             isNumerical = false
         )
         assertThat(byQuarter.size, equalTo(6))
-        assertThat(byQuarter[0], equalTo(Entry(Timestamp.from(2014, Calendar.APRIL, 1), 15_000)))
-        assertThat(byQuarter[3], equalTo(Entry(Timestamp.from(2013, Calendar.JULY, 1), 17_000)))
-        assertThat(byQuarter[5], equalTo(Entry(Timestamp.from(2013, Calendar.JANUARY, 1), 20_000)))
+        assertThat(byQuarter[0], equalTo(Entry(LocalDate(2014, 4, 1), 15_000)))
+        assertThat(byQuarter[3], equalTo(Entry(LocalDate(2013, 7, 1), 17_000)))
+        assertThat(byQuarter[5], equalTo(Entry(LocalDate(2013, 1, 1), 20_000)))
 
         val byYear = entries.getKnown().groupedSum(
-            truncateField = DateUtils.TruncateField.YEAR,
+            truncateField = TruncateField.YEAR,
             isNumerical = false
         )
         assertThat(byYear.size, equalTo(2))
-        assertThat(byYear[0], equalTo(Entry(Timestamp.from(2014, Calendar.JANUARY, 1), 34_000)))
-        assertThat(byYear[1], equalTo(Entry(Timestamp.from(2013, Calendar.JANUARY, 1), 66_000)))
+        assertThat(byYear[0], equalTo(Entry(LocalDate(2014, 1, 1), 34_000)))
+        assertThat(byYear[1], equalTo(Entry(LocalDate(2013, 1, 1), 66_000)))
     }
 
     @Test
@@ -348,31 +348,33 @@ class EntryListTest {
         val random = Random(123L)
         val weekdayCount = Array(12) { Array(7) { 0 } }
         val monthCount = Array(12) { 0 }
-        val day = DateUtils.getStartOfTodayCalendar()
 
         // Add repetitions randomly from January to December
-        day.set(2015, Calendar.JANUARY, 1, 0, 0, 0)
+        var day = LocalDate(2015, 1, 1)
         for (i in 0..364) {
             if (random.nextBoolean()) {
-                val month = day[Calendar.MONTH]
-                val week = day[Calendar.DAY_OF_WEEK] % 7
+                val month = day.month - 1
+                val weekday = (day.dayOfWeek.daysSinceSunday + 1) % 7
 
                 // Leave the month of March empty, to check that it returns null
-                if (month == Calendar.MARCH) continue
+                if (month == 2) {
+                    day = day.plus(1)
+                    continue
+                }
 
-                entries.add(Entry(Timestamp(day), YES_MANUAL))
-                weekdayCount[month][week]++
+                entries.add(Entry(day, YES_MANUAL))
+                weekdayCount[month][weekday]++
                 monthCount[month]++
             }
-            day.add(Calendar.DAY_OF_YEAR, 1)
+            day = day.plus(1)
         }
 
         val freq = entries.computeWeekdayFrequency(isNumerical = false)
 
         // Repetitions should be counted correctly
         for (month in 0..11) {
-            day.set(2015, month, 1, 0, 0, 0)
-            val actualCount = freq[Timestamp(day)]
+            val monthStart = LocalDate(2015, month + 1, 1)
+            val actualCount = freq[monthStart]
             if (monthCount[month] == 0) {
                 assertThat(actualCount, equalTo(null))
             } else {
@@ -381,5 +383,5 @@ class EntryListTest {
         }
     }
 
-    fun day(offset: Int) = DateUtils.getToday().minus(offset)
+    fun day(offset: Int): LocalDate = LocalDate(2015, 1, 25).minus(offset)
 }

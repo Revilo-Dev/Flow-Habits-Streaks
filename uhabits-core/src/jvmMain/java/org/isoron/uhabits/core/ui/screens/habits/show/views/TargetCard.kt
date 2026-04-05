@@ -19,14 +19,14 @@
 
 package org.isoron.uhabits.core.ui.screens.habits.show.views
 
+import org.isoron.platform.time.TruncateField
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.models.countSkippedDays
 import org.isoron.uhabits.core.models.groupedSum
 import org.isoron.uhabits.core.ui.views.Theme
-import org.isoron.uhabits.core.utils.DateUtils
 import java.util.ArrayList
-import java.util.Calendar
 import kotlin.math.max
 
 data class TargetCardState(
@@ -44,62 +44,61 @@ class TargetCardPresenter {
             firstWeekday: Int,
             theme: Theme
         ): TargetCardState {
-            val today = DateUtils.getTodayWithOffset()
-            val oldest = habit.computedEntries.getKnown().lastOrNull()?.timestamp ?: today
+            val today = getToday()
+            val oldest = habit.computedEntries.getKnown().lastOrNull()?.date ?: today
             val entries = habit.computedEntries.getByInterval(oldest, today)
 
             val valueToday = entries.groupedSum(
-                truncateField = DateUtils.TruncateField.DAY,
+                truncateField = TruncateField.DAY,
                 isNumerical = habit.isNumerical
             ).firstOrNull()?.value ?: 0
 
             val skippedDayToday = entries.countSkippedDays(
-                truncateField = DateUtils.TruncateField.DAY
+                truncateField = TruncateField.DAY
             ).firstOrNull()?.value ?: 0
 
             val valueThisWeek = entries.groupedSum(
-                truncateField = DateUtils.TruncateField.WEEK_NUMBER,
+                truncateField = TruncateField.WEEK_NUMBER,
                 firstWeekday = firstWeekday,
                 isNumerical = habit.isNumerical
             ).firstOrNull()?.value ?: 0
 
             val skippedDaysThisWeek = entries.countSkippedDays(
-                truncateField = DateUtils.TruncateField.WEEK_NUMBER,
+                truncateField = TruncateField.WEEK_NUMBER,
                 firstWeekday = firstWeekday
             ).firstOrNull()?.value ?: 0
 
             val valueThisMonth = entries.groupedSum(
-                truncateField = DateUtils.TruncateField.MONTH,
+                truncateField = TruncateField.MONTH,
                 isNumerical = habit.isNumerical
             ).firstOrNull()?.value ?: 0
 
             val skippedDaysThisMonth = entries.countSkippedDays(
-                truncateField = DateUtils.TruncateField.MONTH
+                truncateField = TruncateField.MONTH
             ).firstOrNull()?.value ?: 0
 
             val valueThisQuarter = entries.groupedSum(
-                truncateField = DateUtils.TruncateField.QUARTER,
+                truncateField = TruncateField.QUARTER,
                 isNumerical = habit.isNumerical
             ).firstOrNull()?.value ?: 0
 
             val skippedDaysThisQuarter = entries.countSkippedDays(
-                truncateField = DateUtils.TruncateField.QUARTER
+                truncateField = TruncateField.QUARTER
             ).firstOrNull()?.value ?: 0
 
             val valueThisYear = entries.groupedSum(
-                truncateField = DateUtils.TruncateField.YEAR,
+                truncateField = TruncateField.YEAR,
                 isNumerical = habit.isNumerical
             ).firstOrNull()?.value ?: 0
 
             val skippedDaysThisYear = entries.countSkippedDays(
-                truncateField = DateUtils.TruncateField.YEAR
+                truncateField = TruncateField.YEAR
             ).firstOrNull()?.value ?: 0
 
-            val cal = DateUtils.getStartOfTodayCalendarWithOffset()
-            val daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
+            val daysInMonth = today.monthLength
             val daysInWeek = 7
             val daysInQuarter = 91
-            val daysInYear = cal.getActualMaximum(Calendar.DAY_OF_YEAR)
+            val daysInYear = today.yearLength
             val weeksInMonth = daysInMonth / 7
             val weeksInQuarter = 13
             val weeksInYear = 52

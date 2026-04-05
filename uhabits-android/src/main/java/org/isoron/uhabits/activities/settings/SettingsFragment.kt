@@ -36,6 +36,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.recyclerview.widget.RecyclerView
+import org.isoron.platform.time.DayOfWeek
+import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.habits.list.RESULT_BUG_REPORT
@@ -45,14 +47,13 @@ import org.isoron.uhabits.activities.habits.list.RESULT_IMPORT_DATA
 import org.isoron.uhabits.activities.habits.list.RESULT_REPAIR_DB
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getLongWeekdayNames
 import org.isoron.uhabits.notifications.AndroidNotificationTray.Companion.createAndroidNotificationChannel
 import org.isoron.uhabits.notifications.RingtoneManager
 import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyBottomInset
 import org.isoron.uhabits.utils.startActivitySafely
 import org.isoron.uhabits.widgets.WidgetUpdater
-import java.util.Calendar
+import java.util.Locale
 
 class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
     private var sharedPrefs: SharedPreferences? = null
@@ -114,7 +115,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     override fun onCreateRecyclerView(
         inflater: LayoutInflater?,
         parent: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): RecyclerView? {
         return super.onCreateRecyclerView(inflater, parent, savedInstanceState)
             .also { it.applyBottomInset() }
@@ -172,7 +173,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     private fun updateWeekdayPreference() {
         val weekdayPref = findPreference("pref_first_weekday") as ListPreference
         val currentFirstWeekday = prefs.firstWeekday.daysSinceSunday + 1
-        val dayNames = getLongWeekdayNames(Calendar.SATURDAY)
+        val dayNames = JavaLocalDateFormatter(Locale.getDefault()).longWeekdayNames(DayOfWeek.SATURDAY)
         val dayValues = arrayOf("7", "1", "2", "3", "4", "5", "6")
         weekdayPref.entries = dayNames
         weekdayPref.entryValues = dayValues

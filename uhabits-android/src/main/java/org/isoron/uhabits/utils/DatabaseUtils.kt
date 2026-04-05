@@ -27,7 +27,6 @@ import org.isoron.uhabits.HabitsDatabaseOpener
 import org.isoron.uhabits.core.DATABASE_FILENAME
 import org.isoron.uhabits.core.DATABASE_VERSION
 import org.isoron.uhabits.core.utils.DateFormats.Companion.getBackupDateFormat
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getLocalTime
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -62,7 +61,7 @@ object DatabaseUtils {
     @Throws(IOException::class)
     fun saveDatabaseCopy(context: Context, dir: File): String {
         val dateFormat: SimpleDateFormat = getBackupDateFormat()
-        val date = dateFormat.format(getLocalTime())
+        val date = dateFormat.format(System.currentTimeMillis())
         val filename = "${dir.absolutePath}/Loop Habits Backup $date.db"
         Log.i("DatabaseUtils", "Writing: $filename")
         val db = getDatabaseFile(context)
@@ -75,7 +74,7 @@ object DatabaseUtils {
     @Throws(IOException::class)
     fun saveDatabaseCopy(context: Context, dir: DocumentFile): String {
         val dateFormat: SimpleDateFormat = getBackupDateFormat()
-        val date = dateFormat.format(getLocalTime())
+        val date = dateFormat.format(System.currentTimeMillis())
         val file = dir.createFile("application/octet-stream", "Loop Habits Backup $date.db")
             ?: throw IOException("Unable to create backup file")
         Log.i("DatabaseUtils", "Writing: ${file.uri}")

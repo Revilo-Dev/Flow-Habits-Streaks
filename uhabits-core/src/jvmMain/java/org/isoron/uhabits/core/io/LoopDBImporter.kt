@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.DATABASE_VERSION
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -29,7 +30,6 @@ import org.isoron.uhabits.core.database.Repository
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
 import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
 import org.isoron.uhabits.core.utils.isSQLite3File
@@ -98,10 +98,10 @@ class LoopDBImporter
 
             // Import entries
             for (r in entryRecords) {
-                val t = Timestamp(r.timestamp!!)
-                val (_, value, notes) = entries.get(t)
+                val date = LocalDate.fromUnixTime(r.timestamp!!)
+                val (_, value, notes) = entries.get(date)
                 if (value != r.value || notes != r.notes) {
-                    entries.add(Entry(t, r.value!!, r.notes ?: ""))
+                    entries.add(Entry(date, r.value!!, r.notes ?: ""))
                 }
             }
             habit.recompute()

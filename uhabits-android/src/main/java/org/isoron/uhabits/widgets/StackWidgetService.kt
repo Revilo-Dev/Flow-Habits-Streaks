@@ -27,13 +27,13 @@ import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import android.widget.RemoteViewsService.RemoteViewsFactory
+import org.isoron.platform.time.getToday
 import org.isoron.platform.utils.StringUtils.Companion.splitLongs
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitNotFoundException
 import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getTodayWithOffset
 import org.isoron.uhabits.intents.IntentFactory
 import org.isoron.uhabits.intents.PendingIntentFactory
 import org.isoron.uhabits.utils.InterfaceUtils.dpToPixels
@@ -101,7 +101,8 @@ internal class StackRemoteViewsFactory(private val context: Context, intent: Int
         val landscapeViews = widget.landscapeRemoteViews
         val portraitViews = widget.portraitRemoteViews
         val factory = PendingIntentFactory(context, IntentFactory())
-        val intent = StackWidgetType.getIntentFillIn(factory, widgetType, h, habits, getTodayWithOffset())
+        val today = getToday()
+        val intent = StackWidgetType.getIntentFillIn(factory, widgetType, h, habits, today)
         landscapeViews.setOnClickFillInIntent(R.id.button, intent)
         portraitViews.setOnClickFillInIntent(R.id.button, intent)
         val remoteViews = RemoteViews(landscapeViews, portraitViews)
@@ -119,7 +120,7 @@ internal class StackRemoteViewsFactory(private val context: Context, intent: Int
                 context,
                 widgetId,
                 habit,
-                prefs.firstWeekdayInt,
+                prefs.firstWeekday,
                 true
             )
             StackWidgetType.SCORE -> ScoreWidget(context, widgetId, habit, true)

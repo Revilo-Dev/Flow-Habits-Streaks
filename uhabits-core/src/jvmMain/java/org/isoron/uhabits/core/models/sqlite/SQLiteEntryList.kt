@@ -19,12 +19,12 @@
 
 package org.isoron.uhabits.core.models.sqlite
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.Repository
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.Frequency
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
 
 class SQLiteEntryList(database: Database) : EntryList() {
@@ -43,12 +43,12 @@ class SQLiteEntryList(database: Database) : EntryList() {
         isLoaded = true
     }
 
-    override fun get(timestamp: Timestamp): Entry {
+    override fun get(date: LocalDate): Entry {
         loadRecords()
-        return super.get(timestamp)
+        return super.get(date)
     }
 
-    override fun getByInterval(from: Timestamp, to: Timestamp): List<Entry> {
+    override fun getByInterval(from: LocalDate, to: LocalDate): List<Entry> {
         loadRecords()
         return super.getByInterval(from, to)
     }
@@ -61,7 +61,7 @@ class SQLiteEntryList(database: Database) : EntryList() {
         repository.execSQL(
             "delete from repetitions where habit = ? and timestamp = ?",
             habitId.toString(),
-            entry.timestamp.unixTime.toString()
+            entry.date.unixTime.toString()
         )
 
         // Add new row

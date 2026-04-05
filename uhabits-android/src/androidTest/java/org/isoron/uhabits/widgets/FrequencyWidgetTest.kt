@@ -21,12 +21,12 @@ package org.isoron.uhabits.widgets
 import android.widget.FrameLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import org.isoron.platform.time.DayOfWeek
 import org.isoron.uhabits.BaseViewTest
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Habit
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Calendar
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -38,7 +38,7 @@ class FrequencyWidgetTest : BaseViewTest() {
         setTheme(R.style.WidgetTheme)
         prefs.widgetOpacity = 255
         habit = fixtures.createVeryLongHabit()
-        val widget = FrequencyWidget(targetContext, 0, habit, Calendar.SUNDAY)
+        val widget = FrequencyWidget(targetContext, 0, habit, DayOfWeek.SUNDAY)
         view = convertToView(widget, 400, 400)
     }
 

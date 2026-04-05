@@ -23,19 +23,15 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import org.isoron.platform.time.DayOfWeek
+import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.countWeekdayOccurrencesInMonth
+import org.isoron.platform.time.getToday
+import org.isoron.platform.time.getWeekdaySequence
 import org.isoron.uhabits.R
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getShortWeekdayNames
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfTodayCalendar
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfTodayCalendarWithOffset
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getWeekdaySequence
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getWeekdaysInMonth
 import org.isoron.uhabits.utils.ColorUtils.mixColors
 import org.isoron.uhabits.utils.StyledResources
-import org.isoron.uhabits.utils.toSimpleDataFormat
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.GregorianCalendar
 import java.util.Locale
 import java.util.Random
 import kotlin.collections.HashMap
@@ -46,8 +42,7 @@ import kotlin.math.roundToInt
 class FrequencyChart : ScrollableChart {
     private var pGrid: Paint? = null
     private var em = 0f
-    private var dfMonth: SimpleDateFormat? = null
-    private var dfYear: SimpleDateFormat? = null
+    private var dateFormatter: JavaLocalDateFormatter? = null
     private var pText: Paint? = null
     private var pGraph: Paint? = null
     private var rect: RectF? = null
@@ -62,9 +57,9 @@ class FrequencyChart : ScrollableChart {
     private lateinit var colors: IntArray
     private var primaryColor = 0
     private var isBackgroundTransparent = false
-    private lateinit var frequency: HashMap<Timestamp, Array<Int>>
+    private lateinit var frequency: HashMap<LocalDate, Array<Int>>
     private var maxFreq = 0
-    private var firstWeekday = Calendar.SUNDAY
+    private var firstWeekday: DayOfWeek = DayOfWeek.SUNDAY
     private var isNumerical: Boolean = false
 
     constructor(context: Context?) : super(context) {
@@ -87,18 +82,18 @@ class FrequencyChart : ScrollableChart {
         postInvalidate()
     }
 
-    fun setFrequency(frequency: java.util.HashMap<Timestamp, Array<Int>>) {
+    fun setFrequency(frequency: java.util.HashMap<LocalDate, Array<Int>>) {
         this.frequency = frequency
         maxFreq = getMaxFreq(frequency)
         postInvalidate()
     }
 
-    fun setFirstWeekday(firstWeekday: Int) {
+    fun setFirstWeekday(firstWeekday: DayOfWeek) {
         this.firstWeekday = firstWeekday
         postInvalidate()
     }
 
-    private fun getMaxFreq(frequency: HashMap<Timestamp, Array<Int>>): Int {
+    private fun getMaxFreq(frequency: HashMap<LocalDate, Array<Int>>): Int {
         var maxValue = 1
         for (values in frequency.values) for (value in values) maxValue = max(
             value,
@@ -131,15 +126,14 @@ class FrequencyChart : ScrollableChart {
         pText!!.color = textColor
         pGraph!!.color = primaryColor
         prevRect!!.setEmpty()
-        val currentDate: GregorianCalendar =
-            getStartOfTodayCalendarWithOffset()
-        currentDate[Calendar.DAY_OF_MONTH] = 1
-        currentDate.add(Calendar.MONTH, -nColumns + 2 - dataOffset)
+        val today = getToday()
+        var currentDate = LocalDate(today.year, today.month, 1)
+        currentDate = stepMonth(currentDate, -nColumns + 2 - dataOffset)
         for (i in 0 until nColumns - 1) {
             rect!![0f, 0f, columnWidth] = columnHeight.toFloat()
             rect!!.offset(i * columnWidth, 0f)
             drawColumn(canvas, rect, currentDate)
-            currentDate.add(Calendar.MONTH, 1)
+            currentDate = stepMonth(currentDate, 1)
         }
     }
 
@@ -171,16 +165,16 @@ class FrequencyChart : ScrollableChart {
         internalPaddingTop = 0
     }
 
-    private fun drawColumn(canvas: Canvas, rect: RectF?, date: GregorianCalendar) {
-        val values = frequency[Timestamp(date)]
-        val weekDaysInMonth = getWeekdaysInMonth(Timestamp(date))
+    private fun drawColumn(canvas: Canvas, rect: RectF?, date: LocalDate) {
+        val values = frequency[date]
+        val weekDaysInMonth = countWeekdayOccurrencesInMonth(date)
         val rowHeight = rect!!.height() / 8.0f
         prevRect!!.set(rect)
-        val localeWeekdayList: Array<Int> = getWeekdaySequence(firstWeekday)
+        val localeWeekdayList = getWeekdaySequence(firstWeekday)
         for (j in localeWeekdayList.indices) {
             rect[0f, 0f, baseSize.toFloat()] = baseSize.toFloat()
             rect.offset(prevRect!!.left, prevRect!!.top + baseSize * j)
-            val i = localeWeekdayList[j] % 7
+            val i = (localeWeekdayList[j].daysSinceSunday + 1) % 7
             if (values != null) {
                 drawMarker(canvas, rect, values[i], weekDaysInMonth[i])
             }
@@ -189,17 +183,17 @@ class FrequencyChart : ScrollableChart {
         drawFooter(canvas, rect, date)
     }
 
-    private fun drawFooter(canvas: Canvas, rect: RectF?, date: GregorianCalendar) {
-        val time = date.time
+    private fun drawFooter(canvas: Canvas, rect: RectF?, date: LocalDate) {
+        val df = dateFormatter ?: return
         canvas.drawText(
-            dfMonth!!.format(time),
+            df.shortMonthName(date),
             rect!!.centerX(),
             rect.centerY() - 0.1f * em,
             pText!!
         )
-        if (date[Calendar.MONTH] == 1) {
+        if (date.month == 2) {
             canvas.drawText(
-                dfYear!!.format(time),
+                date.year.toString(),
                 rect.centerX(),
                 rect.centerY() + 0.9f * em,
                 pText!!
@@ -213,7 +207,8 @@ class FrequencyChart : ScrollableChart {
         pText!!.textAlign = Paint.Align.LEFT
         pText!!.color = textColor
         pGrid!!.color = gridColor
-        for (day in getShortWeekdayNames(firstWeekday)) {
+        val df = dateFormatter ?: return
+        for (day in df.shortWeekdayNames(firstWeekday)) {
             canvas.drawText(
                 day,
                 rGrid.right - columnWidth,
@@ -251,12 +246,11 @@ class FrequencyChart : ScrollableChart {
 
     private val maxMonthWidth: Float
         get() {
+            val df = dateFormatter ?: return 0f
             var maxMonthWidth = 0f
-            val day: GregorianCalendar =
-                getStartOfTodayCalendarWithOffset()
-            for (i in 0..11) {
-                day[Calendar.MONTH] = i
-                val monthWidth = pText!!.measureText(dfMonth!!.format(day.time))
+            for (i in 1..12) {
+                val date = LocalDate(2020, i, 1)
+                val monthWidth = pText!!.measureText(df.shortMonthName(date))
                 maxMonthWidth = max(maxMonthWidth, monthWidth)
             }
             return maxMonthWidth
@@ -281,13 +275,7 @@ class FrequencyChart : ScrollableChart {
     }
 
     private fun initDateFormats() {
-        if (isInEditMode) {
-            dfMonth = SimpleDateFormat("MMM", Locale.getDefault())
-            dfYear = SimpleDateFormat("yyyy", Locale.getDefault())
-        } else {
-            dfMonth = "MMM".toSimpleDataFormat()
-            dfYear = "yyyy".toSimpleDataFormat()
-        }
+        dateFormatter = JavaLocalDateFormatter(Locale.getDefault())
     }
 
     private fun initRects() {
@@ -295,15 +283,23 @@ class FrequencyChart : ScrollableChart {
         prevRect = RectF()
     }
 
+    private fun stepMonth(date: LocalDate, months: Int): LocalDate {
+        var y = date.year
+        var m = date.month + months
+        while (m < 1) { m += 12; y -= 1 }
+        while (m > 12) { m -= 12; y += 1 }
+        return LocalDate(y, m, 1)
+    }
+
     fun populateWithRandomData() {
-        val date: GregorianCalendar = getStartOfTodayCalendar()
-        date[Calendar.DAY_OF_MONTH] = 1
+        val today = getToday()
+        var date = LocalDate(today.year, today.month, 1)
         val rand = Random()
         frequency.clear()
         for (i in 0..39) {
             val values = IntArray(7) { rand.nextInt(5) }.toTypedArray()
-            frequency[Timestamp(date)] = values
-            date.add(Calendar.MONTH, -1)
+            frequency[date] = values
+            date = stepMonth(date, -1)
         }
         maxFreq = getMaxFreq(frequency)
     }

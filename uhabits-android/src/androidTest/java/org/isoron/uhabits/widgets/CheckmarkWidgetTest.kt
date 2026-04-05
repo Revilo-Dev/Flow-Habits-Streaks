@@ -27,13 +27,13 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.BaseViewTest
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getTodayWithOffset
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -43,12 +43,12 @@ class CheckmarkWidgetTest : BaseViewTest() {
     private lateinit var habit: Habit
     private lateinit var entries: EntryList
     private lateinit var view: FrameLayout
-    private lateinit var today: Timestamp
+    private lateinit var today: LocalDate
 
     override fun setUp() {
         super.setUp()
         setTheme(R.style.WidgetTheme)
-        today = getTodayWithOffset()
+        today = getToday()
         prefs.widgetOpacity = 255
         prefs.isSkipEnabled = true
         habit = fixtures.createVeryLongHabit()

@@ -20,14 +20,12 @@ package org.isoron.uhabits.core.io
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitType
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getStartOfTodayCalendar
-import org.isoron.uhabits.core.utils.DateUtils.Companion.setFixedLocalTime
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -40,7 +38,6 @@ class ImportTest : BaseUnitTest() {
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
-        setFixedLocalTime(null)
     }
 
     @Test
@@ -168,17 +165,11 @@ class ImportTest : BaseUnitTest() {
     }
 
     private fun getValue(h: Habit, year: Int, month: Int, day: Int): Int {
-        val date = getStartOfTodayCalendar()
-        date.set(year, month - 1, day)
-        val timestamp = Timestamp(date)
-        return h.originalEntries.get(timestamp).value
+        return h.originalEntries.get(LocalDate(year, month, day)).value
     }
 
     private fun isNotesEqual(h: Habit, year: Int, month: Int, day: Int, notes: String): Boolean {
-        val date = getStartOfTodayCalendar()
-        date.set(year, month - 1, day)
-        val timestamp = Timestamp(date)
-        return h.originalEntries.get(timestamp).notes == notes
+        return h.originalEntries.get(LocalDate(year, month, day)).notes == notes
     }
 
     @Throws(IOException::class)

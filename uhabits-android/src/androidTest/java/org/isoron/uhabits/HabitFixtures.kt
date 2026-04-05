@@ -18,6 +18,8 @@
  */
 package org.isoron.uhabits
 
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
 import org.isoron.uhabits.core.models.Frequency
@@ -28,8 +30,6 @@ import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.NumericalHabitType
 import org.isoron.uhabits.core.models.PaletteColor
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 
 class HabitFixtures(private val modelFactory: ModelFactory, private val habitList: HabitList) {
     var LONG_HABIT_ENTRIES = booleanArrayOf(
@@ -55,7 +55,7 @@ class HabitFixtures(private val modelFactory: ModelFactory, private val habitLis
         val habit = createEmptyHabit()
         habit.frequency = Frequency(3, 7)
         habit.color = PaletteColor(7)
-        val today: Timestamp = getToday()
+        val today: LocalDate = getToday()
         val marks = intArrayOf(
             0, 1, 3, 5, 7, 8, 9, 10, 12, 14, 15, 17, 19, 20, 26, 27,
             28, 50, 51, 52, 53, 54, 58, 60, 63, 65, 70, 71, 72, 73, 74, 75, 80,
@@ -70,7 +70,7 @@ class HabitFixtures(private val modelFactory: ModelFactory, private val habitLis
         val habit = createEmptyHabit()
         habit.frequency = Frequency(1, 2)
         habit.color = PaletteColor(11)
-        val today: Timestamp = getToday()
+        val today: LocalDate = getToday()
         val marks = intArrayOf(
             0, 3, 5, 6, 7, 10, 13, 14, 15, 18, 21, 22, 23, 24, 27, 28, 30, 31, 34, 37,
             39, 42, 43, 46, 47, 48, 51, 52, 54, 55, 57, 59, 62, 65, 68, 71, 73, 76, 79,
@@ -108,10 +108,10 @@ class HabitFixtures(private val modelFactory: ModelFactory, private val habitLis
             unit = "pages"
         }
         habitList.add(habit)
-        var timestamp: Timestamp = getToday()
+        var date: LocalDate = getToday()
         for (value in LONG_NUMERICAL_HABIT_ENTRIES) {
-            habit.originalEntries.add(Entry(timestamp, value))
-            timestamp = timestamp.minus(1)
+            habit.originalEntries.add(Entry(date, value))
+            date = date.minus(1)
         }
         habit.recompute()
         return habit
@@ -124,10 +124,10 @@ class HabitFixtures(private val modelFactory: ModelFactory, private val habitLis
             frequency = Frequency(2, 3)
         }
         habitList.add(habit)
-        var timestamp: Timestamp = getToday()
+        var date: LocalDate = getToday()
         for (c in LONG_HABIT_ENTRIES) {
-            if (c) habit.originalEntries.add(Entry(timestamp, YES_MANUAL))
-            timestamp = timestamp.minus(1)
+            if (c) habit.originalEntries.add(Entry(date, YES_MANUAL))
+            date = date.minus(1)
         }
         habit.recompute()
         return habit

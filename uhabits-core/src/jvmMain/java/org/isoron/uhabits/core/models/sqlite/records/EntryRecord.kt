@@ -18,10 +18,10 @@
  */
 package org.isoron.uhabits.core.models.sqlite.records
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.database.Column
 import org.isoron.uhabits.core.database.Table
 import org.isoron.uhabits.core.models.Entry
-import org.isoron.uhabits.core.models.Timestamp
 
 /**
  * The SQLite database record corresponding to a [Entry].
@@ -44,14 +44,14 @@ class EntryRecord {
 
     @field:Column
     var notes: String? = null
+
     fun copyFrom(entry: Entry) {
-        timestamp = entry.timestamp.unixTime
+        timestamp = entry.date.unixTime
         value = entry.value
         notes = entry.notes
     }
 
     fun toEntry(): Entry {
-        val notes = notes ?: ""
-        return Entry(Timestamp(timestamp!!), value!!, notes)
+        return Entry(LocalDate.fromUnixTime(timestamp!!), value!!, notes ?: "")
     }
 }

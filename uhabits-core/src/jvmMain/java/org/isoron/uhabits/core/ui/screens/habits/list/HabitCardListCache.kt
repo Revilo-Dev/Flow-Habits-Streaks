@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.ui.screens.habits.list
 
 import org.apache.commons.lang3.ArrayUtils
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.Command
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -30,7 +31,6 @@ import org.isoron.uhabits.core.models.HabitList.Order
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getTodayWithOffset
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.HashMap
@@ -301,7 +301,7 @@ class HabitCardListCache @Inject constructor(
             newData.copyScoresFrom(data)
             newData.copyCheckmarksFrom(data)
             newData.copyNoteIndicatorsFrom(data)
-            val today = getTodayWithOffset()
+            val today = getToday()
             val dateFrom = today.minus(checkmarkCount - 1)
             if (runner != null) runner!!.publishProgress(this, -1)
             for (position in newData.habits.indices) {

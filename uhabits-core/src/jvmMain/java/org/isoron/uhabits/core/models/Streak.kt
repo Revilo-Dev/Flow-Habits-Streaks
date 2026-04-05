@@ -18,22 +18,22 @@
  */
 package org.isoron.uhabits.core.models
 
-import java.lang.Long.signum
+import org.isoron.platform.time.LocalDate
 
 data class Streak(
-    val start: Timestamp,
-    val end: Timestamp
+    val start: LocalDate,
+    val end: LocalDate
 ) {
     fun compareLonger(other: Streak): Int {
         return if (length != other.length) {
-            signum(length - other.length.toLong())
+            length - other.length
         } else {
             compareNewer(other)
         }
     }
 
     fun compareNewer(other: Streak): Int {
-        return end.compareTo(other.end)
+        return end.daysSince2000 - other.end.daysSince2000
     }
 
     val length: Int

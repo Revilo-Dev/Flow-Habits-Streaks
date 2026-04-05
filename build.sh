@@ -22,7 +22,8 @@ ANDROID_OUTPUTS_DIR="uhabits-android/build/outputs"
 AVDMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/avdmanager"
 AVD_PREFIX="uhabitsTest"
 EMULATOR="${ANDROID_HOME}/emulator/emulator"
-GRADLE="./gradlew --stacktrace --quiet"
+GRADLE="./gradlew --stacktrace --quiet --console=plain"
+GRADLE_LOG="build/gradle-output.log"
 PACKAGE_NAME=org.isoron.uhabits
 SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
 VERSION=$(grep versionName uhabits-android/build.gradle.kts | sed -e 's/.*"\([^"]*\)".*/\1/g')
@@ -63,14 +64,24 @@ fail() {
     exit 1
 }
 
+gradle_run() {
+    mkdir -p build
+    if ! $GRADLE "$@" > "$GRADLE_LOG" 2>&1; then
+        log_error "Gradle command failed: $*"
+        grep -E "^e:|^w:|^FAILURE|^> " "$GRADLE_LOG" | head -40
+        log_error "Full log: $GRADLE_LOG"
+        return 1
+    fi
+}
+
 # Core
 # -----------------------------------------------------------------------------
 
 core_build() {
     log_info "Building uhabits-core..."
-    $GRADLE ktlintCheck || fail
-    $GRADLE lintDebug || fail
-    $GRADLE :uhabits-core:build || fail
+    gradle_run ktlintCheck || fail
+    gradle_run lintDebug || fail
+    gradle_run :uhabits-core:build || fail
 }
 
 # Android
@@ -268,32 +279,32 @@ android_build() {
     fi
 
     log_info "Removing old APKs..."
-    rm -vf uhabits-android/build/*.apk
+    rm -f uhabits-android/build/*.apk
 
     if [ -n "$RELEASE" ]; then
         log_info "Building release APK..."
-        $GRADLE updateTranslators
-        $GRADLE :uhabits-android:assembleRelease
+        gradle_run updateTranslators
+        gradle_run :uhabits-android:assembleRelease
         cp -v \
             uhabits-android/build/outputs/apk/release/uhabits-android-release.apk \
             uhabits-android/build/loop-"$VERSION"-release.apk
     fi
 
     log_info "Building debug APK..."
-    $GRADLE :uhabits-android:assembleDebug --stacktrace || fail
+    gradle_run :uhabits-android:assembleDebug || fail
     cp -v \
         uhabits-android/build/outputs/apk/debug/uhabits-android-debug.apk \
         uhabits-android/build/loop-"$VERSION"-debug.apk
 
     log_info "Building instrumentation APK..."
     if [ -n "$RELEASE" ]; then
-        $GRADLE :uhabits-android:assembleAndroidTest  \
+        gradle_run :uhabits-android:assembleAndroidTest  \
             -Pandroid.injected.signing.store.file="$LOOP_KEY_STORE" \
             -Pandroid.injected.signing.store.password="$LOOP_STORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$LOOP_KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$LOOP_KEY_PASSWORD" || fail
     else
-        $GRADLE assembleAndroidTest || fail
+        gradle_run assembleAndroidTest || fail
     fi
 
     return 0
@@ -345,21 +356,21 @@ END
 }
 
 clean() {
-    rm -rfv uhabits-android/.gradle
-    rm -rfv uhabits-android/android-pickers/build
-    rm -rfv uhabits-android/build
-    rm -rfv uhabits-android/uhabits-android/build
-    rm -rfv uhabits-core-legacy/.gradle
-    rm -rfv uhabits-core-legacy/build
-    rm -rfv uhabits-core/.gradle
-    rm -rfv uhabits-core/build
-    rm -rfv uhabits-server/.gradle
-    rm -rfv uhabits-server/build
-    rm -rfv uhabits-web/build
-    rm -rfv uhabits-web/node_modules
-    rm -rfv uhabits-web/node_modules/core-js/build
-    rm -rfv uhabits-web/node_modules/upath/build
-    rm -rfv .gradle
+    rm -rf uhabits-android/.gradle
+    rm -rf uhabits-android/android-pickers/build
+    rm -rf uhabits-android/build
+    rm -rf uhabits-android/uhabits-android/build
+    rm -rf uhabits-core-legacy/.gradle
+    rm -rf uhabits-core-legacy/build
+    rm -rf uhabits-core/.gradle
+    rm -rf uhabits-core/build
+    rm -rf uhabits-server/.gradle
+    rm -rf uhabits-server/build
+    rm -rf uhabits-web/build
+    rm -rf uhabits-web/node_modules
+    rm -rf uhabits-web/node_modules/core-js/build
+    rm -rf uhabits-web/node_modules/upath/build
+    rm -rf .gradle
 }
 
 main() {

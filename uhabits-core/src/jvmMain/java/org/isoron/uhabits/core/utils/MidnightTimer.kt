@@ -18,8 +18,11 @@
  */
 package org.isoron.uhabits.core.utils
 
+import org.isoron.platform.time.computeToday
+import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.io.Logging
+import org.isoron.uhabits.core.preferences.Preferences
 import java.util.LinkedList
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -30,7 +33,10 @@ import javax.inject.Inject
  * A class that emits events when a new day starts.
  */
 @AppScope
-open class MidnightTimer @Inject constructor(logging: Logging) {
+open class MidnightTimer @Inject constructor(
+    logging: Logging,
+    private val preferences: Preferences
+) {
     private val listeners: MutableList<MidnightListener> = LinkedList()
     private lateinit var executor: ScheduledExecutorService
     private val logger = logging.getLogger("MidnightTimer")
@@ -52,7 +58,7 @@ open class MidnightTimer @Inject constructor(logging: Logging) {
         testExecutor: ScheduledExecutorService? = null
     ) {
         executor = testExecutor ?: Executors.newSingleThreadScheduledExecutor()
-        val initialDelay = DateUtils.millisecondsUntilTomorrowWithOffset() + delayOffsetInMillis
+        val initialDelay = DateUtils.millisecondsUntilTomorrowWithOffset(preferences.midnightDelayHours, 0) + delayOffsetInMillis
         logger.info("Scheduling refresh for $initialDelay ms from now")
         executor.scheduleAtFixedRate(
             { notifyListeners() },
@@ -68,6 +74,7 @@ open class MidnightTimer @Inject constructor(logging: Logging) {
     @Synchronized
     private fun notifyListeners() {
         logger.info("Midnight refresh")
+        setToday(computeToday(preferences.midnightDelayHours, 0))
         for (l in listeners) {
             l.atMidnight()
         }

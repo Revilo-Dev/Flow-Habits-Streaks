@@ -23,10 +23,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.view.View
 import org.isoron.platform.gui.toInt
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.ui.views.WidgetTheme
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.widgets.views.CheckmarkWidgetView
 
 open class CheckmarkWidget(
@@ -41,7 +41,7 @@ open class CheckmarkWidget(
 
     override fun getOnClickPendingIntent(context: Context): PendingIntent? {
         return if (habit.isNumerical) {
-            pendingIntentFactory.showNumberPicker(habit, DateUtils.getTodayWithOffset())
+            pendingIntentFactory.showNumberPicker(habit, getToday())
         } else {
             pendingIntentFactory.toggleCheckmark(habit, null)
         }
@@ -49,7 +49,7 @@ open class CheckmarkWidget(
 
     override fun refreshData(widgetView: View) {
         (widgetView as CheckmarkWidgetView).apply {
-            val today = DateUtils.getTodayWithOffset()
+            val today = getToday()
             setBackgroundAlpha(preferedBackgroundAlpha)
             activeColor = WidgetTheme().color(habit.color).toInt()
             name = habit.name

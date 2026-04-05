@@ -20,9 +20,9 @@ package org.isoron.uhabits.core.preferences
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.HabitList
-import org.isoron.uhabits.core.models.Timestamp.Companion.ZERO
 import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.junit.Before
 import org.junit.Test
@@ -93,10 +93,11 @@ class PreferencesTest : BaseUnitTest() {
     @Throws(Exception::class)
     fun testLastHint() {
         assertThat(prefs.lastHintNumber, equalTo(-1))
-        assertNull(prefs.lastHintTimestamp)
-        prefs.updateLastHint(34, ZERO.plus(100))
+        assertNull(prefs.lastHintDate)
+        val date = LocalDate(2015, 3, 15)
+        prefs.updateLastHint(34, date)
         assertThat(prefs.lastHintNumber, equalTo(34))
-        assertThat(prefs.lastHintTimestamp, equalTo(ZERO.plus(100)))
+        assertThat(prefs.lastHintDate, equalTo(date))
     }
 
     @Test

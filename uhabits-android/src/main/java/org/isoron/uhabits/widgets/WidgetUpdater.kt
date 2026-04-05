@@ -26,6 +26,7 @@ import android.content.Intent
 import org.isoron.uhabits.core.commands.Command
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
+import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.preferences.WidgetPreferences
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.utils.DateUtils
@@ -43,7 +44,8 @@ class WidgetUpdater
     private val commandRunner: CommandRunner,
     private val taskRunner: TaskRunner,
     private val widgetPrefs: WidgetPreferences,
-    private val intentScheduler: IntentScheduler
+    private val intentScheduler: IntentScheduler,
+    private val preferences: Preferences
 ) : CommandRunner.Listener {
 
     override fun onCommandFinished(command: Command) {
@@ -72,7 +74,7 @@ class WidgetUpdater
     }
 
     fun scheduleStartDayWidgetUpdate() {
-        val timestamp = DateUtils.getStartOfTomorrowWithOffset()
+        val timestamp = DateUtils.getStartOfTomorrowWithOffset(preferences.midnightDelayHours, 0)
         intentScheduler.scheduleWidgetUpdate(timestamp)
     }
 

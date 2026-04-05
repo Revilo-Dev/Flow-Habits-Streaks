@@ -20,10 +20,10 @@ package org.isoron.uhabits.core.ui.screens.habits.list
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
-import org.isoron.uhabits.core.models.Timestamp
 import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.utils.DateUtils.Companion.getToday
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -37,8 +37,8 @@ class HintListTest : BaseUnitTest() {
     private lateinit var hints: Array<String>
 
     private val prefs: Preferences = mock()
-    private lateinit var today: Timestamp
-    private lateinit var yesterday: Timestamp
+    private lateinit var today: LocalDate
+    private lateinit var yesterday: LocalDate
 
     @Throws(Exception::class)
     override fun setUp() {
@@ -62,9 +62,9 @@ class HintListTest : BaseUnitTest() {
     @Test
     @Throws(Exception::class)
     fun shouldShow() {
-        whenever(prefs.lastHintTimestamp).thenReturn(today)
+        whenever(prefs.lastHintDate).thenReturn(today)
         assertFalse(hintList.shouldShow())
-        whenever(prefs.lastHintTimestamp).thenReturn(yesterday)
+        whenever(prefs.lastHintDate).thenReturn(yesterday)
         assertTrue(hintList.shouldShow())
     }
 }

@@ -19,8 +19,8 @@
 
 package org.isoron.uhabits.core.ui.callbacks
 
-import org.isoron.uhabits.core.models.Timestamp
+import org.isoron.platform.time.LocalDate
 
 interface OnToggleCheckmarkListener {
-    fun onToggleEntry(timestamp: Timestamp, value: Int) {}
+    fun onToggleEntry(date: LocalDate, value: Int) {}
 }

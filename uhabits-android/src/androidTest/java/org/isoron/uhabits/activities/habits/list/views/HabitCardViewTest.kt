@@ -21,12 +21,12 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.BaseViewTest
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
-import org.isoron.uhabits.core.models.Timestamp
-import org.isoron.uhabits.core.utils.DateUtils
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -38,7 +38,7 @@ class HabitCardViewTest : BaseViewTest() {
     private lateinit var view: HabitCardView
     private lateinit var habit1: Habit
     private lateinit var habit2: Habit
-    private lateinit var today: Timestamp
+    private lateinit var today: LocalDate
 
     override fun setUp() {
         super.setUp()
@@ -46,7 +46,7 @@ class HabitCardViewTest : BaseViewTest() {
 
         habit1 = fixtures.createLongHabit()
         habit2 = fixtures.createLongNumericalHabit()
-        today = DateUtils.getTodayWithOffset()
+        today = getToday()
 
         val entries = habit1
             .computedEntries

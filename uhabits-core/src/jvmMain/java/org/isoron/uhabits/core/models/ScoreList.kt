@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.Score.Companion.compute
 import java.util.ArrayList
 import java.util.HashMap
@@ -28,33 +29,33 @@ import kotlin.math.min
 @ThreadSafe
 class ScoreList {
 
-    private val map = HashMap<Timestamp, Score>()
+    private val map = HashMap<LocalDate, Score>()
 
     /**
-     * Returns the score for a given day. If the timestamp given happens before the first
+     * Returns the score for a given day. If the date given happens before the first
      * repetition of the habit or after the last computed score, returns a score with value zero.
      */
     @Synchronized
-    operator fun get(timestamp: Timestamp): Score {
-        return map[timestamp] ?: Score(timestamp, 0.0)
+    operator fun get(date: LocalDate): Score {
+        return map[date] ?: Score(date, 0.0)
     }
 
     /**
      * Returns the list of scores that fall within the given interval.
      *
      * There is exactly one score per day in the interval. The endpoints of the interval are
-     * included. The list is ordered by timestamp (decreasing). That is, the first score
-     * corresponds to the newest timestamp, and the last score corresponds to the oldest timestamp.
+     * included. The list is ordered by date (decreasing). That is, the first score
+     * corresponds to the newest date, and the last score corresponds to the oldest date.
      */
     @Synchronized
     fun getByInterval(
-        fromTimestamp: Timestamp,
-        toTimestamp: Timestamp
+        from: LocalDate,
+        to: LocalDate
     ): List<Score> {
         val result: MutableList<Score> = ArrayList()
-        if (fromTimestamp.isNewerThan(toTimestamp)) return result
-        var current = toTimestamp
-        while (!current.isOlderThan(fromTimestamp)) {
+        if (from.isNewerThan(to)) return result
+        var current = to
+        while (!current.isOlderThan(from)) {
             result.add(get(current))
             current = current.minus(1)
         }
@@ -62,7 +63,7 @@ class ScoreList {
     }
 
     /**
-     * Recomputes all scores between the provided [from] and [to] timestamps.
+     * Recomputes all scores between the provided [from] and [to] dates.
      */
     @Synchronized
     fun recompute(
@@ -71,8 +72,8 @@ class ScoreList {
         numericalHabitType: NumericalHabitType,
         targetValue: Double,
         computedEntries: EntryList,
-        from: Timestamp,
-        to: Timestamp
+        from: LocalDate,
+        to: LocalDate
     ) {
         map.clear()
         var rollingSum = 0.0
@@ -134,8 +135,8 @@ class ScoreList {
                     previousValue = compute(freq, previousValue, percentageCompleted)
                 }
             }
-            val timestamp = from.plus(i)
-            map[timestamp] = Score(timestamp, previousValue)
+            val date = from.plus(i)
+            map[date] = Score(date, previousValue)
         }
     }
 }
