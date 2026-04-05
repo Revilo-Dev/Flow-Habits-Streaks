@@ -32,6 +32,7 @@ import androidx.core.app.NotificationCompat.Action
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.WearableExtender
 import androidx.core.app.NotificationManagerCompat
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.AppScope
@@ -40,11 +41,10 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.intents.PendingIntentFactory
-import javax.inject.Inject
 
+@Inject
 @AppScope
-class AndroidNotificationTray
-@Inject constructor(
+class AndroidNotificationTray(
     @AppContext private val context: Context,
     private val pendingIntents: PendingIntentFactory,
     private val preferences: Preferences,

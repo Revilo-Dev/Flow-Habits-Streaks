@@ -22,7 +22,7 @@ package org.isoron.uhabits.automation
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import dagger.Component
+import me.tatarka.inject.annotations.Component
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.core.models.HabitList
@@ -39,16 +39,21 @@ const val ACTION_DECREMENT = 4
 const val EXTRA_BUNDLE = "com.twofortyfouram.locale.intent.extra.BUNDLE"
 const val EXTRA_STRING_BLURB = "com.twofortyfouram.locale.intent.extra.BLURB"
 
+@ReceiverScope
+@Component
+internal abstract class FireSettingReceiverComponent(
+    @Component val parent: HabitsApplicationComponent
+) {
+    abstract val widgetController: WidgetBehavior
+}
+
 class FireSettingReceiver : BroadcastReceiver() {
 
     private lateinit var allHabits: HabitList
 
     override fun onReceive(context: Context, intent: Intent) {
         val app = context.applicationContext as HabitsApplication
-        val component = DaggerFireSettingReceiver_ReceiverComponent
-            .builder()
-            .habitsApplicationComponent(app.component)
-            .build()
+        val component = FireSettingReceiverComponent::class.create(app.component)
         allHabits = app.component.habitList
         val args = SettingUtils.parseIntent(intent, allHabits) ?: return
         val today = getToday()
@@ -61,11 +66,5 @@ class FireSettingReceiver : BroadcastReceiver() {
             ACTION_INCREMENT -> controller.onIncrement(args.habit, today, 1000)
             ACTION_DECREMENT -> controller.onDecrement(args.habit, today, 1000)
         }
-    }
-
-    @ReceiverScope
-    @Component(dependencies = [HabitsApplicationComponent::class])
-    internal interface ReceiverComponent {
-        val widgetController: WidgetBehavior
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.utils
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.computeToday
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.AppScope
@@ -27,13 +28,13 @@ import java.util.LinkedList
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 /**
  * A class that emits events when a new day starts.
  */
 @AppScope
-open class MidnightTimer @Inject constructor(
+@Inject
+open class MidnightTimer(
     logging: Logging,
     private val preferences: Preferences
 ) {

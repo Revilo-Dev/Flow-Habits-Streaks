@@ -20,11 +20,12 @@
 package org.isoron.uhabits.database
 
 import android.database.sqlite.SQLiteDatabase
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.database.DatabaseOpener
 import java.io.File
-import javax.inject.Inject
 
-class AndroidDatabaseOpener @Inject constructor() : DatabaseOpener {
+@Inject
+class AndroidDatabaseOpener() : DatabaseOpener {
     override fun open(file: File): AndroidDatabase {
         return AndroidDatabase(
             db = SQLiteDatabase.openDatabase(

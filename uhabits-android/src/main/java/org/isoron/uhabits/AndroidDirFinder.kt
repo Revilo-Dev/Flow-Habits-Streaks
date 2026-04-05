@@ -20,12 +20,13 @@ package org.isoron.uhabits
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.utils.FileUtils
 import java.io.File
-import javax.inject.Inject
 
-class AndroidDirFinder @Inject constructor(@param:AppContext private val context: Context) {
+@Inject
+class AndroidDirFinder(@param:AppContext private val context: Context) {
     fun getFilesDir(relativePath: String): File? {
         return FileUtils.getDir(
             ContextCompat.getExternalFilesDirs(context, null),

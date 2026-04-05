@@ -37,9 +37,7 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.TaskRunner
-import org.isoron.uhabits.inject.ActivityContextModule
-import org.isoron.uhabits.inject.AppContextModule
-import org.isoron.uhabits.inject.HabitsModule
+import org.isoron.uhabits.inject.create
 import org.isoron.uhabits.utils.DatabaseUtils.getDatabaseFile
 import org.isoron.uhabits.utils.InterfaceUtils.setFixedResolution
 import org.isoron.uhabits.utils.StyledResources.Companion.setFixedTheme
@@ -81,11 +79,10 @@ abstract class BaseAndroidTest : TestCase() {
         latch = CountDownLatch(1)
         val context = targetContext.applicationContext
         val dbFile = getDatabaseFile(context)
-        appComponent = DaggerHabitsApplicationTestComponent
-            .builder()
-            .appContextModule(AppContextModule(context))
-            .habitsModule(HabitsModule(dbFile))
-            .build()
+        appComponent = HabitsApplicationTestComponent::class.create(
+            appContext = context,
+            dbFile = dbFile
+        )
         HabitsApplication.component = appComponent
         prefs = appComponent.preferences
         habitList = appComponent.habitList
@@ -96,11 +93,10 @@ abstract class BaseAndroidTest : TestCase() {
         fixtures = HabitFixtures(modelFactory, habitList)
         fixtures.purgeHabits(appComponent.habitList)
         fixtures.createEmptyHabit()
-        component = DaggerHabitsActivityTestComponent
-            .builder()
-            .activityContextModule(ActivityContextModule(targetContext))
-            .habitsApplicationComponent(appComponent)
-            .build()
+        component = HabitsActivityTestComponent::class.create(
+            parent = appComponent,
+            activityContext = targetContext
+        )
     }
 
     protected fun assertWidgetProviderIsInstalled(componentClass: Class<out BaseWidgetProvider?>?) {

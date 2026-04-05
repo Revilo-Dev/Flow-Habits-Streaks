@@ -18,14 +18,14 @@
  */
 package org.isoron.uhabits.activities
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.AndroidDirFinder
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitMenuPresenter
 import java.io.File
-import javax.inject.Inject
 
-class HabitsDirFinder @Inject
-constructor(
+@Inject
+class HabitsDirFinder(
     private val androidDirFinder: AndroidDirFinder
 ) : ShowHabitMenuPresenter.System, ListHabitsBehavior.DirFinder {
 

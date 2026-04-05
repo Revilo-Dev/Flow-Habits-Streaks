@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models.sqlite
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.database.Repository
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
@@ -25,12 +26,12 @@ import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.memory.MemoryHabitList
 import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
-import javax.inject.Inject
 
 /**
  * Implementation of a [HabitList] that is backed by SQLite.
  */
-class SQLiteHabitList @Inject constructor(private val modelFactory: ModelFactory) : HabitList() {
+@Inject
+class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
     private val repository: Repository<HabitRecord> = modelFactory.buildHabitListRepository()
     private val list: MemoryHabitList = MemoryHabitList()
     private var loaded = false

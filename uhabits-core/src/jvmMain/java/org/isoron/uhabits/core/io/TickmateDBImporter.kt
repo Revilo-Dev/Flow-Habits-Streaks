@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.database.Cursor
 import org.isoron.uhabits.core.database.Database
@@ -29,12 +30,12 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.utils.isSQLite3File
 import java.io.File
-import javax.inject.Inject
 
 /**
  * Class that imports data from database files exported by Tickmate.
  */
-class TickmateDBImporter @Inject constructor(
+@Inject
+class TickmateDBImporter(
     private val habitList: HabitList,
     private val modelFactory: ModelFactory,
     private val opener: DatabaseOpener

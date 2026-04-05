@@ -19,16 +19,11 @@
 package org.isoron.uhabits.tasks
 
 import android.os.AsyncTask
-import dagger.Module
-import dagger.Provides
-import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
 import java.util.HashMap
 import java.util.LinkedList
 
-// TODO: @Module not needed?
-@Module
 class AndroidTaskRunner : TaskRunner {
     private val activeTasks: LinkedList<CustomAsyncTask> = LinkedList()
     private val taskToAsyncTask: HashMap<Task, CustomAsyncTask> = HashMap()
@@ -88,16 +83,6 @@ class AndroidTaskRunner : TaskRunner {
         @Deprecated("Deprecated in Java")
         override fun onProgressUpdate(vararg values: Int?) {
             values[0]?.let { task.onProgressUpdate(it) }
-        }
-    }
-
-    @Module
-    companion object {
-        @JvmStatic
-        @Provides
-        @AppScope
-        fun provideTaskRunner(): TaskRunner {
-            return AndroidTaskRunner()
         }
     }
 }

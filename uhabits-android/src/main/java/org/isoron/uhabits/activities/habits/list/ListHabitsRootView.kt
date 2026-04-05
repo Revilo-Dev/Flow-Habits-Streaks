@@ -23,6 +23,7 @@ import android.content.Context
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
+import me.tatarka.inject.annotations.Inject
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.ScrollableChart
@@ -50,14 +51,14 @@ import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.dp
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 
 const val MAX_CHECKMARK_COUNT = 60
 
+@Inject
 @ActivityScope
-class ListHabitsRootView @Inject constructor(
+class ListHabitsRootView(
     @ActivityContext context: Context,
     hintListFactory: HintListFactory,
     preferences: Preferences,

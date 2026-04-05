@@ -20,15 +20,15 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.inject.ActivityContext
-import javax.inject.Inject
 
-class CheckmarkPanelViewFactory
-@Inject constructor(
+@Inject
+class CheckmarkPanelViewFactory(
     @ActivityContext val context: Context,
     val preferences: Preferences,
     private val buttonFactory: CheckmarkButtonViewFactory

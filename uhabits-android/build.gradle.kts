@@ -89,11 +89,10 @@ android {
 }
 
 dependencies {
-    compileOnly(libs.jsr250.api)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.appIntro)
     implementation(libs.jsr305)
-    implementation(libs.dagger)
+    implementation(libs.kotlin.inject.runtime)
     implementation(libs.guava)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.core)
@@ -110,7 +109,7 @@ dependencies {
     implementation(libs.opencsv)
     implementation(libs.konfetti.xml)
     implementation(project(":uhabits-core"))
-    ksp(libs.dagger.compiler)
+    ksp(libs.kotlin.inject.compiler)
 
     androidTestImplementation(libs.bundles.androidTest)
     testImplementation(libs.bundles.test)

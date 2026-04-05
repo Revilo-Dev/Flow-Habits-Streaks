@@ -44,7 +44,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
-                compileOnly(libs.dagger)
+                compileOnly(libs.kotlin.inject.runtime)
                 implementation(libs.guava)
                 implementation(libs.kotlinx.coroutines.core.jvm)
                 implementation(libs.annotation)

@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.commands.ArchiveHabitsCommand
 import org.isoron.uhabits.core.commands.ChangeHabitColorCommand
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -28,9 +29,9 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.ui.callbacks.OnColorPickedCallback
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
-import javax.inject.Inject
 
-class ListHabitsSelectionMenuBehavior @Inject constructor(
+@Inject
+class ListHabitsSelectionMenuBehavior(
     private val habitList: HabitList,
     private val screen: Screen,
     private val adapter: Adapter,

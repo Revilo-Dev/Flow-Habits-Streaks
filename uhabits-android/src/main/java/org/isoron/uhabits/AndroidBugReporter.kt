@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.view.WindowManager
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.inject.AppContext
 import java.io.BufferedReader
 import java.io.File
@@ -32,9 +33,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.LinkedList
 import java.util.Locale
-import javax.inject.Inject
 
-open class AndroidBugReporter @Inject constructor(@AppContext private val context: Context) {
+@Inject
+open class AndroidBugReporter(@AppContext private val context: Context) {
 
     /**
      * Captures and returns a bug report. The bug report contains some device

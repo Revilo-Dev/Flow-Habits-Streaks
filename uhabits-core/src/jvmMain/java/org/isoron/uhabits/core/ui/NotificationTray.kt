@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.Command
@@ -32,10 +33,10 @@ import org.isoron.uhabits.core.tasks.TaskRunner
 import java.util.HashMap
 import java.util.Locale
 import java.util.Objects
-import javax.inject.Inject
 
 @AppScope
-class NotificationTray @Inject constructor(
+@Inject
+class NotificationTray(
     private val taskRunner: TaskRunner,
     private val commandRunner: CommandRunner,
     private val preferences: Preferences,

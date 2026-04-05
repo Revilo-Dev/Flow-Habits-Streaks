@@ -34,6 +34,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.gui.toInt
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
@@ -46,10 +47,9 @@ import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dp
 import org.isoron.uhabits.utils.sres
-import javax.inject.Inject
 
-class HabitCardViewFactory
-@Inject constructor(
+@Inject
+class HabitCardViewFactory(
     @ActivityContext val context: Context,
     private val checkmarkPanelFactory: CheckmarkPanelViewFactory,
     private val numberPanelFactory: NumberPanelViewFactory,

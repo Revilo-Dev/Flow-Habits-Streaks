@@ -19,11 +19,11 @@
 
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.preferences.Preferences
-import javax.inject.Inject
 
-class HintListFactory
-@Inject constructor(
+@Inject
+class HintListFactory(
     val preferences: Preferences
 ) {
     fun create(hints: Array<String>) = HintList(preferences, hints)

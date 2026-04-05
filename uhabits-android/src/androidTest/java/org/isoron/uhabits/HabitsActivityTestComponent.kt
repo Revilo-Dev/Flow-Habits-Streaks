@@ -19,38 +19,60 @@
 
 package org.isoron.uhabits
 
-import dagger.Component
-import dagger.Module
-import dagger.Provides
+import android.content.Context
+import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.Provides
+import org.isoron.uhabits.activities.HabitsDirFinder
 import org.isoron.uhabits.activities.habits.list.ListHabitsModule
+import org.isoron.uhabits.activities.habits.list.ListHabitsScreen
 import org.isoron.uhabits.activities.habits.list.views.CheckmarkButtonViewFactory
 import org.isoron.uhabits.activities.habits.list.views.CheckmarkPanelViewFactory
+import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.activities.habits.list.views.HabitCardViewFactory
 import org.isoron.uhabits.activities.habits.list.views.NumberButtonViewFactory
 import org.isoron.uhabits.activities.habits.list.views.NumberPanelViewFactory
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
-import org.isoron.uhabits.inject.ActivityContextModule
+import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsMenuBehavior
+import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBehavior
+import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
-import org.isoron.uhabits.inject.HabitModule
-import org.isoron.uhabits.inject.HabitsActivityModule
 import org.isoron.uhabits.inject.HabitsApplicationComponent
 import org.mockito.kotlin.mock
 
-@Module
-class TestModule {
-    @Provides
-    fun listHabitsBehavior(): ListHabitsBehavior = mock()
-}
-
 @ActivityScope
-@Component(
-    modules = [ActivityContextModule::class, HabitsActivityModule::class, ListHabitsModule::class, HabitModule::class, TestModule::class],
-    dependencies = [HabitsApplicationComponent::class]
-)
-interface HabitsActivityTestComponent {
-    fun getCheckmarkPanelViewFactory(): CheckmarkPanelViewFactory
-    fun getHabitCardViewFactory(): HabitCardViewFactory
-    fun getEntryButtonViewFactory(): CheckmarkButtonViewFactory
-    fun getNumberButtonViewFactory(): NumberButtonViewFactory
-    fun getNumberPanelViewFactory(): NumberPanelViewFactory
+@Component
+abstract class HabitsActivityTestComponent(
+    @Component val parent: HabitsApplicationComponent,
+    @get:Provides @get:ActivityContext
+    val activityContext: Context
+) {
+    abstract fun getCheckmarkPanelViewFactory(): CheckmarkPanelViewFactory
+    abstract fun getHabitCardViewFactory(): HabitCardViewFactory
+    abstract fun getEntryButtonViewFactory(): CheckmarkButtonViewFactory
+    abstract fun getNumberButtonViewFactory(): NumberButtonViewFactory
+    abstract fun getNumberPanelViewFactory(): NumberPanelViewFactory
+
+    @Provides
+    open fun listHabitsBehavior(): ListHabitsBehavior = mock()
+
+    open val HabitCardListAdapter.bindAdapter: ListHabitsMenuBehavior.Adapter
+        @Provides get() = this
+
+    open val ListHabitsModule.bindBugReporter: ListHabitsBehavior.BugReporter
+        @Provides get() = this
+
+    open val ListHabitsScreen.bindMenuScreen: ListHabitsMenuBehavior.Screen
+        @Provides get() = this
+
+    open val ListHabitsScreen.bindScreen: ListHabitsBehavior.Screen
+        @Provides get() = this
+
+    open val HabitCardListAdapter.bindSelMenuAdapter: ListHabitsSelectionMenuBehavior.Adapter
+        @Provides get() = this
+
+    open val ListHabitsScreen.bindSelMenuScreen: ListHabitsSelectionMenuBehavior.Screen
+        @Provides get() = this
+
+    open val HabitsDirFinder.bindDirFinder: ListHabitsBehavior.DirFinder
+        @Provides get() = this
 }

@@ -24,7 +24,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import dagger.Lazy
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
@@ -35,10 +35,10 @@ import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
-import javax.inject.Inject
 
+@Inject
 @ActivityScope
-class ListHabitsSelectionMenu @Inject constructor(
+class ListHabitsSelectionMenu(
     @ActivityContext context: Context,
     private val listAdapter: HabitCardListAdapter,
     var commandRunner: CommandRunner,
@@ -86,7 +86,7 @@ class ListHabitsSelectionMenu @Inject constructor(
         return true
     }
     override fun onDestroyActionMode(mode: ActionMode?) {
-        listController.get().onSelectionFinished()
+        listController.value.onSelectionFinished()
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {

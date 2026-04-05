@@ -35,15 +35,14 @@ import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import dagger.Lazy
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.BundleSavedState
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.inject.ActivityContext
-import javax.inject.Inject
 
-class HabitCardListViewFactory
-@Inject constructor(
+@Inject
+class HabitCardListViewFactory(
     @ActivityContext val context: Context,
     val adapter: HabitCardListAdapter,
     val cardViewFactory: HabitCardViewFactory,
@@ -186,13 +185,13 @@ class HabitCardListView(
 
         override fun onLongPress(e: MotionEvent) {
             val position = holder.adapterPosition
-            controller.get().onItemLongClick(position)
+            controller.value.onItemLongClick(position)
             if (adapter.isSortable) touchHelper.startDrag(holder)
         }
 
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             val position = holder.adapterPosition
-            controller.get().onItemClick(position)
+            controller.value.onItemClick(position)
             return true
         }
     }
@@ -210,7 +209,7 @@ class HabitCardListView(
             from: ViewHolder,
             to: ViewHolder
         ): Boolean {
-            controller.get().drop(from.adapterPosition, to.adapterPosition)
+            controller.value.drop(from.adapterPosition, to.adapterPosition)
             return true
         }
 

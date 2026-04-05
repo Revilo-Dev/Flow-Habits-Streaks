@@ -20,6 +20,7 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.activities.habits.list.MAX_CHECKMARK_COUNT
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
@@ -32,7 +33,6 @@ import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBeh
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityScope
 import java.util.LinkedList
-import javax.inject.Inject
 
 /**
  * Provides data that backs a [HabitCardListView].
@@ -41,8 +41,9 @@ import javax.inject.Inject
  * The data if fetched and cached by a [HabitCardListCache]. This adapter
  * also holds a list of items that have been selected.
  */
+@Inject
 @ActivityScope
-class HabitCardListAdapter @Inject constructor(
+class HabitCardListAdapter(
     private val cache: HabitCardListCache,
     private val preferences: Preferences,
     private val midnightTimer: MidnightTimer

@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.io
 
 import com.opencsv.CSVReader
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
@@ -29,13 +30,12 @@ import org.isoron.uhabits.core.models.ModelFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
-import javax.inject.Inject
 
 /**
  * Class that imports data from HabitBull CSV files.
  */
-class HabitBullCSVImporter
-@Inject constructor(
+@Inject
+class HabitBullCSVImporter(
     private val habitList: HabitList,
     private val modelFactory: ModelFactory,
     logging: Logging

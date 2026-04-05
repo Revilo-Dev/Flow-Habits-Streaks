@@ -19,7 +19,11 @@
 
 package org.isoron.uhabits.inject
 
-import dagger.Component
+import android.content.Context
+import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.Provides
+import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.activities.HabitsDirFinder
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
 import org.isoron.uhabits.activities.habits.list.ListHabitsMenu
 import org.isoron.uhabits.activities.habits.list.ListHabitsModule
@@ -27,21 +31,53 @@ import org.isoron.uhabits.activities.habits.list.ListHabitsRootView
 import org.isoron.uhabits.activities.habits.list.ListHabitsScreen
 import org.isoron.uhabits.activities.habits.list.ListHabitsSelectionMenu
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
+import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
+import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsMenuBehavior
+import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBehavior
 
 @ActivityScope
-@Component(
-    modules = [ActivityContextModule::class, HabitsActivityModule::class, ListHabitsModule::class, HabitModule::class],
-    dependencies = [HabitsApplicationComponent::class]
-)
-interface HabitsActivityComponent {
-    val colorPickerDialogFactory: ColorPickerDialogFactory
-    val habitCardListAdapter: HabitCardListAdapter
-    val listHabitsBehavior: ListHabitsBehavior
-    val listHabitsMenu: ListHabitsMenu
-    val listHabitsRootView: ListHabitsRootView
-    val listHabitsScreen: ListHabitsScreen
-    val listHabitsSelectionMenu: ListHabitsSelectionMenu
-    val themeSwitcher: ThemeSwitcher
+@Component
+abstract class HabitsActivityComponent(
+    @Component val parent: HabitsApplicationComponent,
+    @get:Provides @get:ActivityContext
+    val activityContext: Context
+) {
+    abstract val colorPickerDialogFactory: ColorPickerDialogFactory
+    abstract val habitCardListAdapter: HabitCardListAdapter
+    abstract val listHabitsBehavior: ListHabitsBehavior
+    abstract val listHabitsMenu: ListHabitsMenu
+    abstract val listHabitsRootView: ListHabitsRootView
+    abstract val listHabitsScreen: ListHabitsScreen
+    abstract val listHabitsSelectionMenu: ListHabitsSelectionMenu
+    abstract val themeSwitcher: ThemeSwitcher
+
+    @ActivityScope
+    @Provides
+    open fun themeSwitcher(
+        @ActivityContext context: Context,
+        prefs: Preferences
+    ): ThemeSwitcher = AndroidThemeSwitcher(context, prefs)
+
+    open val HabitCardListAdapter.bindAdapter: ListHabitsMenuBehavior.Adapter
+        @Provides get() = this
+
+    open val ListHabitsModule.bindBugReporter: ListHabitsBehavior.BugReporter
+        @Provides get() = this
+
+    open val ListHabitsScreen.bindMenuScreen: ListHabitsMenuBehavior.Screen
+        @Provides get() = this
+
+    open val ListHabitsScreen.bindScreen: ListHabitsBehavior.Screen
+        @Provides get() = this
+
+    open val HabitCardListAdapter.bindSelMenuAdapter: ListHabitsSelectionMenuBehavior.Adapter
+        @Provides get() = this
+
+    open val ListHabitsScreen.bindSelMenuScreen: ListHabitsSelectionMenuBehavior.Screen
+        @Provides get() = this
+
+    open val HabitsDirFinder.bindDirFinder: ListHabitsBehavior.DirFinder
+        @Provides get() = this
 }

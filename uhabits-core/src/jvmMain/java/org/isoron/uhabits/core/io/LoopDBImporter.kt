@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.DATABASE_VERSION
@@ -34,13 +35,12 @@ import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
 import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
 import org.isoron.uhabits.core.utils.isSQLite3File
 import java.io.File
-import javax.inject.Inject
 
 /**
  * Class that imports data from database files exported by Loop Habit Tracker.
  */
-class LoopDBImporter
-@Inject constructor(
+@Inject
+class LoopDBImporter(
     @AppScope val habitList: HabitList,
     @AppScope val modelFactory: ModelFactory,
     @AppScope val opener: DatabaseOpener,

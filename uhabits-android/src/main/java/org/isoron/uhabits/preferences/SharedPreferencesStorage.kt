@@ -22,15 +22,15 @@ package org.isoron.uhabits.preferences
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.inject.AppContext
-import javax.inject.Inject
 
+@Inject
 @AppScope
-class SharedPreferencesStorage
-@Inject constructor(
+class SharedPreferencesStorage(
     @AppContext context: Context
 ) : SharedPreferences.OnSharedPreferenceChangeListener, Preferences.Storage {
 

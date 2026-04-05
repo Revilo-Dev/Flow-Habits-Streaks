@@ -25,7 +25,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
-import dagger.Lazy
+import me.tatarka.inject.annotations.Inject
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
@@ -78,7 +78,6 @@ import org.isoron.uhabits.utils.showSendFileScreen
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 const val RESULT_IMPORT_DATA = 101
 const val RESULT_EXPORT_CSV = 102
@@ -88,9 +87,9 @@ const val RESULT_REPAIR_DB = 105
 const val REQUEST_OPEN_DOCUMENT = 106
 const val REQUEST_SETTINGS = 107
 
+@Inject
 @ActivityScope
-class ListHabitsScreen
-@Inject constructor(
+class ListHabitsScreen(
     @ActivityContext val context: Context,
     private val commandRunner: CommandRunner,
     private val intentFactory: IntentFactory,
@@ -148,10 +147,10 @@ class ListHabitsScreen
     private fun onSettingsResult(resultCode: Int) {
         when (resultCode) {
             RESULT_IMPORT_DATA -> showImportScreen()
-            RESULT_EXPORT_CSV -> behavior.get().onExportCSV()
+            RESULT_EXPORT_CSV -> behavior.value.onExportCSV()
             RESULT_EXPORT_DB -> onExportDB()
-            RESULT_BUG_REPORT -> behavior.get().onSendBugReport()
-            RESULT_REPAIR_DB -> behavior.get().onRepairDB()
+            RESULT_BUG_REPORT -> behavior.value.onSendBugReport()
+            RESULT_REPAIR_DB -> behavior.value.onRepairDB()
         }
     }
 
@@ -236,7 +235,7 @@ class ListHabitsScreen
             return
         }
         val baseColor = themeSwitcher.currentTheme!!.color(color).toInt()
-        rootView.get().konfettiView.start(
+        rootView.value.konfettiView.start(
             Party(
                 speed = 0f,
                 maxSpeed = 16f,
@@ -288,7 +287,7 @@ class ListHabitsScreen
         color: PaletteColor,
         callback: ListHabitsBehavior.CheckMarkDialogCallback
     ) {
-        val theme = rootView.get().currentTheme()
+        val theme = rootView.value.currentTheme()
         val fm = (context as AppCompatActivity).supportFragmentManager
         val dialog = CheckmarkDialog()
         dialog.arguments = Bundle().apply {

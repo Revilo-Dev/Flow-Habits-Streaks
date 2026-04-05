@@ -18,7 +18,7 @@
  */
 package org.isoron.uhabits.receivers
 
-import javax.inject.Scope
+import me.tatarka.inject.annotations.Scope
 
 @Scope
 annotation class ReceiverScope

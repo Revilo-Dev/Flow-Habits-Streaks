@@ -22,6 +22,7 @@ package org.isoron.uhabits.intents
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.about.AboutActivity
 import org.isoron.uhabits.activities.habits.edit.EditHabitActivity
@@ -29,10 +30,9 @@ import org.isoron.uhabits.activities.habits.show.ShowHabitActivity
 import org.isoron.uhabits.activities.intro.IntroActivity
 import org.isoron.uhabits.activities.settings.SettingsActivity
 import org.isoron.uhabits.core.models.Habit
-import javax.inject.Inject
 
-class IntentFactory
-@Inject constructor() {
+@Inject
+class IntentFactory() {
 
     fun helpTranslate(context: Context) =
         buildViewIntent(context.getString(R.string.translateURL))

@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui.widgets
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
@@ -27,9 +28,9 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
-import javax.inject.Inject
 
-class WidgetBehavior @Inject constructor(
+@Inject
+class WidgetBehavior(
     private val habitList: HabitList,
     private val commandRunner: CommandRunner,
     private val notificationTray: NotificationTray,

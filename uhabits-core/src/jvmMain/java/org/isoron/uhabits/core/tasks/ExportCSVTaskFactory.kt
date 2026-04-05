@@ -19,13 +19,13 @@
 
 package org.isoron.uhabits.core.tasks
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import java.io.File
-import javax.inject.Inject
 
-class ExportCSVTaskFactory
-@Inject constructor(
+@Inject
+class ExportCSVTaskFactory(
     val habitList: HabitList
 ) {
     fun create(

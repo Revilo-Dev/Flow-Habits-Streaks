@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -35,10 +36,10 @@ import org.isoron.uhabits.core.tasks.TaskRunner
 import java.io.File
 import java.io.IOException
 import java.util.LinkedList
-import javax.inject.Inject
 import kotlin.math.roundToInt
 
-open class ListHabitsBehavior @Inject constructor(
+@Inject
+open class ListHabitsBehavior(
     private val habitList: HabitList,
     private val dirFinder: DirFinder,
     private val taskRunner: TaskRunner,

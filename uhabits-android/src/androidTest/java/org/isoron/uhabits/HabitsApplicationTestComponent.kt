@@ -18,15 +18,28 @@
  */
 package org.isoron.uhabits
 
-import dagger.Component
+import android.content.Context
+import me.tatarka.inject.annotations.Component
+import me.tatarka.inject.annotations.Provides
 import org.isoron.uhabits.core.AppScope
-import org.isoron.uhabits.inject.AppContextModule
+import org.isoron.uhabits.core.tasks.SingleThreadTaskRunner
+import org.isoron.uhabits.core.tasks.TaskRunner
+import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.inject.HabitsApplicationComponent
-import org.isoron.uhabits.inject.HabitsModule
 import org.isoron.uhabits.intents.IntentScheduler
+import java.io.File
 
 @AppScope
-@Component(modules = [AppContextModule::class, HabitsModule::class, SingleThreadModule::class])
-interface HabitsApplicationTestComponent : HabitsApplicationComponent {
-    val intentScheduler: IntentScheduler?
+@Component
+abstract class HabitsApplicationTestComponent(
+    @get:Provides @get:AppContext
+    appContext: Context,
+    @get:Provides dbFile: File
+) : HabitsApplicationComponent(appContext, dbFile) {
+
+    abstract val intentScheduler: IntentScheduler?
+
+    @AppScope
+    @Provides
+    override fun taskRunner(): TaskRunner = SingleThreadTaskRunner()
 }

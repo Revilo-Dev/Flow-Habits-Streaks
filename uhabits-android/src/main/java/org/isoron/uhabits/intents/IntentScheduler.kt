@@ -27,6 +27,7 @@ import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.os.Build
 import android.util.Log
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.reminders.ReminderScheduler.SchedulerResult
@@ -34,12 +35,11 @@ import org.isoron.uhabits.core.reminders.ReminderScheduler.SystemScheduler
 import org.isoron.uhabits.core.utils.DateFormats
 import org.isoron.uhabits.inject.AppContext
 import java.util.Date
-import javax.inject.Inject
 import kotlin.math.min
 
+@Inject
 @AppScope
-class IntentScheduler
-@Inject constructor(
+class IntentScheduler(
     @AppContext context: Context,
     private val pendingIntents: PendingIntentFactory
 ) : SystemScheduler {

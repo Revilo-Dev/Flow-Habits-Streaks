@@ -18,9 +18,13 @@
  */
 package org.isoron.uhabits.inject
 
-import javax.inject.Qualifier
+import me.tatarka.inject.annotations.Qualifier
 
 @Qualifier
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
+@Target(
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.TYPE
+)
 annotation class AppContext

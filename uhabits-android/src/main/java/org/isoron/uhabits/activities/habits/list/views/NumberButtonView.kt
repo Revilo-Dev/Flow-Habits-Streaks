@@ -28,6 +28,7 @@ import android.text.TextPaint
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.View.OnLongClickListener
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.NumericalHabitType.AT_LEAST
@@ -40,7 +41,6 @@ import org.isoron.uhabits.utils.drawNotesIndicator
 import org.isoron.uhabits.utils.getFontAwesome
 import org.isoron.uhabits.utils.sres
 import java.text.DecimalFormat
-import javax.inject.Inject
 
 private val BOLD_TYPEFACE = Typeface.create("sans-serif-condensed", Typeface.BOLD)
 private val NORMAL_TYPEFACE = Typeface.create("sans-serif-condensed", Typeface.NORMAL)
@@ -58,8 +58,8 @@ fun Double.toShortString(): String = when {
     else -> DecimalFormat("#.##").format(this)
 }
 
-class NumberButtonViewFactory
-@Inject constructor(
+@Inject
+class NumberButtonViewFactory(
     @ActivityContext val context: Context,
     val preferences: Preferences
 ) {

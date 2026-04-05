@@ -18,13 +18,14 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
-import javax.inject.Inject
 
-class ListHabitsMenuBehavior @Inject constructor(
+@Inject
+class ListHabitsMenuBehavior(
     private val screen: Screen,
     private val adapter: Adapter,
     private val preferences: Preferences,

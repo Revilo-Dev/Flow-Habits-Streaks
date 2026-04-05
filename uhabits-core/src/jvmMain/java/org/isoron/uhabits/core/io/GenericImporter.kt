@@ -18,15 +18,15 @@
  */
 package org.isoron.uhabits.core.io
 
+import me.tatarka.inject.annotations.Inject
 import java.io.File
-import javax.inject.Inject
 
 /**
  * A GenericImporter decides which implementation of AbstractImporter is able to
  * handle a given file and delegates to it the task of importing the data.
  */
-class GenericImporter
-@Inject constructor(
+@Inject
+class GenericImporter(
     loopDBImporter: LoopDBImporter,
     rewireDBImporter: RewireDBImporter,
     tickmateDBImporter: TickmateDBImporter,

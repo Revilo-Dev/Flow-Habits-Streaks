@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import me.tatarka.inject.annotations.Inject
 import org.apache.commons.lang3.ArrayUtils
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.AppScope
@@ -36,7 +37,6 @@ import java.util.Arrays
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.TreeSet
-import javax.inject.Inject
 
 /**
  * A HabitCardListCache fetches and keeps a cache of all the data necessary to
@@ -52,7 +52,8 @@ import javax.inject.Inject
  * activities.
  */
 @AppScope
-class HabitCardListCache @Inject constructor(
+@Inject
+class HabitCardListCache(
     private val allHabits: HabitList,
     private val commandRunner: CommandRunner,
     taskRunner: TaskRunner,

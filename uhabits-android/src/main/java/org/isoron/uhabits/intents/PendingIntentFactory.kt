@@ -29,6 +29,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.activities.habits.list.ListHabitsActivity
 import org.isoron.uhabits.activities.habits.show.ShowHabitActivity
@@ -37,11 +38,10 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.receivers.ReminderReceiver
 import org.isoron.uhabits.receivers.WidgetReceiver
-import javax.inject.Inject
 
+@Inject
 @AppScope
-class PendingIntentFactory
-@Inject constructor(
+class PendingIntentFactory(
     @AppContext private val context: Context,
     private val intentFactory: IntentFactory
 ) {

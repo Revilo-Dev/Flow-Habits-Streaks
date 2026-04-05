@@ -24,6 +24,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.preferences.Preferences
@@ -32,10 +33,10 @@ import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsMenuBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
 import org.isoron.uhabits.utils.StyledResources
-import javax.inject.Inject
 
+@Inject
 @ActivityScope
-class ListHabitsMenu @Inject constructor(
+class ListHabitsMenu(
     @ActivityContext context: Context,
     private val preferences: Preferences,
     private val themeSwitcher: ThemeSwitcher,

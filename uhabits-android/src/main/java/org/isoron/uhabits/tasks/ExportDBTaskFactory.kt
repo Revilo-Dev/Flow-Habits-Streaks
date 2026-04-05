@@ -20,12 +20,12 @@
 package org.isoron.uhabits.tasks
 
 import android.content.Context
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.AndroidDirFinder
 import org.isoron.uhabits.inject.AppContext
-import javax.inject.Inject
 
-class ExportDBTaskFactory
-@Inject constructor(
+@Inject
+class ExportDBTaskFactory(
     @AppContext private val context: Context,
     private val system: AndroidDirFinder
 ) {

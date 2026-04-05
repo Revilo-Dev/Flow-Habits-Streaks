@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.reminders
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.ChangeHabitColorCommand
 import org.isoron.uhabits.core.commands.Command
@@ -30,10 +31,10 @@ import org.isoron.uhabits.core.preferences.WidgetPreferences
 import org.isoron.uhabits.core.utils.DateUtils
 import java.util.Locale
 import java.util.Objects
-import javax.inject.Inject
 
 @AppScope
-class ReminderScheduler @Inject constructor(
+@Inject
+class ReminderScheduler(
     private val commandRunner: CommandRunner,
     private val habitList: HabitList,
     private val sys: SystemScheduler,

@@ -41,10 +41,9 @@ import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.ThemeSwitcher.Companion.THEME_DARK
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.database.AutoBackup
-import org.isoron.uhabits.inject.ActivityContextModule
-import org.isoron.uhabits.inject.DaggerHabitsActivityComponent
 import org.isoron.uhabits.inject.HabitsActivityComponent
 import org.isoron.uhabits.inject.HabitsApplicationComponent
+import org.isoron.uhabits.inject.create
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.dismissCurrentDialog
 import org.isoron.uhabits.utils.restartWithFade
@@ -83,11 +82,10 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         super.onCreate(savedInstanceState)
 
         appComponent = (applicationContext as HabitsApplication).component
-        component = DaggerHabitsActivityComponent
-            .builder()
-            .activityContextModule(ActivityContextModule(this))
-            .habitsApplicationComponent(appComponent)
-            .build()
+        component = HabitsActivityComponent::class.create(
+            parent = appComponent,
+            activityContext = this
+        )
         component.themeSwitcher.apply()
 
         prefs = appComponent.preferences

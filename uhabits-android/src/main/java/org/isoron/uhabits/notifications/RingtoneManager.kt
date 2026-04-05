@@ -27,14 +27,14 @@ import android.media.RingtoneManager.getRingtone
 import android.net.Uri
 import android.preference.PreferenceManager
 import android.provider.Settings
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.inject.AppContext
-import javax.inject.Inject
 
+@Inject
 @AppScope
-class RingtoneManager
-@Inject constructor(@AppContext private val context: Context) {
+class RingtoneManager(@AppContext private val context: Context) {
 
     val prefs: SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)

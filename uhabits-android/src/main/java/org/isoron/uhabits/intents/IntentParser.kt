@@ -22,16 +22,16 @@ package org.isoron.uhabits.intents
 import android.content.ContentUris.parseId
 import android.content.Intent
 import android.net.Uri
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
-import javax.inject.Inject
 
+@Inject
 @AppScope
-class IntentParser
-@Inject constructor(
+class IntentParser(
     private val habits: HabitList
 ) {
 

@@ -21,6 +21,7 @@ package org.isoron.uhabits.receivers
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
@@ -29,10 +30,10 @@ import org.isoron.uhabits.core.reminders.ReminderScheduler
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.notifications.SnoozeDelayPickerActivity
-import javax.inject.Inject
 
+@Inject
 @AppScope
-class ReminderController @Inject constructor(
+class ReminderController(
     private val reminderScheduler: ReminderScheduler,
     private val notificationTray: NotificationTray,
     private val preferences: Preferences

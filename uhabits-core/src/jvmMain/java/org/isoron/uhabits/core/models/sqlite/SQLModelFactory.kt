@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models.sqlite
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.Repository
 import org.isoron.uhabits.core.models.EntryList
@@ -26,13 +27,12 @@ import org.isoron.uhabits.core.models.ScoreList
 import org.isoron.uhabits.core.models.StreakList
 import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
 import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
-import javax.inject.Inject
 
 /**
  * Factory that provides models backed by an SQLite database.
  */
-class SQLModelFactory
-@Inject constructor(
+@Inject
+class SQLModelFactory(
     val database: Database
 ) : ModelFactory {
     override fun buildOriginalEntries() = SQLiteEntryList(database)

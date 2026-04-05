@@ -18,11 +18,12 @@
  */
 package org.isoron.uhabits.core.preferences
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.AppScope
-import javax.inject.Inject
 
 @AppScope
-class WidgetPreferences @Inject constructor(private val storage: Preferences.Storage) {
+@Inject
+class WidgetPreferences(private val storage: Preferences.Storage) {
     fun addWidget(widgetId: Int, habitIds: LongArray) {
         storage.putLongArray(getHabitIdKey(widgetId), habitIds)
     }

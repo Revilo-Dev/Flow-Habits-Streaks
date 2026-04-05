@@ -22,13 +22,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import dagger.Component
+import me.tatarka.inject.annotations.Component
 import org.isoron.platform.time.computeToday
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.core.ui.widgets.WidgetBehavior
 import org.isoron.uhabits.inject.HabitsApplicationComponent
 import org.isoron.uhabits.intents.IntentParser.CheckmarkIntentData
+
+@ReceiverScope
+@Component
+internal abstract class WidgetComponent(
+    @Component val parent: HabitsApplicationComponent
+) {
+    abstract val widgetController: WidgetBehavior
+}
 
 /**
  * The Android BroadcastReceiver for Loop Habit Tracker.
@@ -39,10 +47,7 @@ import org.isoron.uhabits.intents.IntentParser.CheckmarkIntentData
 class WidgetReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val app = context.applicationContext as HabitsApplication
-        val component = DaggerWidgetReceiver_WidgetComponent
-            .builder()
-            .habitsApplicationComponent(app.component)
-            .build()
+        val component = WidgetComponent::class.create(app.component)
         val parser = app.component.intentParser
         val controller = component.widgetController
         val prefs = app.component.preferences
@@ -106,12 +111,6 @@ class WidgetReceiver : BroadcastReceiver() {
         } catch (e: RuntimeException) {
             Log.e("WidgetReceiver", "could not process intent", e)
         }
-    }
-
-    @ReceiverScope
-    @Component(dependencies = [HabitsApplicationComponent::class])
-    internal interface WidgetComponent {
-        val widgetController: WidgetBehavior
     }
 
     companion object {

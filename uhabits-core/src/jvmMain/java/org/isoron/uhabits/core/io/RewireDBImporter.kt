@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
+import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.database.Cursor
 import org.isoron.uhabits.core.database.Database
@@ -31,13 +32,12 @@ import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.utils.isSQLite3File
 import java.io.File
-import javax.inject.Inject
 
 /**
  * Class that imports database files exported by Rewire.
  */
-class RewireDBImporter
-@Inject constructor(
+@Inject
+class RewireDBImporter(
     private val habitList: HabitList,
     private val modelFactory: ModelFactory,
     private val opener: DatabaseOpener
