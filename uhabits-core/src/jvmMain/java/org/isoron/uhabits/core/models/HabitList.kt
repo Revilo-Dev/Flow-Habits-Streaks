@@ -18,7 +18,7 @@
  */
 package org.isoron.uhabits.core.models
 
-import com.opencsv.CSVWriter
+import org.isoron.platform.io.csvLine
 import org.isoron.platform.io.format
 import java.io.IOException
 import java.io.Writer
@@ -192,8 +192,7 @@ abstract class HabitList : Iterable<Habit> {
             "Target Value",
             "Archived?"
         )
-        val csv = CSVWriter(out)
-        csv.writeNext(header, false)
+        out.write(csvLine(header))
         for (habit in this) {
             val (numerator, denominator) = habit.frequency
             val cols = arrayOf(
@@ -210,9 +209,9 @@ abstract class HabitList : Iterable<Habit> {
                 if (habit.isNumerical) habit.targetValue.toString() else "",
                 habit.isArchived.toString()
             )
-            csv.writeNext(cols, false)
+            out.write(csvLine(cols))
         }
-        csv.close()
+        out.close()
     }
 
     abstract fun resort()

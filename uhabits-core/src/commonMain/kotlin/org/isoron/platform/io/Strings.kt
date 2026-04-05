@@ -22,3 +22,13 @@ package org.isoron.platform.io
 expect fun format(format: String, arg: String): String
 expect fun format(format: String, arg: Int): String
 expect fun format(format: String, arg: Double): String
+
+fun csvLine(fields: Array<String>): String {
+    return fields.joinToString(",") { field ->
+        if (field.any { it == ',' || it == '"' || it == '\n' || it == '\r' }) {
+            "\"${field.replace("\"", "\"\"")}\""
+        } else {
+            field
+        }
+    } + "\n"
+}
