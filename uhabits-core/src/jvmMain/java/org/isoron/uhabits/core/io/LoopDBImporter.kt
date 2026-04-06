@@ -19,17 +19,19 @@
 package org.isoron.uhabits.core.io
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.io.Database
+import org.isoron.platform.io.DatabaseOpener
+import org.isoron.platform.io.getVersion
+import org.isoron.platform.io.migrateTo
+import org.isoron.platform.io.query
+import org.isoron.platform.io.querySingle
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.DATABASE_VERSION
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateHabitCommand
 import org.isoron.uhabits.core.commands.EditHabitCommand
-import org.isoron.uhabits.core.database.Cursor
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.DatabaseOpener
 import org.isoron.uhabits.core.database.HabitData
-import org.isoron.uhabits.core.database.MigrationHelper
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
@@ -53,26 +55,30 @@ class LoopDBImporter(
 
     override fun canHandle(file: File): Boolean {
         if (!file.isSQLite3File()) return false
-        val db = opener.open(file)
+        val db = opener.open(file.absolutePath)
         var canHandle = true
-        val c = db.query("select count(*) from SQLITE_MASTER where name='Habits' or name='Repetitions'")
-        if (!c.moveToNext() || c.getInt(0) != 2) {
+        val count = db.querySingle(
+            "select count(*) from SQLITE_MASTER where name='Habits' or name='Repetitions'"
+        ) { it.getInt(0) }
+        if (count == null || count != 2) {
             logger.error("Cannot handle file: tables not found")
             canHandle = false
         }
-        if (db.version > DATABASE_VERSION) {
-            logger.error("Cannot handle file: incompatible version: ${db.version} > $DATABASE_VERSION")
+        if (db.getVersion() > DATABASE_VERSION) {
+            logger.error("Cannot handle file: incompatible version: ${db.getVersion()} > $DATABASE_VERSION")
             canHandle = false
         }
-        c.close()
         db.close()
         return canHandle
     }
 
     override fun importHabitsFromFile(file: File) {
-        val db = opener.open(file)
-        val helper = MigrationHelper(db)
-        helper.migrateTo(DATABASE_VERSION)
+        val db = opener.open(file.absolutePath)
+        db.migrateTo(DATABASE_VERSION) { version ->
+            val filename = "%02d.sql".format(version)
+            javaClass.getResourceAsStream("/migrations/$filename")!!
+                .bufferedReader().readText()
+        }
 
         val habitDataList = loadHabits(db)
         for (habitData in habitDataList) {
@@ -89,21 +95,20 @@ class LoopDBImporter(
                 EditHabitCommand(habitList, habit.id!!, modified).run()
             }
 
-            // Reload saved version of the habit
             habit = habitList.getByUUID(habitData.uuid)!!
             val entries = habit.originalEntries
 
-            // Import entries
-            loadEntries(db, habitData.id!!).use { c ->
-                while (c.moveToNext()) {
-                    val timestamp = c.getLong(0) ?: continue
-                    val value = c.getInt(1) ?: continue
-                    val notes = c.getString(2) ?: ""
-                    val date = LocalDate.fromUnixTime(timestamp)
-                    val (_, existingValue, existingNotes) = entries.get(date)
-                    if (existingValue != value || existingNotes != notes) {
-                        entries.add(Entry(date, value, notes))
-                    }
+            db.query(
+                "SELECT timestamp, value, notes FROM Repetitions WHERE habit = ? ORDER BY timestamp DESC",
+                habitData.id.toString()
+            ) { stmt ->
+                val timestamp = stmt.getLongOrNull(0) ?: return@query
+                val value = stmt.getIntOrNull(1) ?: return@query
+                val notes = stmt.getTextOrNull(2) ?: ""
+                val date = LocalDate.fromUnixTime(timestamp)
+                val (_, existingValue, existingNotes) = entries.get(date)
+                if (existingValue != value || existingNotes != notes) {
+                    entries.add(Entry(date, value, notes))
                 }
             }
             habit.recompute()
@@ -119,41 +124,30 @@ class LoopDBImporter(
                 "position, reminder_hour, reminder_min, reminder_days, highlight, " +
                 "archived, type, target_value, target_type, unit, uuid " +
                 "FROM Habits ORDER BY position"
-        ).use { c ->
-            while (c.moveToNext()) {
-                result.add(cursorToHabitData(c))
-            }
+        ) { stmt ->
+            result.add(
+                HabitData(
+                    id = stmt.getLongOrNull(0),
+                    name = stmt.getTextOrNull(1) ?: "",
+                    description = stmt.getTextOrNull(2) ?: "",
+                    question = stmt.getTextOrNull(3) ?: "",
+                    freqNum = stmt.getIntOrNull(4) ?: 1,
+                    freqDen = stmt.getIntOrNull(5) ?: 1,
+                    color = stmt.getIntOrNull(6) ?: 0,
+                    position = stmt.getIntOrNull(7) ?: 0,
+                    reminderHour = stmt.getIntOrNull(8),
+                    reminderMin = stmt.getIntOrNull(9),
+                    reminderDays = stmt.getIntOrNull(10) ?: 0,
+                    highlight = stmt.getIntOrNull(11) ?: 0,
+                    archived = stmt.getIntOrNull(12) ?: 0,
+                    type = stmt.getIntOrNull(13) ?: 0,
+                    targetValue = stmt.getRealOrNull(14) ?: 0.0,
+                    targetType = stmt.getIntOrNull(15) ?: 0,
+                    unit = stmt.getTextOrNull(16) ?: "",
+                    uuid = stmt.getTextOrNull(17)
+                )
+            )
         }
         return result
-    }
-
-    private fun loadEntries(db: Database, habitId: Long): Cursor {
-        return db.query(
-            "SELECT timestamp, value, notes FROM Repetitions WHERE habit = ? ORDER BY timestamp DESC",
-            habitId.toString()
-        )
-    }
-
-    private fun cursorToHabitData(c: Cursor): HabitData {
-        return HabitData(
-            id = c.getLong(0),
-            name = c.getString(1) ?: "",
-            description = c.getString(2) ?: "",
-            question = c.getString(3) ?: "",
-            freqNum = c.getInt(4) ?: 1,
-            freqDen = c.getInt(5) ?: 1,
-            color = c.getInt(6) ?: 0,
-            position = c.getInt(7) ?: 0,
-            reminderHour = c.getInt(8),
-            reminderMin = c.getInt(9),
-            reminderDays = c.getInt(10) ?: 0,
-            highlight = c.getInt(11) ?: 0,
-            archived = c.getInt(12) ?: 0,
-            type = c.getInt(13) ?: 0,
-            targetValue = c.getDouble(14) ?: 0.0,
-            targetType = c.getInt(15) ?: 0,
-            unit = c.getString(16) ?: "",
-            uuid = c.getString(17)
-        )
     }
 }

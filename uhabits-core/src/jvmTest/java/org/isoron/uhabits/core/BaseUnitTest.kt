@@ -19,14 +19,11 @@
 package org.isoron.uhabits.core
 
 import org.apache.commons.io.IOUtils
+import org.isoron.platform.io.JavaDatabaseOpener
 import org.isoron.platform.io.TestDatabaseHelper
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.commands.CommandRunner
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.DatabaseOpener
-import org.isoron.uhabits.core.database.JdbcDatabase
-import org.isoron.uhabits.core.database.MigrationHelper
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.memory.MemoryModelFactory
@@ -45,8 +42,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Paths
-import java.sql.DriverManager
-import java.sql.SQLException
 import java.util.GregorianCalendar
 import java.util.TimeZone
 
@@ -57,22 +52,7 @@ open class BaseUnitTest {
     protected lateinit var modelFactory: ModelFactory
     protected lateinit var taskRunner: SingleThreadTaskRunner
     protected open lateinit var commandRunner: CommandRunner
-    protected var databaseOpener: DatabaseOpener = object : DatabaseOpener {
-        override fun open(file: File): Database {
-            return try {
-                JdbcDatabase(
-                    DriverManager.getConnection(
-                        String.format(
-                            "jdbc:sqlite:%s",
-                            file.absolutePath
-                        )
-                    )
-                )
-            } catch (e: SQLException) {
-                throw RuntimeException(e)
-            }
-        }
-    }
+    protected var databaseOpener: org.isoron.platform.io.DatabaseOpener = JavaDatabaseOpener()
 
     @Before
     @Throws(Exception::class)
@@ -125,31 +105,17 @@ open class BaseUnitTest {
     }
 
     @Throws(IOException::class)
-    protected fun openDatabaseResource(path: String): Database {
+    protected fun openDatabaseResource(path: String): org.isoron.platform.io.Database {
         val original = openAsset(path)
         val tmpDbFile = File.createTempFile("database", ".db")
         tmpDbFile.deleteOnExit()
         IOUtils.copy(original, FileOutputStream(tmpDbFile))
-        return databaseOpener.open(tmpDbFile)
+        return databaseOpener.open(tmpDbFile.absolutePath)
     }
 
     companion object {
-        fun buildMemoryDatabase(): Database {
-            return try {
-                val db: Database = JdbcDatabase(
-                    DriverManager.getConnection("jdbc:sqlite::memory:")
-                )
-                db.execute("pragma user_version=8;")
-                val helper = MigrationHelper(db)
-                helper.migrateTo(DATABASE_VERSION)
-                db
-            } catch (e: SQLException) {
-                throw RuntimeException(e)
-            }
-        }
-
-        fun buildNewMemoryDatabase(): org.isoron.platform.io.Database {
-            return org.isoron.platform.io.TestDatabaseHelper.createEmptyDatabase()
+        fun buildMemoryDatabase(): org.isoron.platform.io.Database {
+            return TestDatabaseHelper.createEmptyDatabase()
         }
     }
 }

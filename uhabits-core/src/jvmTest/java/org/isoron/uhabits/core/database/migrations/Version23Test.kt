@@ -21,57 +21,59 @@ package org.isoron.uhabits.core.database.migrations
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.io.Database
+import org.isoron.platform.io.migrateTo
+import org.isoron.platform.io.query
 import org.isoron.uhabits.core.BaseUnitTest
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.MigrationHelper
 import org.junit.Test
 
 class Version23Test : BaseUnitTest() {
 
     private lateinit var db: Database
 
-    private lateinit var helper: MigrationHelper
-
     override fun setUp() {
         super.setUp()
         db = openDatabaseResource("/databases/022.db")
-        helper = MigrationHelper(db)
     }
 
-    private fun migrateTo23() = helper.migrateTo(23)
+    private fun migrateTo(version: Int) {
+        db.migrateTo(version) { v ->
+            val filename = "%02d.sql".format(v)
+            javaClass.getResourceAsStream("/migrations/$filename")!!
+                .bufferedReader().readText()
+        }
+    }
 
     @Test
     fun `test migrate to 23 creates question column`() {
-        migrateTo23()
-        val cursor = db.query("select question from Habits")
-        cursor.moveToNext()
+        migrateTo(23)
+        db.query("select question from Habits") {}
     }
 
     @Test
     fun `test migrate to 23 moves description to question column`() {
-        var cursor = db.query("select description from Habits")
-
         val descriptions = mutableListOf<String?>()
-        while (cursor.moveToNext()) {
-            descriptions.add(cursor.getString(0))
+        db.query("select description from Habits") { stmt ->
+            descriptions.add(stmt.getTextOrNull(0))
         }
 
-        migrateTo23()
-        cursor = db.query("select question from Habits")
+        migrateTo(23)
 
-        for (i in 0 until descriptions.size) {
-            cursor.moveToNext()
-            assertThat(cursor.getString(0), equalTo(descriptions[i]))
+        val questions = mutableListOf<String?>()
+        db.query("select question from Habits") { stmt ->
+            questions.add(stmt.getTextOrNull(0))
+        }
+
+        for (i in descriptions.indices) {
+            assertThat(questions[i], equalTo(descriptions[i]))
         }
     }
 
     @Test
     fun `test migrate to 23 sets description to null`() {
-        migrateTo23()
-        val cursor = db.query("select description from Habits")
-
-        while (cursor.moveToNext()) {
-            assertThat(cursor.getString(0), equalTo(""))
+        migrateTo(23)
+        db.query("select description from Habits") { stmt ->
+            assertThat(stmt.getTextOrNull(0), equalTo(""))
         }
     }
 }

@@ -19,10 +19,13 @@
 package org.isoron.uhabits.core.io
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.io.Database
+import org.isoron.platform.io.DatabaseOpener
+import org.isoron.platform.io.begin
+import org.isoron.platform.io.commit
+import org.isoron.platform.io.query
+import org.isoron.platform.io.querySingle
 import org.isoron.platform.time.LocalDate
-import org.isoron.uhabits.core.database.Cursor
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.DatabaseOpener
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
@@ -43,67 +46,45 @@ class TickmateDBImporter(
 
     override fun canHandle(file: File): Boolean {
         if (!file.isSQLite3File()) return false
-        val db = opener.open(file)
-        val c = db.query(
-            "select count(*) from SQLITE_MASTER " +
-                "where name='tracks' or name='track2groups'"
-        )
-        val result = c.moveToNext() && c.getInt(0) == 2
-        c.close()
+        val db = opener.open(file.absolutePath)
+        val count = db.querySingle(
+            "select count(*) from SQLITE_MASTER where name='tracks' or name='track2groups'"
+        ) { it.getInt(0) }
         db.close()
-        return result
+        return count == 2
     }
 
     override fun importHabitsFromFile(file: File) {
-        val db = opener.open(file)
-        db.beginTransaction()
+        val db = opener.open(file.absolutePath)
+        db.begin()
         createHabits(db)
-        db.setTransactionSuccessful()
-        db.endTransaction()
+        db.commit()
         db.close()
     }
 
-    private fun createCheckmarks(
-        db: Database,
-        habit: Habit,
-        tickmateTrackId: Int
-    ) {
-        var c: Cursor? = null
-        try {
-            c = db.query(
-                "select distinct year, month, day from ticks where _track_id=?",
-                tickmateTrackId.toString()
-            )
-            if (!c.moveToNext()) return
-            do {
-                val year = c.getInt(0)!!
-                val month = c.getInt(1)!!
-                val day = c.getInt(2)!!
-                habit.originalEntries.add(Entry(LocalDate(year, month + 1, day), Entry.YES_MANUAL))
-            } while (c.moveToNext())
-        } finally {
-            c?.close()
+    private fun createCheckmarks(db: Database, habit: Habit, tickmateTrackId: Int) {
+        db.query(
+            "select distinct year, month, day from ticks where _track_id=?",
+            tickmateTrackId.toString()
+        ) { stmt ->
+            val year = stmt.getInt(0)
+            val month = stmt.getInt(1)
+            val day = stmt.getInt(2)
+            habit.originalEntries.add(Entry(LocalDate(year, month + 1, day), Entry.YES_MANUAL))
         }
     }
 
     private fun createHabits(db: Database) {
-        var c: Cursor? = null
-        try {
-            c = db.query("select _id, name, description from tracks")
-            if (!c.moveToNext()) return
-            do {
-                val id = c.getInt(0)!!
-                val name = c.getString(1)
-                val description = c.getString(2)
-                val habit = modelFactory.buildHabit()
-                habit.name = name!!
-                habit.description = description ?: ""
-                habit.frequency = Frequency.DAILY
-                habitList.add(habit)
-                createCheckmarks(db, habit, id)
-            } while (c.moveToNext())
-        } finally {
-            c?.close()
+        db.query("select _id, name, description from tracks") { stmt ->
+            val id = stmt.getInt(0)
+            val name = stmt.getText(1)
+            val description = stmt.getTextOrNull(2) ?: ""
+            val habit = modelFactory.buildHabit()
+            habit.name = name
+            habit.description = description
+            habit.frequency = Frequency.DAILY
+            habitList.add(habit)
+            createCheckmarks(db, habit, id)
         }
     }
 }

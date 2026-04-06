@@ -26,7 +26,6 @@ import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.setVersion
 import org.isoron.uhabits.core.database.UnsupportedDatabaseVersionException
 import org.isoron.uhabits.database.AndroidDatabase
-import java.io.File
 
 class HabitsDatabaseOpener(
     private val context: Context,
@@ -52,7 +51,7 @@ class HabitsDatabaseOpener(
     ) {
         db.disableWriteAheadLogging()
         if (db.version < 8) throw UnsupportedDatabaseVersionException()
-        val wrappedDb = AndroidDatabase(db, File(databaseFilename))
+        val wrappedDb = AndroidDatabase(db)
         wrappedDb.setVersion(db.version)
         wrappedDb.migrateTo(newVersion) { version ->
             val filename = "%02d.sql".format(version)

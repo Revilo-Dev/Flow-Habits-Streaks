@@ -77,14 +77,41 @@ fun Database.commit() {
     run("COMMIT")
 }
 
+inline fun Database.query(
+    sql: String,
+    vararg params: String,
+    block: (PreparedStatement) -> Unit
+) {
+    val stmt = prepareStatement(sql)
+    for (i in params.indices) {
+        stmt.bindText(i + 1, params[i])
+    }
+    while (stmt.step() == StepResult.ROW) {
+        block(stmt)
+    }
+    stmt.finalize()
+}
+
+inline fun <T> Database.querySingle(
+    sql: String,
+    vararg params: String,
+    block: (PreparedStatement) -> T
+): T? {
+    val stmt = prepareStatement(sql)
+    for (i in params.indices) {
+        stmt.bindText(i + 1, params[i])
+    }
+    val result = if (stmt.step() == StepResult.ROW) block(stmt) else null
+    stmt.finalize()
+    return result
+}
+
 fun Database.migrateTo(targetVersion: Int, loadMigrationSQL: (Int) -> String) {
     val currentVersion = getVersion()
     if (currentVersion >= targetVersion) return
-    begin()
     for (v in (currentVersion + 1)..targetVersion) {
         val commands = SQLParser.parse(loadMigrationSQL(v))
         for (cmd in commands) run(cmd)
         setVersion(v)
     }
-    commit()
 }

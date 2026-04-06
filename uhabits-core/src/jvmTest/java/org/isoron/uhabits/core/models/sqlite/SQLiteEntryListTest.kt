@@ -20,7 +20,7 @@
 package org.isoron.uhabits.core.models.sqlite
 
 import org.isoron.platform.time.LocalDate
-import org.isoron.uhabits.core.BaseUnitTest.Companion.buildNewMemoryDatabase
+import org.isoron.uhabits.core.BaseUnitTest.Companion.buildMemoryDatabase
 import org.isoron.uhabits.core.database.EntryData
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
 
 class SQLiteEntryListTest {
 
-    private val database = buildNewMemoryDatabase()
+    private val database = buildMemoryDatabase()
     private val factory = SQLModelFactory(database)
     private val entryRepository = factory.entryRepository
     private lateinit var entries: SQLiteEntryList

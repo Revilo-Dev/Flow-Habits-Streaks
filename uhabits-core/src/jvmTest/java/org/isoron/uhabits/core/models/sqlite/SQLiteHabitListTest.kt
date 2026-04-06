@@ -46,7 +46,7 @@ class SQLiteHabitListTest : BaseUnitTest() {
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
-        val db = buildNewMemoryDatabase()
+        val db = buildMemoryDatabase()
         modelFactory = SQLModelFactory(db)
         habitList = SQLiteHabitList(modelFactory)
         fixtures = HabitFixtures(modelFactory, habitList)

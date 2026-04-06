@@ -21,132 +21,132 @@ package org.isoron.uhabits.core.database.migrations
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.equalTo
+import org.isoron.platform.io.Database
+import org.isoron.platform.io.migrateTo
+import org.isoron.platform.io.querySingle
+import org.isoron.platform.io.run
 import org.isoron.uhabits.core.BaseUnitTest
-import org.isoron.uhabits.core.database.Cursor
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.MigrationHelper
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertThrows
 
 class Version22Test : BaseUnitTest() {
     private lateinit var db: Database
-    private lateinit var helper: MigrationHelper
 
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         db = openDatabaseResource("/databases/021.db")
-        helper = MigrationHelper(db)
+    }
+
+    private fun migrateTo(version: Int) {
+        db.migrateTo(version) { v ->
+            val filename = "%02d.sql".format(v)
+            javaClass.getResourceAsStream("/migrations/$filename")!!
+                .bufferedReader().readText()
+        }
     }
 
     @Test
-    @Throws(Exception::class)
     fun testKeepValidReps() {
-        db.query("select count(*) from repetitions") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(3))
-        }
-        helper.migrateTo(22)
-        db.query("select count(*) from repetitions") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(3))
-        }
+        val before = db.querySingle("select count(*) from repetitions") { it.getInt(0) }
+        assertThat(before, equalTo(3))
+        migrateTo(22)
+        val after = db.querySingle("select count(*) from repetitions") { it.getInt(0) }
+        assertThat(after, equalTo(3))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testRemoveRepsWithInvalidId() {
-        db.execute("insert into Repetitions(habit, timestamp, value) values (99999, 100, 2)")
-        db.query("select count(*) from repetitions where habit = 99999") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(1))
-        }
-        helper.migrateTo(22)
-        db.query("select count(*) from repetitions where habit = 99999") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(0))
-        }
+        db.run("insert into Repetitions(habit, timestamp, value) values (99999, 100, 2)")
+        val before = db.querySingle(
+            "select count(*) from repetitions where habit = 99999"
+        ) { it.getInt(0) }
+        assertThat(before, equalTo(1))
+        migrateTo(22)
+        val after = db.querySingle(
+            "select count(*) from repetitions where habit = 99999"
+        ) { it.getInt(0) }
+        assertThat(after, equalTo(0))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDisallowNewRepsWithInvalidRef() {
-        helper.migrateTo(22)
-        val exception = assertThrows(java.lang.RuntimeException::class.java) { db.execute("insert into Repetitions(habit, timestamp, value) values (99999, 100, 2)") }
-        assertThat(exception.message, Matchers.containsString("SQLITE_CONSTRAINT"))
+        migrateTo(22)
+        val exception = assertThrows(Exception::class.java) {
+            db.run("insert into Repetitions(habit, timestamp, value) values (99999, 100, 2)")
+        }
+        assertThat(exception.message, Matchers.containsString("constraint"))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testRemoveRepetitionsWithNullTimestamp() {
-        db.execute("insert into repetitions(habit, value) values (0, 2)")
-        db.query("select count(*) from repetitions where timestamp is null") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(1))
-        }
-        helper.migrateTo(22)
-        db.query("select count(*) from repetitions where timestamp is null") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(0))
-        }
+        db.run("insert into repetitions(habit, value) values (0, 2)")
+        val before = db.querySingle(
+            "select count(*) from repetitions where timestamp is null"
+        ) { it.getInt(0) }
+        assertThat(before, equalTo(1))
+        migrateTo(22)
+        val after = db.querySingle(
+            "select count(*) from repetitions where timestamp is null"
+        ) { it.getInt(0) }
+        assertThat(after, equalTo(0))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDisallowNullTimestamp() {
-        helper.migrateTo(22)
-
-        val exception = assertThrows(java.lang.RuntimeException::class.java) {
-            db.execute("insert into Repetitions(habit, value) " + "values (0, 2)")
+        migrateTo(22)
+        val exception = assertThrows(Exception::class.java) {
+            db.run("insert into Repetitions(habit, value) values (0, 2)")
         }
-
-        assertThat(exception.message, Matchers.containsString("SQLITE_CONSTRAINT"))
+        assertThat(exception.message, Matchers.containsString("constraint"))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testRemoveRepetitionsWithNullHabit() {
-        db.execute("insert into repetitions(timestamp, value) values (0, 2)")
-        db.query("select count(*) from repetitions where habit is null") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(1))
-        }
-        helper.migrateTo(22)
-        db.query("select count(*) from repetitions where habit is null") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(0))
-        }
+        db.run("insert into repetitions(timestamp, value) values (0, 2)")
+        val before = db.querySingle(
+            "select count(*) from repetitions where habit is null"
+        ) { it.getInt(0) }
+        assertThat(before, equalTo(1))
+        migrateTo(22)
+        val after = db.querySingle(
+            "select count(*) from repetitions where habit is null"
+        ) { it.getInt(0) }
+        assertThat(after, equalTo(0))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDisallowNullHabit() {
-        helper.migrateTo(22)
-
-        val exception = assertThrows(java.lang.RuntimeException::class.java) {
-            db.execute("insert into Repetitions(timestamp, value) " + "values (5, 2)")
+        migrateTo(22)
+        val exception = assertThrows(Exception::class.java) {
+            db.run("insert into Repetitions(timestamp, value) values (5, 2)")
         }
-
-        assertThat(exception.message, Matchers.containsString("SQLITE_CONSTRAINT"))
+        assertThat(exception.message, Matchers.containsString("constraint"))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testRemoveDuplicateRepetitions() {
-        db.execute("insert into repetitions(habit, timestamp, value)values (0, 100, 2)")
-        db.execute("insert into repetitions(habit, timestamp, value)values (0, 100, 5)")
-        db.execute("insert into repetitions(habit, timestamp, value)values (0, 100, 10)")
-        db.query("select count(*) from repetitions where timestamp=100 and habit=0") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(3))
-        }
-        helper.migrateTo(22)
-        db.query("select count(*) from repetitions where timestamp=100 and habit=0") { c: Cursor ->
-            assertThat(c.getInt(0), equalTo(1))
-        }
+        db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 2)")
+        db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 5)")
+        db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 10)")
+        val before = db.querySingle(
+            "select count(*) from repetitions where timestamp=100 and habit=0"
+        ) { it.getInt(0) }
+        assertThat(before, equalTo(3))
+        migrateTo(22)
+        val after = db.querySingle(
+            "select count(*) from repetitions where timestamp=100 and habit=0"
+        ) { it.getInt(0) }
+        assertThat(after, equalTo(1))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDisallowNewDuplicateTimestamps() {
-        helper.migrateTo(22)
-        db.execute("insert into repetitions(habit, timestamp, value)values (0, 100, 2)")
-
-        val exception = assertThrows(java.lang.RuntimeException::class.java) {
-            db.execute("insert into repetitions(habit, timestamp, value)values (0, 100, 5)")
+        migrateTo(22)
+        db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 2)")
+        val exception = assertThrows(Exception::class.java) {
+            db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 5)")
         }
-
-        assertThat(exception.message, Matchers.containsString("SQLITE_CONSTRAINT"))
+        assertThat(exception.message, Matchers.containsString("constraint"))
     }
 }

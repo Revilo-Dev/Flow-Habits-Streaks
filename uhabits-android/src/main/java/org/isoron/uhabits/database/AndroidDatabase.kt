@@ -19,12 +19,10 @@
 
 package org.isoron.uhabits.database
 
-import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
 import org.isoron.platform.io.PreparedStatement
 import org.isoron.platform.io.StepResult
-import java.io.File
 
 class AndroidPreparedStatement(
     private val db: SQLiteDatabase,
@@ -128,81 +126,12 @@ class AndroidPreparedStatement(
     }
 }
 
-/**
- * Implements both the new multiplatform Database interface (for repositories)
- * and the old JVM-only Database interface (for importers that still use Cursor).
- */
 class AndroidDatabase(
-    private val db: SQLiteDatabase,
-    override val file: File? = null
-) : org.isoron.platform.io.Database, org.isoron.uhabits.core.database.Database {
+    private val db: SQLiteDatabase
+) : org.isoron.platform.io.Database {
 
-    // New PreparedStatement-based interface
     override fun prepareStatement(sql: String): PreparedStatement =
         AndroidPreparedStatement(db, sql)
 
-    // Old Cursor-based interface
-    override fun query(q: String, vararg params: String) = AndroidCursor(db.rawQuery(q, params))
-    override fun execute(query: String, vararg params: Any) = db.execSQL(query, params)
-
-    override fun update(
-        tableName: String,
-        values: Map<String, Any?>,
-        where: String,
-        vararg params: String
-    ): Int {
-        val contValues = mapToContentValues(values)
-        return db.update(tableName, contValues, where, params)
-    }
-
-    override fun insert(tableName: String, values: Map<String, Any?>): Long {
-        val contValues = mapToContentValues(values)
-        return db.insert(tableName, null, contValues)
-    }
-
-    override fun delete(tableName: String, where: String, vararg params: String) {
-        db.delete(tableName, where, params)
-    }
-
-    override fun beginTransaction() = db.beginTransaction()
-    override fun setTransactionSuccessful() = db.setTransactionSuccessful()
-    override fun endTransaction() = db.endTransaction()
-
     override fun close() = db.close()
-
-    override val version: Int
-        get() = db.version
-
-    private fun mapToContentValues(map: Map<String, Any?>): ContentValues {
-        val values = ContentValues()
-        for ((key, value) in map) {
-            when (value) {
-                null -> values.putNull(key)
-                is Int -> values.put(key, value)
-                is Long -> values.put(key, value)
-                is Double -> values.put(key, value)
-                is String -> values.put(key, value)
-                else -> throw IllegalStateException("unsupported type: $value")
-            }
-        }
-        return values
-    }
-}
-
-class AndroidCursor(private val cursor: android.database.Cursor) : org.isoron.uhabits.core.database.Cursor {
-
-    override fun close() = cursor.close()
-    override fun moveToNext() = cursor.moveToNext()
-
-    override fun getInt(index: Int): Int? =
-        if (cursor.isNull(index)) null else cursor.getInt(index)
-
-    override fun getLong(index: Int): Long? =
-        if (cursor.isNull(index)) null else cursor.getLong(index)
-
-    override fun getDouble(index: Int): Double? =
-        if (cursor.isNull(index)) null else cursor.getDouble(index)
-
-    override fun getString(index: Int): String? =
-        if (cursor.isNull(index)) null else cursor.getString(index)
 }

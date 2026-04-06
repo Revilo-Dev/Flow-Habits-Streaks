@@ -21,10 +21,9 @@ package org.isoron.uhabits.inject
 import android.content.Context
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
+import org.isoron.platform.io.DatabaseOpener
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.CommandRunner
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.DatabaseOpener
 import org.isoron.uhabits.core.io.GenericImporter
 import org.isoron.uhabits.core.io.Logging
 import org.isoron.uhabits.core.models.HabitList
@@ -85,12 +84,8 @@ abstract class HabitsApplicationComponent(
         get() = providedDb
 
     private val providedDb: AndroidDatabase by lazy {
-        AndroidDatabase(DatabaseUtils.openDatabase(), dbFile)
+        AndroidDatabase(DatabaseUtils.openDatabase())
     }
-
-    @AppScope
-    @Provides
-    open fun database(): Database = providedDb
 
     @AppScope
     @Provides
