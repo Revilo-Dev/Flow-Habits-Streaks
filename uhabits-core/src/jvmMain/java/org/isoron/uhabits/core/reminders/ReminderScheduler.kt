@@ -55,7 +55,10 @@ class ReminderScheduler(
             sys.log("ReminderScheduler", "habit=" + habit.id + " has no reminder. Skipping.")
             return
         }
-        var reminderTime = habit.reminder!!.timeInMillis
+        var reminderTime = DateUtils.getUpcomingTimeInMillis(
+            habit.reminder!!.hour,
+            habit.reminder!!.minute
+        )
         val snoozeReminderTime = widgetPreferences.getSnoozeTime(habit.id!!)
         if (snoozeReminderTime != 0L) {
             val now = DateUtils.applyTimezone(DateUtils.getLocalTime())
