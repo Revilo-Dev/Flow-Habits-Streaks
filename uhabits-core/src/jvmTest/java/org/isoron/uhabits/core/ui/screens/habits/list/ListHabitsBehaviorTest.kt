@@ -36,7 +36,6 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import java.io.IOException
 import java.nio.file.Files
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -92,7 +91,7 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
     @Throws(Exception::class)
     fun testOnExportCSV() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
-        whenever(dirFinder.getCSVOutputDir()).thenReturn(outputDir)
+        whenever(dirFinder.getCSVOutputDir()).thenReturn(outputDir.absolutePath)
         behavior.onExportCSV()
         verify(screen).showSendFileScreen(any())
         assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
@@ -104,7 +103,7 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
     fun testOnExportCSV_fail() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
         outputDir.setWritable(false)
-        whenever(dirFinder.getCSVOutputDir()).thenReturn(outputDir)
+        whenever(dirFinder.getCSVOutputDir()).thenReturn(outputDir.absolutePath)
         behavior.onExportCSV()
         verify(screen).showMessage(ListHabitsBehavior.Message.COULD_NOT_EXPORT)
         assertTrue(outputDir.delete())
@@ -132,13 +131,12 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(IOException::class)
     fun testOnSendBugReport() {
         whenever(bugReporter.getBugReport()).thenReturn("hello")
         behavior.onSendBugReport()
         verify(bugReporter).dumpBugReportToFile()
         verify(screen).showSendBugReportToDeveloperScreen("hello")
-        whenever(bugReporter.getBugReport()).thenThrow(IOException())
+        whenever(bugReporter.getBugReport()).thenThrow(RuntimeException())
         behavior.onSendBugReport()
         verify(screen).showMessage(ListHabitsBehavior.Message.COULD_NOT_GENERATE_BUG_REPORT)
     }

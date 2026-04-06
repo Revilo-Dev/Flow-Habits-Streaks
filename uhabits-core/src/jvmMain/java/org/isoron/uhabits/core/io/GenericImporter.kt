@@ -19,7 +19,7 @@
 package org.isoron.uhabits.core.io
 
 import me.tatarka.inject.annotations.Inject
-import java.io.File
+import org.isoron.platform.io.UserFile
 
 /**
  * A GenericImporter decides which implementation of AbstractImporter is able to
@@ -40,7 +40,7 @@ class GenericImporter(
         habitBullCSVImporter
     )
 
-    override fun canHandle(file: File): Boolean {
+    override suspend fun canHandle(file: UserFile): Boolean {
         for (importer in importers) {
             if (importer.canHandle(file)) {
                 return true
@@ -49,7 +49,7 @@ class GenericImporter(
         return false
     }
 
-    override fun importHabitsFromFile(file: File) {
+    override suspend fun importHabitsFromFile(file: UserFile) {
         for (importer in importers) {
             if (importer.canHandle(file)) {
                 importer.importHabitsFromFile(file)

@@ -18,8 +18,11 @@
  */
 package org.isoron.uhabits.core.io
 
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
+import org.isoron.platform.io.JavaFileOpener
+import org.isoron.platform.io.JavaUserFile
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
@@ -173,25 +176,27 @@ class ImportTest : BaseUnitTest() {
     }
 
     @Throws(IOException::class)
-    private fun importFromFile(assetFilename: String) {
+    private fun importFromFile(assetFilename: String) = runBlocking {
         val file = File.createTempFile("asset", "")
         copyAssetToFile(assetFilename, file)
         assertTrue(file.exists())
         assertTrue(file.canRead())
+        val userFile = JavaUserFile(file.toPath())
         val importer = GenericImporter(
             LoopDBImporter(
                 habitList,
                 modelFactory,
                 databaseOpener,
                 commandRunner,
-                StandardLogging()
+                StandardLogging(),
+                JavaFileOpener()
             ),
             RewireDBImporter(habitList, modelFactory, databaseOpener),
             TickmateDBImporter(habitList, modelFactory, databaseOpener),
             HabitBullCSVImporter(habitList, modelFactory, StandardLogging())
         )
-        assertTrue(importer.canHandle(file))
-        importer.importHabitsFromFile(file)
+        assertTrue(importer.canHandle(userFile))
+        importer.importHabitsFromFile(userFile)
         file.delete()
     }
 }

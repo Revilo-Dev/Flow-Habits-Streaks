@@ -29,7 +29,6 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.tasks.ExportCSVTask
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
-import java.io.File
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.ln
@@ -127,6 +126,6 @@ class ShowHabitMenuPresenter(
     }
 
     interface System {
-        fun getCSVOutputDir(): File
+        fun getCSVOutputDir(): String
     }
 }

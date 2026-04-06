@@ -34,4 +34,15 @@ class StringsTest {
         assertEquals("00013.42", format("%08.2f", 13.419187263))
         assertEquals("13.42   ", format("%-8.2f", 13.419187263))
     }
+
+    @Test
+    fun testParseCsvLine() {
+        assertEquals(listOf("a", "b", "c"), parseCsvLine("a,b,c"))
+        assertEquals(listOf("hello world", "foo", "bar"), parseCsvLine("hello world,foo,bar"))
+        assertEquals(listOf("has,comma", "normal"), parseCsvLine("\"has,comma\",normal"))
+        assertEquals(listOf("has\"quote", "x"), parseCsvLine("\"has\"\"quote\",x"))
+        assertEquals(listOf("", "", ""), parseCsvLine(",,"))
+        assertEquals(listOf("single"), parseCsvLine("single"))
+        assertEquals(listOf("a", "line\nbreak", "b"), parseCsvLine("a,\"line\nbreak\",b"))
+    }
 }

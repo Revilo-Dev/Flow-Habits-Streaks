@@ -33,9 +33,6 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.ExportCSVTask
 import org.isoron.uhabits.core.tasks.TaskRunner
-import java.io.File
-import java.io.IOException
-import java.util.LinkedList
 import kotlin.math.roundToInt
 
 @Inject
@@ -81,8 +78,7 @@ open class ListHabitsBehavior(
     }
 
     fun onExportCSV() {
-        val selected: MutableList<Habit> = LinkedList()
-        for (h in habitList) selected.add(h)
+        val selected = habitList.toList()
         val outputDir = dirFinder.getCSVOutputDir()
         taskRunner.execute(
             ExportCSVTask(habitList, selected, outputDir) { filename: String? ->
@@ -119,7 +115,7 @@ open class ListHabitsBehavior(
         try {
             val log = bugReporter.getBugReport()
             screen.showSendBugReportToDeveloperScreen(log)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             screen.showMessage(Message.COULD_NOT_GENERATE_BUG_REPORT)
         }
@@ -149,12 +145,11 @@ open class ListHabitsBehavior(
     interface BugReporter {
         fun dumpBugReportToFile()
 
-        @Throws(IOException::class)
         fun getBugReport(): String
     }
 
     interface DirFinder {
-        fun getCSVOutputDir(): File
+        fun getCSVOutputDir(): String
     }
 
     fun interface NumberPickerCallback {

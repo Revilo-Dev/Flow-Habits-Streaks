@@ -19,10 +19,8 @@
 package org.isoron.uhabits.core.models
 
 import org.isoron.platform.time.LocalDate
-import javax.annotation.concurrent.ThreadSafe
 import kotlin.math.min
 
-@ThreadSafe
 class StreakList {
     private val list = ArrayList<Streak>()
 

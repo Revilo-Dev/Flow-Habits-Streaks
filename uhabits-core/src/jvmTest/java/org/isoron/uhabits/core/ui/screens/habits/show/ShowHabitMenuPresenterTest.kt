@@ -61,7 +61,7 @@ class ShowHabitMenuPresenterTest : BaseUnitTest() {
     @Throws(Exception::class)
     fun testOnExport() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
-        whenever(system.getCSVOutputDir()).thenReturn(outputDir)
+        whenever(system.getCSVOutputDir()).thenReturn(outputDir.absolutePath)
         menu.onExportCSV()
         assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
         FileUtils.deleteDirectory(outputDir)

@@ -21,7 +21,9 @@ package org.isoron.uhabits.inject
 import android.content.Context
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
+import org.isoron.platform.io.AndroidFileOpener
 import org.isoron.platform.io.DatabaseOpener
+import org.isoron.platform.io.FileOpener
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.io.GenericImporter
@@ -136,4 +138,9 @@ abstract class HabitsApplicationComponent(
     @AppScope
     @Provides
     open fun taskRunner(): TaskRunner = AndroidTaskRunner()
+
+    @AppScope
+    @Provides
+    open fun fileOpener(): FileOpener =
+        AndroidFileOpener(appContext.assets, appContext.filesDir)
 }

@@ -106,7 +106,7 @@ inline fun <T> Database.querySingle(
     return result
 }
 
-fun Database.migrateTo(targetVersion: Int, loadMigrationSQL: (Int) -> String) {
+suspend fun Database.migrateTo(targetVersion: Int, loadMigrationSQL: suspend (Int) -> String) {
     val currentVersion = getVersion()
     if (currentVersion >= targetVersion) return
     for (v in (currentVersion + 1)..targetVersion) {

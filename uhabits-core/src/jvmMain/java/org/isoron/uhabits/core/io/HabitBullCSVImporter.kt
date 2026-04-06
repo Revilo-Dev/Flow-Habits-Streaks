@@ -18,8 +18,9 @@
  */
 package org.isoron.uhabits.core.io
 
-import com.opencsv.CSVReader
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.io.UserFile
+import org.isoron.platform.io.parseCsvLine
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
@@ -27,9 +28,6 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.models.ModelFactory
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
 
 /**
  * Class that imports data from HabitBull CSV files.
@@ -43,16 +41,22 @@ class HabitBullCSVImporter(
 
     private val logger = logging.getLogger("HabitBullCSVImporter")
 
-    override fun canHandle(file: File): Boolean {
-        val reader = BufferedReader(FileReader(file))
-        val line = reader.readLine()
-        return line.startsWith("HabitName,HabitDescription,HabitCategory")
+    override suspend fun canHandle(file: UserFile): Boolean {
+        return try {
+            val lines = file.lines()
+            if (lines.isEmpty()) return false
+            lines[0].startsWith("HabitName,HabitDescription,HabitCategory")
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    override fun importHabitsFromFile(file: File) {
-        val reader = CSVReader(FileReader(file))
+    override suspend fun importHabitsFromFile(file: UserFile) {
+        val lines = file.lines()
         val map = HashMap<String, Habit>()
-        for (cols in reader) {
+        for (line in lines) {
+            val cols = parseCsvLine(line)
+            if (cols.size < 6) continue
             val name = cols[0]
             if (name == "HabitName") continue
             val description = cols[1]
@@ -61,13 +65,13 @@ class HabitBullCSVImporter(
             if (h == null) {
                 h = modelFactory.buildHabit()
                 h.name = name
-                h.description = description ?: ""
+                h.description = description
                 h.frequency = Frequency.DAILY
                 habitList.add(h)
                 map[name] = h
                 logger.info("Creating habit: $name")
             }
-            val notes = cols[5] ?: ""
+            val notes = cols[5]
             when (val value = parseInt(cols[4])) {
                 0 -> h.originalEntries.add(Entry(date, Entry.NO, notes))
                 1 -> h.originalEntries.add(Entry(date, Entry.YES_MANUAL, notes))
@@ -86,12 +90,10 @@ class HabitBullCSVImporter(
 
     private fun parseDate(rawValue: String): LocalDate {
         if (rawValue.contains("-")) {
-            // yyyy-MM-dd
             val parts = rawValue.split("-")
             return LocalDate(parts[0].toInt(), parts[1].toInt(), parts[2].toInt())
         }
         if (rawValue.contains("/")) {
-            // M/d/yyyy
             val parts = rawValue.split("/")
             return LocalDate(parts[2].toInt(), parts[0].toInt(), parts[1].toInt())
         }

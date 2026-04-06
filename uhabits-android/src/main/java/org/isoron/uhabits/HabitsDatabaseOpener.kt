@@ -22,6 +22,7 @@ package org.isoron.uhabits
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import kotlinx.coroutines.runBlocking
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.setVersion
 import org.isoron.uhabits.core.database.UnsupportedDatabaseVersionException
@@ -53,9 +54,11 @@ class HabitsDatabaseOpener(
         if (db.version < 8) throw UnsupportedDatabaseVersionException()
         val wrappedDb = AndroidDatabase(db)
         wrappedDb.setVersion(db.version)
-        wrappedDb.migrateTo(newVersion) { version ->
-            val filename = "%02d.sql".format(version)
-            context.assets.open("migrations/$filename").bufferedReader().readText()
+        runBlocking {
+            wrappedDb.migrateTo(newVersion) { version ->
+                val filename = "%02d.sql".format(version)
+                context.assets.open("migrations/$filename").bufferedReader().readText()
+            }
         }
     }
 

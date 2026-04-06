@@ -19,9 +19,11 @@
 
 package org.isoron.uhabits.core.database.migrations
 
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.io.Database
+import org.isoron.platform.io.JavaFileOpener
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.query
 import org.isoron.uhabits.core.BaseUnitTest
@@ -36,11 +38,12 @@ class Version23Test : BaseUnitTest() {
         db = openDatabaseResource("/databases/022.db")
     }
 
-    private fun migrateTo(version: Int) {
+    private val fileOpener = JavaFileOpener()
+
+    private fun migrateTo(version: Int) = runBlocking {
         db.migrateTo(version) { v ->
-            val filename = "%02d.sql".format(v)
-            javaClass.getResourceAsStream("/migrations/$filename")!!
-                .bufferedReader().readText()
+            val path = "migrations/%02d.sql".format(v)
+            fileOpener.openResourceFile(path).lines().joinToString("\n")
         }
     }
 

@@ -22,7 +22,6 @@ package org.isoron.uhabits.core.tasks
 import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
-import java.io.File
 
 @Inject
 class ExportCSVTaskFactory(
@@ -30,7 +29,7 @@ class ExportCSVTaskFactory(
 ) {
     fun create(
         selectedHabits: List<Habit>,
-        outputDir: File,
+        outputDir: String,
         listener: ExportCSVTask.Listener
     ) = ExportCSVTask(habitList, selectedHabits, outputDir, listener)
 }

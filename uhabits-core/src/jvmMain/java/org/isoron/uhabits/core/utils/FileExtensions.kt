@@ -19,13 +19,10 @@
 
 package org.isoron.uhabits.core.utils
 
-import java.io.File
-import java.io.FileInputStream
+import org.isoron.platform.io.UserFile
 
-fun File.isSQLite3File(): Boolean {
-    val fis = FileInputStream(this)
-    val sqliteHeader = "SQLite format 3".toByteArray()
-    val buffer = ByteArray(sqliteHeader.size)
-    val count = fis.read(buffer)
-    return if (count < sqliteHeader.size) false else buffer.contentEquals(sqliteHeader)
+suspend fun isSQLite3File(file: UserFile): Boolean {
+    if (!file.exists()) return false
+    val header = file.readBytes(16)
+    return header.decodeToString().startsWith("SQLite format 3")
 }

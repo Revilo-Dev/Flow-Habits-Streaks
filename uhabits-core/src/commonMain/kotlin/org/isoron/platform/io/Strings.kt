@@ -23,6 +23,40 @@ expect fun format(format: String, arg: String): String
 expect fun format(format: String, arg: Int): String
 expect fun format(format: String, arg: Double): String
 
+fun parseCsvLine(line: String): List<String> {
+    val result = mutableListOf<String>()
+    val sb = StringBuilder()
+    var inQuotes = false
+    var i = 0
+    while (i < line.length) {
+        val c = line[i]
+        if (inQuotes) {
+            if (c == '"') {
+                if (i + 1 < line.length && line[i + 1] == '"') {
+                    sb.append('"')
+                    i++
+                } else {
+                    inQuotes = false
+                }
+            } else {
+                sb.append(c)
+            }
+        } else {
+            when (c) {
+                ',' -> {
+                    result.add(sb.toString())
+                    sb.clear()
+                }
+                '"' -> inQuotes = true
+                else -> sb.append(c)
+            }
+        }
+        i++
+    }
+    result.add(sb.toString())
+    return result
+}
+
 fun csvLine(fields: Array<String>): String {
     return fields.joinToString(",") { field ->
         if (field.any { it == ',' || it == '"' || it == '\n' || it == '\r' }) {

@@ -18,61 +18,41 @@
  */
 package org.isoron.uhabits.core.io
 
-import com.opencsv.CSVWriter
+import org.isoron.platform.io.ZipWriter
+import org.isoron.platform.io.csvLine
+import org.isoron.platform.io.format
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
-import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
-import org.isoron.uhabits.core.models.Score
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.FileWriter
-import java.io.IOException
-import java.io.Writer
-import java.util.LinkedList
-import java.util.Locale
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 import kotlin.math.min
 
 /**
- * Class that exports the application data to CSV files.
+ * Class that exports the application data to CSV files inside a ZIP archive.
  */
 class HabitsCSVExporter(
     private val allHabits: HabitList,
-    private val selectedHabits: List<Habit>,
-    dir: File
+    private val selectedHabits: List<Habit>
 ) {
-    private val generatedDirs = LinkedList<String>()
-    private val generatedFilenames = LinkedList<String>()
-    private val exportDirName: String = dir.absolutePath + "/"
     private val delimiter = ","
 
-    fun writeArchive(): String {
-        writeHabits()
-        val zipFilename = writeZipFile()
-        cleanup()
-        return zipFilename
+    suspend fun writeArchive(): ByteArray {
+        val zip = ZipWriter()
+        zip.addEntry("Habits.csv", allHabits.writeCSV())
+        for (h in selectedHabits) {
+            val habitDirName = habitDirName(h)
+            zip.addEntry("${habitDirName}Scores.csv", writeScores(h))
+            zip.addEntry("${habitDirName}Checkmarks.csv", writeEntries(h.computedEntries))
+        }
+        zip.addEntry("Scores.csv", writeMultipleHabitsScores())
+        zip.addEntry("Checkmarks.csv", writeMultipleHabitsCheckmarks())
+        return zip.toBytes()
     }
 
-    private fun addFileToZip(zos: ZipOutputStream, filename: String) {
-        val fis = FileInputStream(File(exportDirName + filename))
-        val ze = ZipEntry(filename)
-        zos.putNextEntry(ze)
-        var length: Int
-        val bytes = ByteArray(1024)
-        while (fis.read(bytes).also { length = it } >= 0) zos.write(bytes, 0, length)
-        zos.closeEntry()
-        fis.close()
-    }
-
-    private fun cleanup() {
-        for (filename in generatedFilenames) File(exportDirName + filename).delete()
-        for (filename in generatedDirs) File(exportDirName + filename).delete()
-        File(exportDirName).delete()
+    private fun habitDirName(h: Habit): String {
+        val sane = sanitizeFilename(h.name)
+        return format("%03d", allHabits.indexOf(h) + 1) + " " + sane.trim() + "/"
     }
 
     private fun sanitizeFilename(name: String): String {
@@ -80,139 +60,75 @@ class HabitsCSVExporter(
         return s.substring(0, min(s.length, 100))
     }
 
-    private fun writeHabits() {
-        val filename = "Habits.csv"
-        File(exportDirName).mkdirs()
-        val out = FileWriter(exportDirName + filename)
-        generatedFilenames.add(filename)
-        allHabits.writeCSV(out)
-        out.close()
-        for (h in selectedHabits) {
-            val sane = sanitizeFilename(h.name)
-            var habitDirName = String.format(Locale.US, "%03d %s", allHabits.indexOf(h) + 1, sane)
-            habitDirName = habitDirName.trim() + "/"
-            File(exportDirName + habitDirName).mkdirs()
-            generatedDirs.add(habitDirName)
-            writeScores(habitDirName, h)
-            writeEntries(habitDirName, h.computedEntries)
-        }
-        writeMultipleHabits()
-    }
-
-    private fun writeScores(habitDirName: String, habit: Habit) {
-        val path = habitDirName + "Scores.csv"
-        val out = FileWriter(exportDirName + path)
-        generatedFilenames.add(path)
+    private fun writeScores(habit: Habit): String {
+        val sb = StringBuilder()
         val today = getToday()
         var oldest = today
         val known = habit.computedEntries.getKnown()
         if (known.isNotEmpty()) oldest = known[known.size - 1].date
-        val csv = CSVWriter(out)
-        csv.writeNext(arrayOf("Date", "Score"), false)
+        sb.append(csvLine(arrayOf("Date", "Score")))
         for (s in habit.scores.getByInterval(oldest, today)) {
-            val date = s.date.toCSVString()
-            val score = String.format(Locale.US, "%.4f", s.value)
-            csv.writeNext(arrayOf(date, score), false)
+            sb.append(csvLine(arrayOf(s.date.toCSVString(), format("%.4f", s.value))))
         }
-        csv.close()
-        out.close()
+        return sb.toString()
     }
 
-    private fun writeEntries(habitDirName: String, entries: EntryList) {
-        val filename = habitDirName + "Checkmarks.csv"
-        val out = FileWriter(exportDirName + filename)
-        generatedFilenames.add(filename)
-        val csv = CSVWriter(out)
-        csv.writeNext(arrayOf("Date", "Value", "Notes"), false)
+    private fun writeEntries(entries: EntryList): String {
+        val sb = StringBuilder()
+        sb.append(csvLine(arrayOf("Date", "Value", "Notes")))
         for (entry in entries.getKnown()) {
-            val date = entry.date.toCSVString()
-            csv.writeNext(
-                arrayOf(
-                    date,
-                    entry.formattedValue,
-                    entry.notes
-                ),
-                false
-            )
+            sb.append(csvLine(arrayOf(entry.date.toCSVString(), entry.formattedValue, entry.notes)))
         }
-        csv.close()
-        out.close()
+        return sb.toString()
     }
 
-    /**
-     * Writes a scores file and a checkmarks file containing scores and checkmarks of every habit.
-     * The first column corresponds to the date. Subsequent columns correspond to a habit.
-     * Habits are taken from the list of selected habits.
-     * Dates are determined from the oldest repetition date to the newest repetition date found in
-     * the list of habits.
-     */
-    private fun writeMultipleHabits() {
-        val scoresFileName = "Scores.csv"
-        val checksFileName = "Checkmarks.csv"
-        generatedFilenames.add(scoresFileName)
-        generatedFilenames.add(checksFileName)
-
-        val scoresWriter = FileWriter(exportDirName + scoresFileName)
-        val checksWriter = FileWriter(exportDirName + checksFileName)
-        writeMultipleHabitsHeader(scoresWriter)
-        writeMultipleHabitsHeader(checksWriter)
-
+    private fun writeMultipleHabitsScores(): String {
+        val sb = StringBuilder()
+        writeMultipleHabitsHeader(sb)
         val timeframe = getTimeframe()
         val oldest = timeframe[0]
         val newest = getToday()
-        val checkmarks: MutableList<ArrayList<Entry>> = ArrayList()
-        val scores: MutableList<ArrayList<Score>> = ArrayList()
-        for (habit in selectedHabits) {
-            checkmarks.add(ArrayList(habit.computedEntries.getByInterval(oldest, newest)))
-            scores.add(ArrayList(habit.scores.getByInterval(oldest, newest)))
-        }
-
+        val scores = selectedHabits.map { ArrayList(it.scores.getByInterval(oldest, newest)) }
         val days = oldest.daysUntil(newest)
         for (i in 0..days) {
             val date = newest.minus(i).toCSVString()
-            val sb = StringBuilder()
             sb.append(date).append(delimiter)
-            checksWriter.write(sb.toString())
-            scoresWriter.write(sb.toString())
             for (j in selectedHabits.indices) {
-                checksWriter.write(checkmarks[j][i].formattedValue)
-                checksWriter.write(delimiter)
-                val score = String.format(Locale.US, "%.4f", scores[j][i].value)
-                scoresWriter.write(score)
-                scoresWriter.write(delimiter)
+                val score = format("%.4f", scores[j][i].value)
+                sb.append(score).append(delimiter)
             }
-            checksWriter.write("\n")
-            scoresWriter.write("\n")
+            sb.append("\n")
         }
-        scoresWriter.close()
-        checksWriter.close()
+        return sb.toString()
     }
 
-    /**
-     * Writes the first row, containing header information, using the given writer.
-     * This consists of the date title and the names of the selected habits.
-     *
-     * @param out the writer to use
-     * @throws IOException if there was a problem writing
-     */
-    @Throws(IOException::class)
-    private fun writeMultipleHabitsHeader(out: Writer) {
-        out.write("Date$delimiter")
+    private fun writeMultipleHabitsCheckmarks(): String {
+        val sb = StringBuilder()
+        writeMultipleHabitsHeader(sb)
+        val timeframe = getTimeframe()
+        val oldest = timeframe[0]
+        val newest = getToday()
+        val checkmarks = selectedHabits.map { ArrayList(it.computedEntries.getByInterval(oldest, newest)) }
+        val days = oldest.daysUntil(newest)
+        for (i in 0..days) {
+            val date = newest.minus(i).toCSVString()
+            sb.append(date).append(delimiter)
+            for (j in selectedHabits.indices) {
+                sb.append(checkmarks[j][i].formattedValue).append(delimiter)
+            }
+            sb.append("\n")
+        }
+        return sb.toString()
+    }
+
+    private fun writeMultipleHabitsHeader(sb: StringBuilder) {
+        sb.append("Date$delimiter")
         for (habit in selectedHabits) {
-            out.write(habit.name)
-            out.write(delimiter)
+            sb.append(habit.name).append(delimiter)
         }
-        out.write("\n")
+        sb.append("\n")
     }
 
-    /**
-     * Gets the overall timeframe of the selected habits.
-     * The timeframe is an array containing the oldest timestamp among the habits and the
-     * newest timestamp among the habits.
-     * Both timestamps are in milliseconds.
-     *
-     * @return the timeframe containing the oldest timestamp and the newest timestamp
-     */
     private fun getTimeframe(): Array<LocalDate> {
         var oldest = LocalDate(1000000)
         var newest = LocalDate(0)
@@ -225,16 +141,5 @@ class HabitsCSVExporter(
             newest = if (currNew.isNewerThan(newest)) currNew else newest
         }
         return arrayOf(oldest, newest)
-    }
-
-    private fun writeZipFile(): String {
-        val date = getToday().toCSVString()
-        val zipFilename = String.format("%s/Loop Habits CSV %s.zip", exportDirName, date)
-        val fos = FileOutputStream(zipFilename)
-        val zos = ZipOutputStream(fos)
-        for (filename in generatedFilenames) addFileToZip(zos, filename)
-        zos.close()
-        fos.close()
-        return zipFilename
     }
 }

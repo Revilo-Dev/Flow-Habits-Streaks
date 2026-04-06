@@ -1,5 +1,6 @@
 package org.isoron.platform.io
 
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -31,7 +32,7 @@ class MigrationTest {
     }
 
     @Test
-    fun testMigrateIdempotent() {
+    fun testMigrateIdempotent() = runBlocking {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val version = db.getVersion()
         db.migrateTo(version) { v -> TestDatabaseHelper.loadMigrationSQL(v) }

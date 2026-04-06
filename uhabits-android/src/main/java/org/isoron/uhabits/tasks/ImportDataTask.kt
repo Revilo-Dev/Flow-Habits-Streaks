@@ -19,18 +19,19 @@
 package org.isoron.uhabits.tasks
 
 import android.util.Log
+import kotlinx.coroutines.runBlocking
+import org.isoron.platform.io.UserFile
 import org.isoron.platform.io.begin
 import org.isoron.platform.io.commit
 import org.isoron.uhabits.core.io.GenericImporter
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.sqlite.SQLModelFactory
 import org.isoron.uhabits.core.tasks.Task
-import java.io.File
 
 class ImportDataTask(
     private val importer: GenericImporter,
     modelFactory: ModelFactory,
-    private val file: File,
+    private val file: UserFile,
     private val listener: Listener
 ) : Task {
     private var result = 0
@@ -38,13 +39,15 @@ class ImportDataTask(
     override fun doInBackground() {
         modelFactory.database.begin()
         try {
-            if (importer.canHandle(file)) {
-                importer.importHabitsFromFile(file)
-                result = SUCCESS
-                modelFactory.database.commit()
-            } else {
-                result = NOT_RECOGNIZED
-                modelFactory.database.commit()
+            runBlocking {
+                if (importer.canHandle(file)) {
+                    importer.importHabitsFromFile(file)
+                    result = SUCCESS
+                    modelFactory.database.commit()
+                } else {
+                    result = NOT_RECOGNIZED
+                    modelFactory.database.commit()
+                }
             }
         } catch (e: Exception) {
             result = FAILED

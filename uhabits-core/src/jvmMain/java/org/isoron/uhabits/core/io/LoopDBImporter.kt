@@ -21,6 +21,8 @@ package org.isoron.uhabits.core.io
 import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.io.Database
 import org.isoron.platform.io.DatabaseOpener
+import org.isoron.platform.io.FileOpener
+import org.isoron.platform.io.UserFile
 import org.isoron.platform.io.getVersion
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.query
@@ -37,7 +39,6 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.sqlite.SQLiteHabitList
 import org.isoron.uhabits.core.utils.isSQLite3File
-import java.io.File
 
 /**
  * Class that imports data from database files exported by Loop Habit Tracker.
@@ -48,14 +49,15 @@ class LoopDBImporter(
     @AppScope val modelFactory: ModelFactory,
     @AppScope val opener: DatabaseOpener,
     @AppScope val runner: CommandRunner,
-    @AppScope logging: Logging
+    @AppScope logging: Logging,
+    @AppScope val fileOpener: FileOpener
 ) : AbstractImporter() {
 
     private val logger = logging.getLogger("LoopDBImporter")
 
-    override fun canHandle(file: File): Boolean {
-        if (!file.isSQLite3File()) return false
-        val db = opener.open(file.absolutePath)
+    override suspend fun canHandle(file: UserFile): Boolean {
+        if (!isSQLite3File(file)) return false
+        val db = opener.open(file.pathString)
         var canHandle = true
         val count = db.querySingle(
             "select count(*) from SQLITE_MASTER where name='Habits' or name='Repetitions'"
@@ -72,12 +74,11 @@ class LoopDBImporter(
         return canHandle
     }
 
-    override fun importHabitsFromFile(file: File) {
-        val db = opener.open(file.absolutePath)
+    override suspend fun importHabitsFromFile(file: UserFile) {
+        val db = opener.open(file.pathString)
         db.migrateTo(DATABASE_VERSION) { version ->
             val filename = "%02d.sql".format(version)
-            javaClass.getResourceAsStream("/migrations/$filename")!!
-                .bufferedReader().readText()
+            fileOpener.openResourceFile("migrations/$filename").lines().joinToString("\n")
         }
 
         val habitDataList = loadHabits(db)

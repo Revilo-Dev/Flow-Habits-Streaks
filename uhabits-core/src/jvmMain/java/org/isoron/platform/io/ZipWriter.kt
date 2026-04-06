@@ -16,19 +16,25 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.isoron.uhabits.activities
 
-import me.tatarka.inject.annotations.Inject
-import org.isoron.uhabits.AndroidDirFinder
-import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
-import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitMenuPresenter
+package org.isoron.platform.io
 
-@Inject
-class HabitsDirFinder(
-    private val androidDirFinder: AndroidDirFinder
-) : ShowHabitMenuPresenter.System, ListHabitsBehavior.DirFinder {
+import java.io.ByteArrayOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
-    override fun getCSVOutputDir(): String {
-        return androidDirFinder.getFilesDir("CSV")!!.absolutePath
+actual class ZipWriter {
+    private val baos = ByteArrayOutputStream()
+    private val zos = ZipOutputStream(baos)
+
+    actual fun addEntry(name: String, content: String) {
+        zos.putNextEntry(ZipEntry(name))
+        zos.write(content.toByteArray())
+        zos.closeEntry()
+    }
+
+    actual suspend fun toBytes(): ByteArray {
+        zos.close()
+        return baos.toByteArray()
     }
 }

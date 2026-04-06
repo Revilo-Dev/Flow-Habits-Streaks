@@ -66,6 +66,9 @@ class JavaResourceFile(val path: String) : ResourceFile {
 
 @Suppress("NewApi")
 class JavaUserFile(val path: Path) : UserFile {
+    override val pathString: String
+        get() = path.toString()
+
     override suspend fun lines(): List<String> {
         return Files.readAllLines(path)
     }
@@ -76,6 +79,25 @@ class JavaUserFile(val path: Path) : UserFile {
 
     override suspend fun delete() {
         Files.delete(path)
+    }
+
+    override suspend fun writeString(content: String) {
+        path.toFile().parentFile?.mkdirs()
+        Files.write(path, content.toByteArray())
+    }
+
+    override suspend fun writeBytes(bytes: ByteArray) {
+        path.toFile().parentFile?.mkdirs()
+        Files.write(path, bytes)
+    }
+
+    override suspend fun readBytes(limit: Int): ByteArray {
+        val file = path.toFile()
+        file.inputStream().use { stream ->
+            val buf = ByteArray(limit)
+            val n = stream.read(buf)
+            return if (n <= 0) ByteArray(0) else buf.copyOf(n)
+        }
     }
 }
 

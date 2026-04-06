@@ -18,9 +18,9 @@
  */
 package org.isoron.uhabits.core.io
 
-import java.io.File
+import org.isoron.platform.io.UserFile
 
 abstract class AbstractImporter {
-    abstract fun canHandle(file: File): Boolean
-    abstract fun importHabitsFromFile(file: File)
+    abstract suspend fun canHandle(file: UserFile): Boolean
+    abstract suspend fun importHabitsFromFile(file: UserFile)
 }

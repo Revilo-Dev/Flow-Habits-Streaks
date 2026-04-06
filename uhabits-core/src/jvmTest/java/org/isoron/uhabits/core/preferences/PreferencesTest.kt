@@ -27,7 +27,6 @@ import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
-import java.io.File
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -36,15 +35,13 @@ class PreferencesTest : BaseUnitTest() {
     private lateinit var prefs: Preferences
 
     private var listener: Preferences.Listener = mock()
-    private lateinit var storage: PropertiesStorage
+    private lateinit var storage: MemoryStorage
 
     @Before
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
-        val file = File.createTempFile("prefs", ".properties")
-        file.deleteOnExit()
-        storage = PropertiesStorage(file)
+        storage = MemoryStorage()
         prefs = Preferences(storage)
         prefs.addListener(listener)
     }

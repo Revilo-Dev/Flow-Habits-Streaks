@@ -20,14 +20,10 @@ package org.isoron.uhabits.core.models
 
 import org.isoron.platform.io.csvLine
 import org.isoron.platform.io.format
-import java.io.IOException
-import java.io.Writer
-import javax.annotation.concurrent.ThreadSafe
 
 /**
  * An ordered collection of [Habit]s.
  */
-@ThreadSafe
 abstract class HabitList : Iterable<Habit> {
     val observable: ModelObservable
 
@@ -168,16 +164,12 @@ abstract class HabitList : Iterable<Habit> {
     }
 
     /**
-     * Writes the list of habits to the given writer, in CSV format. There is
-     * one line for each habit, containing the fields name, description,
-     * frequency numerator, frequency denominator and color. The color is
-     * written in HTML format (#000000).
-     *
-     * @param out the writer that will receive the result
-     * @throws IOException if write operations fail
+     * Returns the list of habits in CSV format. There is one line for each
+     * habit, containing the fields name, description, frequency numerator,
+     * frequency denominator and color.
      */
-    @Throws(IOException::class)
-    fun writeCSV(out: Writer) {
+    fun writeCSV(): String {
+        val sb = StringBuilder()
         val header = arrayOf(
             "Position",
             "Name",
@@ -192,7 +184,7 @@ abstract class HabitList : Iterable<Habit> {
             "Target Value",
             "Archived?"
         )
-        out.write(csvLine(header))
+        sb.append(csvLine(header))
         for (habit in this) {
             val (numerator, denominator) = habit.frequency
             val cols = arrayOf(
@@ -209,9 +201,9 @@ abstract class HabitList : Iterable<Habit> {
                 if (habit.isNumerical) habit.targetValue.toString() else "",
                 habit.isArchived.toString()
             )
-            out.write(csvLine(cols))
+            sb.append(csvLine(cols))
         }
-        out.close()
+        return sb.toString()
     }
 
     abstract fun resort()

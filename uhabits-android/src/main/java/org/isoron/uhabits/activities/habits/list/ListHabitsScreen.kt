@@ -30,6 +30,7 @@ import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import org.isoron.platform.gui.toInt
+import org.isoron.platform.io.JavaUserFile
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.dialogs.CheckmarkDialog
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
@@ -137,7 +138,7 @@ class ListHabitsScreen(
             val cacheDir = activity.externalCacheDir
             val tempFile = File.createTempFile("import", "", cacheDir)
             inStream.copyTo(tempFile)
-            onImportData(tempFile) { tempFile.delete() }
+            onImportData(JavaUserFile(tempFile.toPath())) { tempFile.delete() }
         } catch (e: IOException) {
             activity.showMessage(activity.resources.getString(R.string.could_not_import))
             e.printStackTrace()
@@ -341,7 +342,7 @@ class ListHabitsScreen(
         }
     }
 
-    private fun onImportData(file: File, onFinished: () -> Unit) {
+    private fun onImportData(file: org.isoron.platform.io.UserFile, onFinished: () -> Unit) {
         taskRunner.execute(
             importTaskFactory.create(file) { result ->
                 when (result) {

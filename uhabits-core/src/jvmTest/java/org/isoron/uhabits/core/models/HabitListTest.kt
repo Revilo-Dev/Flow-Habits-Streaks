@@ -25,7 +25,6 @@ import org.isoron.uhabits.core.BaseUnitTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.io.IOException
-import java.io.StringWriter
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
@@ -214,9 +213,7 @@ class HabitListTest : BaseUnitTest() {
             003,Wake up early,YES_NO,Did you wake up before 6am?,,2,3,#AFB42B,,,,false
             
             """.trimIndent()
-        val writer = StringWriter()
-        list.writeCSV(writer)
-        assertThat(writer.toString(), equalTo(expectedCSV))
+        assertThat(list.writeCSV(), equalTo(expectedCSV))
     }
 
     @Test

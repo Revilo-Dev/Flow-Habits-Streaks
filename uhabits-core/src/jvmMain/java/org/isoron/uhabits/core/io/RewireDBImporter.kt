@@ -21,6 +21,7 @@ package org.isoron.uhabits.core.io
 import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.io.Database
 import org.isoron.platform.io.DatabaseOpener
+import org.isoron.platform.io.UserFile
 import org.isoron.platform.io.begin
 import org.isoron.platform.io.commit
 import org.isoron.platform.io.query
@@ -34,7 +35,6 @@ import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.utils.isSQLite3File
-import java.io.File
 
 /**
  * Class that imports database files exported by Rewire.
@@ -46,9 +46,9 @@ class RewireDBImporter(
     private val opener: DatabaseOpener
 ) : AbstractImporter() {
 
-    override fun canHandle(file: File): Boolean {
-        if (!file.isSQLite3File()) return false
-        val db = opener.open(file.absolutePath)
+    override suspend fun canHandle(file: UserFile): Boolean {
+        if (!isSQLite3File(file)) return false
+        val db = opener.open(file.pathString)
         val count = db.querySingle(
             "select count(*) from SQLITE_MASTER where name='CHECKINS' or name='UNIT'"
         ) { it.getInt(0) }
@@ -56,8 +56,8 @@ class RewireDBImporter(
         return count == 2
     }
 
-    override fun importHabitsFromFile(file: File) {
-        val db = opener.open(file.absolutePath)
+    override suspend fun importHabitsFromFile(file: UserFile) {
+        val db = opener.open(file.pathString)
         db.begin()
         createHabits(db)
         db.commit()

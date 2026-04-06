@@ -18,17 +18,17 @@
  */
 package org.isoron.uhabits.core.io
 
-import org.apache.commons.io.IOUtils
+import kotlinx.coroutines.runBlocking
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.junit.Before
 import org.junit.Test
+import java.io.ByteArrayInputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.util.*
-import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -47,18 +47,16 @@ class HabitsCSVExporterTest : BaseUnitTest() {
 
     @Test
     @Throws(IOException::class)
-    fun testExportCSV() {
+    fun testExportCSV() = runBlocking {
         val selected: MutableList<Habit> = LinkedList()
         for (h in habitList) selected.add(h)
-        val exporter = HabitsCSVExporter(
-            habitList,
-            selected,
-            baseDir
-        )
-        val filename = exporter.writeArchive()
-        assertAbsolutePathExists(filename)
-        val archive = File(filename)
-        unzip(archive)
+        val exporter = HabitsCSVExporter(habitList, selected)
+        val bytes = exporter.writeArchive()
+        assertTrue(bytes.isNotEmpty())
+
+        // Extract zip entries to baseDir for comparison
+        unzip(bytes)
+
         val filesToCheck = arrayOf(
             "001 Meditate/Checkmarks.csv",
             "001 Meditate/Scores.csv",
@@ -75,32 +73,21 @@ class HabitsCSVExporterTest : BaseUnitTest() {
         }
     }
 
-    @Throws(IOException::class)
-    private fun unzip(file: File) {
-        val zip = ZipFile(file)
-        val e = zip.entries()
-        while (e.hasMoreElements()) {
-            val entry = e.nextElement()
-            val stream = zip.getInputStream(entry)
-            val outputFilename = String.format(
-                "%s/%s",
-                baseDir.absolutePath,
-                entry.name
-            )
-            val out = File(outputFilename)
-            val parent = out.parentFile
-            parent?.mkdirs()
-            IOUtils.copy(stream, FileOutputStream(out))
+    private fun unzip(bytes: ByteArray) {
+        val zis = ZipInputStream(ByteArrayInputStream(bytes))
+        var entry = zis.nextEntry
+        while (entry != null) {
+            val outFile = File(baseDir, entry.name)
+            outFile.parentFile?.mkdirs()
+            outFile.writeBytes(zis.readBytes())
+            zis.closeEntry()
+            entry = zis.nextEntry
         }
-        zip.close()
+        zis.close()
     }
 
     private fun assertPathExists(s: String) {
-        assertAbsolutePathExists(String.format("%s/%s", baseDir.absolutePath, s))
-    }
-
-    private fun assertAbsolutePathExists(s: String) {
-        val file = File(s)
+        val file = File(baseDir, s)
         assertTrue(
             String.format("File %s should exist", file.absolutePath)
         ) { file.exists() }
@@ -108,7 +95,7 @@ class HabitsCSVExporterTest : BaseUnitTest() {
 
     private fun assertFileAndReferenceAreEqual(s: String) {
         val assetFilename = String.format("csv_export/%s", s)
-        val actualFile = File(String.format("%s/%s", baseDir.absolutePath, s))
+        val actualFile = File(baseDir, s)
         val expectedFile = File.createTempFile("asset", "")
         expectedFile.deleteOnExit()
         copyAssetToFile(assetFilename, expectedFile)
