@@ -20,26 +20,23 @@
 package org.isoron.uhabits.core.models.sqlite
 
 import org.isoron.platform.time.LocalDate
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.Repository
+import org.isoron.uhabits.core.database.EntryData
+import org.isoron.uhabits.core.database.EntryRepository
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.Frequency
-import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
 
-class SQLiteEntryList(database: Database) : EntryList() {
-    val repository = Repository(EntryRecord::class.java, database)
+class SQLiteEntryList(val repository: EntryRepository) : EntryList() {
     var habitId: Long? = null
     var isLoaded = false
 
     private fun loadRecords() {
         if (isLoaded) return
         val habitId = habitId ?: throw IllegalStateException("habitId must be set")
-        val records = repository.findAll(
-            "where habit = ? order by timestamp",
-            habitId.toString()
-        )
-        for (rec in records) super.add(rec.toEntry())
+        val records = repository.findAllByHabitId(habitId)
+        for (rec in records) {
+            super.add(Entry(LocalDate.fromUnixTime(rec.timestamp), rec.value, rec.notes))
+        }
         isLoaded = true
     }
 
@@ -57,19 +54,16 @@ class SQLiteEntryList(database: Database) : EntryList() {
         loadRecords()
         val habitId = habitId ?: throw IllegalStateException("habitId must be set")
 
-        // Remove existing rows
-        repository.execSQL(
-            "delete from repetitions where habit = ? and timestamp = ?",
-            habitId.toString(),
-            entry.date.unixTime.toString()
+        repository.deleteByHabitIdAndTimestamp(habitId, entry.date.unixTime)
+
+        val data = EntryData(
+            habitId = habitId,
+            timestamp = entry.date.unixTime,
+            value = entry.value,
+            notes = entry.notes
         )
+        repository.insert(data)
 
-        // Add new row
-        val record = EntryRecord().apply { copyFrom(entry) }
-        record.habitId = habitId
-        repository.save(record)
-
-        // Add to memory list
         super.add(entry)
     }
 
@@ -84,9 +78,6 @@ class SQLiteEntryList(database: Database) : EntryList() {
 
     override fun clear() {
         super.clear()
-        repository.execSQL(
-            "delete from repetitions where habit = ?",
-            habitId.toString()
-        )
+        repository.deleteByHabitId(habitId!!)
     }
 }

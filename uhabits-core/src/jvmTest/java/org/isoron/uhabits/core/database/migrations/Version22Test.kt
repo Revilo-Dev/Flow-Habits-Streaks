@@ -25,8 +25,6 @@ import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.database.Cursor
 import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.MigrationHelper
-import org.isoron.uhabits.core.models.sqlite.SQLModelFactory
-import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertThrows
 
@@ -39,9 +37,6 @@ class Version22Test : BaseUnitTest() {
         super.setUp()
         db = openDatabaseResource("/databases/021.db")
         helper = MigrationHelper(db)
-        modelFactory = SQLModelFactory(db)
-        habitList = (modelFactory as SQLModelFactory).buildHabitList()
-        fixtures = HabitFixtures(modelFactory, habitList)
     }
 
     @Test

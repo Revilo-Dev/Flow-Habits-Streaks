@@ -18,10 +18,6 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.isoron.uhabits.core.database.Repository
-import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
-import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
-
 /**
  * Interface implemented by factories that provide concrete implementations of
  * the core model classes.
@@ -43,6 +39,4 @@ interface ModelFactory {
     fun buildHabitList(): HabitList
     fun buildScoreList(): ScoreList
     fun buildStreakList(): StreakList
-    fun buildHabitListRepository(): Repository<HabitRecord>
-    fun buildRepetitionListRepository(): Repository<EntryRecord>
 }

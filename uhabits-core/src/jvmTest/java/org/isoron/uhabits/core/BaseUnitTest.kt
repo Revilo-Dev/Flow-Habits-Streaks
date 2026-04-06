@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core
 
 import org.apache.commons.io.IOUtils
+import org.isoron.platform.io.TestDatabaseHelper
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -145,6 +146,10 @@ open class BaseUnitTest {
             } catch (e: SQLException) {
                 throw RuntimeException(e)
             }
+        }
+
+        fun buildNewMemoryDatabase(): org.isoron.platform.io.Database {
+            return org.isoron.platform.io.TestDatabaseHelper.createEmptyDatabase()
         }
     }
 }

@@ -19,31 +19,26 @@
 package org.isoron.uhabits.core.models.sqlite
 
 import me.tatarka.inject.annotations.Inject
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.Repository
+import org.isoron.uhabits.core.database.EntryRepository
+import org.isoron.uhabits.core.database.HabitRepository
 import org.isoron.uhabits.core.models.EntryList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.ScoreList
 import org.isoron.uhabits.core.models.StreakList
-import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
-import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
 
 /**
  * Factory that provides models backed by an SQLite database.
  */
 @Inject
 class SQLModelFactory(
-    val database: Database
+    val database: org.isoron.platform.io.Database
 ) : ModelFactory {
-    override fun buildOriginalEntries() = SQLiteEntryList(database)
+    val habitRepository = HabitRepository(database)
+    val entryRepository = EntryRepository(database)
+
+    override fun buildOriginalEntries() = SQLiteEntryList(entryRepository)
     override fun buildComputedEntries() = EntryList()
     override fun buildHabitList() = SQLiteHabitList(this)
     override fun buildScoreList() = ScoreList()
     override fun buildStreakList() = StreakList()
-
-    override fun buildHabitListRepository() =
-        Repository(HabitRecord::class.java, database)
-
-    override fun buildRepetitionListRepository() =
-        Repository(EntryRecord::class.java, database)
 }

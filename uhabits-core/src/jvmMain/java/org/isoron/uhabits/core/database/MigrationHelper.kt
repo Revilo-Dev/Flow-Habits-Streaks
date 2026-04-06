@@ -20,7 +20,6 @@ package org.isoron.uhabits.core.database
 
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
 import java.util.Locale
 
 class MigrationHelper(
@@ -30,22 +29,23 @@ class MigrationHelper(
         try {
             for (v in db.version + 1..newVersion) {
                 val fname = String.format(Locale.US, "/migrations/%02d.sql", v)
-                for (command in SQLParser.parse(open(fname))) db.execute(command)
+                val sql = open(fname)
+                for (command in SQLParser.parse(sql)) db.execute(command)
             }
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
     }
 
-    private fun open(fname: String): InputStream {
+    private fun open(fname: String): String {
         val resource = javaClass.getResourceAsStream(fname)
-        if (resource != null) return resource
+        if (resource != null) return resource.bufferedReader().readText()
 
         // Workaround for bug in Android Studio / IntelliJ. Removing this
         // causes unit tests to fail when run from within the IDE, although
         // everything works fine from the command line.
         val file = File("uhabits-core/src/main/resources/$fname")
-        if (file.exists()) return FileInputStream(file)
+        if (file.exists()) return FileInputStream(file).bufferedReader().readText()
         throw RuntimeException("resource not found: $fname")
     }
 }

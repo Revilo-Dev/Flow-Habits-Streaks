@@ -51,7 +51,6 @@ kotlin {
                 implementation(libs.jsr305)
                 implementation(libs.opencsv)
                 implementation(libs.commons.codec)
-                implementation(libs.commons.lang3)
             }
         }
 

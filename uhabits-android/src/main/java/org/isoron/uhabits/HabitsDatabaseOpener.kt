@@ -22,13 +22,14 @@ package org.isoron.uhabits
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import org.isoron.uhabits.core.database.MigrationHelper
+import org.isoron.platform.io.migrateTo
+import org.isoron.platform.io.setVersion
 import org.isoron.uhabits.core.database.UnsupportedDatabaseVersionException
 import org.isoron.uhabits.database.AndroidDatabase
 import java.io.File
 
 class HabitsDatabaseOpener(
-    context: Context,
+    private val context: Context,
     private val databaseFilename: String,
     private val version: Int
 ) : SQLiteOpenHelper(context, databaseFilename, null, version) {
@@ -51,8 +52,12 @@ class HabitsDatabaseOpener(
     ) {
         db.disableWriteAheadLogging()
         if (db.version < 8) throw UnsupportedDatabaseVersionException()
-        val helper = MigrationHelper(AndroidDatabase(db, File(databaseFilename)))
-        helper.migrateTo(newVersion)
+        val wrappedDb = AndroidDatabase(db, File(databaseFilename))
+        wrappedDb.setVersion(db.version)
+        wrappedDb.migrateTo(newVersion) { version ->
+            val filename = "%02d.sql".format(version)
+            context.assets.open("migrations/$filename").bufferedReader().readText()
+        }
     }
 
     override fun onDowngrade(

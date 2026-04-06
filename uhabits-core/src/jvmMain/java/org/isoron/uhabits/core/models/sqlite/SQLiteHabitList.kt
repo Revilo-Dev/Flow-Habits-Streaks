@@ -19,32 +19,39 @@
 package org.isoron.uhabits.core.models.sqlite
 
 import me.tatarka.inject.annotations.Inject
-import org.isoron.uhabits.core.database.Repository
+import org.isoron.uhabits.core.database.HabitData
+import org.isoron.uhabits.core.database.HabitRepository
+import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
+import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.core.models.ModelFactory
+import org.isoron.uhabits.core.models.NumericalHabitType
+import org.isoron.uhabits.core.models.PaletteColor
+import org.isoron.uhabits.core.models.Reminder
+import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.models.memory.MemoryHabitList
-import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
 
 /**
  * Implementation of a [HabitList] that is backed by SQLite.
  */
 @Inject
 class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
-    private val repository: Repository<HabitRecord> = modelFactory.buildHabitListRepository()
+    private val repository: HabitRepository = (modelFactory as SQLModelFactory).habitRepository
     private val list: MemoryHabitList = MemoryHabitList()
     private var loaded = false
+
     private fun loadRecords() {
         if (loaded) return
         loaded = true
         list.removeAll()
-        val records = repository.findAll("order by position")
+        val records = repository.findAll()
         var shouldRebuildOrder = false
         for ((expectedPosition, rec) in records.withIndex()) {
             if (rec.position != expectedPosition) shouldRebuildOrder = true
             val h = modelFactory.buildHabit()
-            rec.copyTo(h)
+            copyTo(rec, h)
             (h.originalEntries as SQLiteEntryList).habitId = h.id
             list.add(h)
         }
@@ -54,12 +61,12 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
     @Synchronized
     override fun add(habit: Habit) {
         loadRecords()
+        require(list.indexOf(habit) < 0) { "habit already added" }
         habit.position = size()
-        val record = HabitRecord()
-        record.copyFrom(habit)
-        repository.save(record)
-        habit.id = record.id
-        (habit.originalEntries as SQLiteEntryList).habitId = record.id
+        val data = copyFrom(habit)
+        val id = repository.insert(data)
+        habit.id = id
+        (habit.originalEntries as SQLiteEntryList).habitId = id
         list.add(habit)
         observable.notifyListeners()
     }
@@ -118,13 +125,11 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
 
     @Synchronized
     private fun rebuildOrder() {
-        val records = repository.findAll("order by position")
-        repository.executeAsTransaction {
-            for ((pos, r) in records.withIndex()) {
-                if (r.position != pos) {
-                    r.position = pos
-                    repository.save(r)
-                }
+        val records = repository.findAll()
+        for ((pos, r) in records.withIndex()) {
+            if (r.position != pos) {
+                r.position = pos
+                repository.update(r)
             }
         }
     }
@@ -133,13 +138,8 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
     override fun remove(h: Habit) {
         loadRecords()
         list.remove(h)
-        val record = repository.find(
-            h.id!!
-        ) ?: throw RuntimeException("habit not in database")
-        repository.executeAsTransaction {
-            h.originalEntries.clear()
-            repository.remove(record)
-        }
+        h.originalEntries.clear()
+        repository.delete(h.id!!)
         rebuildOrder()
         observable.notifyListeners()
     }
@@ -155,32 +155,23 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
     @Synchronized
     override fun reorder(from: Habit, to: Habit) {
         loadRecords()
+        val fromPos = from.position
+        val toPos = to.position
         list.reorder(from, to)
-        val fromRecord = repository.find(
-            from.id!!
-        )
-        val toRecord = repository.find(
-            to.id!!
-        )
-        if (fromRecord == null) throw RuntimeException("habit not in database")
-        if (toRecord == null) throw RuntimeException("habit not in database")
-        if (toRecord.position!! < fromRecord.position!!) {
+        if (toPos < fromPos) {
             repository.execSQL(
                 "update habits set position = position + 1 " +
-                    "where position >= ? and position < ?",
-                toRecord.position!!,
-                fromRecord.position!!
+                    "where position >= $toPos and position < $fromPos"
             )
         } else {
             repository.execSQL(
                 "update habits set position = position - 1 " +
-                    "where position > ? and position <= ?",
-                fromRecord.position!!,
-                toRecord.position!!
+                    "where position > $fromPos and position <= $toPos"
             )
         }
-        fromRecord.position = toRecord.position
-        repository.save(fromRecord)
+        val data = copyFrom(from)
+        data.position = toPos
+        repository.update(data)
         observable.notifyListeners()
     }
 
@@ -202,9 +193,8 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
         loadRecords()
         list.update(habits)
         for (h in habits) {
-            val record = repository.find(h.id!!) ?: continue
-            record.copyFrom(h)
-            repository.save(record)
+            val data = copyFrom(h)
+            repository.update(data)
         }
         observable.notifyListeners()
     }
@@ -217,5 +207,54 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
     @Synchronized
     fun reload() {
         loaded = false
+    }
+
+    companion object {
+        fun copyFrom(habit: Habit): HabitData {
+            val (numerator, denominator) = habit.frequency
+            return HabitData(
+                id = habit.id,
+                name = habit.name,
+                description = habit.description,
+                question = habit.question,
+                freqNum = numerator,
+                freqDen = denominator,
+                color = habit.color.paletteIndex,
+                position = habit.position,
+                reminderHour = habit.reminder?.hour,
+                reminderMin = habit.reminder?.minute,
+                reminderDays = habit.reminder?.days?.toInteger() ?: 0,
+                highlight = 0,
+                archived = if (habit.isArchived) 1 else 0,
+                type = habit.type.value,
+                targetValue = habit.targetValue,
+                targetType = habit.targetType.value,
+                unit = habit.unit,
+                uuid = habit.uuid
+            )
+        }
+
+        fun copyTo(data: HabitData, habit: Habit) {
+            habit.id = data.id
+            habit.name = data.name
+            habit.description = data.description
+            habit.question = data.question
+            habit.frequency = Frequency(data.freqNum, data.freqDen)
+            habit.color = PaletteColor(data.color)
+            habit.isArchived = data.archived != 0
+            habit.type = HabitType.fromInt(data.type)
+            habit.targetType = NumericalHabitType.fromInt(data.targetType)
+            habit.targetValue = data.targetValue
+            habit.unit = data.unit
+            habit.position = data.position
+            habit.uuid = data.uuid
+            if (data.reminderHour != null && data.reminderMin != null) {
+                habit.reminder = Reminder(
+                    data.reminderHour!!,
+                    data.reminderMin!!,
+                    WeekdayList(data.reminderDays)
+                )
+            }
+        }
     }
 }

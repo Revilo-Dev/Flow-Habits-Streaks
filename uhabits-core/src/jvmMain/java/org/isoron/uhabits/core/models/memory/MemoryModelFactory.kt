@@ -29,6 +29,4 @@ class MemoryModelFactory : ModelFactory {
     override fun buildHabitList() = MemoryHabitList()
     override fun buildScoreList() = ScoreList()
     override fun buildStreakList() = StreakList()
-    override fun buildHabitListRepository() = throw NotImplementedError()
-    override fun buildRepetitionListRepository() = throw NotImplementedError()
 }

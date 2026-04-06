@@ -21,15 +21,13 @@ package org.isoron.uhabits.core.models.sqlite
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.BaseUnitTest
-import org.isoron.uhabits.core.database.Database
-import org.isoron.uhabits.core.database.Repository
+import org.isoron.uhabits.core.database.HabitRepository
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
-import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
 import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -39,7 +37,7 @@ import java.util.ArrayList
 import kotlin.test.assertNull
 
 class SQLiteHabitListTest : BaseUnitTest() {
-    private lateinit var repository: Repository<HabitRecord>
+    private lateinit var repository: HabitRepository
     private var listener: ModelObservable.Listener = mock()
     private lateinit var habitsArray: ArrayList<Habit>
     private lateinit var activeHabits: HabitList
@@ -48,11 +46,11 @@ class SQLiteHabitListTest : BaseUnitTest() {
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
-        val db: Database = buildMemoryDatabase()
+        val db = buildNewMemoryDatabase()
         modelFactory = SQLModelFactory(db)
         habitList = SQLiteHabitList(modelFactory)
         fixtures = HabitFixtures(modelFactory, habitList)
-        repository = Repository(HabitRecord::class.java, db)
+        repository = (modelFactory as SQLModelFactory).habitRepository
         habitsArray = ArrayList()
         for (i in 0..9) {
             val habit = fixtures.createEmptyHabit()
@@ -99,7 +97,8 @@ class SQLiteHabitListTest : BaseUnitTest() {
         habit.id = 12300L
         habitList.add(habit)
         assertThat(habit.id, equalTo(12300L))
-        val record = repository.find(12300L)
+        val all = repository.findAll()
+        val record = all.find { it.id == 12300L }
         assertThat(record!!.name, equalTo(habit.name))
     }
 
@@ -109,7 +108,8 @@ class SQLiteHabitListTest : BaseUnitTest() {
         habit.name = "Hello world"
         assertNull(habit.id)
         habitList.add(habit)
-        val record = repository.find(habit.id!!)
+        val all = repository.findAll()
+        val record = all.find { it.id == habit.id }
         assertThat(record!!.name, equalTo(habit.name))
     }
 
@@ -156,10 +156,11 @@ class SQLiteHabitListTest : BaseUnitTest() {
         habitList.remove(h!!)
         assertThat(habitList.indexOf(h), equalTo(-1))
 
-        var rec = repository.find(2L)
-        assertNull(rec)
-        rec = repository.find(3L)!!
-        assertThat(rec.position, equalTo(1))
+        val all = repository.findAll()
+        val rec2 = all.find { it.id == 2L }
+        assertNull(rec2)
+        val rec3 = all.find { it.id == 3L }!!
+        assertThat(rec3.position, equalTo(1))
     }
 
     @Test
@@ -169,10 +170,11 @@ class SQLiteHabitListTest : BaseUnitTest() {
         habitList.remove(h!!)
         assertThat(habitList.indexOf(h), equalTo(-1))
 
-        var rec = repository.find(2L)
-        assertNull(rec)
-        rec = repository.find(3L)!!
-        assertThat(rec.position, equalTo(1))
+        val all = repository.findAll()
+        val rec2 = all.find { it.id == 2L }
+        assertNull(rec2)
+        val rec3 = all.find { it.id == 3L }!!
+        assertThat(rec3.position, equalTo(1))
     }
 
     @Test
@@ -180,9 +182,10 @@ class SQLiteHabitListTest : BaseUnitTest() {
         val habit3 = habitList.getById(3)!!
         val habit4 = habitList.getById(4)!!
         habitList.reorder(habit4, habit3)
-        val record3 = repository.find(3L)!!
+        val all = repository.findAll()
+        val record3 = all.find { it.id == 3L }!!
         assertThat(record3.position, equalTo(3))
-        val record4 = repository.find(4L)!!
+        val record4 = all.find { it.id == 4L }!!
         assertThat(record4.position, equalTo(2))
     }
 }

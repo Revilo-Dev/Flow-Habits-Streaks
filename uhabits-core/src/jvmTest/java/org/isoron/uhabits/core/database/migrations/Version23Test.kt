@@ -24,8 +24,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.MigrationHelper
-import org.isoron.uhabits.core.models.sqlite.SQLModelFactory
-import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.Test
 
 class Version23Test : BaseUnitTest() {
@@ -38,9 +36,6 @@ class Version23Test : BaseUnitTest() {
         super.setUp()
         db = openDatabaseResource("/databases/022.db")
         helper = MigrationHelper(db)
-        modelFactory = SQLModelFactory(db)
-        habitList = (modelFactory as SQLModelFactory).buildHabitList()
-        fixtures = HabitFixtures(modelFactory, habitList)
     }
 
     private fun migrateTo23() = helper.migrateTo(23)

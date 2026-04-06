@@ -19,6 +19,8 @@
 package org.isoron.uhabits.tasks
 
 import android.util.Log
+import org.isoron.platform.io.begin
+import org.isoron.platform.io.commit
 import org.isoron.uhabits.core.io.GenericImporter
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.sqlite.SQLModelFactory
@@ -34,20 +36,22 @@ class ImportDataTask(
     private var result = 0
     private val modelFactory: SQLModelFactory = modelFactory as SQLModelFactory
     override fun doInBackground() {
-        modelFactory.database.beginTransaction()
+        modelFactory.database.begin()
         try {
             if (importer.canHandle(file)) {
                 importer.importHabitsFromFile(file)
                 result = SUCCESS
-                modelFactory.database.setTransactionSuccessful()
+                modelFactory.database.commit()
             } else {
                 result = NOT_RECOGNIZED
+                modelFactory.database.commit()
             }
         } catch (e: Exception) {
             result = FAILED
             Log.e("ImportDataTask", "Import failed", e)
+            // On failure, commit anyway to close the transaction
+            try { modelFactory.database.commit() } catch (_: Exception) {}
         }
-        modelFactory.database.endTransaction()
     }
 
     override fun onPostExecute() {

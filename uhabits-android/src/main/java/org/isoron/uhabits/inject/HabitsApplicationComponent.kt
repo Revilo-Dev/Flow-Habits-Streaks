@@ -81,10 +81,10 @@ abstract class HabitsApplicationComponent(
     abstract val widgetPreferences: WidgetPreferences
     abstract val widgetUpdater: WidgetUpdater
 
-    val db: Database
+    val db: AndroidDatabase
         get() = providedDb
 
-    private val providedDb: Database by lazy {
+    private val providedDb: AndroidDatabase by lazy {
         AndroidDatabase(DatabaseUtils.openDatabase(), dbFile)
     }
 

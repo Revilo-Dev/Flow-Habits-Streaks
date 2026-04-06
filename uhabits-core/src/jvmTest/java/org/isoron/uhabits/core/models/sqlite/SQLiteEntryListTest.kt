@@ -20,49 +20,46 @@
 package org.isoron.uhabits.core.models.sqlite
 
 import org.isoron.platform.time.LocalDate
-import org.isoron.uhabits.core.BaseUnitTest.Companion.buildMemoryDatabase
-import org.isoron.uhabits.core.database.Repository
+import org.isoron.uhabits.core.BaseUnitTest.Companion.buildNewMemoryDatabase
+import org.isoron.uhabits.core.database.EntryData
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
-import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class SQLiteEntryListTest {
 
-    private val database = buildMemoryDatabase()
-    private val repository = Repository(EntryRecord::class.java, database)
-    private val entries = SQLiteEntryList(database)
+    private val database = buildNewMemoryDatabase()
+    private val factory = SQLModelFactory(database)
+    private val entryRepository = factory.entryRepository
+    private lateinit var entries: SQLiteEntryList
     private val today = LocalDate(2015, 1, 25)
 
     @Before
     fun setUp() {
-        // Create a habit and add it to the database to satisfy foreign key requirements
-        val factory = SQLModelFactory(database)
         val habitList = factory.buildHabitList()
         val habit = factory.buildHabit()
         habitList.add(habit)
-        entries.habitId = habit.id
+        entries = habit.originalEntries as SQLiteEntryList
     }
 
     @Test
     fun testLoad() {
         val today = LocalDate(2015, 1, 25)
-        repository.save(
-            EntryRecord().apply {
-                habitId = entries.habitId
-                timestamp = today.unixTime
+        entryRepository.insert(
+            EntryData(
+                habitId = entries.habitId,
+                timestamp = today.unixTime,
                 value = 500
-            }
+            )
         )
-        repository.save(
-            EntryRecord().apply {
-                habitId = entries.habitId
-                timestamp = today.minus(5).unixTime
+        entryRepository.insert(
+            EntryData(
+                habitId = entries.habitId,
+                timestamp = today.minus(5).unixTime,
                 value = 300
-            }
+            )
         )
         assertEquals(
             Entry(date = today, value = 500),
@@ -80,26 +77,23 @@ class SQLiteEntryListTest {
 
     @Test
     fun testAdd() {
-        assertNull(getByTimestamp(1, today))
+        val habitId = entries.habitId!!
+
+        assertEquals(0, entryRepository.findAllByHabitId(habitId).size)
 
         val original = Entry(today, 150)
         entries.add(original)
 
-        val retrieved = getByTimestamp(1, today)!!
-        assertEquals(original, retrieved.toEntry())
+        val all = entryRepository.findAllByHabitId(habitId)
+        assertEquals(1, all.size)
+        assertEquals(150, all[0].value)
+        assertEquals(today.unixTime, all[0].timestamp)
 
         val replacement = Entry(today, 90)
         entries.add(replacement)
 
-        val retrieved2 = getByTimestamp(1, today)!!
-        assertEquals(replacement, retrieved2.toEntry())
-    }
-
-    private fun getByTimestamp(habitId: Int, date: LocalDate): EntryRecord? {
-        return repository.findFirst(
-            "where habit = ? and timestamp = ?",
-            habitId.toString(),
-            date.unixTime.toString()
-        )
+        val all2 = entryRepository.findAllByHabitId(habitId)
+        assertEquals(1, all2.size)
+        assertEquals(90, all2[0].value)
     }
 }

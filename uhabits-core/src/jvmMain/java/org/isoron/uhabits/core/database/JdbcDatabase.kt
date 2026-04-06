@@ -18,7 +18,6 @@
  */
 package org.isoron.uhabits.core.database
 
-import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -54,7 +53,7 @@ class JdbcDatabase(private val connection: Connection) : Database {
             val query = String.format(
                 "update %s set %s where %s",
                 tableName,
-                StringUtils.join(fields, ", "),
+                fields.joinToString(", "),
                 where
             )
             val st = buildStatement(query, valuesStr.toTypedArray())
@@ -77,8 +76,8 @@ class JdbcDatabase(private val connection: Connection) : Database {
             val query = String.format(
                 "insert into %s(%s) values(%s)",
                 tableName,
-                StringUtils.join(fields, ", "),
-                StringUtils.join(questionMarks, ", ")
+                fields.joinToString(", "),
+                questionMarks.joinToString(", ")
             )
             val st = buildStatement(query, params.toTypedArray())
             st.execute()

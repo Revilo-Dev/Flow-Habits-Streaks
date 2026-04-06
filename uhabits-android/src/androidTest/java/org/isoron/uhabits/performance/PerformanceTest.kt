@@ -20,6 +20,8 @@ package org.isoron.uhabits.performance
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import org.isoron.platform.io.begin
+import org.isoron.platform.io.commit
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseAndroidTest
 import org.isoron.uhabits.core.commands.CreateHabitCommand
@@ -43,27 +45,25 @@ class PerformanceTest : BaseAndroidTest() {
     @Test(timeout = 5000)
     fun benchmarkCreateHabitCommand() {
         val db = (modelFactory as SQLModelFactory).database
-        db.beginTransaction()
+        db.begin()
         for (i in 0..999) {
             val model = modelFactory.buildHabit()
             CreateHabitCommand(modelFactory, habitList, model).run()
         }
-        db.setTransactionSuccessful()
-        db.endTransaction()
+        db.commit()
     }
 
     @Ignore
     @Test(timeout = 5000)
     fun benchmarkCreateRepetitionCommand() {
         val db = (modelFactory as SQLModelFactory).database
-        db.beginTransaction()
+        db.begin()
         val habit = fixtures.createEmptyHabit()
         var date = LocalDate(2000, 1, 1)
         for (i in 0..4999) {
             CreateRepetitionCommand(habitList, habit, date, 1, "").run()
             date = date.plus(1)
         }
-        db.setTransactionSuccessful()
-        db.endTransaction()
+        db.commit()
     }
 }

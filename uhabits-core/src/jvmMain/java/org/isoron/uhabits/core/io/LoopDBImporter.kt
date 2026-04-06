@@ -25,14 +25,15 @@ import org.isoron.uhabits.core.DATABASE_VERSION
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateHabitCommand
 import org.isoron.uhabits.core.commands.EditHabitCommand
+import org.isoron.uhabits.core.database.Cursor
+import org.isoron.uhabits.core.database.Database
 import org.isoron.uhabits.core.database.DatabaseOpener
+import org.isoron.uhabits.core.database.HabitData
 import org.isoron.uhabits.core.database.MigrationHelper
-import org.isoron.uhabits.core.database.Repository
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
-import org.isoron.uhabits.core.models.sqlite.records.EntryRecord
-import org.isoron.uhabits.core.models.sqlite.records.HabitRecord
+import org.isoron.uhabits.core.models.sqlite.SQLiteHabitList
 import org.isoron.uhabits.core.utils.isSQLite3File
 import java.io.File
 
@@ -73,40 +74,86 @@ class LoopDBImporter(
         val helper = MigrationHelper(db)
         helper.migrateTo(DATABASE_VERSION)
 
-        val habitsRepository = Repository(HabitRecord::class.java, db)
-        val entryRepository = Repository(EntryRecord::class.java, db)
-
-        for (habitRecord in habitsRepository.findAll("order by position")) {
-            var habit = habitList.getByUUID(habitRecord.uuid)
-            val entryRecords = entryRepository.findAll("where habit = ?", habitRecord.id.toString())
+        val habitDataList = loadHabits(db)
+        for (habitData in habitDataList) {
+            var habit = habitList.getByUUID(habitData.uuid)
 
             if (habit == null) {
                 habit = modelFactory.buildHabit()
-                habitRecord.id = null
-                habitRecord.copyTo(habit)
+                val imported = habitData.copy(id = null)
+                SQLiteHabitList.copyTo(imported, habit)
                 CreateHabitCommand(modelFactory, habitList, habit).run()
             } else {
                 val modified = modelFactory.buildHabit()
-                habitRecord.id = habit.id
-                habitRecord.copyTo(modified)
+                SQLiteHabitList.copyTo(habitData.copy(id = habit.id), modified)
                 EditHabitCommand(habitList, habit.id!!, modified).run()
             }
 
             // Reload saved version of the habit
-            habit = habitList.getByUUID(habitRecord.uuid)!!
+            habit = habitList.getByUUID(habitData.uuid)!!
             val entries = habit.originalEntries
 
             // Import entries
-            for (r in entryRecords) {
-                val date = LocalDate.fromUnixTime(r.timestamp!!)
-                val (_, value, notes) = entries.get(date)
-                if (value != r.value || notes != r.notes) {
-                    entries.add(Entry(date, r.value!!, r.notes ?: ""))
+            loadEntries(db, habitData.id!!).use { c ->
+                while (c.moveToNext()) {
+                    val timestamp = c.getLong(0) ?: continue
+                    val value = c.getInt(1) ?: continue
+                    val notes = c.getString(2) ?: ""
+                    val date = LocalDate.fromUnixTime(timestamp)
+                    val (_, existingValue, existingNotes) = entries.get(date)
+                    if (existingValue != value || existingNotes != notes) {
+                        entries.add(Entry(date, value, notes))
+                    }
                 }
             }
             habit.recompute()
         }
         habitList.resort()
         db.close()
+    }
+
+    private fun loadHabits(db: Database): List<HabitData> {
+        val result = mutableListOf<HabitData>()
+        db.query(
+            "SELECT id, name, description, question, freq_num, freq_den, color, " +
+                "position, reminder_hour, reminder_min, reminder_days, highlight, " +
+                "archived, type, target_value, target_type, unit, uuid " +
+                "FROM Habits ORDER BY position"
+        ).use { c ->
+            while (c.moveToNext()) {
+                result.add(cursorToHabitData(c))
+            }
+        }
+        return result
+    }
+
+    private fun loadEntries(db: Database, habitId: Long): Cursor {
+        return db.query(
+            "SELECT timestamp, value, notes FROM Repetitions WHERE habit = ? ORDER BY timestamp DESC",
+            habitId.toString()
+        )
+    }
+
+    private fun cursorToHabitData(c: Cursor): HabitData {
+        return HabitData(
+            id = c.getLong(0),
+            name = c.getString(1) ?: "",
+            description = c.getString(2) ?: "",
+            question = c.getString(3) ?: "",
+            freqNum = c.getInt(4) ?: 1,
+            freqDen = c.getInt(5) ?: 1,
+            color = c.getInt(6) ?: 0,
+            position = c.getInt(7) ?: 0,
+            reminderHour = c.getInt(8),
+            reminderMin = c.getInt(9),
+            reminderDays = c.getInt(10) ?: 0,
+            highlight = c.getInt(11) ?: 0,
+            archived = c.getInt(12) ?: 0,
+            type = c.getInt(13) ?: 0,
+            targetValue = c.getDouble(14) ?: 0.0,
+            targetType = c.getInt(15) ?: 0,
+            unit = c.getString(16) ?: "",
+            uuid = c.getString(17)
+        )
     }
 }
