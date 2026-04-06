@@ -23,81 +23,92 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/actionCreateHabit"
-        android:enabled="true"
-        android:icon="?iconAdd"
-        android:title="@string/add_habit"
+        android:id="@+id/actionSearchContainer"
+        android:title="@string/search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always"/>
 
+    <group android:id="@+id/actionItems">
+        <item
+            android:id="@+id/actionCreateHabit"
+            android:enabled="true"
+            android:icon="?iconAdd"
+            android:title="@string/add_habit"
+            app:showAsAction="always"/>
 
-    <item
-        android:id="@+id/action_filter"
-        android:icon="?iconFilter"
-        android:title="@string/filter"
-        app:showAsAction="always">
-        <menu>
-            <item
-                android:id="@+id/actionHideArchived"
-                android:checkable="true"
-                android:enabled="true"
-                android:title="@string/hide_archived"/>
+        <item
+            android:id="@+id/action_filter"
+            android:icon="?iconFilter"
+            android:title="@string/filter"
+            app:showAsAction="always">
+            <menu>
+                <item
+                    android:id="@+id/actionHideArchived"
+                    android:checkable="true"
+                    android:enabled="true"
+                    android:title="@string/hide_archived"/>
 
-            <item
-                android:id="@+id/actionHideCompleted"
-                android:checkable="true"
-                android:enabled="true"
-                android:title="@string/hide_completed"/>
+                <item
+                    android:id="@+id/actionHideCompleted"
+                    android:checkable="true"
+                    android:enabled="true"
+                    android:title="@string/hide_completed"/>
 
-            <item android:title="@string/sort">
-                <menu>
-                    <item
-                        android:id="@+id/actionSortManual"
-                        android:title="@string/manually"/>
+                <item android:title="@string/sort">
+                    <menu>
+                        <item
+                            android:id="@+id/actionSortManual"
+                            android:title="@string/manually"/>
 
-                    <item
-                        android:id="@+id/actionSortName"
-                        android:title="@string/by_name"/>
+                        <item
+                            android:id="@+id/actionSortName"
+                            android:title="@string/by_name"/>
 
-                    <item
-                        android:id="@+id/actionSortColor"
-                        android:title="@string/by_color"/>
+                        <item
+                            android:id="@+id/actionSortColor"
+                            android:title="@string/by_color"/>
 
-                    <item
-                        android:id="@+id/actionSortScore"
-                        android:title="@string/by_score"/>
+                        <item
+                            android:id="@+id/actionSortScore"
+                            android:title="@string/by_score"/>
 
-                    <item
-                        android:id="@+id/actionSortStatus"
-                        android:title="@string/by_status"/>
-                </menu>
-            </item>
-        </menu>
-    </item>
+                        <item
+                            android:id="@+id/actionSortStatus"
+                            android:title="@string/by_status"/>
+                    </menu>
+                </item>
+                <item
+                    android:id="@+id/actionSearch"
+                    android:enabled="true"
+                    android:title="@string/search"/>
+            </menu>
+        </item>
 
-    <item
-        android:id="@+id/actionToggleNightMode"
-        android:checkable="true"
-        android:enabled="true"
-        android:orderInCategory="50"
-        android:title="@string/night_mode"
-        app:showAsAction="never"/>
+        <item
+            android:id="@+id/actionToggleNightMode"
+            android:checkable="true"
+            android:enabled="true"
+            android:orderInCategory="50"
+            android:title="@string/night_mode"
+            app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/actionSettings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        <item
+            android:id="@+id/actionSettings"
+            android:orderInCategory="100"
+            android:title="@string/action_settings"
+            app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/actionFAQ"
-        android:orderInCategory="100"
-        android:title="@string/help"
-        app:showAsAction="never"/>
+        <item
+            android:id="@+id/actionFAQ"
+            android:orderInCategory="100"
+            android:title="@string/help"
+            app:showAsAction="never"/>
 
-    <item
-        android:id="@+id/actionAbout"
-        android:orderInCategory="100"
-        android:title="@string/about"
-        app:showAsAction="never"/>
+        <item
+            android:id="@+id/actionAbout"
+            android:orderInCategory="100"
+            android:title="@string/about"
+            app:showAsAction="never"/>
+    </group>
 
 </menu>

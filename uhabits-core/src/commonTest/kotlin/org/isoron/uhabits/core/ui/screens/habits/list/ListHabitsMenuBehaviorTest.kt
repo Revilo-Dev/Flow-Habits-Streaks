@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import dev.mokkery.answering.calls
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.matcher.any
@@ -32,6 +33,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import dev.mokkery.verify.VerifyMode.Companion.not as notCalled
 
 class ListHabitsMenuBehaviorTest : BaseUnitTest() {
@@ -167,5 +169,17 @@ class ListHabitsMenuBehaviorTest : BaseUnitTest() {
         behavior.onToggleNightMode()
         verify { themeSwitcher.toggleNightMode() }
         verify { screen.applyTheme() }
+    }
+
+    @Test
+    fun testOnSearchQueryChanged() {
+        every { adapter.setFilter(any()) } calls { args ->
+            capturedMatcher = args.arg<HabitMatcher>(0)
+            Unit
+        }
+        behavior.onSearchQueryChanged("yoga")
+        verify { adapter.setFilter(any()) }
+        verify { adapter.refresh() }
+        assertEquals("yoga", capturedMatcher?.searchQuery)
     }
 }
