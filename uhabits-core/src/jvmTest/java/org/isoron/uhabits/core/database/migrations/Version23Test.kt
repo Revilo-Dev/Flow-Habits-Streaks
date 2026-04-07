@@ -26,10 +26,10 @@ import org.isoron.platform.io.Database
 import org.isoron.platform.io.JavaFileOpener
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.query
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.junit.Test
 
-class Version23Test : BaseUnitTest() {
+class Version23Test : JvmBaseUnitTest() {
 
     private lateinit var db: Database
 

@@ -20,7 +20,7 @@ package org.isoron.uhabits.core.ui.screens.habits.list
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.ui.callbacks.OnColorPickedCallback
@@ -36,7 +36,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class ListHabitsSelectionMenuBehaviorTest : BaseUnitTest() {
+class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
     private val screen: ListHabitsSelectionMenuBehavior.Screen = mock()
 
     private val adapter: ListHabitsSelectionMenuBehavior.Adapter = mock()

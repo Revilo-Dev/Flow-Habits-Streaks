@@ -18,37 +18,34 @@
  */
 package org.isoron.uhabits.core.commands
 
-import org.isoron.platform.time.LocalDate
-import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
-import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
-import org.junit.Before
-import org.junit.Test
+import org.isoron.uhabits.core.models.Reminder
+import org.isoron.uhabits.core.models.WeekdayList
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-class CreateRepetitionCommandTest : BaseUnitTest() {
-    private lateinit var command: CreateRepetitionCommand
-    private lateinit var habit: Habit
-    private lateinit var today: LocalDate
+class CreateHabitCommandTest : BaseUnitTest() {
+    private lateinit var command: CreateHabitCommand
+    private lateinit var model: Habit
 
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
-        habit = fixtures.createShortHabit()
-        habitList.add(habit)
-        today = getToday()
-        command = CreateRepetitionCommand(habitList, habit, today, 100, "")
+        model = fixtures.createEmptyHabit()
+        model.name = "New habit"
+        model.reminder = Reminder(8, 30, WeekdayList.EVERY_DAY)
+        command = CreateHabitCommand(modelFactory, habitList, model)
     }
 
     @Test
     fun testExecute() {
-        val entries = habit.originalEntries
-        var entry = entries.get(today)
-        assertEquals(Entry.YES_MANUAL, entry.value)
+        assertTrue(habitList.isEmpty)
         command.run()
-        entry = entries.get(today)
-        assertEquals(100, entry.value.toLong())
+        assertEquals(1, habitList.size())
+        val habit = habitList.getByPosition(0)
+        assertEquals(model.name, habit.name)
     }
 }

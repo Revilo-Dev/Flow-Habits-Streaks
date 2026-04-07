@@ -18,15 +18,14 @@
  */
 package org.isoron.uhabits.core.commands
 
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class EditHabitCommandTest : BaseUnitTest() {
     private lateinit var command: EditHabitCommand
@@ -34,8 +33,7 @@ class EditHabitCommandTest : BaseUnitTest() {
     private lateinit var modified: Habit
     private lateinit var today: LocalDate
 
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         habit = fixtures.createShortHabit()
@@ -54,9 +52,9 @@ class EditHabitCommandTest : BaseUnitTest() {
     fun testExecute() {
         command = EditHabitCommand(habitList, habit.id!!, modified)
         val originalScore = habit.scores[today].value
-        assertThat(habit.name, equalTo("original"))
+        assertEquals("original", habit.name)
         command.run()
-        assertThat(habit.name, equalTo("modified"))
-        assertThat(habit.scores[today].value, equalTo(originalScore))
+        assertEquals("modified", habit.name)
+        assertEquals(originalScore, habit.scores[today].value)
     }
 }

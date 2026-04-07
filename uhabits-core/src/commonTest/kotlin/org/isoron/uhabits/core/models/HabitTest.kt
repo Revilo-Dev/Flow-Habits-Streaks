@@ -18,20 +18,16 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.core.IsEqual.equalTo
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
-import org.junit.Assert.assertNotEquals
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class HabitTest : BaseUnitTest() {
 
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
     }
@@ -53,22 +49,21 @@ class HabitTest : BaseUnitTest() {
         val habit = modelFactory.buildHabit()
         habit.copyFrom(model)
         assertEquals(habit.isArchived, model.isArchived)
-        assertThat(habit.isArchived, `is`(model.isArchived))
-        assertThat(habit.color, `is`(model.color))
-        assertThat(habit.frequency, equalTo(model.frequency))
-        assertThat(habit.reminder, equalTo(model.reminder))
+        assertEquals(model.isArchived, habit.isArchived)
+        assertEquals(model.color, habit.color)
+        assertEquals(model.frequency, habit.frequency)
+        assertEquals(model.reminder, habit.reminder)
     }
 
     @Test
     fun test_hasReminder() {
         val h = modelFactory.buildHabit()
-        assertThat(h.hasReminder(), `is`(false))
+        assertEquals(false, h.hasReminder())
         h.reminder = Reminder(8, 30, WeekdayList.EVERY_DAY)
-        assertThat(h.hasReminder(), `is`(true))
+        assertEquals(true, h.hasReminder())
     }
 
     @Test
-    @Throws(Exception::class)
     fun test_isCompleted() {
         val h = modelFactory.buildHabit()
         assertFalse(h.isCompletedToday())
@@ -78,7 +73,6 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun test_isEntered() {
         val h = modelFactory.buildHabit()
         assertFalse(h.isEnteredToday())
@@ -88,7 +82,6 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun test_isCompleted_numerical() {
         val h = modelFactory.buildHabit()
         h.type = HabitType.NUMERICAL
@@ -117,12 +110,11 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testURI() {
         assertTrue(habitList.isEmpty)
         val h = modelFactory.buildHabit()
         habitList.add(h)
-        assertThat(h.id, equalTo(0L))
-        assertThat(h.uriString, equalTo("content://org.isoron.uhabits/habit/0"))
+        assertEquals(0L, h.id)
+        assertEquals("content://org.isoron.uhabits/habit/0", h.uriString)
     }
 }

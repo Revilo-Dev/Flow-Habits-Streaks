@@ -18,15 +18,13 @@
  */
 package org.isoron.uhabits.core.preferences
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.ui.ThemeSwitcher
-import org.junit.Before
-import org.junit.Test
-import org.mockito.kotlin.mock
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -34,11 +32,10 @@ import kotlin.test.assertTrue
 class PreferencesTest : BaseUnitTest() {
     private lateinit var prefs: Preferences
 
-    private var listener: Preferences.Listener = mock()
+    private var listener: Preferences.Listener = object : Preferences.Listener {}
     private lateinit var storage: MemoryStorage
 
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         storage = MemoryStorage()
@@ -47,69 +44,62 @@ class PreferencesTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testClear() {
         prefs.setDefaultHabitColor(99)
         prefs.clear()
-        assertThat(prefs.getDefaultHabitColor(0), equalTo(0))
+        assertEquals(0, prefs.getDefaultHabitColor(0))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testHabitColor() {
-        assertThat(prefs.getDefaultHabitColor(999), equalTo(999))
+        assertEquals(999, prefs.getDefaultHabitColor(999))
         prefs.setDefaultHabitColor(10)
-        assertThat(prefs.getDefaultHabitColor(999), equalTo(10))
+        assertEquals(10, prefs.getDefaultHabitColor(999))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDefaultOrder() {
-        assertThat(prefs.defaultPrimaryOrder, equalTo(HabitList.Order.BY_POSITION))
+        assertEquals(HabitList.Order.BY_POSITION, prefs.defaultPrimaryOrder)
         prefs.defaultPrimaryOrder = HabitList.Order.BY_SCORE_DESC
-        assertThat(prefs.defaultPrimaryOrder, equalTo(HabitList.Order.BY_SCORE_DESC))
+        assertEquals(HabitList.Order.BY_SCORE_DESC, prefs.defaultPrimaryOrder)
         storage.putString("pref_default_order", "BOGUS")
-        assertThat(prefs.defaultPrimaryOrder, equalTo(HabitList.Order.BY_POSITION))
-        assertThat(
-            storage.getString("pref_default_order", ""),
-            equalTo("BY_POSITION")
+        assertEquals(HabitList.Order.BY_POSITION, prefs.defaultPrimaryOrder)
+        assertEquals(
+            "BY_POSITION",
+            storage.getString("pref_default_order", "")
         )
     }
 
     @Test
-    @Throws(Exception::class)
     fun testScoreCardSpinnerPosition() {
-        assertThat(prefs.scoreCardSpinnerPosition, equalTo(1))
+        assertEquals(1, prefs.scoreCardSpinnerPosition)
         prefs.scoreCardSpinnerPosition = 4
-        assertThat(prefs.scoreCardSpinnerPosition, equalTo(4))
+        assertEquals(4, prefs.scoreCardSpinnerPosition)
         storage.putInt("pref_score_view_interval", 9000)
-        assertThat(prefs.scoreCardSpinnerPosition, equalTo(4))
+        assertEquals(4, prefs.scoreCardSpinnerPosition)
     }
 
     @Test
-    @Throws(Exception::class)
     fun testLastHint() {
-        assertThat(prefs.lastHintNumber, equalTo(-1))
+        assertEquals(-1, prefs.lastHintNumber)
         assertNull(prefs.lastHintDate)
         val date = LocalDate(2015, 3, 15)
         prefs.updateLastHint(34, date)
-        assertThat(prefs.lastHintNumber, equalTo(34))
-        assertThat(prefs.lastHintDate, equalTo(date))
+        assertEquals(34, prefs.lastHintNumber)
+        assertEquals(date, prefs.lastHintDate)
     }
 
     @Test
-    @Throws(Exception::class)
     fun testTheme() {
-        assertThat(prefs.theme, equalTo(ThemeSwitcher.THEME_AUTOMATIC))
+        assertEquals(ThemeSwitcher.THEME_AUTOMATIC, prefs.theme)
         prefs.theme = ThemeSwitcher.THEME_DARK
-        assertThat(prefs.theme, equalTo(ThemeSwitcher.THEME_DARK))
+        assertEquals(ThemeSwitcher.THEME_DARK, prefs.theme)
         assertFalse(prefs.isPureBlackEnabled)
         prefs.isPureBlackEnabled = true
         assertTrue(prefs.isPureBlackEnabled)
     }
 
     @Test
-    @Throws(Exception::class)
     fun testNotifications() {
         assertFalse(prefs.shouldMakeNotificationsSticky())
         prefs.setNotificationsSticky(true)
@@ -117,21 +107,19 @@ class PreferencesTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testAppVersionAndLaunch() {
-        assertThat(prefs.lastAppVersion, equalTo(0))
+        assertEquals(0, prefs.lastAppVersion)
         prefs.lastAppVersion = 23
-        assertThat(prefs.lastAppVersion, equalTo(23))
+        assertEquals(23, prefs.lastAppVersion)
         assertTrue(prefs.isFirstRun)
         prefs.isFirstRun = false
         assertFalse(prefs.isFirstRun)
-        assertThat(prefs.launchCount, equalTo(0))
+        assertEquals(0, prefs.launchCount)
         prefs.incrementLaunchCount()
-        assertThat(prefs.launchCount, equalTo(1))
+        assertEquals(1, prefs.launchCount)
     }
 
     @Test
-    @Throws(Exception::class)
     fun testCheckmarks() {
         assertFalse(prefs.isCheckmarkSequenceReversed)
         prefs.isCheckmarkSequenceReversed = true
@@ -142,7 +130,6 @@ class PreferencesTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testDeveloper() {
         assertFalse(prefs.isDeveloper)
         prefs.isDeveloper = true
@@ -150,7 +137,6 @@ class PreferencesTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testFiltering() {
         assertFalse(prefs.showArchived)
         assertTrue(prefs.showCompleted)
@@ -161,7 +147,6 @@ class PreferencesTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testMidnightDelay() {
         assertFalse(prefs.isMidnightDelayEnabled)
         prefs.isMidnightDelayEnabled = true

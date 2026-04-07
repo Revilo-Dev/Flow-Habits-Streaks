@@ -25,7 +25,7 @@ import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
 import org.isoron.uhabits.core.models.Entry.Companion.nextToggleValue
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class EntryTest {

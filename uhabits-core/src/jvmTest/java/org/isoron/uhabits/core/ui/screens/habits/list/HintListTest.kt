@@ -22,7 +22,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.preferences.Preferences
 import org.junit.Test
 import org.mockito.kotlin.mock
@@ -32,7 +32,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class HintListTest : BaseUnitTest() {
+class HintListTest : JvmBaseUnitTest() {
     private lateinit var hintList: HintList
     private lateinit var hints: Array<String>
 

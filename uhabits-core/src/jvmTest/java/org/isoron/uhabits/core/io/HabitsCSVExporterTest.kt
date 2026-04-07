@@ -19,7 +19,7 @@
 package org.isoron.uhabits.core.io
 
 import kotlinx.coroutines.runBlocking
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +32,7 @@ import java.util.zip.ZipInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class HabitsCSVExporterTest : BaseUnitTest() {
+class HabitsCSVExporterTest : JvmBaseUnitTest() {
     private lateinit var baseDir: File
 
     @Before

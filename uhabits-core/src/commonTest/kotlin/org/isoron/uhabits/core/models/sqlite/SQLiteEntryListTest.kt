@@ -24,8 +24,8 @@ import org.isoron.uhabits.core.BaseUnitTest.Companion.buildMemoryDatabase
 import org.isoron.uhabits.core.database.EntryData
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SQLiteEntryListTest {
@@ -36,7 +36,7 @@ class SQLiteEntryListTest {
     private lateinit var entries: SQLiteEntryList
     private val today = LocalDate(2015, 1, 25)
 
-    @Before
+    @BeforeTest
     fun setUp() {
         val habitList = factory.buildHabitList()
         val habit = factory.buildHabit()

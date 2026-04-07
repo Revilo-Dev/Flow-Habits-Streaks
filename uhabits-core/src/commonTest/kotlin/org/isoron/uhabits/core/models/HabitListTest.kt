@@ -18,15 +18,13 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.not
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.BaseUnitTest
-import org.junit.Assert.assertThrows
-import org.junit.Test
-import java.io.IOException
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 
 class HabitListTest : BaseUnitTest() {
@@ -34,7 +32,6 @@ class HabitListTest : BaseUnitTest() {
     private lateinit var activeHabits: HabitList
     private lateinit var reminderHabits: HabitList
 
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         habitsArray = ArrayList()
@@ -59,25 +56,25 @@ class HabitListTest : BaseUnitTest() {
 
     @Test
     fun testSize() {
-        assertThat(habitList.size(), equalTo(10))
-        assertThat(activeHabits.size(), equalTo(6))
-        assertThat(reminderHabits.size(), equalTo(4))
+        assertEquals(10, habitList.size())
+        assertEquals(6, activeHabits.size())
+        assertEquals(4, reminderHabits.size())
     }
 
     @Test
     fun testGetByPosition() {
-        assertThat(habitList.getByPosition(0), equalTo(habitsArray[0]))
-        assertThat(habitList.getByPosition(3), equalTo(habitsArray[3]))
-        assertThat(habitList.getByPosition(9), equalTo(habitsArray[9]))
-        assertThat(activeHabits.getByPosition(0), equalTo(habitsArray[2]))
-        assertThat(reminderHabits.getByPosition(1), equalTo(habitsArray[3]))
+        assertEquals(habitsArray[0], habitList.getByPosition(0))
+        assertEquals(habitsArray[3], habitList.getByPosition(3))
+        assertEquals(habitsArray[9], habitList.getByPosition(9))
+        assertEquals(habitsArray[2], activeHabits.getByPosition(0))
+        assertEquals(habitsArray[3], reminderHabits.getByPosition(1))
     }
 
     @Test
     fun testGetById() {
         val habit1 = habitsArray[0]
         val habit2 = habitList.getById(habit1.id!!)
-        assertThat(habit1, equalTo(habit2))
+        assertEquals(habit1, habit2)
     }
 
     @Test
@@ -100,41 +97,41 @@ class HabitListTest : BaseUnitTest() {
         }
 
         list.primaryOrder = HabitList.Order.BY_POSITION
-        assertThat(list.getByPosition(0), equalTo(h3))
-        assertThat(list.getByPosition(1), equalTo(h1))
-        assertThat(list.getByPosition(2), equalTo(h4))
-        assertThat(list.getByPosition(3), equalTo(h2))
+        assertEquals(h3, list.getByPosition(0))
+        assertEquals(h1, list.getByPosition(1))
+        assertEquals(h4, list.getByPosition(2))
+        assertEquals(h2, list.getByPosition(3))
         list.primaryOrder = HabitList.Order.BY_NAME_DESC
-        assertThat(list.getByPosition(0), equalTo(h4))
-        assertThat(list.getByPosition(1), equalTo(h3))
-        assertThat(list.getByPosition(2), equalTo(h2))
-        assertThat(list.getByPosition(3), equalTo(h1))
+        assertEquals(h4, list.getByPosition(0))
+        assertEquals(h3, list.getByPosition(1))
+        assertEquals(h2, list.getByPosition(2))
+        assertEquals(h1, list.getByPosition(3))
         list.primaryOrder = HabitList.Order.BY_NAME_ASC
-        assertThat(list.getByPosition(0), equalTo(h1))
-        assertThat(list.getByPosition(1), equalTo(h2))
-        assertThat(list.getByPosition(2), equalTo(h3))
-        assertThat(list.getByPosition(3), equalTo(h4))
+        assertEquals(h1, list.getByPosition(0))
+        assertEquals(h2, list.getByPosition(1))
+        assertEquals(h3, list.getByPosition(2))
+        assertEquals(h4, list.getByPosition(3))
         list.primaryOrder = HabitList.Order.BY_NAME_ASC
         list.remove(h1)
         list.add(h1)
-        assertThat(list.getByPosition(0), equalTo(h1))
+        assertEquals(h1, list.getByPosition(0))
         list.primaryOrder = HabitList.Order.BY_COLOR_ASC
         list.secondaryOrder = HabitList.Order.BY_NAME_ASC
-        assertThat(list.getByPosition(0), equalTo(h3))
-        assertThat(list.getByPosition(1), equalTo(h4))
-        assertThat(list.getByPosition(2), equalTo(h1))
-        assertThat(list.getByPosition(3), equalTo(h2))
+        assertEquals(h3, list.getByPosition(0))
+        assertEquals(h4, list.getByPosition(1))
+        assertEquals(h1, list.getByPosition(2))
+        assertEquals(h2, list.getByPosition(3))
         list.primaryOrder = HabitList.Order.BY_COLOR_DESC
         list.secondaryOrder = HabitList.Order.BY_NAME_ASC
-        assertThat(list.getByPosition(0), equalTo(h1))
-        assertThat(list.getByPosition(1), equalTo(h2))
-        assertThat(list.getByPosition(2), equalTo(h4))
-        assertThat(list.getByPosition(3), equalTo(h3))
+        assertEquals(h1, list.getByPosition(0))
+        assertEquals(h2, list.getByPosition(1))
+        assertEquals(h4, list.getByPosition(2))
+        assertEquals(h3, list.getByPosition(3))
         list.primaryOrder = HabitList.Order.BY_POSITION
-        assertThat(list.getByPosition(0), equalTo(h3))
-        assertThat(list.getByPosition(1), equalTo(h1))
-        assertThat(list.getByPosition(2), equalTo(h4))
-        assertThat(list.getByPosition(3), equalTo(h2))
+        assertEquals(h3, list.getByPosition(0))
+        assertEquals(h1, list.getByPosition(1))
+        assertEquals(h4, list.getByPosition(2))
+        assertEquals(h2, list.getByPosition(3))
     }
 
     @Test
@@ -154,21 +151,20 @@ class HabitListTest : BaseUnitTest() {
             val actualSequence = IntArray(10)
             for (j in 0..9) {
                 val habit = habitList.getByPosition(j)
-                assertThat(habit.position, equalTo(j))
-                actualSequence[j] = Math.toIntExact(habit.id!!)
+                assertEquals(j, habit.position)
+                actualSequence[j] = habit.id!!.toInt()
             }
-            assertThat(actualSequence, equalTo(expectedSequence[i]))
+            assertContentEquals(expectedSequence[i], actualSequence)
         }
-        assertThat(activeHabits.indexOf(habitsArray[5]), equalTo(0))
-        assertThat(activeHabits.indexOf(habitsArray[2]), equalTo(1))
+        assertEquals(0, activeHabits.indexOf(habitsArray[5]))
+        assertEquals(1, activeHabits.indexOf(habitsArray[2]))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testReorder_withInvalidArguments() {
         val h1 = habitsArray[0]
         val h2 = fixtures.createEmptyHabit()
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             habitList.reorder(h1, h2)
         }
     }
@@ -186,7 +182,6 @@ class HabitListTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(IOException::class)
     fun testWriteCSV() {
         val list = modelFactory.buildHabitList()
         val h1 = fixtures.createEmptyHabit()
@@ -211,57 +206,52 @@ class HabitListTest : BaseUnitTest() {
             001,Meditate,YES_NO,Did you meditate this morning?,this is a test description,1,1,#FF8F00,,,,false
             002,Run,NUMERICAL,How many miles did you run today?,,1,1,#E64A19,miles,AT_LEAST,2.0,false
             003,Wake up early,YES_NO,Did you wake up before 6am?,,2,3,#AFB42B,,,,false
-            
+
             """.trimIndent()
-        assertThat(list.writeCSV(), equalTo(expectedCSV))
+        assertEquals(expectedCSV, list.writeCSV())
     }
 
     @Test
-    @Throws(Exception::class)
     fun testAdd() {
         val h1 = fixtures.createEmptyHabit()
         assertFalse(h1.isArchived)
         assertNull(h1.id)
-        assertThat(habitList.indexOf(h1), equalTo(-1))
+        assertEquals(-1, habitList.indexOf(h1))
         habitList.add(h1)
         h1.id!!
-        assertThat(habitList.indexOf(h1), not(equalTo(-1)))
-        assertThat(activeHabits.indexOf(h1), not(equalTo(-1)))
+        assertNotEquals(-1, habitList.indexOf(h1))
+        assertNotEquals(-1, activeHabits.indexOf(h1))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testAdd_withFilteredList() {
-        assertThrows(IllegalStateException::class.java) {
+        assertFailsWith<IllegalStateException> {
             activeHabits.add(fixtures.createEmptyHabit())
         }
     }
 
     @Test
-    @Throws(Exception::class)
     fun testRemove_onFilteredList() {
-        assertThrows(IllegalStateException::class.java) {
+        assertFailsWith<IllegalStateException> {
             activeHabits.remove(fixtures.createEmptyHabit())
         }
     }
 
     @Test
-    @Throws(Exception::class)
     fun testReorder_onFilteredList() {
         val h1 = fixtures.createEmptyHabit()
         val h2 = fixtures.createEmptyHabit()
-        assertThrows(IllegalStateException::class.java) {
+        assertFailsWith<IllegalStateException> {
             activeHabits.reorder(h1, h2)
         }
     }
 
     @Test
-    @Throws(Exception::class)
     fun testReorder_onSortedList() {
         habitList.primaryOrder = HabitList.Order.BY_SCORE_DESC
         val h1 = habitsArray[1]
         val h2 = habitsArray[2]
-        assertThrows(IllegalStateException::class.java) {
+        assertFailsWith<IllegalStateException> {
             habitList.reorder(h1, h2)
         }
     }

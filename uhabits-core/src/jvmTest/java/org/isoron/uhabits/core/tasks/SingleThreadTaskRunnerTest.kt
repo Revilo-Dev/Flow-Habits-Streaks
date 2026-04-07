@@ -18,7 +18,7 @@
  */
 package org.isoron.uhabits.core.tasks
 
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -26,7 +26,7 @@ import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
-class SingleThreadTaskRunnerTest : BaseUnitTest() {
+class SingleThreadTaskRunnerTest : JvmBaseUnitTest() {
     private lateinit var runner: SingleThreadTaskRunner
     private var task: Task = mock()
 

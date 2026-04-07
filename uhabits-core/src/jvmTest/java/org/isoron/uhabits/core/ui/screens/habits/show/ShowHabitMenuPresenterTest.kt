@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.io.JavaUserFile
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.junit.Test
 import org.mockito.kotlin.mock
@@ -30,7 +30,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.nio.file.Files
 
-class ShowHabitMenuPresenterTest : BaseUnitTest() {
+class ShowHabitMenuPresenterTest : JvmBaseUnitTest() {
     private lateinit var system: ShowHabitMenuPresenter.System
     private lateinit var screen: ShowHabitMenuPresenter.Screen
     private lateinit var habit: Habit

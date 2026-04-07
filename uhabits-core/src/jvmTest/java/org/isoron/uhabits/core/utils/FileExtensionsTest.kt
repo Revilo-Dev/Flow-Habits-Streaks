@@ -2,12 +2,12 @@ package org.isoron.uhabits.core.utils
 
 import kotlinx.coroutines.runBlocking
 import org.isoron.platform.io.JavaUserFile
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertTrue
 
-class FileExtensionsTest : BaseUnitTest() {
+class FileExtensionsTest : JvmBaseUnitTest() {
 
     @Test
     fun testIsSQLite3File() = runBlocking {

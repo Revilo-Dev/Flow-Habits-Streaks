@@ -27,8 +27,8 @@ import org.isoron.platform.time.getToday
 import org.isoron.platform.time.getWeekdaySequence
 import org.isoron.platform.time.resetToday
 import org.isoron.platform.time.setToday
-import org.junit.Assert.assertArrayEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -102,22 +102,22 @@ class DatesTest {
     @Test
     fun testCountWeekdayOccurrencesInMonth() {
         // February 2018 (28 days, starts on Thursday)
-        assertArrayEquals(
+        assertContentEquals(
             arrayOf(4, 4, 4, 4, 4, 4, 4),
             countWeekdayOccurrencesInMonth(LocalDate(2018, 2, 1))
         )
         // February 2020 (leap, 29 days, starts on Saturday)
-        assertArrayEquals(
+        assertContentEquals(
             arrayOf(5, 4, 4, 4, 4, 4, 4),
             countWeekdayOccurrencesInMonth(LocalDate(2020, 2, 1))
         )
         // April 2020 (30 days, starts on Wednesday)
-        assertArrayEquals(
+        assertContentEquals(
             arrayOf(4, 4, 4, 4, 5, 5, 4),
             countWeekdayOccurrencesInMonth(LocalDate(2020, 4, 1))
         )
         // August 2020 (31 days, starts on Saturday)
-        assertArrayEquals(
+        assertContentEquals(
             arrayOf(5, 5, 5, 4, 4, 4, 4),
             countWeekdayOccurrencesInMonth(LocalDate(2020, 8, 1))
         )

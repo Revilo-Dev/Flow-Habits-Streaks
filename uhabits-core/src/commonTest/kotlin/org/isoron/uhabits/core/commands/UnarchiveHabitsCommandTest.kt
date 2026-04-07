@@ -18,43 +18,30 @@
  */
 package org.isoron.uhabits.core.commands
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
-import org.junit.Before
-import org.junit.Test
-import java.util.*
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-class DeleteHabitsCommandTest : BaseUnitTest() {
-    private lateinit var command: DeleteHabitsCommand
-    private lateinit var selected: LinkedList<Habit>
+class UnarchiveHabitsCommandTest : BaseUnitTest() {
+    private lateinit var command: UnarchiveHabitsCommand
+    private lateinit var habit: Habit
 
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
-        selected = LinkedList()
-
-        // Habits that should be deleted
-        for (i in 0..2) {
-            val habit = fixtures.createShortHabit()
-            habitList.add(habit)
-            selected.add(habit)
-        }
-
-        // Extra habit that should not be deleted
-        val extraHabit = fixtures.createShortHabit()
-        extraHabit.name = "extra"
-        habitList.add(extraHabit)
-        command = DeleteHabitsCommand(habitList, selected)
+        habit = fixtures.createShortHabit()
+        habit.isArchived = true
+        habitList.add(habit)
+        command = UnarchiveHabitsCommand(habitList, listOf(habit))
     }
 
     @Test
-    fun testExecute() {
-        assertThat(habitList.size(), equalTo(4))
+    fun testExecuteUndoRedo() {
+        assertTrue(habit.isArchived)
         command.run()
-        assertThat(habitList.size(), equalTo(1))
-        assertThat(habitList.getByPosition(0).name, equalTo("extra"))
+        assertFalse(habit.isArchived)
     }
 }

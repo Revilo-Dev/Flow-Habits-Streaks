@@ -18,19 +18,17 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class StreakListTest : BaseUnitTest() {
     private lateinit var habit: Habit
     private lateinit var streaks: StreakList
     private lateinit var today: LocalDate
 
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         habit = fixtures.createLongHabit()
@@ -41,18 +39,17 @@ class StreakListTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testGetBest() {
         var best = streaks.getBest(4)
-        assertThat(best.size, equalTo(4))
-        assertThat(best[0].length, equalTo(4))
-        assertThat(best[1].length, equalTo(3))
-        assertThat(best[2].length, equalTo(5))
-        assertThat(best[3].length, equalTo(6))
+        assertEquals(4, best.size)
+        assertEquals(4, best[0].length)
+        assertEquals(3, best[1].length)
+        assertEquals(5, best[2].length)
+        assertEquals(6, best[3].length)
         best = streaks.getBest(2)
-        assertThat(best.size, equalTo(2))
-        assertThat(best[0].length, equalTo(5))
-        assertThat(best[1].length, equalTo(6))
+        assertEquals(2, best.size)
+        assertEquals(5, best[0].length)
+        assertEquals(6, best[1].length)
     }
 
     @Test
@@ -62,7 +59,7 @@ class StreakListTest : BaseUnitTest() {
         habit.originalEntries.add(Entry(today.minus(5), Entry.NO))
         habit.recompute()
         val best = streaks.getBest(5)
-        assertThat(best.size, equalTo(1))
-        assertThat(best[0].length, equalTo(1))
+        assertEquals(1, best.size)
+        assertEquals(1, best[0].length)
     }
 }

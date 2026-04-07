@@ -20,7 +20,7 @@ package org.isoron.uhabits.core.models.sqlite
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.database.HabitRepository
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
@@ -36,7 +36,7 @@ import org.mockito.kotlin.verify
 import java.util.ArrayList
 import kotlin.test.assertNull
 
-class SQLiteHabitListTest : BaseUnitTest() {
+class SQLiteHabitListTest : JvmBaseUnitTest() {
     private lateinit var repository: HabitRepository
     private var listener: ModelObservable.Listener = mock()
     private lateinit var habitsArray: ArrayList<Habit>

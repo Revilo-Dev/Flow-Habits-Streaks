@@ -23,7 +23,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
 import org.isoron.platform.io.JavaUserFile
 import org.isoron.platform.time.getToday
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
@@ -42,7 +42,7 @@ import java.nio.file.Files
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ListHabitsBehaviorTest : BaseUnitTest() {
+class ListHabitsBehaviorTest : JvmBaseUnitTest() {
     private val dirFinder: ListHabitsBehavior.DirFinder = mock()
 
     private val prefs: Preferences = mock()

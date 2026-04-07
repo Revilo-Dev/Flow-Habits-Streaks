@@ -18,31 +18,36 @@
  */
 package org.isoron.uhabits.core.commands
 
+import org.isoron.platform.time.LocalDate
+import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
-import org.junit.Before
-import org.junit.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class UnarchiveHabitsCommandTest : BaseUnitTest() {
-    private lateinit var command: UnarchiveHabitsCommand
+class CreateRepetitionCommandTest : BaseUnitTest() {
+    private lateinit var command: CreateRepetitionCommand
     private lateinit var habit: Habit
+    private lateinit var today: LocalDate
 
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         habit = fixtures.createShortHabit()
-        habit.isArchived = true
         habitList.add(habit)
-        command = UnarchiveHabitsCommand(habitList, listOf(habit))
+        today = getToday()
+        command = CreateRepetitionCommand(habitList, habit, today, 100, "")
     }
 
     @Test
-    fun testExecuteUndoRedo() {
-        assertTrue(habit.isArchived)
+    fun testExecute() {
+        val entries = habit.originalEntries
+        var entry = entries.get(today)
+        assertEquals(Entry.YES_MANUAL, entry.value)
         command.run()
-        assertFalse(habit.isArchived)
+        entry = entries.get(today)
+        assertEquals(100, entry.value.toLong())
     }
 }

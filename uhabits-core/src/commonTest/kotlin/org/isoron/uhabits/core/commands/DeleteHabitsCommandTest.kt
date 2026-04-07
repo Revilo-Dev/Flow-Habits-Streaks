@@ -18,36 +18,40 @@
  */
 package org.isoron.uhabits.core.commands
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.Reminder
-import org.isoron.uhabits.core.models.WeekdayList
-import org.junit.Before
-import org.junit.Test
-import kotlin.test.assertTrue
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class CreateHabitCommandTest : BaseUnitTest() {
-    private lateinit var command: CreateHabitCommand
-    private lateinit var model: Habit
+class DeleteHabitsCommandTest : BaseUnitTest() {
+    private lateinit var command: DeleteHabitsCommand
+    private lateinit var selected: MutableList<Habit>
 
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
-        model = fixtures.createEmptyHabit()
-        model.name = "New habit"
-        model.reminder = Reminder(8, 30, WeekdayList.EVERY_DAY)
-        command = CreateHabitCommand(modelFactory, habitList, model)
+        selected = mutableListOf()
+
+        // Habits that should be deleted
+        for (i in 0..2) {
+            val habit = fixtures.createShortHabit()
+            habitList.add(habit)
+            selected.add(habit)
+        }
+
+        // Extra habit that should not be deleted
+        val extraHabit = fixtures.createShortHabit()
+        extraHabit.name = "extra"
+        habitList.add(extraHabit)
+        command = DeleteHabitsCommand(habitList, selected)
     }
 
     @Test
     fun testExecute() {
-        assertTrue(habitList.isEmpty)
+        assertEquals(4, habitList.size())
         command.run()
-        assertThat(habitList.size(), equalTo(1))
-        val habit = habitList.getByPosition(0)
-        assertThat(habit.name, equalTo(model.name))
+        assertEquals(1, habitList.size())
+        assertEquals("extra", habitList.getByPosition(0).name)
     }
 }

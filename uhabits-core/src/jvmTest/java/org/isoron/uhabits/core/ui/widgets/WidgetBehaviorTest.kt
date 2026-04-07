@@ -20,7 +20,7 @@ package org.isoron.uhabits.core.ui.widgets
 
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.nextToggleValue
@@ -35,7 +35,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 
-class WidgetBehaviorTest : BaseUnitTest() {
+class WidgetBehaviorTest : JvmBaseUnitTest() {
     private lateinit var notificationTray: NotificationTray
     private lateinit var preferences: Preferences
     private lateinit var behavior: WidgetBehavior

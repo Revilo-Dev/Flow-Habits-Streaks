@@ -19,16 +19,15 @@
 
 package org.isoron.uhabits.core.models
 
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.core.IsEqual.equalTo
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.TruncateField
 import org.isoron.uhabits.core.models.Entry.Companion.NO
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_AUTO
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
-import org.junit.Test
 import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 class EntryListTest {
@@ -146,27 +145,27 @@ class EntryListTest {
             truncateField = TruncateField.MONTH,
             isNumerical = true
         )
-        assertThat(byMonth.size, equalTo(17))
-        assertThat(byMonth[0], equalTo(Entry(LocalDate(2014, 6, 1), 230)))
-        assertThat(byMonth[6], equalTo(Entry(LocalDate(2013, 12, 1), 1988)))
-        assertThat(byMonth[12], equalTo(Entry(LocalDate(2013, 5, 1), 1271)))
+        assertEquals(17, byMonth.size)
+        assertEquals(Entry(LocalDate(2014, 6, 1), 230), byMonth[0])
+        assertEquals(Entry(LocalDate(2013, 12, 1), 1988), byMonth[6])
+        assertEquals(Entry(LocalDate(2013, 5, 1), 1271), byMonth[12])
 
         val byQuarter = entries.getKnown().groupedSum(
             truncateField = TruncateField.QUARTER,
             isNumerical = true
         )
-        assertThat(byQuarter.size, equalTo(6))
-        assertThat(byQuarter[0], equalTo(Entry(LocalDate(2014, 4, 1), 3263)))
-        assertThat(byQuarter[3], equalTo(Entry(LocalDate(2013, 7, 1), 3838)))
-        assertThat(byQuarter[5], equalTo(Entry(LocalDate(2013, 1, 1), 4975)))
+        assertEquals(6, byQuarter.size)
+        assertEquals(Entry(LocalDate(2014, 4, 1), 3263), byQuarter[0])
+        assertEquals(Entry(LocalDate(2013, 7, 1), 3838), byQuarter[3])
+        assertEquals(Entry(LocalDate(2013, 1, 1), 4975), byQuarter[5])
 
         val byYear = entries.getKnown().groupedSum(
             truncateField = TruncateField.YEAR,
             isNumerical = true
         )
-        assertThat(byYear.size, equalTo(2))
-        assertThat(byYear[0], equalTo(Entry(LocalDate(2014, 1, 1), 8227)))
-        assertThat(byYear[1], equalTo(Entry(LocalDate(2013, 1, 1), 16172)))
+        assertEquals(2, byYear.size)
+        assertEquals(Entry(LocalDate(2014, 1, 1), 8227), byYear[0])
+        assertEquals(Entry(LocalDate(2013, 1, 1), 16172), byYear[1])
     }
 
     @Test
@@ -190,27 +189,27 @@ class EntryListTest {
             truncateField = TruncateField.MONTH,
             isNumerical = false
         )
-        assertThat(byMonth.size, equalTo(17))
-        assertThat(byMonth[0], equalTo(Entry(LocalDate(2014, 6, 1), 1_000)))
-        assertThat(byMonth[6], equalTo(Entry(LocalDate(2013, 12, 1), 7_000)))
-        assertThat(byMonth[12], equalTo(Entry(LocalDate(2013, 5, 1), 6_000)))
+        assertEquals(17, byMonth.size)
+        assertEquals(Entry(LocalDate(2014, 6, 1), 1_000), byMonth[0])
+        assertEquals(Entry(LocalDate(2013, 12, 1), 7_000), byMonth[6])
+        assertEquals(Entry(LocalDate(2013, 5, 1), 6_000), byMonth[12])
 
         val byQuarter = entries.getKnown().groupedSum(
             truncateField = TruncateField.QUARTER,
             isNumerical = false
         )
-        assertThat(byQuarter.size, equalTo(6))
-        assertThat(byQuarter[0], equalTo(Entry(LocalDate(2014, 4, 1), 15_000)))
-        assertThat(byQuarter[3], equalTo(Entry(LocalDate(2013, 7, 1), 17_000)))
-        assertThat(byQuarter[5], equalTo(Entry(LocalDate(2013, 1, 1), 20_000)))
+        assertEquals(6, byQuarter.size)
+        assertEquals(Entry(LocalDate(2014, 4, 1), 15_000), byQuarter[0])
+        assertEquals(Entry(LocalDate(2013, 7, 1), 17_000), byQuarter[3])
+        assertEquals(Entry(LocalDate(2013, 1, 1), 20_000), byQuarter[5])
 
         val byYear = entries.getKnown().groupedSum(
             truncateField = TruncateField.YEAR,
             isNumerical = false
         )
-        assertThat(byYear.size, equalTo(2))
-        assertThat(byYear[0], equalTo(Entry(LocalDate(2014, 1, 1), 34_000)))
-        assertThat(byYear[1], equalTo(Entry(LocalDate(2013, 1, 1), 66_000)))
+        assertEquals(2, byYear.size)
+        assertEquals(Entry(LocalDate(2014, 1, 1), 34_000), byYear[0])
+        assertEquals(Entry(LocalDate(2013, 1, 1), 66_000), byYear[1])
     }
 
     @Test
@@ -242,7 +241,7 @@ class EntryListTest {
             Entry(day(11), NO)
         )
         val actual = EntryList.buildEntriesFromInterval(entries, intervals)
-        assertThat(actual, equalTo(expected))
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -260,7 +259,7 @@ class EntryListTest {
             EntryList.Interval(day(29), day(27), day(23))
         )
         EntryList.snapIntervalsTogether(original)
-        assertThat(original, equalTo(expected))
+        assertEquals(expected, original)
     }
 
     @Test
@@ -274,7 +273,7 @@ class EntryListTest {
             EntryList.Interval(day(13), day(8), day(7))
         )
         EntryList.snapIntervalsTogether(original)
-        assertThat(original, equalTo(expected))
+        assertEquals(expected, original)
     }
 
     @Test
@@ -290,7 +289,7 @@ class EntryListTest {
             EntryList.Interval(day(23), day(23), day(17))
         )
         val actual = EntryList.buildIntervals(Frequency.WEEKLY, entries)
-        assertThat(actual, equalTo(expected))
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -306,7 +305,7 @@ class EntryListTest {
             EntryList.Interval(day(23), day(23), day(23))
         )
         val actual = EntryList.buildIntervals(Frequency.DAILY, entries)
-        assertThat(actual, equalTo(expected))
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -324,7 +323,7 @@ class EntryListTest {
             EntryList.Interval(day(23), day(22), day(17))
         )
         val actual = EntryList.buildIntervals(Frequency.TWO_TIMES_PER_WEEK, entries)
-        assertThat(actual, equalTo(expected))
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -339,7 +338,7 @@ class EntryListTest {
             EntryList.Interval(day(30), day(30), day(28))
         )
         val actual = EntryList.buildIntervals(Frequency(1, 3), entries)
-        assertThat(actual, equalTo(expected))
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -376,9 +375,9 @@ class EntryListTest {
             val monthStart = LocalDate(2015, month + 1, 1)
             val actualCount = freq[monthStart]
             if (monthCount[month] == 0) {
-                assertThat(actualCount, equalTo(null))
+                assertEquals(null, actualCount)
             } else {
-                assertThat(actualCount, equalTo(weekdayCount[month]))
+                assertContentEquals(weekdayCount[month], actualCount)
             }
         }
     }

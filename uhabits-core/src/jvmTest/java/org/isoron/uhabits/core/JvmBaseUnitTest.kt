@@ -20,14 +20,7 @@ package org.isoron.uhabits.core
 
 import org.apache.commons.io.IOUtils
 import org.isoron.platform.io.JavaDatabaseOpener
-import org.isoron.platform.io.TestDatabaseHelper
-import org.isoron.platform.time.LocalDate
-import org.isoron.platform.time.setToday
-import org.isoron.uhabits.core.commands.CommandRunner
-import org.isoron.uhabits.core.models.HabitList
-import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.memory.MemoryModelFactory
-import org.isoron.uhabits.core.tasks.SingleThreadTaskRunner
 import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.After
 import org.junit.Before
@@ -46,24 +39,14 @@ import java.util.GregorianCalendar
 import java.util.TimeZone
 
 @RunWith(MockitoJUnitRunner::class)
-open class BaseUnitTest {
-    protected open lateinit var habitList: HabitList
-    protected lateinit var fixtures: HabitFixtures
-    protected lateinit var modelFactory: ModelFactory
-    protected lateinit var taskRunner: SingleThreadTaskRunner
-    protected open lateinit var commandRunner: CommandRunner
+open class JvmBaseUnitTest : BaseUnitTest() {
     protected var databaseOpener: org.isoron.platform.io.DatabaseOpener = JavaDatabaseOpener()
 
     @Before
-    @Throws(Exception::class)
-    open fun setUp() {
-        setToday(LocalDate(2015, 1, 25))
-        val memoryModelFactory = MemoryModelFactory()
-        habitList = spy(memoryModelFactory.buildHabitList())
-        fixtures = HabitFixtures(memoryModelFactory, habitList)
-        modelFactory = memoryModelFactory
-        taskRunner = SingleThreadTaskRunner()
-        commandRunner = CommandRunner(taskRunner)
+    override fun setUp() {
+        super.setUp()
+        habitList = spy(habitList)
+        fixtures = HabitFixtures(modelFactory as MemoryModelFactory, habitList)
     }
 
     @After
@@ -111,11 +94,5 @@ open class BaseUnitTest {
         tmpDbFile.deleteOnExit()
         IOUtils.copy(original, FileOutputStream(tmpDbFile))
         return databaseOpener.open(tmpDbFile.absolutePath)
-    }
-
-    companion object {
-        fun buildMemoryDatabase(): org.isoron.platform.io.Database {
-            return TestDatabaseHelper.createEmptyDatabase()
-        }
     }
 }

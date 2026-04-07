@@ -24,7 +24,7 @@ import org.hamcrest.core.IsEqual.equalTo
 import org.isoron.platform.io.JavaFileOpener
 import org.isoron.platform.io.JavaUserFile
 import org.isoron.platform.time.LocalDate
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
@@ -36,7 +36,7 @@ import java.io.IOException
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ImportTest : BaseUnitTest() {
+class ImportTest : JvmBaseUnitTest() {
     @Before
     @Throws(Exception::class)
     override fun setUp() {

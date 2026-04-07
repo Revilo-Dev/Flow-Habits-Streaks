@@ -27,11 +27,11 @@ import org.isoron.platform.io.JavaFileOpener
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.querySingle
 import org.isoron.platform.io.run
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertThrows
 
-class Version22Test : BaseUnitTest() {
+class Version22Test : JvmBaseUnitTest() {
     private lateinit var db: Database
 
     @Throws(Exception::class)

@@ -18,10 +18,10 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.BaseUnitTest
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -31,11 +31,11 @@ class WeekdayListTest : BaseUnitTest() {
         val daysInt = 124
         val daysArray = booleanArrayOf(false, false, true, true, true, true, true)
         var list = WeekdayList(daysArray)
-        assertThat(list.toArray(), equalTo(daysArray))
-        assertThat(list.toInteger(), equalTo(daysInt))
+        assertContentEquals(daysArray, list.toArray())
+        assertEquals(daysInt, list.toInteger())
         list = WeekdayList(daysInt)
-        assertThat(list.toArray(), equalTo(daysArray))
-        assertThat(list.toInteger(), equalTo(daysInt))
+        assertContentEquals(daysArray, list.toArray())
+        assertEquals(daysInt, list.toInteger())
     }
 
     @Test
@@ -48,7 +48,7 @@ class WeekdayListTest : BaseUnitTest() {
     @Test
     fun testWeekdayList_IntConstructor_toString() {
         val string = WeekdayList(0).toString()
-        assertThat(string, equalTo("{weekdays: [false,false,false,false,false,false,false]}"))
+        assertEquals("{weekdays: [false,false,false,false,false,false,false]}", string)
     }
 
     @Test
@@ -56,6 +56,6 @@ class WeekdayListTest : BaseUnitTest() {
         val string = WeekdayList(
             booleanArrayOf(false, false, true, true, true, true, true)
         ).toString()
-        assertThat(string, equalTo("{weekdays: [false,false,true,true,true,true,true]}"))
+        assertEquals("{weekdays: [false,false,true,true,true,true,true]}", string)
     }
 }

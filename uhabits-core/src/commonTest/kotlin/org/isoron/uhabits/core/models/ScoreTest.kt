@@ -18,16 +18,14 @@
  */
 package org.isoron.uhabits.core.models
 
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.number.IsCloseTo.closeTo
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Score.Companion.compute
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class ScoreTest : BaseUnitTest() {
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
     }
@@ -36,29 +34,34 @@ class ScoreTest : BaseUnitTest() {
     fun test_compute_withDailyHabit() {
         var check = 1
         val freq = 1.0
-        assertThat(compute(freq, 0.0, check.toDouble()), closeTo(0.051922, E))
-        assertThat(compute(freq, 0.5, check.toDouble()), closeTo(0.525961, E))
-        assertThat(compute(freq, 0.75, check.toDouble()), closeTo(0.762981, E))
+        assertCloseTo(0.051922, compute(freq, 0.0, check.toDouble()), E)
+        assertCloseTo(0.525961, compute(freq, 0.5, check.toDouble()), E)
+        assertCloseTo(0.762981, compute(freq, 0.75, check.toDouble()), E)
         check = 0
-        assertThat(compute(freq, 0.0, check.toDouble()), closeTo(0.0, E))
-        assertThat(compute(freq, 0.5, check.toDouble()), closeTo(0.474039, E))
-        assertThat(compute(freq, 0.75, check.toDouble()), closeTo(0.711058, E))
+        assertCloseTo(0.0, compute(freq, 0.0, check.toDouble()), E)
+        assertCloseTo(0.474039, compute(freq, 0.5, check.toDouble()), E)
+        assertCloseTo(0.711058, compute(freq, 0.75, check.toDouble()), E)
     }
 
     @Test
     fun test_compute_withNonDailyHabit() {
         var check = 1
         val freq = 1 / 3.0
-        assertThat(compute(freq, 0.0, check.toDouble()), closeTo(0.030314, E))
-        assertThat(compute(freq, 0.5, check.toDouble()), closeTo(0.515157, E))
-        assertThat(compute(freq, 0.75, check.toDouble()), closeTo(0.757578, E))
+        assertCloseTo(0.030314, compute(freq, 0.0, check.toDouble()), E)
+        assertCloseTo(0.515157, compute(freq, 0.5, check.toDouble()), E)
+        assertCloseTo(0.757578, compute(freq, 0.75, check.toDouble()), E)
         check = 0
-        assertThat(compute(freq, 0.0, check.toDouble()), closeTo(0.0, E))
-        assertThat(compute(freq, 0.5, check.toDouble()), closeTo(0.484842, E))
-        assertThat(compute(freq, 0.75, check.toDouble()), closeTo(0.727263, E))
+        assertCloseTo(0.0, compute(freq, 0.0, check.toDouble()), E)
+        assertCloseTo(0.484842, compute(freq, 0.5, check.toDouble()), E)
+        assertCloseTo(0.727263, compute(freq, 0.75, check.toDouble()), E)
     }
 
     companion object {
         private const val E = 1e-6
+
+        private fun assertCloseTo(expected: Double, actual: Double, epsilon: Double) {
+            val diff = kotlin.math.abs(expected - actual)
+            assertTrue(diff <= epsilon, "Expected $expected ± $epsilon, but got $actual (diff=$diff)")
+        }
     }
 }

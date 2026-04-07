@@ -18,24 +18,21 @@
  */
 package org.isoron.uhabits.core.commands
 
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
-import org.junit.Before
-import org.junit.Test
-import java.util.LinkedList
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ChangeHabitColorCommandTest : BaseUnitTest() {
     private lateinit var command: ChangeHabitColorCommand
-    private lateinit var selected: LinkedList<Habit>
+    private lateinit var selected: MutableList<Habit>
 
-    @Before
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
-        selected = LinkedList()
+        selected = mutableListOf()
         for (i in 0..2) {
             val habit = fixtures.createShortHabit()
             habit.color = PaletteColor(i + 1)
@@ -54,13 +51,13 @@ class ChangeHabitColorCommandTest : BaseUnitTest() {
 
     private fun checkNewColors() {
         for (habit in selected) {
-            assertThat(habit.color, equalTo(PaletteColor(0)))
+            assertEquals(PaletteColor(0), habit.color)
         }
     }
 
     private fun checkOriginalColors() {
         var k = 0
         for (habit in selected)
-            assertThat(habit.color, equalTo(PaletteColor(++k)))
+            assertEquals(PaletteColor(++k), habit.color)
     }
 }

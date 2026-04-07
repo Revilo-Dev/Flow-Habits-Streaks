@@ -22,7 +22,7 @@ import org.isoron.platform.time.DateUtils
 import org.isoron.platform.time.DateUtils.removeTimezone
 import org.isoron.platform.time.DateUtils.setFixedLocalTime
 import org.isoron.platform.time.DateUtils.setFixedTimeZone
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
@@ -40,7 +40,7 @@ import org.mockito.kotlin.whenever
 import java.util.TimeZone
 
 @RunWith(MockitoJUnitRunner::class)
-class ReminderSchedulerTest : BaseUnitTest() {
+class ReminderSchedulerTest : JvmBaseUnitTest() {
     private val habitId = 10L
     private lateinit var habit: Habit
     private lateinit var reminderScheduler: ReminderScheduler

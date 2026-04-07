@@ -20,7 +20,7 @@ package org.isoron.uhabits.core.ui.screens.habits.list
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.Preferences
@@ -38,7 +38,7 @@ import org.mockito.kotlin.whenever
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ListHabitsMenuBehaviorTest : BaseUnitTest() {
+class ListHabitsMenuBehaviorTest : JvmBaseUnitTest() {
     private lateinit var behavior: ListHabitsMenuBehavior
 
     private val screen: ListHabitsMenuBehavior.Screen = mock()
