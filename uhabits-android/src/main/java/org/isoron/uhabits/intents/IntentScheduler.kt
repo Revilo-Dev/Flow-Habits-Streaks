@@ -28,11 +28,11 @@ import android.content.Context.ALARM_SERVICE
 import android.os.Build
 import android.util.Log
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.time.DateFormats
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.reminders.ReminderScheduler.SchedulerResult
 import org.isoron.uhabits.core.reminders.ReminderScheduler.SystemScheduler
-import org.isoron.uhabits.core.utils.DateFormats
 import org.isoron.uhabits.inject.AppContext
 import java.util.Date
 import kotlin.math.min

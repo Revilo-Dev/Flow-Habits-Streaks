@@ -24,13 +24,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.time.DateUtils
 import org.isoron.uhabits.core.commands.Command
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.preferences.WidgetPreferences
 import org.isoron.uhabits.core.tasks.TaskRunner
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.intents.IntentScheduler
 

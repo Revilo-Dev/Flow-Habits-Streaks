@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.utils
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.time.DateUtils
 import org.isoron.platform.time.computeToday
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.AppScope

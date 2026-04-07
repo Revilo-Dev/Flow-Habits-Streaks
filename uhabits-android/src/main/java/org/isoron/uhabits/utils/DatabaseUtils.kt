@@ -22,11 +22,11 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import org.isoron.platform.time.DateFormats.Companion.getBackupDateFormat
 import org.isoron.uhabits.HabitsApplication.Companion.isTestMode
 import org.isoron.uhabits.HabitsDatabaseOpener
 import org.isoron.uhabits.core.DATABASE_FILENAME
 import org.isoron.uhabits.core.DATABASE_VERSION
-import org.isoron.uhabits.core.utils.DateFormats.Companion.getBackupDateFormat
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException

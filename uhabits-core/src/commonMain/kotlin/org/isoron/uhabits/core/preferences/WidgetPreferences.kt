@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.preferences
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.io.format
 import org.isoron.uhabits.core.AppScope
 
 @AppScope
@@ -52,11 +53,11 @@ class WidgetPreferences(private val storage: Preferences.Storage) {
     }
 
     private fun getHabitIdKey(id: Int): String {
-        return String.format("widget-%06d-habit", id)
+        return format("widget-%06d-habit", id)
     }
 
     private fun getSnoozeKey(id: Long): String {
-        return String.format("snooze-%06d", id)
+        return format("snooze-%06d", id.toInt())
     }
 
     fun removeSnoozeTime(id: Long) {

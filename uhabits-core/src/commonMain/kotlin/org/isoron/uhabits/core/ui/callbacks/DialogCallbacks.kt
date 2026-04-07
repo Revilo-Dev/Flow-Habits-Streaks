@@ -16,20 +16,20 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package org.isoron.uhabits.core.ui.callbacks
 
-package org.isoron.uhabits.core.tasks
+fun interface NumberPickerCallback {
+    fun onNumberPicked(
+        newValue: Double,
+        notes: String
+    )
+    fun onNumberPickerDismissed() {}
+}
 
-import me.tatarka.inject.annotations.Inject
-import org.isoron.uhabits.core.models.Habit
-import org.isoron.uhabits.core.models.HabitList
-
-@Inject
-class ExportCSVTaskFactory(
-    val habitList: HabitList
-) {
-    fun create(
-        selectedHabits: List<Habit>,
-        outputDir: String,
-        listener: ExportCSVTask.Listener
-    ) = ExportCSVTask(habitList, selectedHabits, outputDir, listener)
+fun interface CheckMarkDialogCallback {
+    fun onNotesSaved(
+        value: Int,
+        notes: String
+    )
+    fun onNotesDismissed() {}
 }

@@ -51,6 +51,8 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.ThemeSwitcher
+import org.isoron.uhabits.core.ui.callbacks.CheckMarkDialogCallback
+import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import org.isoron.uhabits.core.ui.callbacks.OnColorPickedCallback
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
@@ -270,7 +272,7 @@ class ListHabitsScreen(
     override fun showNumberPopup(
         value: Double,
         notes: String,
-        callback: ListHabitsBehavior.NumberPickerCallback
+        callback: NumberPickerCallback
     ) {
         val fm = (context as AppCompatActivity).supportFragmentManager
         val dialog = NumberDialog()
@@ -286,7 +288,7 @@ class ListHabitsScreen(
         selectedValue: Int,
         notes: String,
         color: PaletteColor,
-        callback: ListHabitsBehavior.CheckMarkDialogCallback
+        callback: CheckMarkDialogCallback
     ) {
         val theme = rootView.value.currentTheme()
         val fm = (context as AppCompatActivity).supportFragmentManager

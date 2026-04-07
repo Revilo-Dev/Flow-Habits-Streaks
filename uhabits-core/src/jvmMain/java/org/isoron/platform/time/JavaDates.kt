@@ -47,7 +47,7 @@ fun LocalDate.toGregorianCalendar(): GregorianCalendar {
     return cal
 }
 
-fun getFirstWeekdayNumberAccordingToLocale(): Int {
+actual fun getFirstWeekdayNumberAccordingToLocale(): Int {
     return GregorianCalendar(Locale.getDefault()).firstDayOfWeek
 }
 

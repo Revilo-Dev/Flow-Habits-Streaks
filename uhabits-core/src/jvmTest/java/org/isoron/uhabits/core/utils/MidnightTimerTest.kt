@@ -3,6 +3,7 @@ package org.isoron.uhabits.core.utils
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.isoron.platform.time.DateUtils
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.io.StandardLogging
 import org.isoron.uhabits.core.preferences.Preferences

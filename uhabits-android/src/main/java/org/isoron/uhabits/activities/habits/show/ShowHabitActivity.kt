@@ -43,8 +43,9 @@ import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.Preferences
+import org.isoron.uhabits.core.ui.callbacks.CheckMarkDialogCallback
+import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
-import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitMenuPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitPresenter
 import org.isoron.uhabits.core.ui.views.OnDateClickedListener
@@ -174,7 +175,7 @@ class ShowHabitActivity : AppCompatActivity(), CommandRunner.Listener {
         override fun showNumberPopup(
             value: Double,
             notes: String,
-            callback: ListHabitsBehavior.NumberPickerCallback
+            callback: NumberPickerCallback
         ) {
             val dialog = NumberDialog()
             dialog.arguments = Bundle().apply {
@@ -189,7 +190,7 @@ class ShowHabitActivity : AppCompatActivity(), CommandRunner.Listener {
             selectedValue: Int,
             notes: String,
             color: PaletteColor,
-            callback: ListHabitsBehavior.CheckMarkDialogCallback
+            callback: CheckMarkDialogCallback
         ) {
             val theme = view.currentTheme()
             val dialog = CheckmarkDialog()

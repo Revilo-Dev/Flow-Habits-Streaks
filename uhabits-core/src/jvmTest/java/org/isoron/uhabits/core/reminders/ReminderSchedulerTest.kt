@@ -18,15 +18,15 @@
  */
 package org.isoron.uhabits.core.reminders
 
+import org.isoron.platform.time.DateUtils
+import org.isoron.platform.time.DateUtils.removeTimezone
+import org.isoron.platform.time.DateUtils.setFixedLocalTime
+import org.isoron.platform.time.DateUtils.setFixedTimeZone
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.preferences.WidgetPreferences
-import org.isoron.uhabits.core.utils.DateUtils
-import org.isoron.uhabits.core.utils.DateUtils.removeTimezone
-import org.isoron.uhabits.core.utils.DateUtils.setFixedLocalTime
-import org.isoron.uhabits.core.utils.DateUtils.setFixedTimeZone
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

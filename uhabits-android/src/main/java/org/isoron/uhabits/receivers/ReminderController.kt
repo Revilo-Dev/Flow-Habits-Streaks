@@ -22,13 +22,13 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.time.DateUtils
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.reminders.ReminderScheduler
 import org.isoron.uhabits.core.ui.NotificationTray
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.notifications.SnoozeDelayPickerActivity
 
 @Inject

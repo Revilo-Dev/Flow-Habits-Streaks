@@ -33,6 +33,8 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.ExportCSVTask
 import org.isoron.uhabits.core.tasks.TaskRunner
+import org.isoron.uhabits.core.ui.callbacks.CheckMarkDialogCallback
+import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import kotlin.math.roundToInt
 
 @Inject
@@ -150,22 +152,6 @@ open class ListHabitsBehavior(
 
     interface DirFinder {
         fun getCSVOutputDir(): String
-    }
-
-    fun interface NumberPickerCallback {
-        fun onNumberPicked(
-            newValue: Double,
-            notes: String
-        )
-        fun onNumberPickerDismissed() {}
-    }
-
-    fun interface CheckMarkDialogCallback {
-        fun onNotesSaved(
-            value: Int,
-            notes: String
-        )
-        fun onNotesDismissed() {}
     }
 
     interface Screen {

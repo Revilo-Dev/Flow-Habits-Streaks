@@ -26,6 +26,7 @@ import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
+import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.KArgumentCaptor
@@ -50,7 +51,7 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
     private lateinit var habit1: Habit
     private lateinit var habit2: Habit
 
-    var picker: KArgumentCaptor<ListHabitsBehavior.NumberPickerCallback> = argumentCaptor()
+    var picker: KArgumentCaptor<NumberPickerCallback> = argumentCaptor()
 
     private val bugReporter: ListHabitsBehavior.BugReporter = mock()
 

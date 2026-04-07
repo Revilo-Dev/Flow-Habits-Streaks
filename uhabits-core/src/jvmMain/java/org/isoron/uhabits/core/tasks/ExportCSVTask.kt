@@ -29,7 +29,7 @@ class ExportCSVTask(
     private val habitList: HabitList,
     private val selectedHabits: List<Habit>,
     private val outputDir: String,
-    private val listener: Listener
+    private val listener: ExportCSVListener
 ) : Task {
     private var archiveFilename: String? = null
     override fun doInBackground() {
@@ -49,9 +49,5 @@ class ExportCSVTask(
 
     override fun onPostExecute() {
         listener.onExportCSVFinished(archiveFilename)
-    }
-
-    fun interface Listener {
-        fun onExportCSVFinished(archiveFilename: String?)
     }
 }

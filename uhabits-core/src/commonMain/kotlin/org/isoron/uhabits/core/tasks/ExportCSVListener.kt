@@ -16,27 +16,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package org.isoron.uhabits.core.tasks
 
-package org.isoron.uhabits.core.utils
-
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
-
-class DateFormats {
-
-    companion object {
-
-        @JvmStatic fun fromSkeleton(
-            skeleton: String,
-            locale: Locale
-        ): SimpleDateFormat {
-            val df = SimpleDateFormat(skeleton, locale)
-            df.timeZone = TimeZone.getTimeZone("UTC")
-            return df
-        }
-
-        @JvmStatic fun getBackupDateFormat(): SimpleDateFormat =
-            fromSkeleton("yyyy-MM-dd HHmmss", Locale.US)
-    }
+fun interface ExportCSVListener {
+    fun onExportCSVFinished(archiveFilename: String?)
 }

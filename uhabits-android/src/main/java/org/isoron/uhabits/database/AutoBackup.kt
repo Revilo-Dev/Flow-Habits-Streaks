@@ -24,8 +24,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.preference.PreferenceManager
+import org.isoron.platform.time.DateUtils
 import org.isoron.uhabits.AndroidDirFinder
-import org.isoron.uhabits.core.utils.DateUtils
 import org.isoron.uhabits.utils.DatabaseUtils
 import java.io.File
 

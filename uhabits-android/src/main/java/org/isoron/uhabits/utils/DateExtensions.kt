@@ -21,11 +21,11 @@ package org.isoron.uhabits.utils
 
 import android.content.Context
 import android.text.format.DateFormat
+import org.isoron.platform.time.DateFormats
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.WeekdayList
-import org.isoron.uhabits.core.utils.DateFormats
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
