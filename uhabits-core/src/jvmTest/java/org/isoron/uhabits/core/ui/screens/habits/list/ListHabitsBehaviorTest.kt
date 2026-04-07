@@ -21,6 +21,7 @@ package org.isoron.uhabits.core.ui.screens.habits.list
 import org.apache.commons.io.FileUtils
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
+import org.isoron.platform.io.JavaUserFile
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
@@ -92,7 +93,7 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
     @Throws(Exception::class)
     fun testOnExportCSV() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
-        whenever(dirFinder.getCSVOutputDir()).thenReturn(outputDir.absolutePath)
+        whenever(dirFinder.getCSVOutputDir()).thenReturn(JavaUserFile(outputDir.toPath()))
         behavior.onExportCSV()
         verify(screen).showSendFileScreen(any())
         assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
@@ -104,7 +105,7 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
     fun testOnExportCSV_fail() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
         outputDir.setWritable(false)
-        whenever(dirFinder.getCSVOutputDir()).thenReturn(outputDir.absolutePath)
+        whenever(dirFinder.getCSVOutputDir()).thenReturn(JavaUserFile(outputDir.toPath()))
         behavior.onExportCSV()
         verify(screen).showMessage(ListHabitsBehavior.Message.COULD_NOT_EXPORT)
         assertTrue(outputDir.delete())

@@ -21,6 +21,7 @@ package org.isoron.uhabits.core.ui.screens.habits.show
 import org.apache.commons.io.FileUtils
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.isoron.platform.io.JavaUserFile
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.junit.Test
@@ -61,7 +62,7 @@ class ShowHabitMenuPresenterTest : BaseUnitTest() {
     @Throws(Exception::class)
     fun testOnExport() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
-        whenever(system.getCSVOutputDir()).thenReturn(outputDir.absolutePath)
+        whenever(system.getCSVOutputDir()).thenReturn(JavaUserFile(outputDir.toPath()))
         menu.onExportCSV()
         assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
         FileUtils.deleteDirectory(outputDir)

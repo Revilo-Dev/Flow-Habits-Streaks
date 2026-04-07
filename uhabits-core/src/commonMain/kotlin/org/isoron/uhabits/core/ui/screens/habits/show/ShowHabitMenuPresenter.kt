@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.show
 
+import org.isoron.platform.io.UserFile
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.commands.ArchiveHabitsCommand
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -126,6 +127,6 @@ class ShowHabitMenuPresenter(
     }
 
     interface System {
-        fun getCSVOutputDir(): String
+        fun getCSVOutputDir(): UserFile
     }
 }

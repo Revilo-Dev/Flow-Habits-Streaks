@@ -87,6 +87,12 @@ interface UserFile {
      * Reads the first [limit] bytes from the file.
      */
     suspend fun readBytes(limit: Int): ByteArray
+
+    /**
+     * Returns a [UserFile] whose path is [child] resolved against this file's
+     * parent directory (or this file itself, if it represents a directory).
+     */
+    fun resolve(child: String): UserFile
 }
 
 /**

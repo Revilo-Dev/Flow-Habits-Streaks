@@ -99,6 +99,10 @@ class JavaUserFile(val path: Path) : UserFile {
             return if (n <= 0) ByteArray(0) else buf.copyOf(n)
         }
     }
+
+    override fun resolve(child: String): UserFile {
+        return JavaUserFile(path.resolve(child))
+    }
 }
 
 @Suppress("NewApi")

@@ -19,16 +19,16 @@
 package org.isoron.uhabits.core.tasks
 
 import kotlinx.coroutines.runBlocking
+import org.isoron.platform.io.UserFile
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.io.HabitsCSVExporter
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
-import java.io.File
 
 class ExportCSVTask(
     private val habitList: HabitList,
     private val selectedHabits: List<Habit>,
-    private val outputDir: String,
+    private val outputDir: UserFile,
     private val listener: ExportCSVListener
 ) : Task {
     private var archiveFilename: String? = null
@@ -37,11 +37,9 @@ class ExportCSVTask(
             val exporter = HabitsCSVExporter(habitList, selectedHabits)
             val bytes = runBlocking { exporter.writeArchive() }
             val date = getToday().toCSVString()
-            val dir = File(outputDir)
-            dir.mkdirs()
-            val zipFile = File(dir, "Loop Habits CSV $date.zip")
-            zipFile.writeBytes(bytes)
-            archiveFilename = zipFile.absolutePath
+            val zipFile = outputDir.resolve("Loop Habits CSV $date.zip")
+            runBlocking { zipFile.writeBytes(bytes) }
+            archiveFilename = zipFile.pathString
         } catch (e: Exception) {
             e.printStackTrace()
         }

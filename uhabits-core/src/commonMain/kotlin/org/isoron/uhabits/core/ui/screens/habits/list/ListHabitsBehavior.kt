@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.ui.screens.habits.list
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.io.UserFile
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -151,7 +152,7 @@ open class ListHabitsBehavior(
     }
 
     interface DirFinder {
-        fun getCSVOutputDir(): String
+        fun getCSVOutputDir(): UserFile
     }
 
     interface Screen {

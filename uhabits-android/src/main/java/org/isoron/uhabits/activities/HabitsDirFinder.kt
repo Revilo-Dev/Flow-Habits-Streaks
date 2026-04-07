@@ -19,6 +19,8 @@
 package org.isoron.uhabits.activities
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.io.JavaUserFile
+import org.isoron.platform.io.UserFile
 import org.isoron.uhabits.AndroidDirFinder
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitMenuPresenter
@@ -28,7 +30,7 @@ class HabitsDirFinder(
     private val androidDirFinder: AndroidDirFinder
 ) : ShowHabitMenuPresenter.System, ListHabitsBehavior.DirFinder {
 
-    override fun getCSVOutputDir(): String {
-        return androidDirFinder.getFilesDir("CSV")!!.absolutePath
+    override fun getCSVOutputDir(): UserFile {
+        return JavaUserFile(androidDirFinder.getFilesDir("CSV")!!.toPath())
     }
 }
