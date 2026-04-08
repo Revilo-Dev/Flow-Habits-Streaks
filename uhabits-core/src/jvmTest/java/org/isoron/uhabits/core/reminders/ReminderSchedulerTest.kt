@@ -27,7 +27,8 @@ import org.isoron.platform.time.DateUtils
 import org.isoron.platform.time.DateUtils.removeTimezone
 import org.isoron.platform.time.DateUtils.setFixedLocalTime
 import org.isoron.platform.time.DateUtils.setFixedTimeZone
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.platform.time.unixTime
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
@@ -37,7 +38,7 @@ import org.junit.Before
 import org.junit.Test
 import java.util.TimeZone
 
-class ReminderSchedulerTest : JvmBaseUnitTest() {
+class ReminderSchedulerTest : BaseUnitTest() {
     private val habitId = 10L
     private lateinit var habit: Habit
     private lateinit var reminderScheduler: ReminderScheduler
@@ -143,13 +144,6 @@ class ReminderSchedulerTest : JvmBaseUnitTest() {
     @Test
     fun testSchedule_withoutReminder() {
         reminderScheduler.schedule(habit)
-    }
-
-    override fun unixTime(year: Int, month: Int, day: Int, hour: Int, minute: Int, milliseconds: Long): Long {
-        val cal = java.util.GregorianCalendar(TimeZone.getTimeZone("GMT"))
-        cal.set(year, month, day, hour, minute, 0)
-        cal.set(java.util.GregorianCalendar.MILLISECOND, 0)
-        return cal.timeInMillis
     }
 
     private fun scheduleAndVerify(

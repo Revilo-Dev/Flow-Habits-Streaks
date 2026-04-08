@@ -33,9 +33,9 @@ class JavaCanvasTest {
     }
 }
 
-fun createCanvas(w: Int, h: Int) = JavaCanvas(BufferedImage(2 * w, 2 * h, TYPE_INT_ARGB), 2.0)
+private fun createCanvas(w: Int, h: Int) = JavaCanvas(BufferedImage(2 * w, 2 * h, TYPE_INT_ARGB), 2.0)
 
-suspend fun assertRenders(
+private suspend fun assertRenders(
     path: String,
     canvas: Canvas
 ) {
@@ -65,7 +65,7 @@ suspend fun assertRenders(
     }
 }
 
-suspend fun assertRenders(
+private suspend fun assertRenders(
     width: Int,
     height: Int,
     expectedPath: String,

@@ -25,17 +25,16 @@ import dev.mokkery.verify
 import dev.mokkery.verifyNoMoreCalls
 import kotlinx.coroutines.runBlocking
 import org.isoron.platform.gui.assertRenders
+import org.isoron.platform.io.createTestDateFormatter
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.DayOfWeek.SUNDAY
-import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.DIMMED
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.HATCHED
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.OFF
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.ON
-import org.junit.Test
-import java.util.Locale
+import kotlin.test.Test
 
 class HistoryChartTest {
     val base = "views/HistoryChart"
@@ -46,7 +45,7 @@ class HistoryChartTest {
         today = LocalDate(2015, 1, 25),
         paletteColor = PaletteColor(7),
         theme = LightTheme(),
-        dateFormatter = JavaLocalDateFormatter(Locale.US),
+        dateFormatter = createTestDateFormatter(),
         firstWeekday = SUNDAY,
         onDateClickedListener = dateClickedListener,
         defaultSquare = OFF,

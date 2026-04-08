@@ -21,15 +21,14 @@ package org.isoron.uhabits.core.ui.views
 
 import kotlinx.coroutines.runBlocking
 import org.isoron.platform.gui.assertRenders
-import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.platform.io.createTestDateFormatter
 import org.isoron.platform.time.LocalDate
-import org.junit.Test
-import java.util.Locale
+import kotlin.test.Test
 
 class BarChartTest {
     val base = "views/BarChart"
     val today = LocalDate(2015, 1, 25)
-    private val fmt = JavaLocalDateFormatter(Locale.US)
+    private val fmt = createTestDateFormatter()
     val theme = LightTheme()
     val component = BarChart(theme, fmt)
     private val axis = (0..100).map { today.minus(it) }

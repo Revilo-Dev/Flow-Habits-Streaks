@@ -5,7 +5,8 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.isoron.platform.time.DateUtils
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.platform.time.unixTime
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.io.StandardLogging
 import org.isoron.uhabits.core.preferences.Preferences
 import org.junit.After
@@ -17,7 +18,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.test.assertEquals
 
-class MidnightTimerTest : JvmBaseUnitTest() {
+class MidnightTimerTest : BaseUnitTest() {
 
     @After
     fun tearDown() {
@@ -56,4 +57,5 @@ class MidnightTimerTest : JvmBaseUnitTest() {
             assertEquals(true, suspendedListener)
         }
     }
+
 }

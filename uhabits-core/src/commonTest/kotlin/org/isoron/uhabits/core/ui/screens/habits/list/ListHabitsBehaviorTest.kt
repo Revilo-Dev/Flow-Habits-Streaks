@@ -24,7 +24,6 @@ import dev.mokkery.answering.throws
 import dev.mokkery.every
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
-import dev.mokkery.resetCalls
 import dev.mokkery.spy
 import dev.mokkery.verify
 import kotlinx.coroutines.runBlocking
