@@ -23,7 +23,7 @@ import dev.mokkery.mock
 import dev.mokkery.resetCalls
 import dev.mokkery.verify
 import dev.mokkery.verifyNoMoreCalls
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.gui.assertRenders
 import org.isoron.platform.io.createTestDateFormatter
 import org.isoron.platform.time.DayOfWeek
@@ -78,12 +78,12 @@ class HistoryChartTest {
     )
 
     @Test
-    fun testDraw() = runBlocking {
+    fun testDraw() = runTest {
         assertRenders(400, 200, "$base/base.png", view)
     }
 
     @Test
-    fun testClick() = runBlocking {
+    fun testClick() = runTest {
         assertRenders(400, 200, "$base/base.png", view)
 
         // Click top left date
@@ -114,7 +114,7 @@ class HistoryChartTest {
     }
 
     @Test
-    fun testLongClick() = runBlocking {
+    fun testLongClick() = runTest {
         assertRenders(400, 200, "$base/base.png", view)
 
         // Click top left date
@@ -145,30 +145,30 @@ class HistoryChartTest {
     }
 
     @Test
-    fun testDrawWeekDay() = runBlocking {
+    fun testDrawWeekDay() = runTest {
         view.firstWeekday = DayOfWeek.MONDAY
         assertRenders(400, 200, "$base/weekday.png", view)
     }
 
     @Test
-    fun testDrawDifferentSize() = runBlocking {
+    fun testDrawDifferentSize() = runTest {
         assertRenders(200, 200, "$base/small.png", view)
     }
 
     @Test
-    fun testDrawDarkTheme() = runBlocking {
+    fun testDrawDarkTheme() = runTest {
         view.theme = DarkTheme()
         assertRenders(400, 200, "$base/themeDark.png", view)
     }
 
     @Test
-    fun testDrawWidgetTheme() = runBlocking {
+    fun testDrawWidgetTheme() = runTest {
         view.theme = WidgetTheme()
         assertRenders(400, 200, "$base/themeWidget.png", view)
     }
 
     @Test
-    fun testDrawOffset() = runBlocking {
+    fun testDrawOffset() = runTest {
         view.dataOffset = 2
         assertRenders(400, 200, "$base/scroll.png", view)
     }

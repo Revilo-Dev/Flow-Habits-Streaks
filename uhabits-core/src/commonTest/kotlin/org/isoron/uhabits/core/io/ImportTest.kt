@@ -18,7 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
-import kotlinx.coroutines.runBlocking
+import org.isoron.platform.runSuspend
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
@@ -157,7 +157,7 @@ class ImportTest : BaseUnitTest() {
         return h.originalEntries.get(LocalDate(year, month, day)).notes == notes
     }
 
-    private fun importFromFile(assetFilename: String) = runBlocking {
+    private fun importFromFile(assetFilename: String) = runSuspend {
         val userFile = copyResourceToTempFile(assetFilename)
         assertTrue(userFile.exists())
         val importer = GenericImporter(

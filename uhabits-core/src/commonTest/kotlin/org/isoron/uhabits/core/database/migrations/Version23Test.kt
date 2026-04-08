@@ -19,10 +19,10 @@
 
 package org.isoron.uhabits.core.database.migrations
 
-import kotlinx.coroutines.runBlocking
 import org.isoron.platform.io.Database
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.query
+import org.isoron.platform.runSuspend
 import org.isoron.uhabits.core.BaseUnitTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +36,7 @@ class Version23Test : BaseUnitTest() {
         db = openDatabaseResource("/databases/022.db")
     }
 
-    private fun migrateTo(version: Int) = runBlocking {
+    private fun migrateTo(version: Int) = runSuspend {
         db.migrateTo(version) { v ->
             val path = "migrations/%02d.sql".format(v)
             fileOpener.openResourceFile(path).lines().joinToString("\n")

@@ -18,7 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.io.ZipReader
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
@@ -36,7 +36,7 @@ class HabitsCSVExporterTest : BaseUnitTest() {
     }
 
     @Test
-    fun testExportCSV() = runBlocking {
+    fun testExportCSV() = runTest {
         val selected: MutableList<Habit> = mutableListOf()
         for (h in habitList) selected.add(h)
         val exporter = HabitsCSVExporter(habitList, selected)

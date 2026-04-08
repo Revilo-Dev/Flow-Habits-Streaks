@@ -18,7 +18,6 @@
  */
 package org.isoron.uhabits.core
 
-import kotlinx.coroutines.runBlocking
 import org.isoron.platform.io.Database
 import org.isoron.platform.io.DatabaseOpener
 import org.isoron.platform.io.FileOpener
@@ -26,6 +25,7 @@ import org.isoron.platform.io.TestDatabaseHelper
 import org.isoron.platform.io.UserFile
 import org.isoron.platform.io.createTestDatabaseOpener
 import org.isoron.platform.io.createTestFileOpener
+import org.isoron.platform.runSuspend
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -56,20 +56,20 @@ open class BaseUnitTest {
         commandRunner = CommandRunner(taskRunner)
     }
 
-    protected fun createTempDir(): UserFile = runBlocking {
+    protected fun createTempDir(): UserFile = runSuspend {
         val dir = fileOpener.openUserFile("test-temp-dir-${tempFileCounter++}")
         dir.mkdirs()
         dir
     }
 
-    protected fun copyResourceToTempFile(resourcePath: String): UserFile = runBlocking {
+    protected fun copyResourceToTempFile(resourcePath: String): UserFile = runSuspend {
         val cleanPath = resourcePath.removePrefix("/")
         val tempFile = fileOpener.openUserFile("test-temp-${tempFileCounter++}")
         fileOpener.openResourceFile(cleanPath).copyTo(tempFile)
         tempFile
     }
 
-    protected fun openDatabaseResource(resourcePath: String): Database = runBlocking {
+    protected fun openDatabaseResource(resourcePath: String): Database = runSuspend {
         val tempFile = copyResourceToTempFile(resourcePath)
         databaseOpener.open(tempFile.pathString)
     }

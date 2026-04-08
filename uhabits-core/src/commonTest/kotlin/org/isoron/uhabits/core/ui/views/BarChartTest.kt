@@ -19,7 +19,7 @@
 
 package org.isoron.uhabits.core.ui.views
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.gui.assertRenders
 import org.isoron.platform.io.createTestDateFormatter
 import org.isoron.platform.time.LocalDate
@@ -41,24 +41,24 @@ class BarChartTest {
     }
 
     @Test
-    fun testDraw() = runBlocking {
+    fun testDraw() = runTest {
         assertRenders(300, 200, "$base/base.png", component)
     }
 
     @Test
-    fun testDrawDarkTheme() = runBlocking {
+    fun testDrawDarkTheme() = runTest {
         component.theme = DarkTheme()
         assertRenders(300, 200, "$base/themeDark.png", component)
     }
 
     @Test
-    fun testDrawWidgetTheme() = runBlocking {
+    fun testDrawWidgetTheme() = runTest {
         component.theme = WidgetTheme()
         assertRenders(300, 200, "$base/themeWidget.png", component)
     }
 
     @Test
-    fun testDrawWithOffset() = runBlocking {
+    fun testDrawWithOffset() = runTest {
         component.dataOffset = 5
         assertRenders(300, 200, "$base/offset.png", component)
     }

@@ -57,5 +57,4 @@ class MidnightTimerTest : BaseUnitTest() {
             assertEquals(true, suspendedListener)
         }
     }
-
 }

@@ -22,7 +22,7 @@ import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
 import dev.mokkery.verify
-import kotlinx.coroutines.runBlocking
+import org.isoron.platform.runSuspend
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import kotlin.test.Test
@@ -60,7 +60,7 @@ class ShowHabitMenuPresenterTest : BaseUnitTest() {
         val outputDir = createTempDir()
         every { system.getCSVOutputDir() } returns outputDir
         menu.onExportCSV()
-        val files = runBlocking { outputDir.listFiles() }
+        val files = runSuspend { outputDir.listFiles() }
         assertEquals(1, files!!.size)
     }
 }

@@ -26,8 +26,8 @@ import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.spy
 import dev.mokkery.verify
-import kotlinx.coroutines.runBlocking
 import org.isoron.platform.io.UserFile
+import org.isoron.platform.runSuspend
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
@@ -94,7 +94,7 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
         every { dirFinder.getCSVOutputDir() } returns outputDir
         behavior.onExportCSV()
         verify { screen.showSendFileScreen(any()) }
-        val files = runBlocking { outputDir.listFiles() }
+        val files = runSuspend { outputDir.listFiles() }
         assertEquals(1, files!!.size)
     }
 

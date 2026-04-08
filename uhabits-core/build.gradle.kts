@@ -31,7 +31,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation(libs.kotlinx.coroutines.core.common)
+                implementation(libs.kotlinx.coroutines.core)
+                compileOnly(libs.kotlin.inject.runtime)
             }
         }
 
@@ -39,13 +40,13 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
-                compileOnly(libs.kotlin.inject.runtime)
                 implementation(libs.guava)
                 implementation(libs.kotlinx.coroutines.core.jvm)
                 implementation(libs.annotation)
