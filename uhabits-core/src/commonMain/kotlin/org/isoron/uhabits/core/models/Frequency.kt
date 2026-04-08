@@ -34,16 +34,12 @@ data class Frequency(
     }
 
     companion object {
-        @JvmField
         val DAILY = Frequency(1, 1)
 
-        @JvmField
         val THREE_TIMES_PER_WEEK = Frequency(3, 7)
 
-        @JvmField
         val TWO_TIMES_PER_WEEK = Frequency(2, 7)
 
-        @JvmField
         val WEEKLY = Frequency(1, 7)
     }
 }

@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint.plugin)
+    alias(libs.plugins.mokkery)
 }
 
 tasks.compileLint {
@@ -88,6 +89,10 @@ android {
     lint.abortOnError = false
 }
 
+mokkery {
+    defaultMockMode.set(dev.mokkery.MockMode.autofill)
+}
+
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.appIntro)
@@ -111,6 +116,16 @@ dependencies {
     implementation(project(":uhabits-core"))
     ksp(libs.kotlin.inject.compiler)
 
-    androidTestImplementation(libs.bundles.androidTest)
-    testImplementation(libs.bundles.test)
+    androidTestImplementation(libs.annotation)
+    androidTestImplementation(libs.kotlin.inject.runtime)
+    androidTestImplementation(libs.espresso.contrib)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.ktor.client.mock)
+    androidTestImplementation(libs.ktor.jackson)
+    androidTestImplementation(libs.rules)
+    androidTestImplementation(libs.uiautomator)
+
+    testImplementation(libs.kotlin.inject.runtime)
+    testImplementation(libs.junit.junit)
 }

@@ -52,10 +52,8 @@ import java.util.concurrent.CountDownLatch
 
 @MediumTest
 abstract class BaseAndroidTest : TestCase() {
-    @JvmField
     protected var testContext: Context = InstrumentationRegistry.getInstrumentation().context
 
-    @JvmField
     protected var targetContext: Context =
         InstrumentationRegistry.getInstrumentation().targetContext
     protected lateinit var prefs: Preferences

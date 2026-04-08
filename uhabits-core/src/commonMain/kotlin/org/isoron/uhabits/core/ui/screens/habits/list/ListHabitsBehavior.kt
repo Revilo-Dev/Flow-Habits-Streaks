@@ -48,11 +48,11 @@ open class ListHabitsBehavior(
     private val prefs: Preferences,
     private val bugReporter: BugReporter
 ) {
-    fun onClickHabit(h: Habit) {
+    open fun onClickHabit(h: Habit) {
         screen.showHabitScreen(h)
     }
 
-    fun onEdit(habit: Habit, date: LocalDate, x: Float, y: Float) {
+    open fun onEdit(habit: Habit, date: LocalDate, x: Float, y: Float) {
         val entry = habit.computedEntries.get(date)
         if (habit.type == HabitType.NUMERICAL) {
             val oldValue = entry.value.toDouble() / 1000
@@ -80,7 +80,7 @@ open class ListHabitsBehavior(
         }
     }
 
-    fun onExportCSV() {
+    open fun onExportCSV() {
         val selected = habitList.toList()
         val outputDir = dirFinder.getCSVOutputDir()
         taskRunner.execute(
@@ -96,24 +96,24 @@ open class ListHabitsBehavior(
         )
     }
 
-    fun onFirstRun() {
+    open fun onFirstRun() {
         prefs.isFirstRun = false
         prefs.updateLastHint(-1, getToday())
         screen.showIntroScreen()
     }
 
-    fun onReorderHabit(from: Habit, to: Habit) {
+    open fun onReorderHabit(from: Habit, to: Habit) {
         taskRunner.execute { habitList.reorder(from, to) }
     }
 
-    fun onRepairDB() {
+    open fun onRepairDB() {
         taskRunner.execute {
             habitList.repair()
             screen.showMessage(Message.DATABASE_REPAIRED)
         }
     }
 
-    fun onSendBugReport() {
+    open fun onSendBugReport() {
         bugReporter.dumpBugReportToFile()
         try {
             val log = bugReporter.getBugReport()
@@ -124,12 +124,12 @@ open class ListHabitsBehavior(
         }
     }
 
-    fun onStartup() {
+    open fun onStartup() {
         prefs.incrementLaunchCount()
         if (prefs.isFirstRun) onFirstRun()
     }
 
-    fun onToggle(habit: Habit, date: LocalDate, value: Int, notes: String, x: Float, y: Float) {
+    open fun onToggle(habit: Habit, date: LocalDate, value: Int, notes: String, x: Float, y: Float) {
         commandRunner.run(
             CreateRepetitionCommand(habitList, habit, date, value, notes)
         )

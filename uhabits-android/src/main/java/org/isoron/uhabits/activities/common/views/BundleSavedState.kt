@@ -25,7 +25,7 @@ import android.os.Parcelable.ClassLoaderCreator
 import androidx.customview.view.AbsSavedState
 
 class BundleSavedState : AbsSavedState {
-    @JvmField val bundle: Bundle?
+    val bundle: Bundle?
 
     constructor(superState: Parcelable?, bundle: Bundle?) : super(superState!!) {
         this.bundle = bundle

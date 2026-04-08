@@ -18,6 +18,10 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import dev.mokkery.mock
+import dev.mokkery.resetCalls
+import dev.mokkery.verify
+import dev.mokkery.verifyNoMoreCalls
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.time.LocalDate
@@ -26,10 +30,6 @@ import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.commands.DeleteHabitsCommand
 import org.isoron.uhabits.core.models.Entry
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.reset
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 
 class HabitCardListCacheTest : JvmBaseUnitTest() {
     private lateinit var cache: HabitCardListCache
@@ -51,7 +51,7 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         cache.setListener(listener)
     }
 
-    override fun tearDown() {
+    fun tearDown() {
         cache.onDetached()
     }
 
@@ -62,8 +62,8 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         commandRunner.run(
             DeleteHabitsCommand(habitList, listOf(h))
         )
-        verify(listener).onItemRemoved(0)
-        verify(listener).onRefreshFinished()
+        verify { listener.onItemRemoved(0) }
+        verify { listener.onRefreshFinished() }
         assertThat(cache.habitCount, equalTo(9))
     }
 
@@ -71,9 +71,9 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
     fun testCommandListener_single() {
         val h2 = habitList.getByPosition(2)
         commandRunner.run(CreateRepetitionCommand(habitList, h2, today, Entry.NO, ""))
-        verify(listener).onItemChanged(2)
-        verify(listener).onRefreshFinished()
-        verifyNoMoreInteractions(listener)
+        verify { listener.onItemChanged(2) }
+        verify { listener.onRefreshFinished() }
+        verifyNoMoreCalls(listener)
     }
 
     @Test
@@ -97,17 +97,17 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         removeHabitAt(0)
         removeHabitAt(3)
         cache.refreshAllHabits()
-        verify(listener).onItemRemoved(0)
-        verify(listener).onItemRemoved(3)
-        verify(listener).onRefreshFinished()
+        verify { listener.onItemRemoved(0) }
+        verify { listener.onItemRemoved(3) }
+        verify { listener.onRefreshFinished() }
         assertThat(cache.habitCount, equalTo(8))
     }
 
     @Test
     fun testRefreshWithNoChanges() {
         cache.refreshAllHabits()
-        verify(listener).onRefreshFinished()
-        verifyNoMoreInteractions(listener)
+        verify { listener.onRefreshFinished() }
+        verifyNoMoreCalls(listener)
     }
 
     @Test
@@ -119,8 +119,8 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         assertThat(cache.getHabitByPosition(2), equalTo(h3))
         assertThat(cache.getHabitByPosition(7), equalTo(h2))
         assertThat(cache.getHabitByPosition(6), equalTo(h7))
-        verify(listener).onItemMoved(2, 7)
-        verifyNoMoreInteractions(listener)
+        verify { listener.onItemMoved(2, 7) }
+        verifyNoMoreCalls(listener)
     }
 
     @Test
@@ -130,19 +130,19 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         val h7 = habitList.getByPosition(7)
         assertThat(cache.getHabitByPosition(2), equalTo(h2))
         assertThat(cache.getHabitByPosition(7), equalTo(h7))
-        reset(listener)
+        resetCalls(listener)
         habitList.reorder(h2, h7)
         cache.refreshAllHabits()
         assertThat(cache.getHabitByPosition(2), equalTo(h3))
         assertThat(cache.getHabitByPosition(7), equalTo(h2))
         assertThat(cache.getHabitByPosition(6), equalTo(h7))
-        verify(listener).onItemMoved(3, 2)
-        verify(listener).onItemMoved(4, 3)
-        verify(listener).onItemMoved(5, 4)
-        verify(listener).onItemMoved(6, 5)
-        verify(listener).onItemMoved(7, 6)
-        verify(listener).onRefreshFinished()
-        verifyNoMoreInteractions(listener)
+        verify { listener.onItemMoved(3, 2) }
+        verify { listener.onItemMoved(4, 3) }
+        verify { listener.onItemMoved(5, 4) }
+        verify { listener.onItemMoved(6, 5) }
+        verify { listener.onItemMoved(7, 6) }
+        verify { listener.onRefreshFinished() }
+        verifyNoMoreCalls(listener)
     }
 
     private fun removeHabitAt(position: Int) {

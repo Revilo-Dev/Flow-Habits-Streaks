@@ -20,6 +20,9 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.mock
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.BaseViewTest
@@ -27,9 +30,6 @@ import org.isoron.uhabits.core.ui.screens.habits.list.HintList
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -44,8 +44,8 @@ class HintViewTest : BaseViewTest() {
         view = HintView(targetContext, list)
         measureView(view, 400f, 200f)
         val text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        doReturn(true).whenever(list).shouldShow()
-        doReturn(text).whenever(list).pop()
+        every { list.shouldShow() } returns true
+        every { list.pop() } returns text
         view.showNext()
         skipAnimation(view)
     }

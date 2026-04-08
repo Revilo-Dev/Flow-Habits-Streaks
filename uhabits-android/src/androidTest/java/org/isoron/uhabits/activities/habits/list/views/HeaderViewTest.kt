@@ -20,15 +20,15 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.mock
+import dev.mokkery.verify
+import dev.mokkery.verifyNoMoreCalls
 import org.isoron.uhabits.BaseViewTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -47,19 +47,19 @@ class HeaderViewTest : BaseViewTest() {
     @Test
     @Throws(Exception::class)
     fun testRender() {
-        whenever(prefs.isCheckmarkSequenceReversed).thenReturn(false)
+        every { prefs.isCheckmarkSequenceReversed } returns false
         assertRenders(view, PATH + "render.png")
-        verify(prefs).isCheckmarkSequenceReversed
-        verifyNoMoreInteractions(prefs)
+        verify { prefs.isCheckmarkSequenceReversed }
+        verifyNoMoreCalls(prefs)
     }
 
     @Test
     @Throws(Exception::class)
     fun testRender_reverse() {
-        doReturn(true).whenever(prefs).isCheckmarkSequenceReversed
+        every { prefs.isCheckmarkSequenceReversed } returns true
         assertRenders(view, PATH + "render_reverse.png")
-        verify(prefs).isCheckmarkSequenceReversed
-        verifyNoMoreInteractions(prefs)
+        verify { prefs.isCheckmarkSequenceReversed }
+        verifyNoMoreCalls(prefs)
     }
 
     companion object {

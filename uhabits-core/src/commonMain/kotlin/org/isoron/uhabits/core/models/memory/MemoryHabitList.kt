@@ -25,7 +25,7 @@ import org.isoron.uhabits.core.models.HabitMatcher
 /**
  * In-memory implementation of [HabitList].
  */
-class MemoryHabitList : HabitList {
+open class MemoryHabitList : HabitList {
     private val list = mutableListOf<Habit>()
 
     @get:Synchronized

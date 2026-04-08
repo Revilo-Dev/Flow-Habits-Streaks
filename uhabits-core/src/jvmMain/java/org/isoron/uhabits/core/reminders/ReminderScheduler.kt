@@ -32,7 +32,7 @@ import org.isoron.uhabits.core.preferences.WidgetPreferences
 
 @AppScope
 @Inject
-class ReminderScheduler(
+open class ReminderScheduler(
     private val commandRunner: CommandRunner,
     private val habitList: HabitList,
     private val sys: SystemScheduler,
@@ -46,7 +46,7 @@ class ReminderScheduler(
     }
 
     @Synchronized
-    fun schedule(habit: Habit) {
+    open fun schedule(habit: Habit) {
         if (habit.id == null) {
             sys.log("ReminderScheduler", "Habit has null id. Returning.")
             return
@@ -75,7 +75,7 @@ class ReminderScheduler(
     }
 
     @Synchronized
-    fun scheduleAtTime(habit: Habit, reminderTime: Long) {
+    open fun scheduleAtTime(habit: Habit, reminderTime: Long) {
         sys.log("ReminderScheduler", "Scheduling alarm for habit=" + habit.id)
         if (!habit.hasReminder()) {
             sys.log("ReminderScheduler", "habit=" + habit.id + " has no reminder. Skipping.")
@@ -91,29 +91,29 @@ class ReminderScheduler(
     }
 
     @Synchronized
-    fun scheduleAll() {
+    open fun scheduleAll() {
         sys.log("ReminderScheduler", "Scheduling all alarms")
         val reminderHabits = habitList.getFiltered(HabitMatcher.WITH_ALARM)
         for (habit in reminderHabits) schedule(habit)
     }
 
     @Synchronized
-    fun hasHabitsWithReminders(): Boolean {
+    open fun hasHabitsWithReminders(): Boolean {
         return !habitList.getFiltered(HabitMatcher.WITH_ALARM).isEmpty
     }
 
     @Synchronized
-    fun startListening() {
+    open fun startListening() {
         commandRunner.addListener(this)
     }
 
     @Synchronized
-    fun stopListening() {
+    open fun stopListening() {
         commandRunner.removeListener(this)
     }
 
     @Synchronized
-    fun snoozeReminder(habit: Habit, minutes: Long) {
+    open fun snoozeReminder(habit: Habit, minutes: Long) {
         val now = DateUtils.applyTimezone(DateUtils.getLocalTime())
         val snoozedUntil = now + minutes * 60 * 1000
         widgetPreferences.setSnoozeTime(habit.id!!, snoozedUntil)

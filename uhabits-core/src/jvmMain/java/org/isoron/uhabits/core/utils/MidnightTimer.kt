@@ -44,18 +44,18 @@ open class MidnightTimer(
     private val logger = logging.getLogger("MidnightTimer")
 
     @Synchronized
-    fun addListener(listener: MidnightListener) {
+    open fun addListener(listener: MidnightListener) {
         this.listeners.add(listener)
     }
 
     @Synchronized
-    fun onPause(): MutableList<Runnable>? {
+    open fun onPause(): MutableList<Runnable>? {
         logger.info("Pausing timer")
         return executor.shutdownNow()
     }
 
     @Synchronized
-    fun onResume(
+    open fun onResume(
         delayOffsetInMillis: Long = DateUtils.SECOND_LENGTH,
         testExecutor: ScheduledExecutorService? = null
     ) {
@@ -71,7 +71,7 @@ open class MidnightTimer(
     }
 
     @Synchronized
-    fun removeListener(listener: MidnightListener) = this.listeners.remove(listener)
+    open fun removeListener(listener: MidnightListener) = this.listeners.remove(listener)
 
     @Synchronized
     private fun notifyListeners() {

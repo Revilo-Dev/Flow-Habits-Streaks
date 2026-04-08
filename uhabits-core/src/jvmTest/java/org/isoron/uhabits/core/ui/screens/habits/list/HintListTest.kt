@@ -18,6 +18,10 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.mock
+import dev.mokkery.verify
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.isoron.platform.time.LocalDate
@@ -25,9 +29,6 @@ import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.preferences.Preferences
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -52,19 +53,19 @@ class HintListTest : JvmBaseUnitTest() {
     @Test
     @Throws(Exception::class)
     fun pop() {
-        whenever(prefs.lastHintNumber).thenReturn(-1)
+        every { prefs.lastHintNumber } returns -1
         assertThat(hintList.pop(), equalTo("hint1"))
-        verify(prefs).updateLastHint(0, today)
-        whenever(prefs.lastHintNumber).thenReturn(2)
+        verify { prefs.updateLastHint(0, today) }
+        every { prefs.lastHintNumber } returns 2
         assertNull(hintList.pop())
     }
 
     @Test
     @Throws(Exception::class)
     fun shouldShow() {
-        whenever(prefs.lastHintDate).thenReturn(today)
+        every { prefs.lastHintDate } returns today
         assertFalse(hintList.shouldShow())
-        whenever(prefs.lastHintDate).thenReturn(yesterday)
+        every { prefs.lastHintDate } returns yesterday
         assertTrue(hintList.shouldShow())
     }
 }

@@ -18,16 +18,15 @@
  */
 package org.isoron.uhabits.receivers
 
+import dev.mokkery.mock
+import dev.mokkery.verify
+import dev.mokkery.verifyNoMoreCalls
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseAndroidJVMTest
-import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.reminders.ReminderScheduler
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 
 class ReminderControllerTest : BaseAndroidJVMTest() {
     private lateinit var controller: ReminderController
@@ -49,25 +48,25 @@ class ReminderControllerTest : BaseAndroidJVMTest() {
     @Test
     @Throws(Exception::class)
     fun testOnDismiss() {
-        verifyNoMoreInteractions(reminderScheduler)
-        verifyNoMoreInteractions(notificationTray)
-        verifyNoMoreInteractions(preferences)
+        verifyNoMoreCalls(reminderScheduler)
+        verifyNoMoreCalls(notificationTray)
+        verifyNoMoreCalls(preferences)
     }
 
     @Test
     @Throws(Exception::class)
     fun testOnShowReminder() {
-        val habit: Habit = mock()
+        val habit = fixtures.createEmptyHabit()
         val date = LocalDate(2015, 1, 25)
         controller.onShowReminder(habit, date, 456)
-        verify(notificationTray).show(habit, date, 456)
-        verify(reminderScheduler).scheduleAll()
+        verify { notificationTray.show(habit, date, 456) }
+        verify { reminderScheduler.scheduleAll() }
     }
 
     @Test
     @Throws(Exception::class)
     fun testOnBootCompleted() {
         controller.onBootCompleted()
-        verify(reminderScheduler).scheduleAll()
+        verify { reminderScheduler.scheduleAll() }
     }
 }

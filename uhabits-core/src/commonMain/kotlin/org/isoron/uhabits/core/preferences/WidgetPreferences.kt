@@ -24,12 +24,12 @@ import org.isoron.uhabits.core.AppScope
 
 @AppScope
 @Inject
-class WidgetPreferences(private val storage: Preferences.Storage) {
-    fun addWidget(widgetId: Int, habitIds: LongArray) {
+open class WidgetPreferences(private val storage: Preferences.Storage) {
+    open fun addWidget(widgetId: Int, habitIds: LongArray) {
         storage.putLongArray(getHabitIdKey(widgetId), habitIds)
     }
 
-    fun getHabitIdsFromWidgetId(widgetId: Int): LongArray {
+    open fun getHabitIdsFromWidgetId(widgetId: Int): LongArray {
         val habitIdKey = getHabitIdKey(widgetId)
         return try {
             storage.getLongArray(habitIdKey, longArrayOf())
@@ -43,12 +43,12 @@ class WidgetPreferences(private val storage: Preferences.Storage) {
         }
     }
 
-    fun removeWidget(id: Int) {
+    open fun removeWidget(id: Int) {
         val habitIdKey = getHabitIdKey(id)
         storage.remove(habitIdKey)
     }
 
-    fun getSnoozeTime(id: Long): Long {
+    open fun getSnoozeTime(id: Long): Long {
         return storage.getLong(getSnoozeKey(id), 0)
     }
 
@@ -60,11 +60,11 @@ class WidgetPreferences(private val storage: Preferences.Storage) {
         return format("snooze-%06d", id.toInt())
     }
 
-    fun removeSnoozeTime(id: Long) {
+    open fun removeSnoozeTime(id: Long) {
         storage.putLong(getSnoozeKey(id), 0)
     }
 
-    fun setSnoozeTime(id: Long, time: Long) {
+    open fun setSnoozeTime(id: Long, time: Long) {
         storage.putLong(getSnoozeKey(id), time)
     }
 }

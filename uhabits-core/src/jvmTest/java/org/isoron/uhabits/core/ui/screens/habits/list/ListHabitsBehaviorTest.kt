@@ -18,6 +18,14 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import dev.mokkery.answering.calls
+import dev.mokkery.answering.returns
+import dev.mokkery.answering.throws
+import dev.mokkery.every
+import dev.mokkery.matcher.any
+import dev.mokkery.mock
+import dev.mokkery.resetCalls
+import dev.mokkery.verify
 import org.apache.commons.io.FileUtils
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
@@ -30,14 +38,6 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.KArgumentCaptor
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.clearInvocations
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import java.nio.file.Files
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -52,7 +52,7 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
     private lateinit var habit1: Habit
     private lateinit var habit2: Habit
 
-    var picker: KArgumentCaptor<NumberPickerCallback> = argumentCaptor()
+    private var capturedPicker: NumberPickerCallback? = null
 
     private val bugReporter: ListHabitsBehavior.BugReporter = mock()
 
@@ -64,7 +64,7 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
         habit2 = fixtures.createNumericalHabit()
         habitList.add(habit1)
         habitList.add(habit2)
-        clearInvocations(habitList)
+        resetCalls(habitList)
         behavior = ListHabitsBehavior(
             habitList,
             dirFinder,
@@ -79,13 +79,17 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
     @Test
     fun testOnEdit() {
         val today = getToday()
+        every {
+            screen.showNumberPopup(any(), any(), any())
+        } calls { args ->
+            capturedPicker = args.arg<NumberPickerCallback>(2)
+            Unit
+        }
         behavior.onEdit(habit2, today, 0f, 0f)
-        verify(screen).showNumberPopup(
-            eq(0.1),
-            eq(""),
-            picker.capture()
-        )
-        picker.lastValue.onNumberPicked(100.0, "")
+        verify {
+            screen.showNumberPopup(0.1, "", any())
+        }
+        capturedPicker!!.onNumberPicked(100.0, "")
         assertThat(habit2.computedEntries.get(today).value, equalTo(100000))
     }
 
@@ -93,9 +97,9 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
     @Throws(Exception::class)
     fun testOnExportCSV() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
-        whenever(dirFinder.getCSVOutputDir()).thenReturn(JavaUserFile(outputDir.toPath()))
+        every { dirFinder.getCSVOutputDir() } returns JavaUserFile(outputDir.toPath())
         behavior.onExportCSV()
-        verify(screen).showSendFileScreen(any())
+        verify { screen.showSendFileScreen(any()) }
         assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
         FileUtils.deleteDirectory(outputDir)
     }
@@ -105,16 +109,16 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
     fun testOnExportCSV_fail() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
         outputDir.setWritable(false)
-        whenever(dirFinder.getCSVOutputDir()).thenReturn(JavaUserFile(outputDir.toPath()))
+        every { dirFinder.getCSVOutputDir() } returns JavaUserFile(outputDir.toPath())
         behavior.onExportCSV()
-        verify(screen).showMessage(ListHabitsBehavior.Message.COULD_NOT_EXPORT)
+        verify { screen.showMessage(ListHabitsBehavior.Message.COULD_NOT_EXPORT) }
         assertTrue(outputDir.delete())
     }
 
     @Test
     fun testOnHabitClick() {
         behavior.onClickHabit(habit1)
-        verify(screen).showHabitScreen(habit1)
+        verify { screen.showHabitScreen(habit1) }
     }
 
     @Test
@@ -122,42 +126,42 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
         val from = habit1
         val to = habit2
         behavior.onReorderHabit(from, to)
-        verify(habitList).reorder(from, to)
+        verify { habitList.reorder(from, to) }
     }
 
     @Test
     fun testOnRepairDB() {
         behavior.onRepairDB()
-        verify(habitList).repair()
-        verify(screen).showMessage(ListHabitsBehavior.Message.DATABASE_REPAIRED)
+        verify { habitList.repair() }
+        verify { screen.showMessage(ListHabitsBehavior.Message.DATABASE_REPAIRED) }
     }
 
     @Test
     fun testOnSendBugReport() {
-        whenever(bugReporter.getBugReport()).thenReturn("hello")
+        every { bugReporter.getBugReport() } returns "hello"
         behavior.onSendBugReport()
-        verify(bugReporter).dumpBugReportToFile()
-        verify(screen).showSendBugReportToDeveloperScreen("hello")
-        whenever(bugReporter.getBugReport()).thenThrow(RuntimeException())
+        verify { bugReporter.dumpBugReportToFile() }
+        verify { screen.showSendBugReportToDeveloperScreen("hello") }
+        every { bugReporter.getBugReport() } throws RuntimeException()
         behavior.onSendBugReport()
-        verify(screen).showMessage(ListHabitsBehavior.Message.COULD_NOT_GENERATE_BUG_REPORT)
+        verify { screen.showMessage(ListHabitsBehavior.Message.COULD_NOT_GENERATE_BUG_REPORT) }
     }
 
     @Test
     fun testOnStartup_firstLaunch() {
         val today = getToday()
-        whenever(prefs.isFirstRun).thenReturn(true)
+        every { prefs.isFirstRun } returns true
         behavior.onStartup()
-        verify(prefs).isFirstRun = false
-        verify(prefs).updateLastHint(-1, today)
-        verify(screen).showIntroScreen()
+        verify { prefs.isFirstRun = false }
+        verify { prefs.updateLastHint(-1, today) }
+        verify { screen.showIntroScreen() }
     }
 
     @Test
     fun testOnStartup_notFirstLaunch() {
-        whenever(prefs.isFirstRun).thenReturn(false)
+        every { prefs.isFirstRun } returns false
         behavior.onStartup()
-        verify(prefs).incrementLaunchCount()
+        verify { prefs.incrementLaunchCount() }
     }
 
     @Test

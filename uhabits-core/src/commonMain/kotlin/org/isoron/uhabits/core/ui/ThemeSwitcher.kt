@@ -22,7 +22,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.views.Theme
 
 abstract class ThemeSwitcher(private val preferences: Preferences) {
-    fun apply() {
+    open fun apply() {
         if (isNightMode) {
             if (preferences.isPureBlackEnabled) applyPureBlackTheme() else applyDarkTheme()
         } else {
@@ -35,7 +35,7 @@ abstract class ThemeSwitcher(private val preferences: Preferences) {
     abstract fun applyPureBlackTheme()
     abstract fun getSystemTheme(): Int
     abstract val currentTheme: Theme?
-    val isNightMode: Boolean
+    open val isNightMode: Boolean
         get() {
             val systemTheme = getSystemTheme()
             val userTheme = preferences.theme
@@ -43,7 +43,7 @@ abstract class ThemeSwitcher(private val preferences: Preferences) {
                 systemTheme == THEME_DARK && userTheme == THEME_AUTOMATIC
         }
 
-    fun toggleNightMode() {
+    open fun toggleNightMode() {
         val systemTheme = getSystemTheme()
         val userTheme = preferences.theme
         if (userTheme == THEME_AUTOMATIC) {

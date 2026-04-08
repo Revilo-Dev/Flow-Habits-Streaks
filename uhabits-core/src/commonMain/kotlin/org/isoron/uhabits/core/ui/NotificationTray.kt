@@ -33,14 +33,14 @@ import org.isoron.uhabits.core.tasks.TaskRunner
 
 @AppScope
 @Inject
-class NotificationTray(
+open class NotificationTray(
     private val taskRunner: TaskRunner,
     private val commandRunner: CommandRunner,
     private val preferences: Preferences,
     private val systemTray: SystemTray
 ) : CommandRunner.Listener, Preferences.Listener {
     private val active: MutableMap<Habit, NotificationData> = mutableMapOf()
-    fun cancel(habit: Habit) {
+    open fun cancel(habit: Habit) {
         val notificationId = getNotificationId(habit)
         systemTray.removeNotification(notificationId)
         active.remove(habit)
@@ -61,18 +61,18 @@ class NotificationTray(
         reshowAll()
     }
 
-    fun show(habit: Habit, date: LocalDate, reminderTime: Long) {
+    open fun show(habit: Habit, date: LocalDate, reminderTime: Long) {
         val data = NotificationData(date, reminderTime)
         active[habit] = data
         taskRunner.execute(ShowNotificationTask(habit, data))
     }
 
-    fun startListening() {
+    open fun startListening() {
         commandRunner.addListener(this)
         preferences.addListener(this)
     }
 
-    fun stopListening() {
+    open fun stopListening() {
         commandRunner.removeListener(this)
         preferences.removeListener(this)
     }
@@ -88,7 +88,7 @@ class NotificationTray(
         }
     }
 
-    fun reshow(habit: Habit) {
+    open fun reshow(habit: Habit) {
         active[habit]?.let {
             taskRunner.execute(ShowNotificationTask(habit, it))
         }

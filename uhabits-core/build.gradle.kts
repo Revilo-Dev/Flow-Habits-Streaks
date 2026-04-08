@@ -20,6 +20,7 @@
 plugins {
     kotlin("multiplatform")
     alias(libs.plugins.ktlint.plugin)
+    alias(libs.plugins.mokkery)
 }
 
 kotlin {
@@ -61,10 +62,19 @@ kotlin {
                 implementation(libs.sqlite.jdbc)
                 implementation(libs.hamcrest)
                 implementation(libs.commons.io)
-                implementation(libs.mockito.kotlin)
                 implementation(libs.junit.jupiter)
             }
         }
+    }
+}
+
+mokkery {
+    defaultMockMode.set(dev.mokkery.MockMode.autofill)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjvm-default=all")
     }
 }
 

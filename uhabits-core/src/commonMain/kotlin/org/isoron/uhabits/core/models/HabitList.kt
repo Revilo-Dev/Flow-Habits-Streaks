@@ -25,10 +25,10 @@ import org.isoron.platform.io.format
  * An ordered collection of [Habit]s.
  */
 abstract class HabitList : Iterable<Habit> {
-    val observable: ModelObservable
+    open val observable: ModelObservable = ModelObservable()
 
-    @JvmField
-    protected val filter: HabitMatcher
+    open var filter: HabitMatcher = HabitMatcher(isArchivedAllowed = true)
+        internal set
 
     /**
      * Creates a new HabitList.
@@ -37,13 +37,9 @@ abstract class HabitList : Iterable<Habit> {
      * populated by some pre-existing habits, for example, from a certain
      * database.
      */
-    constructor() {
-        observable = ModelObservable()
-        filter = HabitMatcher(isArchivedAllowed = true)
-    }
+    constructor()
 
     protected constructor(filter: HabitMatcher) {
-        observable = ModelObservable()
         this.filter = filter
     }
 
@@ -104,7 +100,7 @@ abstract class HabitList : Iterable<Habit> {
      * @return the index of the habit, or -1 if not in the list
      */
     abstract fun indexOf(h: Habit): Int
-    val isEmpty: Boolean
+    open val isEmpty: Boolean
         get() = size() == 0
 
     /**
@@ -159,7 +155,7 @@ abstract class HabitList : Iterable<Habit> {
      *
      * @param habit the habit that has been modified.
      */
-    fun update(habit: Habit) {
+    open fun update(habit: Habit) {
         update(listOf(habit))
     }
 
@@ -168,7 +164,7 @@ abstract class HabitList : Iterable<Habit> {
      * habit, containing the fields name, description, frequency numerator,
      * frequency denominator and color.
      */
-    fun writeCSV(): String {
+    open fun writeCSV(): String {
         val sb = StringBuilder()
         val header = arrayOf(
             "Position",

@@ -18,6 +18,11 @@
  */
 package org.isoron.uhabits.core.reminders
 
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.matcher.any
+import dev.mokkery.mock
+import dev.mokkery.verify
 import org.isoron.platform.time.DateUtils
 import org.isoron.platform.time.DateUtils.removeTimezone
 import org.isoron.platform.time.DateUtils.setFixedLocalTime
@@ -30,16 +35,8 @@ import org.isoron.uhabits.core.preferences.WidgetPreferences
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import java.util.TimeZone
 
-@RunWith(MockitoJUnitRunner::class)
 class ReminderSchedulerTest : JvmBaseUnitTest() {
     private val habitId = 10L
     private lateinit var habit: Habit
@@ -60,8 +57,7 @@ class ReminderSchedulerTest : JvmBaseUnitTest() {
     }
 
     @After
-    override fun tearDown() {
-        super.tearDown()
+    fun tearDown() {
         setFixedLocalTime(null)
         setFixedTimeZone(null)
     }
@@ -80,16 +76,20 @@ class ReminderSchedulerTest : JvmBaseUnitTest() {
         habitList.add(h2)
         habitList.add(h3)
         reminderScheduler.scheduleAll()
-        verify(sys).scheduleShowReminder(
-            eq(unixTime(2015, 1, 27, 12, 30)),
-            eq(h1),
-            anyLong()
-        )
-        verify(sys).scheduleShowReminder(
-            eq(unixTime(2015, 1, 26, 22, 30)),
-            eq(h2),
-            anyLong()
-        )
+        verify {
+            sys.scheduleShowReminder(
+                unixTime(2015, 1, 27, 12, 30),
+                h1,
+                any()
+            )
+        }
+        verify {
+            sys.scheduleShowReminder(
+                unixTime(2015, 1, 26, 22, 30),
+                h2,
+                any()
+            )
+        }
     }
 
     @Test
@@ -110,13 +110,14 @@ class ReminderSchedulerTest : JvmBaseUnitTest() {
         val todayCheckmarkTime = unixTime(2015, 1, 1, 0, 0)
         val tomorrowCheckmarkTime = unixTime(2015, 1, 2, 0, 0)
         habit.reminder = Reminder(8, 30, WeekdayList.EVERY_DAY)
-        whenever(widgetPreferences.getSnoozeTime(habitId)).thenReturn(snoozeTimeInFuture)
+        every { widgetPreferences.getSnoozeTime(habitId) } returns snoozeTimeInFuture
         reminderScheduler.schedule(habit)
-        verify(sys).scheduleShowReminder(snoozeTimeInFuture, habit, todayCheckmarkTime)
-        whenever(widgetPreferences.getSnoozeTime(habitId)).thenReturn(snoozeTimeInPast)
+        verify { sys.scheduleShowReminder(snoozeTimeInFuture, habit, todayCheckmarkTime) }
+        every { widgetPreferences.getSnoozeTime(habitId) } returns snoozeTimeInPast
         reminderScheduler.schedule(habit)
-        verify(sys)
-            .scheduleShowReminder(regularReminderTime, habit, tomorrowCheckmarkTime)
+        verify {
+            sys.scheduleShowReminder(regularReminderTime, habit, tomorrowCheckmarkTime)
+        }
     }
 
     @Test
@@ -164,10 +165,12 @@ class ReminderSchedulerTest : JvmBaseUnitTest() {
                 atTime
             )
         }
-        verify(sys).scheduleShowReminder(
-            expectedReminderTime,
-            habit,
-            expectedCheckmarkTime
-        )
+        verify {
+            sys.scheduleShowReminder(
+                expectedReminderTime,
+                habit,
+                expectedCheckmarkTime
+            )
+        }
     }
 }

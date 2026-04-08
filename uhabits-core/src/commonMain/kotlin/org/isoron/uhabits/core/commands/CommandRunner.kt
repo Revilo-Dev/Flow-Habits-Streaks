@@ -43,15 +43,15 @@ open class CommandRunner(
         )
     }
 
-    fun addListener(l: Listener) {
+    open fun addListener(l: Listener) {
         listeners.add(l)
     }
 
-    fun notifyListeners(command: Command) {
+    open fun notifyListeners(command: Command) {
         for (l in listeners) l.onCommandFinished(command)
     }
 
-    fun removeListener(l: Listener) {
+    open fun removeListener(l: Listener) {
         listeners.remove(l)
     }
 

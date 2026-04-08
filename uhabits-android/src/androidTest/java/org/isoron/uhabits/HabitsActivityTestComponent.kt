@@ -20,6 +20,7 @@
 package org.isoron.uhabits
 
 import android.content.Context
+import dev.mokkery.mock
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 import org.isoron.uhabits.activities.HabitsDirFinder
@@ -37,7 +38,6 @@ import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBeh
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
 import org.isoron.uhabits.inject.HabitsApplicationComponent
-import org.mockito.kotlin.mock
 
 @ActivityScope
 @Component

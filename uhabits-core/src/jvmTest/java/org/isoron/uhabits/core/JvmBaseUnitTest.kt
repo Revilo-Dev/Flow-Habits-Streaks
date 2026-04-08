@@ -18,17 +18,13 @@
  */
 package org.isoron.uhabits.core
 
+import dev.mokkery.spy
 import org.apache.commons.io.IOUtils
 import org.isoron.platform.io.JavaDatabaseOpener
 import org.isoron.uhabits.core.models.memory.MemoryModelFactory
 import org.isoron.uhabits.core.test.HabitFixtures
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.spy
-import org.mockito.kotlin.validateMockitoUsage
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -38,7 +34,6 @@ import java.nio.file.Paths
 import java.util.GregorianCalendar
 import java.util.TimeZone
 
-@RunWith(MockitoJUnitRunner::class)
 open class JvmBaseUnitTest : BaseUnitTest() {
     protected var databaseOpener: org.isoron.platform.io.DatabaseOpener = JavaDatabaseOpener()
 
@@ -47,12 +42,6 @@ open class JvmBaseUnitTest : BaseUnitTest() {
         super.setUp()
         habitList = spy(habitList)
         fixtures = HabitFixtures(modelFactory as MemoryModelFactory, habitList)
-    }
-
-    @After
-    @Throws(Exception::class)
-    open fun tearDown() {
-        validateMockitoUsage()
     }
 
     fun unixTime(year: Int, month: Int, day: Int): Long {

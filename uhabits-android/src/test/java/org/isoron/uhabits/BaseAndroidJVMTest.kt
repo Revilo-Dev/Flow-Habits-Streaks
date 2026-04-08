@@ -28,11 +28,7 @@ import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.spy
 
-@RunWith(MockitoJUnitRunner::class)
 open class BaseAndroidJVMTest {
     private lateinit var habitList: HabitList
     protected lateinit var fixtures: HabitFixtures
@@ -44,7 +40,7 @@ open class BaseAndroidJVMTest {
     open fun setUp() {
         setToday(LocalDate(2015, 1, 25))
         modelFactory = MemoryModelFactory()
-        habitList = spy(modelFactory.buildHabitList())
+        habitList = modelFactory.buildHabitList()
         fixtures = HabitFixtures(modelFactory, habitList)
         taskRunner = SingleThreadTaskRunner()
         commandRunner = CommandRunner(taskRunner)

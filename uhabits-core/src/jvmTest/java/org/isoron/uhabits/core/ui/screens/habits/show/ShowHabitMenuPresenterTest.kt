@@ -18,6 +18,10 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.show
 
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.mock
+import dev.mokkery.verify
 import org.apache.commons.io.FileUtils
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -25,9 +29,6 @@ import org.isoron.platform.io.JavaUserFile
 import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import java.nio.file.Files
 
 class ShowHabitMenuPresenterTest : JvmBaseUnitTest() {
@@ -55,14 +56,14 @@ class ShowHabitMenuPresenterTest : JvmBaseUnitTest() {
     @Test
     fun testOnEditHabit() {
         menu.onEditHabit()
-        verify(screen).showEditHabitScreen(habit)
+        verify { screen.showEditHabitScreen(habit) }
     }
 
     @Test
     @Throws(Exception::class)
     fun testOnExport() {
         val outputDir = Files.createTempDirectory("CSV").toFile()
-        whenever(system.getCSVOutputDir()).thenReturn(JavaUserFile(outputDir.toPath()))
+        every { system.getCSVOutputDir() } returns JavaUserFile(outputDir.toPath())
         menu.onExportCSV()
         assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
         FileUtils.deleteDirectory(outputDir)

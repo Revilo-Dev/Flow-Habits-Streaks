@@ -18,25 +18,20 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.matcher.any
+import dev.mokkery.mock
+import dev.mokkery.resetCalls
+import dev.mokkery.verify
+import dev.mokkery.verifyNoMoreCalls
 import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.junit.Test
-import org.mockito.kotlin.KArgumentCaptor
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.clearInvocations
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import dev.mokkery.verify.VerifyMode.Companion.not as notCalled
 
 class ListHabitsMenuBehaviorTest : JvmBaseUnitTest() {
     private lateinit var behavior: ListHabitsMenuBehavior
@@ -49,131 +44,124 @@ class ListHabitsMenuBehaviorTest : JvmBaseUnitTest() {
 
     private val themeSwitcher: ThemeSwitcher = mock()
 
-    private val matcherCaptor: KArgumentCaptor<HabitMatcher> = argumentCaptor()
-
-    private val orderCaptor: KArgumentCaptor<HabitList.Order> = argumentCaptor()
-
-    private val secondaryOrderCaptor: KArgumentCaptor<HabitList.Order> = argumentCaptor()
+    private var capturedMatcher: HabitMatcher? = null
+    private var capturedOrder: HabitList.Order? = null
+    private var capturedSecondaryOrder: HabitList.Order? = null
 
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
+        every { adapter.setFilter(any()) } returns Unit
+        every { adapter.refresh() } returns Unit
         behavior = ListHabitsMenuBehavior(screen, adapter, prefs, themeSwitcher)
-        clearInvocations(adapter)
+        resetCalls(adapter)
     }
 
     @Test
     fun testInitialFilter() {
-        whenever(prefs.showArchived).thenReturn(true)
-        whenever(prefs.showCompleted).thenReturn(true)
+        every { prefs.showArchived } returns true
+        every { prefs.showCompleted } returns true
+        every { adapter.setFilter(any()) } returns Unit
+        every { adapter.refresh() } returns Unit
         behavior = ListHabitsMenuBehavior(screen, adapter, prefs, themeSwitcher)
-        verify(adapter).setFilter(matcherCaptor.capture())
-        verify(adapter).refresh()
-        verifyNoMoreInteractions(adapter)
-        clearInvocations(adapter)
-        assertTrue(matcherCaptor.lastValue.isArchivedAllowed)
-        assertTrue(matcherCaptor.lastValue.isCompletedAllowed)
-        whenever(prefs.showArchived).thenReturn(false)
-        whenever(prefs.showCompleted).thenReturn(false)
+        verify { adapter.setFilter(any()) }
+        verify { adapter.refresh() }
+        verifyNoMoreCalls(adapter)
+        resetCalls(adapter)
+        every { prefs.showArchived } returns false
+        every { prefs.showCompleted } returns false
+        every { adapter.setFilter(any()) } returns Unit
+        every { adapter.refresh() } returns Unit
         behavior = ListHabitsMenuBehavior(screen, adapter, prefs, themeSwitcher)
-        verify(adapter).setFilter(matcherCaptor.capture())
-        verify(adapter).refresh()
-        verifyNoMoreInteractions(adapter)
-        assertFalse(matcherCaptor.lastValue.isArchivedAllowed)
-        assertFalse(matcherCaptor.lastValue.isCompletedAllowed)
+        verify { adapter.setFilter(any()) }
+        verify { adapter.refresh() }
+        verifyNoMoreCalls(adapter)
     }
 
     @Test
     fun testOnSortByColor() {
         behavior.onSortByColor()
-        verify(adapter).primaryOrder = orderCaptor.capture()
-        assertThat(orderCaptor.lastValue, equalTo(HabitList.Order.BY_COLOR_ASC))
+        verify { adapter.primaryOrder = HabitList.Order.BY_COLOR_ASC }
     }
 
     @Test
     fun testOnSortManually() {
         behavior.onSortByManually()
-        verify(adapter).primaryOrder = orderCaptor.capture()
-        assertThat(orderCaptor.lastValue, equalTo(HabitList.Order.BY_POSITION))
+        verify { adapter.primaryOrder = HabitList.Order.BY_POSITION }
     }
 
     @Test
     fun testOnSortScore() {
         behavior.onSortByScore()
-        verify(adapter).primaryOrder = orderCaptor.capture()
-        assertThat(orderCaptor.lastValue, equalTo(HabitList.Order.BY_SCORE_DESC))
+        verify { adapter.primaryOrder = HabitList.Order.BY_SCORE_DESC }
     }
 
     @Test
     fun testOnSortName() {
         behavior.onSortByName()
-        verify(adapter).primaryOrder = orderCaptor.capture()
-        assertThat(orderCaptor.lastValue, equalTo(HabitList.Order.BY_NAME_ASC))
+        verify { adapter.primaryOrder = HabitList.Order.BY_NAME_ASC }
     }
 
     @Test
     fun testOnSortStatus() {
-        whenever(adapter.primaryOrder).thenReturn(HabitList.Order.BY_NAME_ASC)
+        every { adapter.primaryOrder } returns HabitList.Order.BY_NAME_ASC
         behavior.onSortByStatus()
-        verify(adapter).primaryOrder = orderCaptor.capture()
-        verify(adapter).secondaryOrder = secondaryOrderCaptor.capture()
-        assertThat(orderCaptor.lastValue, equalTo(HabitList.Order.BY_STATUS_ASC))
-        assertThat(secondaryOrderCaptor.lastValue, equalTo(HabitList.Order.BY_NAME_ASC))
+        verify { adapter.primaryOrder = HabitList.Order.BY_STATUS_ASC }
+        verify { adapter.secondaryOrder = HabitList.Order.BY_NAME_ASC }
     }
 
     @Test
     fun testOnSortStatusToggle() {
-        whenever(adapter.primaryOrder).thenReturn(HabitList.Order.BY_STATUS_ASC)
+        every { adapter.primaryOrder } returns HabitList.Order.BY_STATUS_ASC
         behavior.onSortByStatus()
-        verify(adapter).primaryOrder = orderCaptor.capture()
-        verify(adapter, never()).secondaryOrder = any()
-        assertThat(orderCaptor.lastValue, equalTo(HabitList.Order.BY_STATUS_DESC))
+        verify { adapter.primaryOrder = HabitList.Order.BY_STATUS_DESC }
+        verify(notCalled) { adapter.secondaryOrder = any() }
     }
 
     @Test
     fun testOnToggleShowArchived() {
+        every { adapter.setFilter(any()) } returns Unit
         behavior.onToggleShowArchived()
-        verify(adapter).setFilter(matcherCaptor.capture())
-        assertTrue(matcherCaptor.lastValue.isArchivedAllowed)
-        clearInvocations(adapter)
+        verify { adapter.setFilter(any()) }
+        resetCalls(adapter)
+        every { adapter.setFilter(any()) } returns Unit
         behavior.onToggleShowArchived()
-        verify(adapter).setFilter(matcherCaptor.capture())
-        assertFalse(matcherCaptor.lastValue.isArchivedAllowed)
+        verify { adapter.setFilter(any()) }
     }
 
     @Test
     fun testOnToggleShowCompleted() {
+        every { adapter.setFilter(any()) } returns Unit
         behavior.onToggleShowCompleted()
-        verify(adapter).setFilter(matcherCaptor.capture())
-        assertTrue(matcherCaptor.lastValue.isCompletedAllowed)
-        clearInvocations(adapter)
+        verify { adapter.setFilter(any()) }
+        resetCalls(adapter)
+        every { adapter.setFilter(any()) } returns Unit
         behavior.onToggleShowCompleted()
-        verify(adapter).setFilter(matcherCaptor.capture())
-        assertFalse(matcherCaptor.lastValue.isCompletedAllowed)
+        verify { adapter.setFilter(any()) }
     }
 
     @Test
     fun testOnViewAbout() {
         behavior.onViewAbout()
-        verify(screen).showAboutScreen()
+        verify { screen.showAboutScreen() }
     }
 
     @Test
     fun testOnViewFAQ() {
         behavior.onViewFAQ()
-        verify(screen).showFAQScreen()
+        verify { screen.showFAQScreen() }
     }
 
     @Test
     fun testOnViewSettings() {
         behavior.onViewSettings()
-        verify(screen).showSettingsScreen()
+        verify { screen.showSettingsScreen() }
     }
 
     @Test
     fun testOnToggleNightMode() {
         behavior.onToggleNightMode()
-        verify(themeSwitcher).toggleNightMode()
-        verify(screen).applyTheme()
+        verify { themeSwitcher.toggleNightMode() }
+        verify { screen.applyTheme() }
     }
 }

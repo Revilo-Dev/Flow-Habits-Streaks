@@ -19,6 +19,10 @@
 
 package org.isoron.uhabits.core.ui.views
 
+import dev.mokkery.mock
+import dev.mokkery.resetCalls
+import dev.mokkery.verify
+import dev.mokkery.verifyNoMoreCalls
 import kotlinx.coroutines.runBlocking
 import org.isoron.platform.gui.assertRenders
 import org.isoron.platform.time.DayOfWeek
@@ -31,10 +35,6 @@ import org.isoron.uhabits.core.ui.views.HistoryChart.Square.HATCHED
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.OFF
 import org.isoron.uhabits.core.ui.views.HistoryChart.Square.ON
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.reset
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import java.util.Locale
 
 class HistoryChartTest {
@@ -89,29 +89,29 @@ class HistoryChartTest {
 
         // Click top left date
         view.onClick(20.0, 46.0)
-        verify(dateClickedListener).onDateShortPress(LocalDate(2014, 10, 26))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateShortPress(LocalDate(2014, 10, 26)) }
+        resetCalls(dateClickedListener)
         view.onClick(2.0, 28.0)
-        verify(dateClickedListener).onDateShortPress(LocalDate(2014, 10, 26))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateShortPress(LocalDate(2014, 10, 26)) }
+        resetCalls(dateClickedListener)
 
         // Click date in the middle
         view.onClick(163.0, 113.0)
-        verify(dateClickedListener).onDateShortPress(LocalDate(2014, 12, 10))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateShortPress(LocalDate(2014, 12, 10)) }
+        resetCalls(dateClickedListener)
 
         // Click today
         view.onClick(336.0, 37.0)
-        verify(dateClickedListener).onDateShortPress(LocalDate(2015, 1, 25))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateShortPress(LocalDate(2015, 1, 25)) }
+        resetCalls(dateClickedListener)
 
         // Click header
         view.onClick(160.0, 15.0)
-        verifyNoMoreInteractions(dateClickedListener)
+        verifyNoMoreCalls(dateClickedListener)
 
         // Click right axis
         view.onClick(360.0, 60.0)
-        verifyNoMoreInteractions(dateClickedListener)
+        verifyNoMoreCalls(dateClickedListener)
     }
 
     @Test
@@ -120,29 +120,29 @@ class HistoryChartTest {
 
         // Click top left date
         view.onLongClick(20.0, 46.0)
-        verify(dateClickedListener).onDateLongPress(LocalDate(2014, 10, 26))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateLongPress(LocalDate(2014, 10, 26)) }
+        resetCalls(dateClickedListener)
         view.onLongClick(2.0, 28.0)
-        verify(dateClickedListener).onDateLongPress(LocalDate(2014, 10, 26))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateLongPress(LocalDate(2014, 10, 26)) }
+        resetCalls(dateClickedListener)
 
         // Click date in the middle
         view.onLongClick(163.0, 113.0)
-        verify(dateClickedListener).onDateLongPress(LocalDate(2014, 12, 10))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateLongPress(LocalDate(2014, 12, 10)) }
+        resetCalls(dateClickedListener)
 
         // Click today
         view.onLongClick(336.0, 37.0)
-        verify(dateClickedListener).onDateLongPress(LocalDate(2015, 1, 25))
-        reset(dateClickedListener)
+        verify { dateClickedListener.onDateLongPress(LocalDate(2015, 1, 25)) }
+        resetCalls(dateClickedListener)
 
         // Click header
         view.onLongClick(160.0, 15.0)
-        verifyNoMoreInteractions(dateClickedListener)
+        verifyNoMoreCalls(dateClickedListener)
 
         // Click right axis
         view.onLongClick(360.0, 60.0)
-        verifyNoMoreInteractions(dateClickedListener)
+        verifyNoMoreCalls(dateClickedListener)
     }
 
     @Test

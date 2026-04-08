@@ -18,6 +18,8 @@
  */
 package org.isoron.uhabits.core.models.sqlite
 
+import dev.mokkery.mock
+import dev.mokkery.verify
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.uhabits.core.JvmBaseUnitTest
@@ -29,10 +31,9 @@ import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.test.HabitFixtures
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import java.util.ArrayList
 import kotlin.test.assertNull
 
@@ -74,17 +75,16 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
         habitList.observable.addListener(listener)
     }
 
-    @Throws(Exception::class)
-    override fun tearDown() {
+    @After
+    fun tearDown() {
         habitList.observable.removeListener(listener)
-        super.tearDown()
     }
 
     @Test
     fun testAdd_withDuplicate() {
         val habit = modelFactory.buildHabit()
         habitList.add(habit)
-        verify(listener).onModelChange()
+        verify { listener.onModelChange() }
         assertThrows(IllegalArgumentException::class.java) {
             habitList.add(habit)
         }

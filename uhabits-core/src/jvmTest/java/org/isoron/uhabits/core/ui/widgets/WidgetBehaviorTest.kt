@@ -18,6 +18,11 @@
  */
 package org.isoron.uhabits.core.ui.widgets
 
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.mock
+import dev.mokkery.resetCalls
+import dev.mokkery.verify
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.JvmBaseUnitTest
@@ -29,11 +34,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.reset
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.whenever
+import dev.mokkery.verify.VerifyMode.Companion.not as notCalled
 
 class WidgetBehaviorTest : JvmBaseUnitTest() {
     private lateinit var notificationTray: NotificationTray
@@ -57,21 +58,25 @@ class WidgetBehaviorTest : JvmBaseUnitTest() {
     @Test
     fun testOnAddRepetition() {
         behavior.onAddRepetition(habit, today)
-        verify(commandRunner).run(
-            CreateRepetitionCommand(habitList, habit, today, Entry.YES_MANUAL, "")
-        )
-        verify(notificationTray).cancel(habit)
-        verifyNoInteractions(preferences)
+        verify {
+            commandRunner.run(
+                CreateRepetitionCommand(habitList, habit, today, Entry.YES_MANUAL, "")
+            )
+        }
+        verify { notificationTray.cancel(habit) }
+        verify(notCalled) { preferences.isSkipEnabled }
     }
 
     @Test
     fun testOnRemoveRepetition() {
         behavior.onRemoveRepetition(habit, today)
-        verify(commandRunner).run(
-            CreateRepetitionCommand(habitList, habit, today, Entry.NO, "")
-        )
-        verify(notificationTray).cancel(habit)
-        verifyNoInteractions(preferences)
+        verify {
+            commandRunner.run(
+                CreateRepetitionCommand(habitList, habit, today, Entry.NO, "")
+            )
+        }
+        verify { notificationTray.cancel(habit) }
+        verify(notCalled) { preferences.isSkipEnabled }
     }
 
     @Test
@@ -84,7 +89,7 @@ class WidgetBehaviorTest : JvmBaseUnitTest() {
             Entry.SKIP
         )
         ) {
-            whenever(preferences.isSkipEnabled).thenReturn(skipEnabled)
+            every { preferences.isSkipEnabled } returns skipEnabled
             val nextValue: Int = nextToggleValue(
                 currentValue,
                 isSkipEnabled = skipEnabled,
@@ -92,14 +97,18 @@ class WidgetBehaviorTest : JvmBaseUnitTest() {
             )
             habit.originalEntries.add(Entry(today, currentValue))
             behavior.onToggleRepetition(habit, today)
-            verify(preferences).isSkipEnabled
-            verify(commandRunner).run(
-                CreateRepetitionCommand(habitList, habit, today, nextValue, "")
-            )
-            verify(notificationTray).cancel(
-                habit
-            )
-            reset(preferences, commandRunner, notificationTray)
+            verify { preferences.isSkipEnabled }
+            verify {
+                commandRunner.run(
+                    CreateRepetitionCommand(habitList, habit, today, nextValue, "")
+                )
+            }
+            verify {
+                notificationTray.cancel(
+                    habit
+                )
+            }
+            resetCalls(preferences, commandRunner, notificationTray)
         }
     }
 
@@ -109,11 +118,13 @@ class WidgetBehaviorTest : JvmBaseUnitTest() {
         habit.originalEntries.add(Entry(today, 500))
         habit.recompute()
         behavior.onIncrement(habit, today, 100)
-        verify(commandRunner).run(
-            CreateRepetitionCommand(habitList, habit, today, 600, "")
-        )
-        verify(notificationTray).cancel(habit)
-        verifyNoInteractions(preferences)
+        verify {
+            commandRunner.run(
+                CreateRepetitionCommand(habitList, habit, today, 600, "")
+            )
+        }
+        verify { notificationTray.cancel(habit) }
+        verify(notCalled) { preferences.isSkipEnabled }
     }
 
     @Test
@@ -122,10 +133,12 @@ class WidgetBehaviorTest : JvmBaseUnitTest() {
         habit.originalEntries.add(Entry(today, 500))
         habit.recompute()
         behavior.onDecrement(habit, today, 100)
-        verify(commandRunner).run(
-            CreateRepetitionCommand(habitList, habit, today, 400, "")
-        )
-        verify(notificationTray).cancel(habit)
-        verifyNoInteractions(preferences)
+        verify {
+            commandRunner.run(
+                CreateRepetitionCommand(habitList, habit, today, 400, "")
+            )
+        }
+        verify { notificationTray.cancel(habit) }
+        verify(notCalled) { preferences.isSkipEnabled }
     }
 }

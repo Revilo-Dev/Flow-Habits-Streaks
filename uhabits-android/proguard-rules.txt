@@ -23,7 +23,6 @@
 -keep class org.isoron.** { *; }
 -keep class sun.misc.Unsafe { *; }
 -keep class android.support.test.** { *; }
--keep class org.mockito.** { *; }
 -keep class org.junit.** { *; }
 -keep class kotlin.** { *; }
 

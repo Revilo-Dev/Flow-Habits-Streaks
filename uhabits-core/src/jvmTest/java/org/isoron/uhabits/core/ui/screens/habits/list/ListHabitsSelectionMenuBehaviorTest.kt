@@ -18,6 +18,12 @@
  */
 package org.isoron.uhabits.core.ui.screens.habits.list
 
+import dev.mokkery.answering.calls
+import dev.mokkery.answering.returns
+import dev.mokkery.every
+import dev.mokkery.matcher.any
+import dev.mokkery.mock
+import dev.mokkery.verify
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.isoron.uhabits.core.JvmBaseUnitTest
@@ -26,12 +32,6 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.ui.callbacks.OnColorPickedCallback
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
 import org.junit.Test
-import org.mockito.kotlin.KArgumentCaptor
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -45,34 +45,30 @@ class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
     private lateinit var habit2: Habit
     private lateinit var habit3: Habit
 
-    private val colorPickerCallback: KArgumentCaptor<OnColorPickedCallback> = argumentCaptor()
-
-    private val deleteCallback: KArgumentCaptor<OnConfirmedCallback> = argumentCaptor()
-
     @Test
     @Throws(Exception::class)
     fun canArchive() {
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1, habit2))
+        every { adapter.getSelected() } returns listOf(habit1, habit2)
         assertFalse(behavior.canArchive())
-        whenever(adapter.getSelected()).thenReturn(listOf(habit2, habit3))
+        every { adapter.getSelected() } returns listOf(habit2, habit3)
         assertTrue(behavior.canArchive())
     }
 
     @Test
     @Throws(Exception::class)
     fun canEdit() {
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1))
+        every { adapter.getSelected() } returns listOf(habit1)
         assertTrue(behavior.canEdit())
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1, habit2))
+        every { adapter.getSelected() } returns listOf(habit1, habit2)
         assertFalse(behavior.canEdit())
     }
 
     @Test
     @Throws(Exception::class)
     fun canUnarchive() {
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1, habit2))
+        every { adapter.getSelected() } returns listOf(habit1, habit2)
         assertFalse(behavior.canUnarchive())
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1))
+        every { adapter.getSelected() } returns listOf(habit1)
         assertTrue(behavior.canUnarchive())
     }
 
@@ -80,7 +76,7 @@ class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
     @Throws(Exception::class)
     fun onArchiveHabits() {
         assertFalse(habit2.isArchived)
-        whenever(adapter.getSelected()).thenReturn(listOf(habit2))
+        every { adapter.getSelected() } returns listOf(habit2)
         behavior.onArchiveHabits()
         assertTrue(habit2.isArchived)
     }
@@ -90,11 +86,14 @@ class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
     fun onChangeColor() {
         assertThat(habit1.color, equalTo(PaletteColor(8)))
         assertThat(habit2.color, equalTo(PaletteColor(8)))
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1, habit2))
+        every { adapter.getSelected() } returns listOf(habit1, habit2)
+        every {
+            screen.showColorPicker(any(), any())
+        } calls { args ->
+            val callback = args.arg<OnColorPickedCallback>(1)
+            callback.onColorPicked(PaletteColor(30))
+        }
         behavior.onChangeColor()
-        verify(screen)
-            .showColorPicker(eq(PaletteColor(8)), colorPickerCallback.capture())
-        colorPickerCallback.lastValue.onColorPicked(PaletteColor(30))
         assertThat(habit1.color, equalTo(PaletteColor(30)))
     }
 
@@ -103,10 +102,14 @@ class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
     fun onDeleteHabits() {
         val id = habit1.id!!
         habitList.getById(id)!!
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1))
+        every { adapter.getSelected() } returns listOf(habit1)
+        every {
+            screen.showDeleteConfirmationScreen(any(), any())
+        } calls { args ->
+            val callback = args.arg<OnConfirmedCallback>(0)
+            callback.onConfirmed()
+        }
         behavior.onDeleteHabits()
-        verify(screen).showDeleteConfirmationScreen(deleteCallback.capture(), eq(1))
-        deleteCallback.lastValue.onConfirmed()
         assertNull(habitList.getById(id))
     }
 
@@ -114,16 +117,16 @@ class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
     @Throws(Exception::class)
     fun onEditHabits() {
         val selected: List<Habit> = listOf(habit1, habit2)
-        whenever(adapter.getSelected()).thenReturn(selected)
+        every { adapter.getSelected() } returns selected
         behavior.onEditHabits()
-        verify(screen).showEditHabitsScreen(selected)
+        verify { screen.showEditHabitsScreen(selected) }
     }
 
     @Test
     @Throws(Exception::class)
     fun onUnarchiveHabits() {
         assertTrue(habit1.isArchived)
-        whenever(adapter.getSelected()).thenReturn(listOf(habit1))
+        every { adapter.getSelected() } returns listOf(habit1)
         behavior.onUnarchiveHabits()
         assertFalse(habit1.isArchived)
     }

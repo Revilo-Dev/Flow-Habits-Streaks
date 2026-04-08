@@ -18,12 +18,13 @@
  */
 package org.isoron.uhabits.core.tasks
 
+import dev.mokkery.mock
+import dev.mokkery.verify
+import dev.mokkery.verify.VerifyMode.Companion.order
 import org.isoron.uhabits.core.JvmBaseUnitTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.kotlin.inOrder
-import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
 class SingleThreadTaskRunnerTest : JvmBaseUnitTest() {
@@ -39,10 +40,11 @@ class SingleThreadTaskRunnerTest : JvmBaseUnitTest() {
     @Test
     fun test() {
         runner.execute(task)
-        val inOrder = inOrder(task)
-        inOrder.verify(task).onAttached(runner)
-        inOrder.verify(task).onPreExecute()
-        inOrder.verify(task).doInBackground()
-        inOrder.verify(task).onPostExecute()
+        verify(order) {
+            task.onAttached(runner)
+            task.onPreExecute()
+            task.doInBackground()
+            task.onPostExecute()
+        }
     }
 }
