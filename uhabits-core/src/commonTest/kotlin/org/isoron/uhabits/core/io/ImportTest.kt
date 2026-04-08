@@ -19,39 +19,27 @@
 package org.isoron.uhabits.core.io
 
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.core.IsEqual.equalTo
-import org.isoron.platform.io.JavaFileOpener
-import org.isoron.platform.io.JavaUserFile
 import org.isoron.platform.time.LocalDate
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitType
-import org.junit.Before
-import org.junit.Test
-import java.io.File
-import java.io.IOException
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ImportTest : JvmBaseUnitTest() {
-    @Before
-    @Throws(Exception::class)
-    override fun setUp() {
-        super.setUp()
-    }
+class ImportTest : BaseUnitTest() {
 
     @Test
-    @Throws(IOException::class)
     fun testHabitBullCSV() {
         importFromFile("habitbull.csv")
-        assertThat(habitList.size(), equalTo(4))
+        assertEquals(4, habitList.size())
         val habit = habitList.getByPosition(0)
-        assertThat(habit.name, equalTo("Breed dragons"))
-        assertThat(habit.description, equalTo("with love and fire"))
-        assertThat(habit.frequency, equalTo(Frequency.DAILY))
+        assertEquals("Breed dragons", habit.name)
+        assertEquals("with love and fire", habit.description)
+        assertEquals(Frequency.DAILY, habit.frequency)
         assertTrue(isChecked(habit, 2016, 3, 18))
         assertTrue(isChecked(habit, 2016, 3, 19))
         assertFalse(isChecked(habit, 2016, 3, 20))
@@ -59,14 +47,13 @@ class ImportTest : JvmBaseUnitTest() {
     }
 
     @Test
-    @Throws(IOException::class)
     fun testHabitBullCSV2() {
         importFromFile("habitbull2.csv")
-        assertThat(habitList.size(), equalTo(6))
+        assertEquals(6, habitList.size())
         val habit = habitList.getByPosition(2)
-        assertThat(habit.name, equalTo("H3"))
-        assertThat(habit.description, equalTo("Habit 3"))
-        assertThat(habit.frequency, equalTo(Frequency.DAILY))
+        assertEquals("H3", habit.name)
+        assertEquals("Habit 3", habit.description)
+        assertEquals(Frequency.DAILY, habit.frequency)
         assertTrue(isChecked(habit, 2019, 4, 11))
         assertTrue(isChecked(habit, 2019, 5, 7))
         assertFalse(isChecked(habit, 2019, 6, 14))
@@ -75,88 +62,83 @@ class ImportTest : JvmBaseUnitTest() {
     }
 
     @Test
-    @Throws(IOException::class)
     fun testHabitBullCSV3() {
         importFromFile("habitbull3.csv")
-        assertThat(habitList.size(), equalTo(2))
+        assertEquals(2, habitList.size())
 
         val habit = habitList.getByPosition(0)
-        assertThat(habit.name, equalTo("Pushups"))
-        assertThat(habit.type, equalTo(HabitType.NUMERICAL))
-        assertThat(habit.description, equalTo(""))
-        assertThat(habit.frequency, equalTo(Frequency.DAILY))
-        assertThat(getValue(habit, 2021, 9, 1), equalTo(30000))
-        assertThat(getValue(habit, 2022, 1, 8), equalTo(100000))
+        assertEquals("Pushups", habit.name)
+        assertEquals(HabitType.NUMERICAL, habit.type)
+        assertEquals("", habit.description)
+        assertEquals(Frequency.DAILY, habit.frequency)
+        assertEquals(30000, getValue(habit, 2021, 9, 1))
+        assertEquals(100000, getValue(habit, 2022, 1, 8))
 
         val habit2 = habitList.getByPosition(1)
-        assertThat(habit2.name, equalTo("run"))
-        assertThat(habit2.type, equalTo(HabitType.YES_NO))
-        assertThat(habit2.description, equalTo(""))
-        assertThat(habit2.frequency, equalTo(Frequency.DAILY))
+        assertEquals("run", habit2.name)
+        assertEquals(HabitType.YES_NO, habit2.type)
+        assertEquals("", habit2.description)
+        assertEquals(Frequency.DAILY, habit2.frequency)
         assertTrue(isChecked(habit2, 2022, 1, 3))
         assertTrue(isChecked(habit2, 2022, 1, 18))
         assertTrue(isChecked(habit2, 2022, 1, 19))
     }
 
     @Test
-    @Throws(IOException::class)
     fun testHabitBullCSV4() {
         importFromFile("habitbull4.csv")
-        assertThat(habitList.size(), equalTo(1))
+        assertEquals(1, habitList.size())
 
         val habit = habitList.getByPosition(0)
-        assertThat(habit.name, equalTo("Caffeine"))
-        assertThat(habit.type, equalTo(HabitType.NUMERICAL))
-        assertThat(habit.description, equalTo(""))
-        assertThat(habit.frequency, equalTo(Frequency.DAILY))
-        assertThat(getValue(habit, 2022, 11, 21), equalTo(80000))
-        assertThat(getValue(habit, 2022, 11, 22), equalTo(80000))
+        assertEquals("Caffeine", habit.name)
+        assertEquals(HabitType.NUMERICAL, habit.type)
+        assertEquals("", habit.description)
+        assertEquals(Frequency.DAILY, habit.frequency)
+        assertEquals(80000, getValue(habit, 2022, 11, 21))
+        assertEquals(80000, getValue(habit, 2022, 11, 22))
     }
 
     @Test
-    @Throws(IOException::class)
     fun testLoopDB() {
         importFromFile("loop.db")
-        assertThat(habitList.size(), equalTo(9))
+        assertEquals(9, habitList.size())
         val habit = habitList.getByPosition(0)
-        assertThat(habit.name, equalTo("Wake up early"))
-        assertThat(habit.frequency, equalTo(Frequency.THREE_TIMES_PER_WEEK))
+        assertEquals("Wake up early", habit.name)
+        assertEquals(Frequency.THREE_TIMES_PER_WEEK, habit.frequency)
         assertTrue(isChecked(habit, 2016, 3, 14))
         assertTrue(isChecked(habit, 2016, 3, 16))
         assertFalse(isChecked(habit, 2016, 3, 17))
     }
 
     @Test
-    @Throws(IOException::class)
     fun testRewireDB() {
         importFromFile("rewire.db")
-        assertThat(habitList.size(), equalTo(3))
+        assertEquals(3, habitList.size())
         var habit = habitList.getByPosition(1)
-        assertThat(habit.name, equalTo("Wake up early"))
-        assertThat(habit.frequency, equalTo(Frequency.THREE_TIMES_PER_WEEK))
+        assertEquals("Wake up early", habit.name)
+        assertEquals(Frequency.THREE_TIMES_PER_WEEK, habit.frequency)
         assertFalse(habit.hasReminder())
         assertFalse(isChecked(habit, 2015, 12, 31))
         assertTrue(isChecked(habit, 2016, 1, 18))
         assertTrue(isChecked(habit, 2016, 1, 28))
         assertFalse(isChecked(habit, 2016, 3, 10))
         habit = habitList.getByPosition(2)
-        assertThat(habit.name, equalTo("brush teeth"))
-        assertThat(habit.frequency, equalTo(Frequency.THREE_TIMES_PER_WEEK))
-        assertThat(habit.hasReminder(), equalTo(true))
+        assertEquals("brush teeth", habit.name)
+        assertEquals(Frequency.THREE_TIMES_PER_WEEK, habit.frequency)
+        assertEquals(true, habit.hasReminder())
         val reminder = habit.reminder
-        assertThat(reminder!!.hour, equalTo(8))
-        assertThat(reminder.minute, equalTo(0))
+        assertEquals(8, reminder!!.hour)
+        assertEquals(0, reminder.minute)
         val reminderDays = booleanArrayOf(false, true, true, true, true, true, false)
-        assertThat(reminder.days.toArray(), equalTo(reminderDays))
+        assertEquals(reminderDays.toList(), reminder.days.toArray().toList())
     }
 
     @Test
-    @Throws(IOException::class)
     fun testTickmateDB() {
         importFromFile("tickmate.db")
-        assertThat(habitList.size(), equalTo(3))
+        assertEquals(3, habitList.size())
         val h = habitList.getByPosition(2)
-        assertThat(h.name, equalTo("Vegan"))
+        assertEquals("Vegan", h.name)
         assertTrue(isChecked(h, 2016, 1, 24))
         assertTrue(isChecked(h, 2016, 2, 5))
         assertTrue(isChecked(h, 2016, 3, 18))
@@ -175,13 +157,9 @@ class ImportTest : JvmBaseUnitTest() {
         return h.originalEntries.get(LocalDate(year, month, day)).notes == notes
     }
 
-    @Throws(IOException::class)
     private fun importFromFile(assetFilename: String) = runBlocking {
-        val file = File.createTempFile("asset", "")
-        copyAssetToFile(assetFilename, file)
-        assertTrue(file.exists())
-        assertTrue(file.canRead())
-        val userFile = JavaUserFile(file.toPath())
+        val userFile = copyResourceToTempFile(assetFilename)
+        assertTrue(userFile.exists())
         val importer = GenericImporter(
             LoopDBImporter(
                 habitList,
@@ -189,7 +167,7 @@ class ImportTest : JvmBaseUnitTest() {
                 databaseOpener,
                 commandRunner,
                 StandardLogging(),
-                JavaFileOpener()
+                fileOpener
             ),
             RewireDBImporter(habitList, modelFactory, databaseOpener),
             TickmateDBImporter(habitList, modelFactory, databaseOpener),
@@ -197,6 +175,6 @@ class ImportTest : JvmBaseUnitTest() {
         )
         assertTrue(importer.canHandle(userFile))
         importer.importHabitsFromFile(userFile)
-        file.delete()
+        userFile.delete()
     }
 }

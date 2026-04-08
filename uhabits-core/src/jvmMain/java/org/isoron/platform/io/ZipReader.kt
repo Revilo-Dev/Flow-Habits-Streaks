@@ -19,21 +19,22 @@
 
 package org.isoron.platform.io
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.ZipOutputStream
+import java.io.ByteArrayInputStream
+import java.util.zip.ZipInputStream
 
-actual class ZipWriter {
-    private val baos = ByteArrayOutputStream()
-    private val zos = ZipOutputStream(baos)
+actual class ZipReader actual constructor(bytes: ByteArray) {
+    private val data = bytes
 
-    actual fun addEntry(name: String, content: String) {
-        zos.putNextEntry(java.util.zip.ZipEntry(name))
-        zos.write(content.toByteArray())
-        zos.closeEntry()
-    }
-
-    actual suspend fun toBytes(): ByteArray {
-        zos.close()
-        return baos.toByteArray()
+    actual fun entries(): List<ZipEntry> {
+        val result = mutableListOf<ZipEntry>()
+        val zis = ZipInputStream(ByteArrayInputStream(data))
+        var entry = zis.nextEntry
+        while (entry != null) {
+            result.add(ZipEntry(entry.name, zis.readBytes().decodeToString()))
+            zis.closeEntry()
+            entry = zis.nextEntry
+        }
+        zis.close()
+        return result
     }
 }

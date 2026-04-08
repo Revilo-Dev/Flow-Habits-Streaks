@@ -25,24 +25,22 @@ import dev.mokkery.every
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.resetCalls
+import dev.mokkery.spy
 import dev.mokkery.verify
-import org.apache.commons.io.FileUtils
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.core.IsEqual.equalTo
-import org.isoron.platform.io.JavaUserFile
+import kotlinx.coroutines.runBlocking
+import org.isoron.platform.io.UserFile
 import org.isoron.platform.time.getToday
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
-import org.junit.Before
-import org.junit.Test
-import java.nio.file.Files
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ListHabitsBehaviorTest : JvmBaseUnitTest() {
+class ListHabitsBehaviorTest : BaseUnitTest() {
     private val dirFinder: ListHabitsBehavior.DirFinder = mock()
 
     private val prefs: Preferences = mock()
@@ -56,15 +54,13 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
 
     private val bugReporter: ListHabitsBehavior.BugReporter = mock()
 
-    @Before
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         habit1 = fixtures.createShortHabit()
         habit2 = fixtures.createNumericalHabit()
         habitList.add(habit1)
         habitList.add(habit2)
-        resetCalls(habitList)
+        habitList = spy(habitList)
         behavior = ListHabitsBehavior(
             habitList,
             dirFinder,
@@ -90,29 +86,26 @@ class ListHabitsBehaviorTest : JvmBaseUnitTest() {
             screen.showNumberPopup(0.1, "", any())
         }
         capturedPicker!!.onNumberPicked(100.0, "")
-        assertThat(habit2.computedEntries.get(today).value, equalTo(100000))
+        assertEquals(100000, habit2.computedEntries.get(today).value)
     }
 
     @Test
-    @Throws(Exception::class)
     fun testOnExportCSV() {
-        val outputDir = Files.createTempDirectory("CSV").toFile()
-        every { dirFinder.getCSVOutputDir() } returns JavaUserFile(outputDir.toPath())
+        val outputDir = createTempDir()
+        every { dirFinder.getCSVOutputDir() } returns outputDir
         behavior.onExportCSV()
         verify { screen.showSendFileScreen(any()) }
-        assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
-        FileUtils.deleteDirectory(outputDir)
+        val files = runBlocking { outputDir.listFiles() }
+        assertEquals(1, files!!.size)
     }
 
     @Test
-    @Throws(Exception::class)
     fun testOnExportCSV_fail() {
-        val outputDir = Files.createTempDirectory("CSV").toFile()
-        outputDir.setWritable(false)
-        every { dirFinder.getCSVOutputDir() } returns JavaUserFile(outputDir.toPath())
+        val mockDir: UserFile = mock()
+        every { mockDir.resolve(any()) } throws RuntimeException("not writable")
+        every { dirFinder.getCSVOutputDir() } returns mockDir
         behavior.onExportCSV()
         verify { screen.showMessage(ListHabitsBehavior.Message.COULD_NOT_EXPORT) }
-        assertTrue(outputDir.delete())
     }
 
     @Test

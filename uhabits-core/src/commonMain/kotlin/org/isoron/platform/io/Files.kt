@@ -93,6 +93,17 @@ interface UserFile {
      * parent directory (or this file itself, if it represents a directory).
      */
     fun resolve(child: String): UserFile
+
+    /**
+     * Returns the list of files and directories within this directory, or null
+     * if this path is not a directory or does not exist.
+     */
+    suspend fun listFiles(): List<UserFile>?
+
+    /**
+     * Creates this directory and any necessary parent directories.
+     */
+    suspend fun mkdirs()
 }
 
 /**

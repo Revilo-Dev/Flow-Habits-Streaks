@@ -19,28 +19,23 @@
 package org.isoron.uhabits.core.database.migrations
 
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers
-import org.hamcrest.Matchers.equalTo
 import org.isoron.platform.io.Database
-import org.isoron.platform.io.JavaFileOpener
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.querySingle
 import org.isoron.platform.io.run
-import org.isoron.uhabits.core.JvmBaseUnitTest
-import org.junit.Test
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.isoron.uhabits.core.BaseUnitTest
+import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
-class Version22Test : JvmBaseUnitTest() {
+class Version22Test : BaseUnitTest() {
     private lateinit var db: Database
 
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         db = openDatabaseResource("/databases/021.db")
     }
-
-    private val fileOpener = JavaFileOpener()
 
     private fun migrateTo(version: Int) = runBlocking {
         db.migrateTo(version) { v ->
@@ -52,10 +47,10 @@ class Version22Test : JvmBaseUnitTest() {
     @Test
     fun testKeepValidReps() {
         val before = db.querySingle("select count(*) from repetitions") { it.getInt(0) }
-        assertThat(before, equalTo(3))
+        assertEquals(3, before)
         migrateTo(22)
         val after = db.querySingle("select count(*) from repetitions") { it.getInt(0) }
-        assertThat(after, equalTo(3))
+        assertEquals(3, after)
     }
 
     @Test
@@ -64,21 +59,21 @@ class Version22Test : JvmBaseUnitTest() {
         val before = db.querySingle(
             "select count(*) from repetitions where habit = 99999"
         ) { it.getInt(0) }
-        assertThat(before, equalTo(1))
+        assertEquals(1, before)
         migrateTo(22)
         val after = db.querySingle(
             "select count(*) from repetitions where habit = 99999"
         ) { it.getInt(0) }
-        assertThat(after, equalTo(0))
+        assertEquals(0, after)
     }
 
     @Test
     fun testDisallowNewRepsWithInvalidRef() {
         migrateTo(22)
-        val exception = assertThrows(Exception::class.java) {
+        val exception = assertFailsWith<Exception> {
             db.run("insert into Repetitions(habit, timestamp, value) values (99999, 100, 2)")
         }
-        assertThat(exception.message, Matchers.containsString("constraint"))
+        assertContains(exception.message!!, "constraint")
     }
 
     @Test
@@ -87,21 +82,21 @@ class Version22Test : JvmBaseUnitTest() {
         val before = db.querySingle(
             "select count(*) from repetitions where timestamp is null"
         ) { it.getInt(0) }
-        assertThat(before, equalTo(1))
+        assertEquals(1, before)
         migrateTo(22)
         val after = db.querySingle(
             "select count(*) from repetitions where timestamp is null"
         ) { it.getInt(0) }
-        assertThat(after, equalTo(0))
+        assertEquals(0, after)
     }
 
     @Test
     fun testDisallowNullTimestamp() {
         migrateTo(22)
-        val exception = assertThrows(Exception::class.java) {
+        val exception = assertFailsWith<Exception> {
             db.run("insert into Repetitions(habit, value) values (0, 2)")
         }
-        assertThat(exception.message, Matchers.containsString("constraint"))
+        assertContains(exception.message!!, "constraint")
     }
 
     @Test
@@ -110,21 +105,21 @@ class Version22Test : JvmBaseUnitTest() {
         val before = db.querySingle(
             "select count(*) from repetitions where habit is null"
         ) { it.getInt(0) }
-        assertThat(before, equalTo(1))
+        assertEquals(1, before)
         migrateTo(22)
         val after = db.querySingle(
             "select count(*) from repetitions where habit is null"
         ) { it.getInt(0) }
-        assertThat(after, equalTo(0))
+        assertEquals(0, after)
     }
 
     @Test
     fun testDisallowNullHabit() {
         migrateTo(22)
-        val exception = assertThrows(Exception::class.java) {
+        val exception = assertFailsWith<Exception> {
             db.run("insert into Repetitions(timestamp, value) values (5, 2)")
         }
-        assertThat(exception.message, Matchers.containsString("constraint"))
+        assertContains(exception.message!!, "constraint")
     }
 
     @Test
@@ -135,21 +130,21 @@ class Version22Test : JvmBaseUnitTest() {
         val before = db.querySingle(
             "select count(*) from repetitions where timestamp=100 and habit=0"
         ) { it.getInt(0) }
-        assertThat(before, equalTo(3))
+        assertEquals(3, before)
         migrateTo(22)
         val after = db.querySingle(
             "select count(*) from repetitions where timestamp=100 and habit=0"
         ) { it.getInt(0) }
-        assertThat(after, equalTo(1))
+        assertEquals(1, after)
     }
 
     @Test
     fun testDisallowNewDuplicateTimestamps() {
         migrateTo(22)
         db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 2)")
-        val exception = assertThrows(Exception::class.java) {
+        val exception = assertFailsWith<Exception> {
             db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 5)")
         }
-        assertThat(exception.message, Matchers.containsString("constraint"))
+        assertContains(exception.message!!, "constraint")
     }
 }

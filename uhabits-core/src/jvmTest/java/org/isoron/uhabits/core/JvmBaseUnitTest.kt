@@ -20,7 +20,6 @@ package org.isoron.uhabits.core
 
 import dev.mokkery.spy
 import org.apache.commons.io.IOUtils
-import org.isoron.platform.io.JavaDatabaseOpener
 import org.isoron.uhabits.core.models.memory.MemoryModelFactory
 import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.Before
@@ -35,8 +34,6 @@ import java.util.GregorianCalendar
 import java.util.TimeZone
 
 open class JvmBaseUnitTest : BaseUnitTest() {
-    protected var databaseOpener: org.isoron.platform.io.DatabaseOpener = JavaDatabaseOpener()
-
     @Before
     override fun setUp() {
         super.setUp()
@@ -74,14 +71,5 @@ open class JvmBaseUnitTest : BaseUnitTest() {
         if (file.exists() && file.canRead()) inputStream = FileInputStream(file)
         if (inputStream != null) return inputStream
         throw IllegalStateException("asset not found: $fullPath")
-    }
-
-    @Throws(IOException::class)
-    protected fun openDatabaseResource(path: String): org.isoron.platform.io.Database {
-        val original = openAsset(path)
-        val tmpDbFile = File.createTempFile("database", ".db")
-        tmpDbFile.deleteOnExit()
-        IOUtils.copy(original, FileOutputStream(tmpDbFile))
-        return databaseOpener.open(tmpDbFile.absolutePath)
     }
 }

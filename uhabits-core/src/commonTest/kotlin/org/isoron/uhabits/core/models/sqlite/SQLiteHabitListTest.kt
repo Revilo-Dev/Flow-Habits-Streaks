@@ -20,9 +20,7 @@ package org.isoron.uhabits.core.models.sqlite
 
 import dev.mokkery.mock
 import dev.mokkery.verify
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.database.HabitRepository
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
@@ -31,20 +29,19 @@ import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.test.HabitFixtures
-import org.junit.After
-import org.junit.Assert.assertThrows
-import org.junit.Test
-import java.util.ArrayList
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
-class SQLiteHabitListTest : JvmBaseUnitTest() {
+class SQLiteHabitListTest : BaseUnitTest() {
     private lateinit var repository: HabitRepository
     private var listener: ModelObservable.Listener = mock()
     private lateinit var habitsArray: ArrayList<Habit>
     private lateinit var activeHabits: HabitList
     private lateinit var reminderHabits: HabitList
 
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         val db = buildMemoryDatabase()
@@ -75,7 +72,7 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
         habitList.observable.addListener(listener)
     }
 
-    @After
+    @AfterTest
     fun tearDown() {
         habitList.observable.removeListener(listener)
     }
@@ -85,7 +82,7 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
         val habit = modelFactory.buildHabit()
         habitList.add(habit)
         verify { listener.onModelChange() }
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             habitList.add(habit)
         }
     }
@@ -96,10 +93,10 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
         habit.name = "Hello world with id"
         habit.id = 12300L
         habitList.add(habit)
-        assertThat(habit.id, equalTo(12300L))
+        assertEquals(12300L, habit.id)
         val all = repository.findAll()
         val record = all.find { it.id == 12300L }
-        assertThat(record!!.name, equalTo(habit.name))
+        assertEquals(habit.name, record!!.name)
     }
 
     @Test
@@ -110,20 +107,20 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
         habitList.add(habit)
         val all = repository.findAll()
         val record = all.find { it.id == habit.id }
-        assertThat(record!!.name, equalTo(habit.name))
+        assertEquals(habit.name, record!!.name)
     }
 
     @Test
     fun testSize() {
-        assertThat(habitList.size(), equalTo(10))
+        assertEquals(10, habitList.size())
     }
 
     @Test
     fun testGetById() {
         val h1 = habitList.getById(1)!!
-        assertThat(h1.name, equalTo("habit 1"))
+        assertEquals("habit 1", h1.name)
         val h2 = habitList.getById(2)!!
-        assertThat(h2, equalTo(h2))
+        assertEquals(h2, h2)
     }
 
     @Test
@@ -136,31 +133,30 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
     @Test
     fun testGetByPosition() {
         val h = habitList.getByPosition(4)
-        assertThat(h.name, equalTo("habit 5"))
+        assertEquals("habit 5", h.name)
     }
 
     @Test
     fun testIndexOf() {
         val h1 = habitList.getByPosition(5)
-        assertThat(habitList.indexOf(h1), equalTo(5))
+        assertEquals(5, habitList.indexOf(h1))
         val h2 = modelFactory.buildHabit()
-        assertThat(habitList.indexOf(h2), equalTo(-1))
+        assertEquals(-1, habitList.indexOf(h2))
         h2.id = 1000L
-        assertThat(habitList.indexOf(h2), equalTo(-1))
+        assertEquals(-1, habitList.indexOf(h2))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testRemove() {
         val h = habitList.getById(2)
         habitList.remove(h!!)
-        assertThat(habitList.indexOf(h), equalTo(-1))
+        assertEquals(-1, habitList.indexOf(h))
 
         val all = repository.findAll()
         val rec2 = all.find { it.id == 2L }
         assertNull(rec2)
         val rec3 = all.find { it.id == 3L }!!
-        assertThat(rec3.position, equalTo(1))
+        assertEquals(1, rec3.position)
     }
 
     @Test
@@ -168,13 +164,13 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
         habitList.primaryOrder = HabitList.Order.BY_NAME_DESC
         val h = habitList.getById(2)
         habitList.remove(h!!)
-        assertThat(habitList.indexOf(h), equalTo(-1))
+        assertEquals(-1, habitList.indexOf(h))
 
         val all = repository.findAll()
         val rec2 = all.find { it.id == 2L }
         assertNull(rec2)
         val rec3 = all.find { it.id == 3L }!!
-        assertThat(rec3.position, equalTo(1))
+        assertEquals(1, rec3.position)
     }
 
     @Test
@@ -184,8 +180,8 @@ class SQLiteHabitListTest : JvmBaseUnitTest() {
         habitList.reorder(habit4, habit3)
         val all = repository.findAll()
         val record3 = all.find { it.id == 3L }!!
-        assertThat(record3.position, equalTo(3))
+        assertEquals(3, record3.position)
         val record4 = all.find { it.id == 4L }!!
-        assertThat(record4.position, equalTo(2))
+        assertEquals(2, record4.position)
     }
 }

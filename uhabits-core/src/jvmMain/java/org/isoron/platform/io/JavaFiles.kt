@@ -103,6 +103,15 @@ class JavaUserFile(val path: Path) : UserFile {
     override fun resolve(child: String): UserFile {
         return JavaUserFile(path.resolve(child))
     }
+
+    override suspend fun listFiles(): List<UserFile>? {
+        val files = path.toFile().listFiles() ?: return null
+        return files.map { JavaUserFile(it.toPath()) }
+    }
+
+    override suspend fun mkdirs() {
+        path.toFile().mkdirs()
+    }
 }
 
 @Suppress("NewApi")

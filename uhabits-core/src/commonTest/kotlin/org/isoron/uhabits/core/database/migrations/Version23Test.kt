@@ -20,16 +20,14 @@
 package org.isoron.uhabits.core.database.migrations
 
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.io.Database
-import org.isoron.platform.io.JavaFileOpener
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.query
-import org.isoron.uhabits.core.JvmBaseUnitTest
-import org.junit.Test
+import org.isoron.uhabits.core.BaseUnitTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class Version23Test : JvmBaseUnitTest() {
+class Version23Test : BaseUnitTest() {
 
     private lateinit var db: Database
 
@@ -37,8 +35,6 @@ class Version23Test : JvmBaseUnitTest() {
         super.setUp()
         db = openDatabaseResource("/databases/022.db")
     }
-
-    private val fileOpener = JavaFileOpener()
 
     private fun migrateTo(version: Int) = runBlocking {
         db.migrateTo(version) { v ->
@@ -48,13 +44,13 @@ class Version23Test : JvmBaseUnitTest() {
     }
 
     @Test
-    fun `test migrate to 23 creates question column`() {
+    fun testMigrateTo23CreatesQuestionColumn() {
         migrateTo(23)
         db.query("select question from Habits") {}
     }
 
     @Test
-    fun `test migrate to 23 moves description to question column`() {
+    fun testMigrateTo23MovesDescriptionToQuestionColumn() {
         val descriptions = mutableListOf<String?>()
         db.query("select description from Habits") { stmt ->
             descriptions.add(stmt.getTextOrNull(0))
@@ -68,15 +64,15 @@ class Version23Test : JvmBaseUnitTest() {
         }
 
         for (i in descriptions.indices) {
-            assertThat(questions[i], equalTo(descriptions[i]))
+            assertEquals(descriptions[i], questions[i])
         }
     }
 
     @Test
-    fun `test migrate to 23 sets description to null`() {
+    fun testMigrateTo23SetsDescriptionToNull() {
         migrateTo(23)
         db.query("select description from Habits") { stmt ->
-            assertThat(stmt.getTextOrNull(0), equalTo(""))
+            assertEquals("", stmt.getTextOrNull(0))
         }
     }
 }

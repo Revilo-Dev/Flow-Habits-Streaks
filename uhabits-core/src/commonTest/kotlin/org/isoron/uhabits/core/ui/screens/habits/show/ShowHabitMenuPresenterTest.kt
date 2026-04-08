@@ -22,22 +22,18 @@ import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
 import dev.mokkery.verify
-import org.apache.commons.io.FileUtils
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.isoron.platform.io.JavaUserFile
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import kotlinx.coroutines.runBlocking
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
-import org.junit.Test
-import java.nio.file.Files
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class ShowHabitMenuPresenterTest : JvmBaseUnitTest() {
+class ShowHabitMenuPresenterTest : BaseUnitTest() {
     private lateinit var system: ShowHabitMenuPresenter.System
     private lateinit var screen: ShowHabitMenuPresenter.Screen
     private lateinit var habit: Habit
     private lateinit var menu: ShowHabitMenuPresenter
 
-    @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
         system = mock()
@@ -60,12 +56,11 @@ class ShowHabitMenuPresenterTest : JvmBaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testOnExport() {
-        val outputDir = Files.createTempDirectory("CSV").toFile()
-        every { system.getCSVOutputDir() } returns JavaUserFile(outputDir.toPath())
+        val outputDir = createTempDir()
+        every { system.getCSVOutputDir() } returns outputDir
         menu.onExportCSV()
-        assertThat(FileUtils.listFiles(outputDir, null, false).size, equalTo(1))
-        FileUtils.deleteDirectory(outputDir)
+        val files = runBlocking { outputDir.listFiles() }
+        assertEquals(1, files!!.size)
     }
 }
