@@ -22,18 +22,17 @@ import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
 import dev.mokkery.verify
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.preferences.Preferences
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class HintListTest : JvmBaseUnitTest() {
+class HintListTest : BaseUnitTest() {
     private lateinit var hintList: HintList
     private lateinit var hints: Array<String>
 
@@ -54,7 +53,7 @@ class HintListTest : JvmBaseUnitTest() {
     @Throws(Exception::class)
     fun pop() {
         every { prefs.lastHintNumber } returns -1
-        assertThat(hintList.pop(), equalTo("hint1"))
+        assertEquals("hint1", hintList.pop())
         verify { prefs.updateLastHint(0, today) }
         every { prefs.lastHintNumber } returns 2
         assertNull(hintList.pop())

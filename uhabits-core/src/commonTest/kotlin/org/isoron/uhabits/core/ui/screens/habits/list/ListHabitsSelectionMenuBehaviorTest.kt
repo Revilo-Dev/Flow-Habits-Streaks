@@ -24,19 +24,18 @@ import dev.mokkery.every
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.verify
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.ui.callbacks.OnColorPickedCallback
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
+class ListHabitsSelectionMenuBehaviorTest : BaseUnitTest() {
     private val screen: ListHabitsSelectionMenuBehavior.Screen = mock()
 
     private val adapter: ListHabitsSelectionMenuBehavior.Adapter = mock()
@@ -84,8 +83,8 @@ class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
     @Test
     @Throws(Exception::class)
     fun onChangeColor() {
-        assertThat(habit1.color, equalTo(PaletteColor(8)))
-        assertThat(habit2.color, equalTo(PaletteColor(8)))
+        assertEquals(PaletteColor(8), habit1.color)
+        assertEquals(PaletteColor(8), habit2.color)
         every { adapter.getSelected() } returns listOf(habit1, habit2)
         every {
             screen.showColorPicker(any(), any())
@@ -94,7 +93,7 @@ class ListHabitsSelectionMenuBehaviorTest : JvmBaseUnitTest() {
             callback.onColorPicked(PaletteColor(30))
         }
         behavior.onChangeColor()
-        assertThat(habit1.color, equalTo(PaletteColor(30)))
+        assertEquals(PaletteColor(30), habit1.color)
     }
 
     @Test

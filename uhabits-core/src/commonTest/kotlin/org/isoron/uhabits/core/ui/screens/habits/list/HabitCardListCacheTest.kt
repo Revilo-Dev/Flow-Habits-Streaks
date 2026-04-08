@@ -22,16 +22,16 @@ import dev.mokkery.mock
 import dev.mokkery.resetCalls
 import dev.mokkery.verify
 import dev.mokkery.verifyNoMoreCalls
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.time.LocalDate
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.commands.DeleteHabitsCommand
 import org.isoron.uhabits.core.models.Entry
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 
-class HabitCardListCacheTest : JvmBaseUnitTest() {
+class HabitCardListCacheTest : BaseUnitTest() {
     private lateinit var cache: HabitCardListCache
     private lateinit var listener: HabitCardListCache.Listener
     var today = LocalDate(2015, 1, 25)
@@ -57,14 +57,14 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
 
     @Test
     fun testCommandListener_all() {
-        assertThat(cache.habitCount, equalTo(10))
+        assertEquals(10, cache.habitCount)
         val h = habitList.getByPosition(0)
         commandRunner.run(
             DeleteHabitsCommand(habitList, listOf(h))
         )
         verify { listener.onItemRemoved(0) }
         verify { listener.onRefreshFinished() }
-        assertThat(cache.habitCount, equalTo(9))
+        assertEquals(9, cache.habitCount)
     }
 
     @Test
@@ -78,18 +78,18 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
 
     @Test
     fun testGet() {
-        assertThat(cache.habitCount, equalTo(10))
+        assertEquals(10, cache.habitCount)
         val h = habitList.getByPosition(3)
         val score = h.scores[today].value
-        assertThat(cache.getHabitByPosition(3), equalTo(h))
-        assertThat(cache.getScore(h.id!!), equalTo(score))
+        assertEquals(h, cache.getHabitByPosition(3))
+        assertEquals(score, cache.getScore(h.id!!))
         val actualCheckmarks = cache.getCheckmarks(h.id!!)
 
         val expectedCheckmarks = h
             .computedEntries
             .getByInterval(today.minus(9), today)
             .map { it.value }.toIntArray()
-        assertThat(actualCheckmarks, equalTo(expectedCheckmarks))
+        assertContentEquals(expectedCheckmarks, actualCheckmarks)
     }
 
     @Test
@@ -100,7 +100,7 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         verify { listener.onItemRemoved(0) }
         verify { listener.onItemRemoved(3) }
         verify { listener.onRefreshFinished() }
-        assertThat(cache.habitCount, equalTo(8))
+        assertEquals(8, cache.habitCount)
     }
 
     @Test
@@ -116,9 +116,9 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         val h3 = cache.getHabitByPosition(3)
         val h7 = cache.getHabitByPosition(7)
         cache.reorder(2, 7)
-        assertThat(cache.getHabitByPosition(2), equalTo(h3))
-        assertThat(cache.getHabitByPosition(7), equalTo(h2))
-        assertThat(cache.getHabitByPosition(6), equalTo(h7))
+        assertEquals(h3, cache.getHabitByPosition(2))
+        assertEquals(h2, cache.getHabitByPosition(7))
+        assertEquals(h7, cache.getHabitByPosition(6))
         verify { listener.onItemMoved(2, 7) }
         verifyNoMoreCalls(listener)
     }
@@ -128,14 +128,14 @@ class HabitCardListCacheTest : JvmBaseUnitTest() {
         val h2 = habitList.getByPosition(2)
         val h3 = habitList.getByPosition(3)
         val h7 = habitList.getByPosition(7)
-        assertThat(cache.getHabitByPosition(2), equalTo(h2))
-        assertThat(cache.getHabitByPosition(7), equalTo(h7))
+        assertEquals(h2, cache.getHabitByPosition(2))
+        assertEquals(h7, cache.getHabitByPosition(7))
         resetCalls(listener)
         habitList.reorder(h2, h7)
         cache.refreshAllHabits()
-        assertThat(cache.getHabitByPosition(2), equalTo(h3))
-        assertThat(cache.getHabitByPosition(7), equalTo(h2))
-        assertThat(cache.getHabitByPosition(6), equalTo(h7))
+        assertEquals(h3, cache.getHabitByPosition(2))
+        assertEquals(h2, cache.getHabitByPosition(7))
+        assertEquals(h7, cache.getHabitByPosition(6))
         verify { listener.onItemMoved(3, 2) }
         verify { listener.onItemMoved(4, 3) }
         verify { listener.onItemMoved(5, 4) }

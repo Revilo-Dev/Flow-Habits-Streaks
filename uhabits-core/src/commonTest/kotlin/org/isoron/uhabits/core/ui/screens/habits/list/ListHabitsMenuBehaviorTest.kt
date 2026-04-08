@@ -25,15 +25,15 @@ import dev.mokkery.mock
 import dev.mokkery.resetCalls
 import dev.mokkery.verify
 import dev.mokkery.verifyNoMoreCalls
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
-import org.junit.Test
+import kotlin.test.Test
 import dev.mokkery.verify.VerifyMode.Companion.not as notCalled
 
-class ListHabitsMenuBehaviorTest : JvmBaseUnitTest() {
+class ListHabitsMenuBehaviorTest : BaseUnitTest() {
     private lateinit var behavior: ListHabitsMenuBehavior
 
     private val screen: ListHabitsMenuBehavior.Screen = mock()

@@ -21,13 +21,10 @@ package org.isoron.uhabits.core.tasks
 import dev.mokkery.mock
 import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode.Companion.order
-import org.isoron.uhabits.core.JvmBaseUnitTest
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.isoron.uhabits.core.BaseUnitTest
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
-class SingleThreadTaskRunnerTest : JvmBaseUnitTest() {
+class SingleThreadTaskRunnerTest : BaseUnitTest() {
     private lateinit var runner: SingleThreadTaskRunner
     private var task: Task = mock()
 

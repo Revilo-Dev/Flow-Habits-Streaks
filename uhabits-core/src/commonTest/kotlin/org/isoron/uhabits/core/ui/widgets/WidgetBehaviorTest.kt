@@ -25,25 +25,25 @@ import dev.mokkery.resetCalls
 import dev.mokkery.verify
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
-import org.isoron.uhabits.core.JvmBaseUnitTest
+import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.nextToggleValue
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import dev.mokkery.verify.VerifyMode.Companion.not as notCalled
 
-class WidgetBehaviorTest : JvmBaseUnitTest() {
+class WidgetBehaviorTest : BaseUnitTest() {
     private lateinit var notificationTray: NotificationTray
     private lateinit var preferences: Preferences
     private lateinit var behavior: WidgetBehavior
     private lateinit var habit: Habit
     private lateinit var today: LocalDate
 
-    @Before
+    @BeforeTest
     @Throws(Exception::class)
     override fun setUp() {
         super.setUp()
