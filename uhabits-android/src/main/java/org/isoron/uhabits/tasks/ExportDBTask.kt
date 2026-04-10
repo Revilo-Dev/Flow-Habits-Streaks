@@ -35,7 +35,7 @@ class ExportDBTask(
     private val listener: Listener
 ) : Task {
     private var filename: String? = null
-    override fun doInBackground() {
+    override suspend fun doInBackground() {
         filename = null
         filename = try {
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)

@@ -113,7 +113,7 @@ open class NotificationTray(
         private val date: LocalDate = data.date
         private val reminderTime: Long = data.reminderTime
 
-        override fun doInBackground() {
+        override suspend fun doInBackground() {
             isCompleted = habit.isCompletedToday()
         }
 

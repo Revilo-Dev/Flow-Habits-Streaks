@@ -19,8 +19,8 @@
 package org.isoron.uhabits.core.tasks
 
 import dev.mokkery.mock
-import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode.Companion.order
+import dev.mokkery.verifySuspend
 import org.isoron.uhabits.core.BaseUnitTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -38,7 +38,7 @@ class SingleThreadTaskRunnerTest : BaseUnitTest() {
     @Test
     fun test() {
         runner.execute(task)
-        verify(order) {
+        verifySuspend(order) {
             task.onAttached(runner)
             task.onPreExecute()
             task.doInBackground()

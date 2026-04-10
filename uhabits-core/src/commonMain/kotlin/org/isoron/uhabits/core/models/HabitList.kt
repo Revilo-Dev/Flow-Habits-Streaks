@@ -197,7 +197,9 @@ abstract class HabitList : Iterable<Habit> {
                 if (habit.isNumerical) {
                     val s = habit.targetValue.toString()
                     if ('.' !in s) "$s.0" else s
-                } else "",
+                } else {
+                    ""
+                },
                 habit.isArchived.toString()
             )
             sb.append(csvLine(cols))

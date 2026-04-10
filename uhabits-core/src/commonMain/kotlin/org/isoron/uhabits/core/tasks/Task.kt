@@ -21,7 +21,7 @@ package org.isoron.uhabits.core.tasks
 fun interface Task {
     fun cancel() {}
     fun isCanceled() = false
-    fun doInBackground()
+    suspend fun doInBackground()
     fun onAttached(runner: TaskRunner) {}
     fun onPostExecute() {}
     fun onPreExecute() {}

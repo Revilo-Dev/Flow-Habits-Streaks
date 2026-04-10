@@ -292,7 +292,7 @@ class HabitCardListCache(
         }
 
         @Synchronized
-        override fun doInBackground() {
+        override suspend fun doInBackground() {
             newData.fetchHabits()
             newData.copyScoresFrom(data)
             newData.copyCheckmarksFrom(data)

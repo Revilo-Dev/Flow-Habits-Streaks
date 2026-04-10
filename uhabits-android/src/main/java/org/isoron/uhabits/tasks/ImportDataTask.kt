@@ -19,7 +19,6 @@
 package org.isoron.uhabits.tasks
 
 import android.util.Log
-import kotlinx.coroutines.runBlocking
 import org.isoron.platform.io.UserFile
 import org.isoron.platform.io.begin
 import org.isoron.platform.io.commit
@@ -36,18 +35,16 @@ class ImportDataTask(
 ) : Task {
     private var result = 0
     private val modelFactory: SQLModelFactory = modelFactory as SQLModelFactory
-    override fun doInBackground() {
+    override suspend fun doInBackground() {
         modelFactory.database.begin()
         try {
-            runBlocking {
-                if (importer.canHandle(file)) {
-                    importer.importHabitsFromFile(file)
-                    result = SUCCESS
-                    modelFactory.database.commit()
-                } else {
-                    result = NOT_RECOGNIZED
-                    modelFactory.database.commit()
-                }
+            if (importer.canHandle(file)) {
+                importer.importHabitsFromFile(file)
+                result = SUCCESS
+                modelFactory.database.commit()
+            } else {
+                result = NOT_RECOGNIZED
+                modelFactory.database.commit()
             }
         } catch (e: Exception) {
             result = FAILED

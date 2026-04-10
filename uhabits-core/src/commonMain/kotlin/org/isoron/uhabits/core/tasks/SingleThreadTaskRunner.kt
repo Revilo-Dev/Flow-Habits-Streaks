@@ -18,6 +18,8 @@
  */
 package org.isoron.uhabits.core.tasks
 
+import org.isoron.platform.runSuspend
+
 class SingleThreadTaskRunner : TaskRunner {
     override val activeTaskCount: Int
         get() = 0
@@ -32,7 +34,7 @@ class SingleThreadTaskRunner : TaskRunner {
         if (!task.isCanceled()) {
             task.onAttached(this)
             task.onPreExecute()
-            task.doInBackground()
+            runSuspend { task.doInBackground() }
             task.onPostExecute()
         }
         for (l in listeners) l.onTaskFinished(task)

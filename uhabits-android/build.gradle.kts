@@ -95,6 +95,8 @@ android {
 
 mokkery {
     defaultMockMode.set(dev.mokkery.MockMode.autofill)
+    stubs.allowClassInheritance.set(true)
+    stubs.allowConcreteClassInstantiation.set(true)
 }
 
 dependencies {

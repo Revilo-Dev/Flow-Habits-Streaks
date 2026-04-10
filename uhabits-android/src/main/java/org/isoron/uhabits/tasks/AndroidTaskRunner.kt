@@ -19,6 +19,7 @@
 package org.isoron.uhabits.tasks
 
 import android.os.AsyncTask
+import kotlinx.coroutines.runBlocking
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
 import java.util.HashMap
@@ -58,7 +59,7 @@ class AndroidTaskRunner : TaskRunner {
         @Deprecated("Deprecated in Java")
         override fun doInBackground(vararg params: Void?): Void? {
             if (isCancelled) return null
-            task.doInBackground()
+            runBlocking { task.doInBackground() }
             return null
         }
 
