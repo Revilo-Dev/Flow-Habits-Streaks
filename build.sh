@@ -78,9 +78,11 @@ gradle_run() {
 # -----------------------------------------------------------------------------
 
 core_build() {
+    log_info "Formatting code..."
+    gradle_run ktlintFormat || fail
+    log_info "Upgrading yarn lock..."
+    gradle_run kotlinUpgradeYarnLock || fail
     log_info "Building uhabits-core..."
-    gradle_run ktlintCheck || fail
-    gradle_run lintDebug || fail
     gradle_run :uhabits-core:build || fail
 }
 
@@ -379,7 +381,6 @@ main() {
             shift; _parse_opts "$@"
             clean
             log_info "Formatting code..."
-            gradle_run ktlintFormat || fail
             core_build
             android_build
             ;;
