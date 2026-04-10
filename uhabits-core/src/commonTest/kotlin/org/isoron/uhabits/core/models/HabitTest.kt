@@ -20,6 +20,7 @@ package org.isoron.uhabits.core.models
 
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -28,6 +29,7 @@ import kotlin.test.assertTrue
 
 class HabitTest : BaseUnitTest() {
 
+    @BeforeTest
     override fun setUp() {
         super.setUp()
     }

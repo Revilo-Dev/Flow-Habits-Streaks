@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 
 class MigrationTest {
     @Test
-    fun testMigrateFromScratch() {
+    fun testMigrateFromScratch() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         assertEquals(25, db.getVersion())
 

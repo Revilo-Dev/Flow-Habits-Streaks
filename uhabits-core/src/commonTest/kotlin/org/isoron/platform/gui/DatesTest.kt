@@ -177,11 +177,11 @@ class DatesTest {
         val jan2 = LocalDate(2015, 1, 2)
         val jan1b = LocalDate(2015, 1, 1)
 
-        assert(jan1 < jan2)
-        assert(jan2 > jan1)
-        assert(jan1 <= jan1b)
-        assert(jan1 >= jan1b)
-        assert(jan1 == jan1b)
+        assertTrue(jan1 < jan2)
+        assertTrue(jan2 > jan1)
+        assertTrue(jan1 <= jan1b)
+        assertTrue(jan1 >= jan1b)
+        assertEquals(jan1, jan1b)
     }
 
     @Test

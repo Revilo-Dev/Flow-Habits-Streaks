@@ -19,3 +19,4 @@ node_modules
 crowdin.yml
 kotlin-js-store
 *.md
+.kotlin

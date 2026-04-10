@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models.memory
 
+import org.isoron.platform.Synchronized
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher

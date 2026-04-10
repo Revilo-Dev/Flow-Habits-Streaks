@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.JvmStatic
 import org.isoron.platform.time.LocalDate
 import kotlin.math.pow
 import kotlin.math.sqrt

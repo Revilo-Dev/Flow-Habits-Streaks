@@ -21,6 +21,7 @@ package org.isoron.uhabits.core.models
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -29,6 +30,7 @@ class StreakListTest : BaseUnitTest() {
     private lateinit var streaks: StreakList
     private lateinit var today: LocalDate
 
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         habit = fixtures.createLongHabit()

@@ -22,6 +22,7 @@ package org.isoron.uhabits.core.ui.views
 import org.isoron.platform.gui.Canvas
 import org.isoron.platform.gui.Color
 import org.isoron.platform.gui.View
+import org.isoron.platform.io.format
 import kotlin.math.max
 import kotlin.math.min
 
@@ -51,7 +52,7 @@ class Ring(
         if (label) {
             canvas.setColor(color)
             canvas.setFontSize(radius * 0.4)
-            canvas.drawText("%.0f%%".format(percentage * 100), width / 2, height / 2)
+            canvas.drawText(format("%.0f%%", percentage * 100), width / 2, height / 2)
         }
     }
 }

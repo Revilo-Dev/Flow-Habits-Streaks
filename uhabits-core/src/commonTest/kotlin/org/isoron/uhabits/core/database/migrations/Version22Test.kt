@@ -18,11 +18,12 @@
  */
 package org.isoron.uhabits.core.database.migrations
 
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.io.Database
+import org.isoron.platform.io.format
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.querySingle
 import org.isoron.platform.io.run
-import org.isoron.platform.runSuspend
 import org.isoron.uhabits.core.BaseUnitTest
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -32,20 +33,24 @@ import kotlin.test.assertFailsWith
 class Version22Test : BaseUnitTest() {
     private lateinit var db: Database
 
-    override fun setUp() {
-        super.setUp()
+    private suspend fun initDb() {
         db = openDatabaseResource("/databases/021.db")
     }
 
-    private fun migrateTo(version: Int) = runSuspend {
+    private suspend fun migrateTo(version: Int) {
         db.migrateTo(version) { v ->
-            val path = "migrations/%02d.sql".format(v)
+            val path = "migrations/${format("%02d.sql", v)}"
             fileOpener.openResourceFile(path).lines().joinToString("\n")
         }
     }
 
+    private fun dbTest(block: suspend () -> Unit) = runTest {
+        initDb()
+        block()
+    }
+
     @Test
-    fun testKeepValidReps() {
+    fun testKeepValidReps() = dbTest {
         val before = db.querySingle("select count(*) from repetitions") { it.getInt(0) }
         assertEquals(3, before)
         migrateTo(22)
@@ -54,7 +59,7 @@ class Version22Test : BaseUnitTest() {
     }
 
     @Test
-    fun testRemoveRepsWithInvalidId() {
+    fun testRemoveRepsWithInvalidId() = dbTest {
         db.run("insert into Repetitions(habit, timestamp, value) values (99999, 100, 2)")
         val before = db.querySingle(
             "select count(*) from repetitions where habit = 99999"
@@ -68,16 +73,16 @@ class Version22Test : BaseUnitTest() {
     }
 
     @Test
-    fun testDisallowNewRepsWithInvalidRef() {
+    fun testDisallowNewRepsWithInvalidRef() = dbTest {
         migrateTo(22)
-        val exception = assertFailsWith<Exception> {
+        val exception = assertFailsWith<Throwable> {
             db.run("insert into Repetitions(habit, timestamp, value) values (99999, 100, 2)")
         }
         assertContains(exception.message!!, "constraint")
     }
 
     @Test
-    fun testRemoveRepetitionsWithNullTimestamp() {
+    fun testRemoveRepetitionsWithNullTimestamp() = dbTest {
         db.run("insert into repetitions(habit, value) values (0, 2)")
         val before = db.querySingle(
             "select count(*) from repetitions where timestamp is null"
@@ -91,16 +96,16 @@ class Version22Test : BaseUnitTest() {
     }
 
     @Test
-    fun testDisallowNullTimestamp() {
+    fun testDisallowNullTimestamp() = dbTest {
         migrateTo(22)
-        val exception = assertFailsWith<Exception> {
+        val exception = assertFailsWith<Throwable> {
             db.run("insert into Repetitions(habit, value) values (0, 2)")
         }
         assertContains(exception.message!!, "constraint")
     }
 
     @Test
-    fun testRemoveRepetitionsWithNullHabit() {
+    fun testRemoveRepetitionsWithNullHabit() = dbTest {
         db.run("insert into repetitions(timestamp, value) values (0, 2)")
         val before = db.querySingle(
             "select count(*) from repetitions where habit is null"
@@ -114,16 +119,16 @@ class Version22Test : BaseUnitTest() {
     }
 
     @Test
-    fun testDisallowNullHabit() {
+    fun testDisallowNullHabit() = dbTest {
         migrateTo(22)
-        val exception = assertFailsWith<Exception> {
+        val exception = assertFailsWith<Throwable> {
             db.run("insert into Repetitions(timestamp, value) values (5, 2)")
         }
         assertContains(exception.message!!, "constraint")
     }
 
     @Test
-    fun testRemoveDuplicateRepetitions() {
+    fun testRemoveDuplicateRepetitions() = dbTest {
         db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 2)")
         db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 5)")
         db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 10)")
@@ -139,10 +144,10 @@ class Version22Test : BaseUnitTest() {
     }
 
     @Test
-    fun testDisallowNewDuplicateTimestamps() {
+    fun testDisallowNewDuplicateTimestamps() = dbTest {
         migrateTo(22)
         db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 2)")
-        val exception = assertFailsWith<Exception> {
+        val exception = assertFailsWith<Throwable> {
             db.run("insert into repetitions(habit, timestamp, value)values (0, 100, 5)")
         }
         assertContains(exception.message!!, "constraint")

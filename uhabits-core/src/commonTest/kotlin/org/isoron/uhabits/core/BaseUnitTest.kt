@@ -23,9 +23,8 @@ import org.isoron.platform.io.DatabaseOpener
 import org.isoron.platform.io.FileOpener
 import org.isoron.platform.io.TestDatabaseHelper
 import org.isoron.platform.io.UserFile
-import org.isoron.platform.io.createTestDatabaseOpener
+import org.isoron.platform.io.createTestDatabaseOpenerSuspend
 import org.isoron.platform.io.createTestFileOpener
-import org.isoron.platform.runSuspend
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.commands.CommandRunner
@@ -43,7 +42,13 @@ open class BaseUnitTest {
     protected lateinit var taskRunner: SingleThreadTaskRunner
     protected open lateinit var commandRunner: CommandRunner
     protected val fileOpener: FileOpener = createTestFileOpener()
-    protected val databaseOpener: DatabaseOpener = createTestDatabaseOpener()
+    private var _databaseOpener: DatabaseOpener? = null
+    protected suspend fun databaseOpener(): DatabaseOpener {
+        if (_databaseOpener == null) {
+            _databaseOpener = createTestDatabaseOpenerSuspend()
+        }
+        return _databaseOpener!!
+    }
 
     @BeforeTest
     open fun setUp() {
@@ -56,28 +61,28 @@ open class BaseUnitTest {
         commandRunner = CommandRunner(taskRunner)
     }
 
-    protected fun createTempDir(): UserFile = runSuspend {
+    protected suspend fun createTempDir(): UserFile {
         val dir = fileOpener.openUserFile("test-temp-dir-${tempFileCounter++}")
         dir.mkdirs()
-        dir
+        return dir
     }
 
-    protected fun copyResourceToTempFile(resourcePath: String): UserFile = runSuspend {
+    protected suspend fun copyResourceToTempFile(resourcePath: String): UserFile {
         val cleanPath = resourcePath.removePrefix("/")
         val tempFile = fileOpener.openUserFile("test-temp-${tempFileCounter++}")
         fileOpener.openResourceFile(cleanPath).copyTo(tempFile)
-        tempFile
+        return tempFile
     }
 
-    protected fun openDatabaseResource(resourcePath: String): Database = runSuspend {
+    protected suspend fun openDatabaseResource(resourcePath: String): Database {
         val tempFile = copyResourceToTempFile(resourcePath)
-        databaseOpener.open(tempFile.pathString)
+        return databaseOpener().open(tempFile.pathString)
     }
 
     companion object {
         private var tempFileCounter = 0
 
-        fun buildMemoryDatabase(): Database {
+        suspend fun buildMemoryDatabase(): Database {
             return TestDatabaseHelper.createEmptyDatabase()
         }
     }

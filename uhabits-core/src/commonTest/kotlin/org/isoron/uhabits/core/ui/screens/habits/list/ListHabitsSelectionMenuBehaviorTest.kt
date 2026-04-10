@@ -29,6 +29,7 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.ui.callbacks.OnColorPickedCallback
 import org.isoron.uhabits.core.ui.callbacks.OnConfirmedCallback
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -130,7 +131,7 @@ class ListHabitsSelectionMenuBehaviorTest : BaseUnitTest() {
         assertFalse(habit1.isArchived)
     }
 
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         habit1 = fixtures.createShortHabit()

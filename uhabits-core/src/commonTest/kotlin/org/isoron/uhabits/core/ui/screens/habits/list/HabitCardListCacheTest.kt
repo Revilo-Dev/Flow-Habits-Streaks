@@ -27,6 +27,7 @@ import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.commands.DeleteHabitsCommand
 import org.isoron.uhabits.core.models.Entry
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -36,7 +37,7 @@ class HabitCardListCacheTest : BaseUnitTest() {
     private lateinit var listener: HabitCardListCache.Listener
     var today = LocalDate(2015, 1, 25)
 
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         habitList.removeAll()

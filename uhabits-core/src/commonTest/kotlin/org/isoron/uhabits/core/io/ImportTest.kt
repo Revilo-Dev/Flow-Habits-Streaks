@@ -18,7 +18,7 @@
  */
 package org.isoron.uhabits.core.io
 
-import org.isoron.platform.runSuspend
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
@@ -33,7 +33,7 @@ import kotlin.test.assertTrue
 class ImportTest : BaseUnitTest() {
 
     @Test
-    fun testHabitBullCSV() {
+    fun testHabitBullCSV() = runTest {
         importFromFile("habitbull.csv")
         assertEquals(4, habitList.size())
         val habit = habitList.getByPosition(0)
@@ -47,7 +47,7 @@ class ImportTest : BaseUnitTest() {
     }
 
     @Test
-    fun testHabitBullCSV2() {
+    fun testHabitBullCSV2() = runTest {
         importFromFile("habitbull2.csv")
         assertEquals(6, habitList.size())
         val habit = habitList.getByPosition(2)
@@ -62,7 +62,7 @@ class ImportTest : BaseUnitTest() {
     }
 
     @Test
-    fun testHabitBullCSV3() {
+    fun testHabitBullCSV3() = runTest {
         importFromFile("habitbull3.csv")
         assertEquals(2, habitList.size())
 
@@ -85,7 +85,7 @@ class ImportTest : BaseUnitTest() {
     }
 
     @Test
-    fun testHabitBullCSV4() {
+    fun testHabitBullCSV4() = runTest {
         importFromFile("habitbull4.csv")
         assertEquals(1, habitList.size())
 
@@ -99,7 +99,7 @@ class ImportTest : BaseUnitTest() {
     }
 
     @Test
-    fun testLoopDB() {
+    fun testLoopDB() = runTest {
         importFromFile("loop.db")
         assertEquals(9, habitList.size())
         val habit = habitList.getByPosition(0)
@@ -111,7 +111,7 @@ class ImportTest : BaseUnitTest() {
     }
 
     @Test
-    fun testRewireDB() {
+    fun testRewireDB() = runTest {
         importFromFile("rewire.db")
         assertEquals(3, habitList.size())
         var habit = habitList.getByPosition(1)
@@ -134,7 +134,7 @@ class ImportTest : BaseUnitTest() {
     }
 
     @Test
-    fun testTickmateDB() {
+    fun testTickmateDB() = runTest {
         importFromFile("tickmate.db")
         assertEquals(3, habitList.size())
         val h = habitList.getByPosition(2)
@@ -157,20 +157,21 @@ class ImportTest : BaseUnitTest() {
         return h.originalEntries.get(LocalDate(year, month, day)).notes == notes
     }
 
-    private fun importFromFile(assetFilename: String) = runSuspend {
+    private suspend fun importFromFile(assetFilename: String) {
         val userFile = copyResourceToTempFile(assetFilename)
         assertTrue(userFile.exists())
+        val dbOpener = databaseOpener()
         val importer = GenericImporter(
             LoopDBImporter(
                 habitList,
                 modelFactory,
-                databaseOpener,
+                dbOpener,
                 commandRunner,
                 StandardLogging(),
                 fileOpener
             ),
-            RewireDBImporter(habitList, modelFactory, databaseOpener),
-            TickmateDBImporter(habitList, modelFactory, databaseOpener),
+            RewireDBImporter(habitList, modelFactory, dbOpener),
+            TickmateDBImporter(habitList, modelFactory, dbOpener),
             HabitBullCSVImporter(habitList, modelFactory, StandardLogging())
         )
         assertTrue(importer.canHandle(userFile))

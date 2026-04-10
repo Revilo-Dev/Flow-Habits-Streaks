@@ -1,6 +1,6 @@
 package org.isoron.platform.io
 
 expect object TestDatabaseHelper {
-    fun createEmptyDatabase(): Database
-    fun loadMigrationSQL(version: Int): String
+    suspend fun createEmptyDatabase(): Database
+    suspend fun loadMigrationSQL(version: Int): String
 }

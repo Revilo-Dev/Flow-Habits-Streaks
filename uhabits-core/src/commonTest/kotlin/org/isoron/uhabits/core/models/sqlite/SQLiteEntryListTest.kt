@@ -19,25 +19,24 @@
 
 package org.isoron.uhabits.core.models.sqlite
 
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest.Companion.buildMemoryDatabase
 import org.isoron.uhabits.core.database.EntryData
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SQLiteEntryListTest {
 
-    private val database = buildMemoryDatabase()
-    private val factory = SQLModelFactory(database)
-    private val entryRepository = factory.entryRepository
+    private lateinit var factory: SQLModelFactory
     private lateinit var entries: SQLiteEntryList
     private val today = LocalDate(2015, 1, 25)
 
-    @BeforeTest
-    fun setUp() {
+    private suspend fun initTest() {
+        val database = buildMemoryDatabase()
+        factory = SQLModelFactory(database)
         val habitList = factory.buildHabitList()
         val habit = factory.buildHabit()
         habitList.add(habit)
@@ -45,16 +44,17 @@ class SQLiteEntryListTest {
     }
 
     @Test
-    fun testLoad() {
+    fun testLoad() = runTest {
+        initTest()
         val today = LocalDate(2015, 1, 25)
-        entryRepository.insert(
+        factory.entryRepository.insert(
             EntryData(
                 habitId = entries.habitId,
                 timestamp = today.unixTime,
                 value = 500
             )
         )
-        entryRepository.insert(
+        factory.entryRepository.insert(
             EntryData(
                 habitId = entries.habitId,
                 timestamp = today.minus(5).unixTime,
@@ -76,15 +76,16 @@ class SQLiteEntryListTest {
     }
 
     @Test
-    fun testAdd() {
+    fun testAdd() = runTest {
+        initTest()
         val habitId = entries.habitId!!
 
-        assertEquals(0, entryRepository.findAllByHabitId(habitId).size)
+        assertEquals(0, factory.entryRepository.findAllByHabitId(habitId).size)
 
         val original = Entry(today, 150)
         entries.add(original)
 
-        val all = entryRepository.findAllByHabitId(habitId)
+        val all = factory.entryRepository.findAllByHabitId(habitId)
         assertEquals(1, all.size)
         assertEquals(150, all[0].value)
         assertEquals(today.unixTime, all[0].timestamp)
@@ -92,7 +93,7 @@ class SQLiteEntryListTest {
         val replacement = Entry(today, 90)
         entries.add(replacement)
 
-        val all2 = entryRepository.findAllByHabitId(habitId)
+        val all2 = factory.entryRepository.findAllByHabitId(habitId)
         assertEquals(1, all2.size)
         assertEquals(90, all2[0].value)
     }

@@ -238,6 +238,8 @@ fun getWeekdaySequence(firstWeekday: DayOfWeek): List<DayOfWeek> {
 
 expect fun getFirstWeekdayNumberAccordingToLocale(): Int
 
+expect fun computeToday(hourOffset: Int = 0, minuteOffset: Int = 0): LocalDate
+
 fun countWeekdayOccurrencesInMonth(startOfMonth: LocalDate): Array<Int> {
     val weekday = (startOfMonth.dayOfWeek.daysSinceSunday + 1) % 7
     val freq = Array(7) { 0 }

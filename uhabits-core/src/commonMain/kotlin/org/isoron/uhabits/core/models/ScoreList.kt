@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.Synchronized
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.models.Score.Companion.compute
 import kotlin.math.max

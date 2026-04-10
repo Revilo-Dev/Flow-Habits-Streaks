@@ -10,6 +10,7 @@ import java.util.Locale
 
 actual fun createTestFileOpener(): FileOpener = JavaFileOpener()
 actual fun createTestDatabaseOpener(): DatabaseOpener = JavaDatabaseOpener()
+actual suspend fun createTestDatabaseOpenerSuspend(): DatabaseOpener = JavaDatabaseOpener()
 
 actual fun createTestCanvas(width: Int, height: Int): Canvas {
     return JavaCanvas(BufferedImage(2 * width, 2 * height, TYPE_INT_ARGB), 2.0)
@@ -18,3 +19,5 @@ actual fun createTestCanvas(width: Int, height: Int): Canvas {
 actual fun createTestDateFormatter(): LocalDateFormatter {
     return JavaLocalDateFormatter(Locale.US)
 }
+
+actual suspend fun ensureFontsLoaded() {}

@@ -1,5 +1,6 @@
 package org.isoron.uhabits.core.database
 
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.io.TestDatabaseHelper
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,7 +10,7 @@ import kotlin.test.assertTrue
 
 class HabitRepositoryTest {
     @Test
-    fun testInsertAndFindAll() {
+    fun testInsertAndFindAll() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)
 
@@ -44,7 +45,7 @@ class HabitRepositoryTest {
     }
 
     @Test
-    fun testUpdate() {
+    fun testUpdate() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)
 
@@ -65,7 +66,7 @@ class HabitRepositoryTest {
     }
 
     @Test
-    fun testDelete() {
+    fun testDelete() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)
 
@@ -84,7 +85,7 @@ class HabitRepositoryTest {
     }
 
     @Test
-    fun testNullableFields() {
+    fun testNullableFields() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)
 
@@ -117,7 +118,7 @@ class HabitRepositoryTest {
     }
 
     @Test
-    fun testFindAllOrderedByPosition() {
+    fun testFindAllOrderedByPosition() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)
 
@@ -134,7 +135,7 @@ class HabitRepositoryTest {
     }
 
     @Test
-    fun testExecSQL() {
+    fun testExecSQL() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)
 
@@ -153,7 +154,7 @@ class HabitRepositoryTest {
     }
 
     @Test
-    fun testAllFieldsSurviveRoundTrip() {
+    fun testAllFieldsSurviveRoundTrip() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)
 

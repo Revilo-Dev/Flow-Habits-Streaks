@@ -1,5 +1,6 @@
 package org.isoron.platform.io
 
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -8,7 +9,7 @@ import kotlin.test.assertTrue
 
 class DatabaseQueryHelpersTest {
     @Test
-    fun testQueryIteratesAllRows() {
+    fun testQueryIteratesAllRows() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table t(v int)")
         db.run("insert into t(v) values (10)")
@@ -24,7 +25,7 @@ class DatabaseQueryHelpersTest {
     }
 
     @Test
-    fun testQueryWithParameters() {
+    fun testQueryWithParameters() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table t(name text, age int)")
         db.run("insert into t(name, age) values ('Alice', 30)")
@@ -42,7 +43,7 @@ class DatabaseQueryHelpersTest {
     }
 
     @Test
-    fun testQueryWithNoResults() {
+    fun testQueryWithNoResults() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table t(v int)")
 
@@ -53,7 +54,7 @@ class DatabaseQueryHelpersTest {
     }
 
     @Test
-    fun testQuerySingleReturnsFirstRow() {
+    fun testQuerySingleReturnsFirstRow() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table t(v int)")
         db.run("insert into t(v) values (42)")
@@ -65,7 +66,7 @@ class DatabaseQueryHelpersTest {
     }
 
     @Test
-    fun testQuerySingleReturnsNullForEmptyResult() {
+    fun testQuerySingleReturnsNullForEmptyResult() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table t(v int)")
 
@@ -75,7 +76,7 @@ class DatabaseQueryHelpersTest {
     }
 
     @Test
-    fun testQuerySingleWithParameters() {
+    fun testQuerySingleWithParameters() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table t(name text, score int)")
         db.run("insert into t(name, score) values ('Alice', 90)")
@@ -96,7 +97,7 @@ class DatabaseQueryHelpersTest {
     }
 
     @Test
-    fun testNestedQueries() {
+    fun testNestedQueries() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table parents(id int, name text)")
         db.run("create table children(parent_id int, name text)")
@@ -126,7 +127,7 @@ class DatabaseQueryHelpersTest {
     }
 
     @Test
-    fun testQueryHandlesNullableColumns() {
+    fun testQueryHandlesNullableColumns() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table t(a int, b text)")
         db.run("insert into t(a, b) values (1, 'hello')")

@@ -20,6 +20,7 @@ package org.isoron.uhabits.core.models.sqlite
 
 import dev.mokkery.mock
 import dev.mokkery.verify
+import kotlinx.coroutines.test.runTest
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.database.HabitRepository
 import org.isoron.uhabits.core.models.Habit
@@ -29,7 +30,6 @@ import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.test.HabitFixtures
-import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -42,8 +42,7 @@ class SQLiteHabitListTest : BaseUnitTest() {
     private lateinit var activeHabits: HabitList
     private lateinit var reminderHabits: HabitList
 
-    override fun setUp() {
-        super.setUp()
+    private suspend fun initDb() {
         val db = buildMemoryDatabase()
         modelFactory = SQLModelFactory(db)
         habitList = SQLiteHabitList(modelFactory)
@@ -72,13 +71,17 @@ class SQLiteHabitListTest : BaseUnitTest() {
         habitList.observable.addListener(listener)
     }
 
-    @AfterTest
-    fun tearDown() {
-        habitList.observable.removeListener(listener)
+    private fun dbTest(block: suspend () -> Unit) = runTest {
+        initDb()
+        try {
+            block()
+        } finally {
+            habitList.observable.removeListener(listener)
+        }
     }
 
     @Test
-    fun testAdd_withDuplicate() {
+    fun testAdd_withDuplicate() = dbTest {
         val habit = modelFactory.buildHabit()
         habitList.add(habit)
         verify { listener.onModelChange() }
@@ -88,7 +91,7 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
-    fun testAdd_withId() {
+    fun testAdd_withId() = dbTest {
         val habit = modelFactory.buildHabit()
         habit.name = "Hello world with id"
         habit.id = 12300L
@@ -100,7 +103,7 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
-    fun testAdd_withoutId() {
+    fun testAdd_withoutId() = dbTest {
         val habit = modelFactory.buildHabit()
         habit.name = "Hello world"
         assertNull(habit.id)
@@ -111,12 +114,12 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
-    fun testSize() {
+    fun testSize() = dbTest {
         assertEquals(10, habitList.size())
     }
 
     @Test
-    fun testGetById() {
+    fun testGetById() = dbTest {
         val h1 = habitList.getById(1)!!
         assertEquals("habit 1", h1.name)
         val h2 = habitList.getById(2)!!
@@ -124,20 +127,20 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
-    fun testGetById_withInvalid() {
+    fun testGetById_withInvalid() = dbTest {
         val invalidId = 9183792001L
         val h1 = habitList.getById(invalidId)
         assertNull(h1)
     }
 
     @Test
-    fun testGetByPosition() {
+    fun testGetByPosition() = dbTest {
         val h = habitList.getByPosition(4)
         assertEquals("habit 5", h.name)
     }
 
     @Test
-    fun testIndexOf() {
+    fun testIndexOf() = dbTest {
         val h1 = habitList.getByPosition(5)
         assertEquals(5, habitList.indexOf(h1))
         val h2 = modelFactory.buildHabit()
@@ -147,7 +150,7 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
-    fun testRemove() {
+    fun testRemove() = dbTest {
         val h = habitList.getById(2)
         habitList.remove(h!!)
         assertEquals(-1, habitList.indexOf(h))
@@ -160,7 +163,7 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
-    fun testRemove_orderByName() {
+    fun testRemove_orderByName() = dbTest {
         habitList.primaryOrder = HabitList.Order.BY_NAME_DESC
         val h = habitList.getById(2)
         habitList.remove(h!!)
@@ -174,7 +177,7 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
-    fun testReorder() {
+    fun testReorder() = dbTest {
         val habit3 = habitList.getById(3)!!
         val habit4 = habitList.getById(4)!!
         habitList.reorder(habit4, habit3)

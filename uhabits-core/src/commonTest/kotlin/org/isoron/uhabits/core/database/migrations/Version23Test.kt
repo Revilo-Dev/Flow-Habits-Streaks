@@ -19,10 +19,11 @@
 
 package org.isoron.uhabits.core.database.migrations
 
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.io.Database
+import org.isoron.platform.io.format
 import org.isoron.platform.io.migrateTo
 import org.isoron.platform.io.query
-import org.isoron.platform.runSuspend
 import org.isoron.uhabits.core.BaseUnitTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,26 +32,30 @@ class Version23Test : BaseUnitTest() {
 
     private lateinit var db: Database
 
-    override fun setUp() {
-        super.setUp()
+    private suspend fun initDb() {
         db = openDatabaseResource("/databases/022.db")
     }
 
-    private fun migrateTo(version: Int) = runSuspend {
+    private suspend fun migrateTo(version: Int) {
         db.migrateTo(version) { v ->
-            val path = "migrations/%02d.sql".format(v)
+            val path = "migrations/${format("%02d.sql", v)}"
             fileOpener.openResourceFile(path).lines().joinToString("\n")
         }
     }
 
+    private fun dbTest(block: suspend () -> Unit) = runTest {
+        initDb()
+        block()
+    }
+
     @Test
-    fun testMigrateTo23CreatesQuestionColumn() {
+    fun testMigrateTo23CreatesQuestionColumn() = dbTest {
         migrateTo(23)
         db.query("select question from Habits") {}
     }
 
     @Test
-    fun testMigrateTo23MovesDescriptionToQuestionColumn() {
+    fun testMigrateTo23MovesDescriptionToQuestionColumn() = dbTest {
         val descriptions = mutableListOf<String?>()
         db.query("select description from Habits") { stmt ->
             descriptions.add(stmt.getTextOrNull(0))
@@ -69,7 +74,7 @@ class Version23Test : BaseUnitTest() {
     }
 
     @Test
-    fun testMigrateTo23SetsDescriptionToNull() {
+    fun testMigrateTo23SetsDescriptionToNull() = dbTest {
         migrateTo(23)
         db.query("select description from Habits") { stmt ->
             assertEquals("", stmt.getTextOrNull(0))

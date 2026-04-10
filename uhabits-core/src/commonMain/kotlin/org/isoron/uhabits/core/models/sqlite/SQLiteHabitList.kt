@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.models.sqlite
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.Synchronized
 import org.isoron.uhabits.core.database.HabitData
 import org.isoron.uhabits.core.database.HabitRepository
 import org.isoron.uhabits.core.models.Frequency

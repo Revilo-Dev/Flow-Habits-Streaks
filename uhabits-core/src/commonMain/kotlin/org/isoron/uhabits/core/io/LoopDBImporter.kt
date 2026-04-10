@@ -77,7 +77,7 @@ class LoopDBImporter(
     override suspend fun importHabitsFromFile(file: UserFile) {
         val db = opener.open(file.pathString)
         db.migrateTo(DATABASE_VERSION) { version ->
-            val filename = "%02d.sql".format(version)
+            val filename = org.isoron.platform.io.format("%02d.sql", version)
             fileOpener.openResourceFile("migrations/$filename").lines().joinToString("\n")
         }
 

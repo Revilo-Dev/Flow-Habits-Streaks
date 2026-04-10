@@ -26,6 +26,7 @@ import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.preferences.Preferences
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -40,7 +41,7 @@ class HintListTest : BaseUnitTest() {
     private lateinit var today: LocalDate
     private lateinit var yesterday: LocalDate
 
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         today = getToday()

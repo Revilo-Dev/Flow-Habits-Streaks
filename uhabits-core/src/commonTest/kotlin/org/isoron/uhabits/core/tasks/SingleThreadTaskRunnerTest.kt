@@ -22,13 +22,14 @@ import dev.mokkery.mock
 import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode.Companion.order
 import org.isoron.uhabits.core.BaseUnitTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class SingleThreadTaskRunnerTest : BaseUnitTest() {
     private lateinit var runner: SingleThreadTaskRunner
     private var task: Task = mock()
 
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         runner = SingleThreadTaskRunner()

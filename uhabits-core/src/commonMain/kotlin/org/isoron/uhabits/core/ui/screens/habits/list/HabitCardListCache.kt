@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.ui.screens.habits.list
 
 import me.tatarka.inject.annotations.Inject
+import org.isoron.platform.Synchronized
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.Command

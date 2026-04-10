@@ -1,5 +1,6 @@
 package org.isoron.uhabits.core.database
 
+import kotlinx.coroutines.test.runTest
 import org.isoron.platform.io.TestDatabaseHelper
 import org.isoron.platform.io.queryLong
 import org.isoron.platform.io.run
@@ -19,7 +20,7 @@ class EntryRepositoryTest {
     }
 
     @Test
-    fun testInsertAndFindAll() {
+    fun testInsertAndFindAll() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = EntryRepository(db)
         val habitId = insertTestHabit(db)
@@ -44,7 +45,7 @@ class EntryRepositoryTest {
     }
 
     @Test
-    fun testDeleteByHabitIdAndTimestamp() {
+    fun testDeleteByHabitIdAndTimestamp() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = EntryRepository(db)
         val habitId = insertTestHabit(db)
@@ -62,7 +63,7 @@ class EntryRepositoryTest {
     }
 
     @Test
-    fun testDeleteByHabitId() {
+    fun testDeleteByHabitId() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = EntryRepository(db)
         val habitA = insertTestHabit(db)
@@ -80,7 +81,7 @@ class EntryRepositoryTest {
     }
 
     @Test
-    fun testIsolationBetweenHabits() {
+    fun testIsolationBetweenHabits() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = EntryRepository(db)
         val habitA = insertTestHabit(db)
@@ -97,7 +98,7 @@ class EntryRepositoryTest {
     }
 
     @Test
-    fun testAllFieldsSurviveRoundTrip() {
+    fun testAllFieldsSurviveRoundTrip() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = EntryRepository(db)
 

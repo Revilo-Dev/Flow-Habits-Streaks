@@ -18,6 +18,8 @@
  */
 package org.isoron.uhabits.core.models
 
+import org.isoron.platform.Synchronized
+
 /**
  * A ModelObservable allows objects to subscribe themselves to it and receive
  * notifications whenever the model is changed.

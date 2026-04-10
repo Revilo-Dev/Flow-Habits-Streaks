@@ -27,6 +27,16 @@ kotlin {
     jvm().withJava()
     jvmToolchain(17)
 
+    js(IR) {
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -66,16 +76,30 @@ kotlin {
                 implementation(libs.junit.jupiter)
             }
         }
+
+        val jsMain by getting {
+            dependencies {
+                implementation(npm("sql.js", "1.11.0"))
+                implementation(npm("sprintf-js", "1.1.3"))
+            }
+        }
+
+        val jsTest by getting {
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
+        }
     }
 }
 
 mokkery {
     defaultMockMode.set(dev.mokkery.MockMode.autofill)
+    stubs.allowConcreteClassInstantiation.set(true)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile> {
     compilerOptions {
-        freeCompilerArgs.add("-Xjvm-default=all")
+        freeCompilerArgs.add("-jvm-default=enable")
     }
 }
 

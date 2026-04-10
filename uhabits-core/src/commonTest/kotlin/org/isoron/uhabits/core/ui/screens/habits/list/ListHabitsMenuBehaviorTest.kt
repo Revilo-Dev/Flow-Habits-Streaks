@@ -30,6 +30,7 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import dev.mokkery.verify.VerifyMode.Companion.not as notCalled
 
@@ -48,7 +49,7 @@ class ListHabitsMenuBehaviorTest : BaseUnitTest() {
     private var capturedOrder: HabitList.Order? = null
     private var capturedSecondaryOrder: HabitList.Order? = null
 
-    @Throws(Exception::class)
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         every { adapter.setFilter(any()) } returns Unit
@@ -80,6 +81,7 @@ class ListHabitsMenuBehaviorTest : BaseUnitTest() {
 
     @Test
     fun testOnSortByColor() {
+        every { adapter.primaryOrder } returns HabitList.Order.BY_POSITION
         behavior.onSortByColor()
         verify { adapter.primaryOrder = HabitList.Order.BY_COLOR_ASC }
     }
@@ -92,12 +94,14 @@ class ListHabitsMenuBehaviorTest : BaseUnitTest() {
 
     @Test
     fun testOnSortScore() {
+        every { adapter.primaryOrder } returns HabitList.Order.BY_POSITION
         behavior.onSortByScore()
         verify { adapter.primaryOrder = HabitList.Order.BY_SCORE_DESC }
     }
 
     @Test
     fun testOnSortName() {
+        every { adapter.primaryOrder } returns HabitList.Order.BY_POSITION
         behavior.onSortByName()
         verify { adapter.primaryOrder = HabitList.Order.BY_NAME_ASC }
     }

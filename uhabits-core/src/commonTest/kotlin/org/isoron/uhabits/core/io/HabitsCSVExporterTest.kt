@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import org.isoron.platform.io.ZipReader
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -29,6 +30,7 @@ import kotlin.test.assertTrue
 
 class HabitsCSVExporterTest : BaseUnitTest() {
 
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         habitList.add(fixtures.createShortHabit())

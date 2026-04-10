@@ -1,5 +1,6 @@
 package org.isoron.platform.io
 
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -7,7 +8,7 @@ import kotlin.test.assertTrue
 
 class DatabaseTest {
     @Test
-    fun testVersionReadWrite() {
+    fun testVersionReadWrite() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.setVersion(0)
         assertEquals(0, db.getVersion())
@@ -17,7 +18,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun testCreateInsertQuery() {
+    fun testCreateInsertQuery() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
 
         db.run("drop table if exists demo")
@@ -41,7 +42,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun testNullHandling() {
+    fun testNullHandling() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
 
         db.run("create table nullable_demo(a int, b text, c real)")
@@ -63,7 +64,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun testStatementReset() {
+    fun testStatementReset() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
 
         db.run("create table reset_demo(v int)")
@@ -95,7 +96,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun testRunExtensionFunction() {
+    fun testRunExtensionFunction() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table ext_demo(v int)")
         db.run("insert into ext_demo(v) values (?)") { bindInt(1, 99) }
@@ -104,7 +105,7 @@ class DatabaseTest {
     }
 
     @Test
-    fun testLastInsertRowId() {
+    fun testLastInsertRowId() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         db.run("create table rowid_demo(id integer primary key autoincrement, v text)")
         db.run("insert into rowid_demo(v) values ('first')")

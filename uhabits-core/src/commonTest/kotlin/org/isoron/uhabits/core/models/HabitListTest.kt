@@ -19,6 +19,7 @@
 package org.isoron.uhabits.core.models
 
 import org.isoron.uhabits.core.BaseUnitTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -32,6 +33,7 @@ class HabitListTest : BaseUnitTest() {
     private lateinit var activeHabits: HabitList
     private lateinit var reminderHabits: HabitList
 
+    @BeforeTest
     override fun setUp() {
         super.setUp()
         habitsArray = ArrayList()
