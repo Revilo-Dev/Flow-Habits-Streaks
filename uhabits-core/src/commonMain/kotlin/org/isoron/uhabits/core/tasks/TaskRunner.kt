@@ -29,4 +29,6 @@ interface TaskRunner {
         fun onTaskStarted(task: Task)
         fun onTaskFinished(task: Task)
     }
+
+    suspend fun await()
 }

@@ -25,6 +25,7 @@ import dev.mokkery.verify
 import kotlinx.coroutines.test.runTest
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Habit
+import org.isoron.uhabits.core.tasks.CoroutineTaskRunner
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -62,6 +63,7 @@ class ShowHabitMenuPresenterTest : BaseUnitTest() {
         val outputDir = createTempDir()
         every { system.getCSVOutputDir() } returns outputDir
         menu.onExportCSV()
+        (taskRunner as CoroutineTaskRunner).await()
         val files = outputDir.listFiles()
         assertEquals(1, files!!.size)
     }

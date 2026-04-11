@@ -95,17 +95,19 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
         val outputDir = createTempDir()
         every { dirFinder.getCSVOutputDir() } returns outputDir
         behavior.onExportCSV()
+        taskRunner.await()
         verify { screen.showSendFileScreen(any()) }
         val files = outputDir.listFiles()
         assertEquals(1, files!!.size)
     }
 
     @Test
-    fun testOnExportCSV_fail() {
+    fun testOnExportCSV_fail() = runTest {
         val mockDir: UserFile = mock()
         every { mockDir.resolve(any()) } throws RuntimeException("not writable")
         every { dirFinder.getCSVOutputDir() } returns mockDir
         behavior.onExportCSV()
+        taskRunner.await()
         verify { screen.showMessage(ListHabitsBehavior.Message.COULD_NOT_EXPORT) }
     }
 

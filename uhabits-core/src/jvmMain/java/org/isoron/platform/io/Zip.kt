@@ -19,8 +19,27 @@
 
 package org.isoron.platform.io
 
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+
+actual class ZipReader actual constructor(bytes: ByteArray) {
+    private val data = bytes
+
+    actual suspend fun entries(): List<ZipEntry> {
+        val result = mutableListOf<ZipEntry>()
+        val zis = ZipInputStream(ByteArrayInputStream(data))
+        var entry = zis.nextEntry
+        while (entry != null) {
+            result.add(ZipEntry(entry.name, zis.readBytes().decodeToString()))
+            zis.closeEntry()
+            entry = zis.nextEntry
+        }
+        zis.close()
+        return result
+    }
+}
 
 actual class ZipWriter {
     private val baos = ByteArrayOutputStream()

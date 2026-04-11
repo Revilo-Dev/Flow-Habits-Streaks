@@ -19,17 +19,15 @@
 
 package org.isoron.platform.io
 
-import kotlinx.coroutines.runBlocking
-import java.io.ByteArrayInputStream
-import java.util.zip.ZipInputStream
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class ZipWriterTest {
+class ZipTest {
 
     @Test
-    fun testSingleEntry() = runBlocking {
+    fun testSingleEntry() = runTest {
         val zip = ZipWriter()
         zip.addEntry("hello.txt", "Hello, World!")
         val bytes = zip.toBytes()
@@ -40,7 +38,7 @@ class ZipWriterTest {
     }
 
     @Test
-    fun testMultipleEntries() = runBlocking {
+    fun testMultipleEntries() = runTest {
         val zip = ZipWriter()
         zip.addEntry("a.csv", "name,value\nfoo,1\n")
         zip.addEntry("subdir/b.csv", "col1,col2\nbar,2\n")
@@ -55,7 +53,7 @@ class ZipWriterTest {
     }
 
     @Test
-    fun testEmptyContent() = runBlocking {
+    fun testEmptyContent() = runTest {
         val zip = ZipWriter()
         zip.addEntry("empty.txt", "")
         val bytes = zip.toBytes()
@@ -66,7 +64,7 @@ class ZipWriterTest {
     }
 
     @Test
-    fun testLargeContent() = runBlocking {
+    fun testLargeContent() = runTest {
         val zip = ZipWriter()
         val large = "x".repeat(100_000)
         zip.addEntry("large.txt", large)
@@ -77,16 +75,7 @@ class ZipWriterTest {
         assertEquals(large, entries["large.txt"])
     }
 
-    private fun readZipEntries(bytes: ByteArray): Map<String, String> {
-        val result = mutableMapOf<String, String>()
-        val zis = ZipInputStream(ByteArrayInputStream(bytes))
-        var entry = zis.nextEntry
-        while (entry != null) {
-            result[entry.name] = zis.readBytes().decodeToString()
-            zis.closeEntry()
-            entry = zis.nextEntry
-        }
-        zis.close()
-        return result
+    private suspend fun readZipEntries(bytes: ByteArray): Map<String, String> {
+        return ZipReader(bytes).entries().associate { it.name to it.content }
     }
 }

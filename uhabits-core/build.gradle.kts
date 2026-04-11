@@ -81,6 +81,7 @@ kotlin {
             dependencies {
                 implementation(npm("sql.js", "1.11.0"))
                 implementation(npm("sprintf-js", "1.1.3"))
+                implementation(npm("jszip", "3.10.1"))
             }
         }
 

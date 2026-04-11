@@ -16,6 +16,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.isoron.platform
 
-expect fun <T> runSuspend(block: suspend () -> T): T
+package org.isoron.platform.io
+
+class ZipEntry(val name: String, val content: String)
+
+expect class ZipReader(bytes: ByteArray) {
+    suspend fun entries(): List<ZipEntry>
+}
+
+expect class ZipWriter() {
+    fun addEntry(name: String, content: String)
+    suspend fun toBytes(): ByteArray
+}

@@ -20,7 +20,9 @@ package org.isoron.uhabits.core.tasks
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -31,6 +33,7 @@ class CoroutineTaskRunner(
 
     private val scope = CoroutineScope(SupervisorJob() + mainDispatcher)
     private val listeners = mutableListOf<TaskRunner.Listener>()
+    private val jobs = mutableListOf<Job>()
     private var activeCount = 0
 
     override val activeTaskCount: Int get() = activeCount
@@ -45,7 +48,7 @@ class CoroutineTaskRunner(
 
     override fun execute(task: Task) {
         task.onAttached(this)
-        scope.launch {
+        val job = scope.launch {
             activeCount++
             listeners.forEach { it.onTaskStarted(task) }
             task.onPreExecute()
@@ -58,6 +61,13 @@ class CoroutineTaskRunner(
             activeCount--
             listeners.forEach { it.onTaskFinished(task) }
         }
+        job.invokeOnCompletion { jobs.remove(job) }
+        jobs.add(job)
+    }
+
+    override suspend fun await() {
+        jobs.joinAll()
+        jobs.clear()
     }
 
     override fun publishProgress(task: Task, progress: Int) {

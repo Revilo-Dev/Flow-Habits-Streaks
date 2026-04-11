@@ -89,9 +89,7 @@ open class ListHabitsBehavior(
                 if (filename != null) {
                     screen.showSendFileScreen(filename)
                 } else {
-                    screen.showMessage(
-                        Message.COULD_NOT_EXPORT
-                    )
+                    screen.showMessage(Message.COULD_NOT_EXPORT)
                 }
             }
         )
