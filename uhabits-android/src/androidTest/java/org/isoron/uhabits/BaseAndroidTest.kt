@@ -30,7 +30,6 @@ import junit.framework.TestCase
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
 import org.isoron.platform.time.LocalDate
-import org.isoron.platform.time.computeToday
 import org.isoron.platform.time.getToday
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.models.HabitList
@@ -85,7 +84,7 @@ abstract class BaseAndroidTest : TestCase() {
         prefs = appComponent.preferences
         habitList = appComponent.habitList
         taskRunner = appComponent.taskRunner
-        setToday(computeToday(appComponent.preferences.midnightDelayHours, 0))
+        setToday(LocalDate(2015, 1, 25))
         modelFactory = appComponent.modelFactory
         prefs.clear()
         fixtures = HabitFixtures(modelFactory, habitList)

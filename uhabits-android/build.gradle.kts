@@ -44,6 +44,12 @@ android {
     namespace = "org.isoron.uhabits"
     compileSdk = 36
 
+    sourceSets {
+        getByName("main") {
+            assets.srcDirs("src/main/assets", "../uhabits-core/assets/main")
+        }
+    }
+
     defaultConfig {
         versionCode = 20301
         versionName = "2.3.1"

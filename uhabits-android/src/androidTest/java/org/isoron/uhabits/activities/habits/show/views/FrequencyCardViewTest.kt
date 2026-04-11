@@ -48,7 +48,7 @@ class FrequencyCardViewTest : BaseViewTest() {
         view.setState(
             FrequencyCardPresenter.buildState(
                 habit = habit,
-                firstWeekday = DayOfWeek.SUNDAY,
+                firstWeekday = DayOfWeek.SATURDAY,
                 theme = LightTheme()
             )
         )
