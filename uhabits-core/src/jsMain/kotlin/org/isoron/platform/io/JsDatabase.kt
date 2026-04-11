@@ -9,8 +9,11 @@ import kotlin.js.Promise
 external fun initSqlJs(config: dynamic = definedExternally): Promise<dynamic>
 
 private fun sqlJsNewDatabase(sqlJs: dynamic): dynamic {
-    val ctor = sqlJs.Database
-    return js("new ctor()")
+    return js("new sqlJs.Database()")
+}
+
+private fun sqlJsOpenDatabase(sqlJs: dynamic, data: dynamic): dynamic {
+    return js("new sqlJs.Database(data)")
 }
 
 class JsPreparedStatement(
@@ -63,6 +66,9 @@ class JsPreparedStatement(
     }
 
     override fun bindLong(index: Int, value: Long) {
+        require(value in -(9e15.toLong())..9e15.toLong()) {
+            "Long value $value exceeds JS safe integer range"
+        }
         bindings[index - 1] = value.toDouble()
         needsBind = true
     }
@@ -119,8 +125,7 @@ class JsDatabaseOpener(
         for (i in bytes.indices) {
             data[i] = bytes[i]
         }
-        val ctor = sqlJs.Database
-        val db = js("new ctor(data)")
+        val db = sqlJsOpenDatabase(sqlJs, data)
         return JsDatabase(db)
     }
 }

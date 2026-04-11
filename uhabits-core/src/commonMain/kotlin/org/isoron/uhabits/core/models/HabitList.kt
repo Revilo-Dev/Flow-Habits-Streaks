@@ -194,12 +194,7 @@ abstract class HabitList : Iterable<Habit> {
                 habit.color.toCsvColor(),
                 if (habit.isNumerical) habit.unit else "",
                 if (habit.isNumerical) habit.targetType.name else "",
-                if (habit.isNumerical) {
-                    val s = habit.targetValue.toString()
-                    if ('.' !in s) "$s.0" else s
-                } else {
-                    ""
-                },
+                if (habit.isNumerical) format("%.1f", habit.targetValue) else "",
                 habit.isArchived.toString()
             )
             sb.append(csvLine(cols))

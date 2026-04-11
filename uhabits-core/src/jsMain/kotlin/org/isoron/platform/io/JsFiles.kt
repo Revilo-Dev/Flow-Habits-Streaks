@@ -8,13 +8,6 @@ import org.w3c.dom.HTMLCanvasElement
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-import kotlin.js.Promise
-
-private fun <T> Promise<T>.await(): suspend () -> T = {
-    suspendCoroutine { cont ->
-        then({ cont.resume(it) }, { cont.resumeWithException(it) })
-    }
-}
 
 class JsFileStorage {
     private val store = mutableMapOf<String, ByteArray>()
@@ -48,7 +41,8 @@ class JsUserFile(
     override suspend fun lines(): List<String> {
         val bytes = storage.read(pathString)
             ?: error("File not found: $pathString")
-        return bytes.decodeToString().lines()
+        val result = bytes.decodeToString().lines()
+        return if (result.lastOrNull() == "") result.dropLast(1) else result
     }
 
     override suspend fun writeString(content: String) {

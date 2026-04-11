@@ -43,7 +43,7 @@ class JsImage(private val canvas: HTMLCanvasElement) : Image {
         val init = RequestInit(
             method = "POST",
             body = blob,
-            headers = json("X-File-Path" to path),
+            headers = json("X-File-Path" to path)
         )
         suspendCoroutine<Unit> { cont ->
             window.fetch("/save-file", init).then(

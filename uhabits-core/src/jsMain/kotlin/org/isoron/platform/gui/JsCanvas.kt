@@ -135,7 +135,14 @@ class JsCanvas(
         this.textAlign = align
     }
 
-    override fun toImage(): Image = JsImage(canvas)
+    override fun toImage(): Image {
+        val copy = document.createElement("canvas") as HTMLCanvasElement
+        copy.width = canvas.width
+        copy.height = canvas.height
+        val copyCtx = copy.getContext("2d") as CanvasRenderingContext2D
+        copyCtx.drawImage(canvas, 0.0, 0.0)
+        return JsImage(copy)
+    }
 
     override fun measureText(text: String): Double {
         updateFont()

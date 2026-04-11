@@ -13,9 +13,15 @@ actual fun computeToday(hourOffset: Int, minuteOffset: Int): LocalDate {
 }
 
 actual fun getFirstWeekdayNumberAccordingToLocale(): Int {
-    // JS Intl does not expose first day of week. Default to Sunday (1)
-    // matching java.util.Calendar convention where Sunday=1.
-    return 1
+    return try {
+        val locale = js("new Intl.Locale(navigator.language)")
+        val weekInfo = locale.getWeekInfo()
+        val firstDay = (weekInfo.firstDay as Number).toInt()
+        // CLDR uses 1=Monday..7=Sunday; convert to Calendar convention 1=Sunday..7=Saturday
+        firstDay % 7 + 1
+    } catch (e: Throwable) {
+        1 // Default to Sunday if Intl API unavailable
+    }
 }
 
 private fun toLocaleDateString(date: Date, locale: String, options: dynamic): String {

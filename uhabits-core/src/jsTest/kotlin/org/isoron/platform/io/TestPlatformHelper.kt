@@ -9,9 +9,17 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-val sharedTestStorage = JsFileStorage()
+private var currentTestStorage = JsFileStorage()
 
-actual fun createTestFileOpener(): FileOpener = JsFileOpener(sharedTestStorage)
+actual fun createTestFileOpener(): FileOpener {
+    currentTestStorage = JsFileStorage()
+    return JsFileOpener(currentTestStorage)
+}
+
+@Deprecated(
+    "Use createTestDatabaseOpenerSuspend() instead",
+    level = DeprecationLevel.ERROR
+)
 actual fun createTestDatabaseOpener(): DatabaseOpener {
     throw UnsupportedOperationException(
         "createTestDatabaseOpener() requires async sql.js init. " +
@@ -21,7 +29,7 @@ actual fun createTestDatabaseOpener(): DatabaseOpener {
 
 actual suspend fun createTestDatabaseOpenerSuspend(): DatabaseOpener {
     val sqlJs = TestDatabaseHelper.getInitializedSqlJs()
-    return JsDatabaseOpener(sqlJs, sharedTestStorage)
+    return JsDatabaseOpener(sqlJs, currentTestStorage)
 }
 
 actual fun createTestCanvas(width: Int, height: Int): Canvas {
