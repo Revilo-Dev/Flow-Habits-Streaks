@@ -27,6 +27,7 @@ GRADLE_LOG="build/gradle-output.log"
 PACKAGE_NAME=org.isoron.uhabits
 SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
 VERSION=$(grep versionName uhabits-android/build.gradle.kts | sed -e 's/.*"\([^"]*\)".*/\1/g')
+ATTEMPTS=1
 BOOT_TIMEOUT=360
 case "$(uname -m)" in
     arm64|aarch64) ARCH="arm64-v8a" ;;
@@ -174,10 +175,20 @@ android_launch() {
     local AVDNAME=${AVD_PREFIX}${API}
     local PORT=6${API}0
 
-    log_info "Stopping Android emulator..."
-    while [[ -n $(pgrep -f ${AVDNAME}) ]]; do
-        pkill -9 -f ${AVDNAME}
-    done
+    export ADB="${ANDROID_HOME}/platform-tools/adb -s emulator-${PORT}"
+
+    if [ -n "$KILL_EMU" ]; then
+        log_info "Stopping Android emulator..."
+        while [[ -n $(pgrep -f ${AVDNAME}) ]]; do
+            pkill -9 -f ${AVDNAME}
+            sleep 1
+        done
+    fi
+
+    if pgrep -f "${AVDNAME}" > /dev/null; then
+        log_info "Emulator already running (API $API), reusing..."
+        return 0
+    fi
 
     log_info "Launching emulator (API $API)..."
     local EMULATOR_LOG="build/emulator-${API}.log"
@@ -186,8 +197,6 @@ android_launch() {
         -port $PORT \
         -no-snapshot \
         1>"$EMULATOR_LOG" 2>&1 &
-
-    export ADB="${ANDROID_HOME}/platform-tools/adb -s emulator-${PORT}"
 
     log_info "Waiting for emulator to boot..."
     timeout $BOOT_TIMEOUT $ADB wait-for-device shell \
@@ -243,15 +252,16 @@ android_test() {
         OUT_INSTRUMENT=${ANDROID_OUTPUTS_DIR}/instrument-${API}.txt
         OUT_LOGCAT=${ANDROID_OUTPUTS_DIR}/logcat-${API}.txt
         FAILED_TESTS=""
-        for i in {1..10}; do
+        for ((i=1; i<=ATTEMPTS; i++)); do
             log_info "Running $size instrumented tests (attempt $i)..."
             $ADB shell am instrument \
                 -r -e coverage true -e size "$size" $FAILED_TESTS \
                 -w ${PACKAGE_NAME}.test/androidx.test.runner.AndroidJUnitRunner \
-                | ts "%.s" | tee "$OUT_INSTRUMENT"
+                | ts "%.s" > "$OUT_INSTRUMENT"
 
             FAILED_TESTS=$(tools/parseInstrument.py "$OUT_INSTRUMENT")
             SUCCESS=$?
+            log_debug "$FAILED_TESTS"
             if [ $SUCCESS -eq 0 ]; then
                 log_info "$size tests passed."
                 break
@@ -368,6 +378,8 @@ _parse_opts() {
         case "$1" in
             -r ) RELEASE=1; shift ;;
             -c ) CLEAN=1; shift ;;
+            -k ) KILL_EMU=1; shift ;;
+            -n ) ATTEMPTS=$2; shift 2 ;;
             * ) shift ;;
         esac
     done
@@ -395,6 +407,8 @@ Commands:
 
 Options:
     -c      Remove build folders before building
+    -k      Kill running emulator before tests (default: reuse if running)
+    -n N    Number of test attempts per size (default: 1)
     -r      Build and test release version, instead of debug
 END
 }
