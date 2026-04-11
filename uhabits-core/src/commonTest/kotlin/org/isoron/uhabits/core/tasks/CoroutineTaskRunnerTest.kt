@@ -21,18 +21,22 @@ package org.isoron.uhabits.core.tasks
 import dev.mokkery.mock
 import dev.mokkery.verify.VerifyMode.Companion.order
 import dev.mokkery.verifySuspend
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.isoron.uhabits.core.BaseUnitTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class SingleThreadTaskRunnerTest : BaseUnitTest() {
-    private lateinit var runner: SingleThreadTaskRunner
+class CoroutineTaskRunnerTest : BaseUnitTest() {
+    private lateinit var runner: CoroutineTaskRunner
     private var task: Task = mock()
 
     @BeforeTest
     override fun setUp() {
         super.setUp()
-        runner = SingleThreadTaskRunner()
+        runner = CoroutineTaskRunner(
+            mainDispatcher = UnconfinedTestDispatcher(),
+            ioDispatcher = UnconfinedTestDispatcher()
+        )
     }
 
     @Test

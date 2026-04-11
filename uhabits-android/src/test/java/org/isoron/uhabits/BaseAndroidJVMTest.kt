@@ -18,12 +18,14 @@
  */
 package org.isoron.uhabits
 
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.setToday
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.memory.MemoryModelFactory
-import org.isoron.uhabits.core.tasks.SingleThreadTaskRunner
+import org.isoron.uhabits.core.tasks.CoroutineTaskRunner
+import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.test.HabitFixtures
 import org.junit.After
 import org.junit.Before
@@ -33,7 +35,7 @@ open class BaseAndroidJVMTest {
     private lateinit var habitList: HabitList
     protected lateinit var fixtures: HabitFixtures
     private lateinit var modelFactory: MemoryModelFactory
-    private lateinit var taskRunner: SingleThreadTaskRunner
+    private lateinit var taskRunner: TaskRunner
     private lateinit var commandRunner: CommandRunner
 
     @Before
@@ -42,7 +44,10 @@ open class BaseAndroidJVMTest {
         modelFactory = MemoryModelFactory()
         habitList = modelFactory.buildHabitList()
         fixtures = HabitFixtures(modelFactory, habitList)
-        taskRunner = SingleThreadTaskRunner()
+        taskRunner = CoroutineTaskRunner(
+            mainDispatcher = UnconfinedTestDispatcher(),
+            ioDispatcher = UnconfinedTestDispatcher()
+        )
         commandRunner = CommandRunner(taskRunner)
     }
 

@@ -18,6 +18,7 @@
  */
 package org.isoron.uhabits.core
 
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.isoron.platform.io.Database
 import org.isoron.platform.io.DatabaseOpener
 import org.isoron.platform.io.FileOpener
@@ -31,7 +32,8 @@ import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.memory.MemoryModelFactory
-import org.isoron.uhabits.core.tasks.SingleThreadTaskRunner
+import org.isoron.uhabits.core.tasks.CoroutineTaskRunner
+import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.test.HabitFixtures
 import kotlin.test.BeforeTest
 
@@ -39,7 +41,7 @@ open class BaseUnitTest {
     protected open lateinit var habitList: HabitList
     protected lateinit var fixtures: HabitFixtures
     protected lateinit var modelFactory: ModelFactory
-    protected lateinit var taskRunner: SingleThreadTaskRunner
+    protected lateinit var taskRunner: TaskRunner
     protected open lateinit var commandRunner: CommandRunner
     protected val fileOpener: FileOpener = createTestFileOpener()
     private var _databaseOpener: DatabaseOpener? = null
@@ -57,7 +59,10 @@ open class BaseUnitTest {
         habitList = memoryModelFactory.buildHabitList()
         fixtures = HabitFixtures(memoryModelFactory, habitList)
         modelFactory = memoryModelFactory
-        taskRunner = SingleThreadTaskRunner()
+        taskRunner = CoroutineTaskRunner(
+            mainDispatcher = UnconfinedTestDispatcher(),
+            ioDispatcher = UnconfinedTestDispatcher()
+        )
         commandRunner = CommandRunner(taskRunner)
     }
 

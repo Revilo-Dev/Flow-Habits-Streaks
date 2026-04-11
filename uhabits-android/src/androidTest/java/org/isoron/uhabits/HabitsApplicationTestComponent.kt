@@ -19,10 +19,11 @@
 package org.isoron.uhabits
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 import org.isoron.uhabits.core.AppScope
-import org.isoron.uhabits.core.tasks.SingleThreadTaskRunner
+import org.isoron.uhabits.core.tasks.CoroutineTaskRunner
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.inject.HabitsApplicationComponent
@@ -41,5 +42,8 @@ abstract class HabitsApplicationTestComponent(
 
     @AppScope
     @Provides
-    override fun taskRunner(): TaskRunner = SingleThreadTaskRunner()
+    override fun taskRunner(): TaskRunner = CoroutineTaskRunner(
+        mainDispatcher = Dispatchers.Main,
+        ioDispatcher = Dispatchers.IO
+    )
 }

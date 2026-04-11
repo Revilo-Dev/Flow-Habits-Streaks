@@ -33,6 +33,7 @@ import org.isoron.uhabits.core.models.NumericalHabitType.AT_MOST
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.ExportCSVTask
+import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.callbacks.CheckMarkDialogCallback
 import org.isoron.uhabits.core.ui.callbacks.NumberPickerCallback
@@ -107,10 +108,14 @@ open class ListHabitsBehavior(
     }
 
     open fun onRepairDB() {
-        taskRunner.execute {
-            habitList.repair()
-            screen.showMessage(Message.DATABASE_REPAIRED)
-        }
+        taskRunner.execute(object : Task {
+            override suspend fun doInBackground() {
+                habitList.repair()
+            }
+            override fun onPostExecute() {
+                screen.showMessage(Message.DATABASE_REPAIRED)
+            }
+        })
     }
 
     open fun onSendBugReport() {

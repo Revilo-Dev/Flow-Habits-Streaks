@@ -19,6 +19,7 @@
 package org.isoron.uhabits.inject
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 import org.isoron.platform.io.AndroidFileOpener
@@ -35,6 +36,7 @@ import org.isoron.uhabits.core.models.sqlite.SQLiteHabitList
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.preferences.WidgetPreferences
 import org.isoron.uhabits.core.reminders.ReminderScheduler
+import org.isoron.uhabits.core.tasks.CoroutineTaskRunner
 import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.core.ui.screens.habits.list.HabitCardListCache
@@ -49,7 +51,6 @@ import org.isoron.uhabits.io.AndroidLogging
 import org.isoron.uhabits.notifications.AndroidNotificationTray
 import org.isoron.uhabits.preferences.SharedPreferencesStorage
 import org.isoron.uhabits.receivers.ReminderController
-import org.isoron.uhabits.tasks.AndroidTaskRunner
 import org.isoron.uhabits.utils.DatabaseUtils
 import org.isoron.uhabits.widgets.WidgetUpdater
 import java.io.File
@@ -137,7 +138,10 @@ abstract class HabitsApplicationComponent(
 
     @AppScope
     @Provides
-    open fun taskRunner(): TaskRunner = AndroidTaskRunner()
+    open fun taskRunner(): TaskRunner = CoroutineTaskRunner(
+        mainDispatcher = Dispatchers.Main,
+        ioDispatcher = Dispatchers.IO
+    )
 
     @AppScope
     @Provides
