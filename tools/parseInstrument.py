@@ -29,6 +29,7 @@ current_class, current_method = None, None
 failed_tests = []
 am_args = "-e class "
 exit_code = 1
+initial_time = 0.0
 
 for line in open(log_filename).readlines():
     matches = re.findall('^([0-9.]*)', line)
