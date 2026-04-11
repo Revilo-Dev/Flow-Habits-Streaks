@@ -273,6 +273,7 @@ android_test() {
             log_error "Saving logcat: $OUT_LOGCAT..."
             $ADB logcat -d > $OUT_LOGCAT
             log_error "Fetching test screenshots..."
+            rm -rf ${ANDROID_OUTPUTS_DIR}/test-screenshots
             run $ADB pull /sdcard/Android/data/${PACKAGE_NAME}/files/test-screenshots ${ANDROID_OUTPUTS_DIR}/
             run $ADB shell rm -r /sdcard/Android/data/${PACKAGE_NAME}/files/test-screenshots/
             return 1
