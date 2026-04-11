@@ -84,7 +84,7 @@ class JavaLocalDateFormatter(private val locale: Locale) : LocalDateFormatter {
     }
 
     fun longFormat(date: LocalDate): String {
-        val df = DateFormat.getDateInstance(DateFormat.LONG, locale)
+        val df = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
         df.timeZone = TimeZone.getTimeZone("UTC")
         return df.format(date.toGregorianCalendar().time)
     }
