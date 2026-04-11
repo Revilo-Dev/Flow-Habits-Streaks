@@ -28,6 +28,10 @@ PACKAGE_NAME=org.isoron.uhabits
 SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
 VERSION=$(grep versionName uhabits-android/build.gradle.kts | sed -e 's/.*"\([^"]*\)".*/\1/g')
 BOOT_TIMEOUT=360
+case "$(uname -m)" in
+    arm64|aarch64) ARCH="arm64-v8a" ;;
+    *)             ARCH="x86_64" ;;
+esac
 
 # Logging
 # -----------------------------------------------------------------------------
@@ -140,11 +144,12 @@ android_accept_licenses() {
 }
 
 android_setup() {
-    API=$1
-    AVDNAME=${AVD_PREFIX}${API}
+    local API=$1
+    local AVDNAME=${AVD_PREFIX}${API}
 
     (
         flock 10
+
         log_info "Stopping Android emulator..."
         while [[ -n $(pgrep -f ${AVDNAME}) ]]; do
             pkill -9 -f ${AVDNAME}
@@ -154,57 +159,53 @@ android_setup() {
         run $AVDMANAGER delete avd --name $AVDNAME
 
         log_info "Creating new Android virtual device (API $API)..."
-        run $SDKMANAGER --install "system-images;android-$API;google_apis;x86_64" || return 1
+        run $SDKMANAGER --install "system-images;android-$API;google_apis;$ARCH" || return 1
         run $AVDMANAGER create avd \
                 --name $AVDNAME \
-                --package "system-images;android-$API;google_apis;x86_64" \
+                --package "system-images;android-$API;google_apis;$ARCH" \
                 --device "Nexus 4" || return 1
 
         flock -u 10
     ) 10>/tmp/uhabitsTest.lock
-
-    log_info "Launching emulator..."
-    EMULATOR_LOG="build/emulator-${API}.log"
-    $EMULATOR \
-        -avd $AVDNAME \
-        -port 6${API}0 \
-        1>"$EMULATOR_LOG" 2>&1 &
-
-    log_info "Waiting for emulator to boot..."
-    export ADB="$ADB -s emulator-6${API}0"
-    run timeout $BOOT_TIMEOUT $ADB wait-for-device shell 'while [[ -z "$(getprop sys.boot_completed)" ]]; do echo Waiting...; sleep 1; done; input keyevent 82'
-    if [ $? -ne 0 ]; then
-        log_error "Emulator failed to boot after $BOOT_TIMEOUT seconds."
-        return 1
-    fi
-
-    log_info "Saving snapshot..."
-    run $ADB emu avd snapshot save fresh-install
 }
 
-android_boot_attempt() {
-    API=$1
-    AVDNAME=${AVD_PREFIX}${API}
+android_launch() {
+    local API=$1
+    local AVDNAME=${AVD_PREFIX}${API}
+    local PORT=6${API}0
 
     log_info "Stopping Android emulator..."
     while [[ -n $(pgrep -f ${AVDNAME}) ]]; do
         pkill -9 -f ${AVDNAME}
     done
 
-    log_info "Launching emulator..."
-    EMULATOR_LOG="build/emulator-${API}.log"
+    log_info "Launching emulator (API $API)..."
+    local EMULATOR_LOG="build/emulator-${API}.log"
     $EMULATOR \
         -avd $AVDNAME \
-        -port 6${API}0 \
-        -snapshot fresh-install \
-        -no-snapshot-save \
-        -wipe-data \
+        -port $PORT \
+        -no-snapshot \
         1>"$EMULATOR_LOG" 2>&1 &
 
+    export ADB="${ANDROID_HOME}/platform-tools/adb -s emulator-${PORT}"
+
     log_info "Waiting for emulator to boot..."
-    export ADB="$ADB -s emulator-6${API}0"
-    sleep 5
-    run timeout $BOOT_TIMEOUT $ADB wait-for-device shell 'while [[ -z "$(getprop sys.boot_completed)" ]]; do echo Waiting...; sleep 1; done; input keyevent 82'
+    timeout $BOOT_TIMEOUT $ADB wait-for-device shell \
+        'while [[ -z "$(getprop sys.boot_completed)" ]]; do sleep 1; done; input keyevent 82' &
+    local WAIT_PID=$!
+
+    while kill -0 $WAIT_PID 2>/dev/null; do
+        if grep -q "FATAL" "$EMULATOR_LOG" 2>/dev/null; then
+            log_error "Emulator crashed:"
+            grep "FATAL" "$EMULATOR_LOG"
+            kill $WAIT_PID 2>/dev/null
+            wait $WAIT_PID 2>/dev/null
+            return 1
+        fi
+        sleep 2
+    done
+
+    wait $WAIT_PID
     if [ $? -ne 0 ]; then
         log_error "Emulator failed to boot after $BOOT_TIMEOUT seconds."
         return 1
@@ -219,16 +220,6 @@ android_boot_attempt() {
 
     log_info "Acquiring wake lock..."
     run $ADB shell 'echo android-test > /sys/power/wake_lock' || return 1
-
-}
-
-android_boot() {
-    for attempt in {1..5}; do
-        android_boot_attempt $1 && return 0
-        sleep 5
-    done
-    log_error "Too many failed attempts. Aborting."
-    return 1
 }
 
 # shellcheck disable=SC2016
@@ -236,7 +227,7 @@ android_test() {
     API=$1
     AVDNAME=${AVD_PREFIX}${API}
 
-    android_boot $API || return 1
+    android_launch $API || return 1
 
     if [ -n "$RELEASE" ]; then
         log_info "Installing release APK..."
