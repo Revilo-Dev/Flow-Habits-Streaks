@@ -6,6 +6,7 @@ import org.isoron.platform.gui.JsCanvas
 import org.isoron.platform.time.JsLocalDateFormatter
 import org.isoron.platform.time.LocalDateFormatter
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 val sharedTestStorage = JsFileStorage()
@@ -48,10 +49,14 @@ actual suspend fun ensureFontsLoaded() {
     fontsLoaded = true
 }
 
-private suspend fun loadFontAsync(fontSpec: String) = suspendCoroutine<Unit> { cont ->
-    val promise = document.asDynamic().fonts.load(fontSpec)
-    promise.then(
-        { _: dynamic -> cont.resume(Unit) },
-        { _: dynamic -> cont.resume(Unit) }
-    )
+private suspend fun loadFontAsync(fontSpec: String) {
+    suspendCoroutine<Unit> { cont ->
+        val promise = document.asDynamic().fonts.load(fontSpec)
+        promise.then(
+            { _: dynamic -> cont.resume(Unit) },
+            { err: dynamic -> cont.resumeWithException(RuntimeException("Failed to load font '$fontSpec': $err")) }
+        )
+    }
+    val loaded = document.asDynamic().fonts.check(fontSpec) as Boolean
+    if (!loaded) error("Font not available after loading: '$fontSpec'")
 }

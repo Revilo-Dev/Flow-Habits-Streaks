@@ -1,8 +1,14 @@
 package org.isoron.platform.gui
 
 import kotlinx.browser.document
+import kotlinx.browser.window
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
+import org.w3c.fetch.RequestInit
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
+import kotlin.js.json
 
 class JsImage(private val canvas: HTMLCanvasElement) : Image {
     private val ctx = canvas.getContext("2d") as CanvasRenderingContext2D
@@ -31,7 +37,20 @@ class JsImage(private val canvas: HTMLCanvasElement) : Image {
     }
 
     override suspend fun export(path: String) {
-        // No-op on JS browser; images can't be exported to filesystem
+        val blob = suspendCoroutine<dynamic> { cont ->
+            canvas.asDynamic().toBlob { b: dynamic -> cont.resume(b) }
+        }
+        val init = RequestInit(
+            method = "POST",
+            body = blob,
+            headers = json("X-File-Path" to path),
+        )
+        suspendCoroutine<Unit> { cont ->
+            window.fetch("/save-file", init).then(
+                { cont.resume(Unit) },
+                { err -> cont.resumeWithException(RuntimeException("$err")) }
+            )
+        }
     }
 
     companion object {

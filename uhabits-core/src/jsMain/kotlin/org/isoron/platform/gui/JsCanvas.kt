@@ -45,12 +45,15 @@ class JsCanvas(
         val py = toPixel(y)
         val metrics = ctx.measureText(text)
         val textWidth = metrics.width
+        val ascent = metrics.asDynamic().actualBoundingBoxAscent as Double
+        val descent = metrics.asDynamic().actualBoundingBoxDescent as Double
         val xPos = when (textAlign) {
             TextAlign.CENTER -> px - textWidth / 2
             TextAlign.RIGHT -> px - textWidth
             TextAlign.LEFT -> px
         }
-        ctx.fillText(text, xPos, py)
+        val yPos = py + (ascent - descent) / 2
+        ctx.fillText(text, xPos, yPos)
     }
 
     override fun fillRect(x: Double, y: Double, width: Double, height: Double) {
@@ -148,7 +151,6 @@ class JsCanvas(
         }
         val weight = if (font == Font.BOLD) "bold" else "normal"
         ctx.font = "$weight ${sizePx}px $family"
-        ctx.asDynamic().textBaseline = "middle"
     }
 
     companion object {
