@@ -47,7 +47,7 @@ class ScoreCardViewTest : BaseViewTest() {
         view.setState(
             buildState(
                 habit = habit,
-                firstWeekday = 0,
+                firstWeekday = 7,
                 spinnerPosition = 0,
                 theme = LightTheme()
             )
