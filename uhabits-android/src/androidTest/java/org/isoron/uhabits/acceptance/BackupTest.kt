@@ -30,6 +30,7 @@ import org.isoron.uhabits.acceptance.steps.ListHabitsSteps.MenuItem.DELETE
 import org.isoron.uhabits.acceptance.steps.ListHabitsSteps.clickMenu
 import org.isoron.uhabits.acceptance.steps.clearBackupFolder
 import org.isoron.uhabits.acceptance.steps.clearDownloadFolder
+import org.isoron.uhabits.acceptance.steps.clearPublicBackupFolderSelection
 import org.isoron.uhabits.acceptance.steps.copyBackupToDownloadFolder
 import org.isoron.uhabits.acceptance.steps.exportFullBackup
 import org.isoron.uhabits.acceptance.steps.importBackupFromDownloadFolder
@@ -62,5 +63,6 @@ class BackupTest : BaseUserInterfaceTest() {
         selectPublicBackupFolder()
         exportFullBackup()
         verifyBackupInDownloadFolder()
+        clearPublicBackupFolderSelection()
     }
 }

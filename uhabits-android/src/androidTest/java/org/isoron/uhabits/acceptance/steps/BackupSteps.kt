@@ -53,8 +53,13 @@ fun clearBackupFolder() {
 }
 
 fun copyBackupToDownloadFolder() {
+    val srcListing = device.executeShellCommand("ls $BACKUP_FOLDER")
+    assertTrue("Backup folder is empty. Contents: [$srcListing]", srcListing.contains("Loop Habits Backup"))
+    device.executeShellCommand("rm -rf $DOWNLOAD_FOLDER")
     device.executeShellCommand("mv $BACKUP_FOLDER $DOWNLOAD_FOLDER")
     device.executeShellCommand("chown root $DOWNLOAD_FOLDER")
+    val dstListing = device.executeShellCommand("ls $DOWNLOAD_FOLDER")
+    assertTrue("Backup not found in download folder. Contents: [$dstListing]", dstListing.contains("Loop Habits Backup"))
 }
 
 fun selectPublicBackupFolder() {
@@ -62,6 +67,12 @@ fun selectPublicBackupFolder() {
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
     val uri = Uri.fromFile(File(DOWNLOAD_FOLDER))
     prefs.edit().putString("publicBackupFolder", uri.toString()).commit()
+}
+
+fun clearPublicBackupFolderSelection() {
+    val context = InstrumentationRegistry.getInstrumentation().targetContext
+    val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    prefs.edit().remove("publicBackupFolder").commit()
 }
 
 fun importBackupFromDownloadFolder() {
@@ -107,6 +118,11 @@ fun importBackupFromDownloadFolder() {
 
 fun verifyBackupInDownloadFolder() {
     val listing = device.executeShellCommand("ls $DOWNLOAD_FOLDER")
+    assertTrue(listing.contains("Loop Habits Backup"))
+}
+
+fun verifyBackupInBackupFolder() {
+    val listing = device.executeShellCommand("ls $BACKUP_FOLDER")
     assertTrue(listing.contains("Loop Habits Backup"))
 }
 
