@@ -261,9 +261,8 @@ android_test() {
 
             FAILED_TESTS=$(tools/parseInstrument.py "$OUT_INSTRUMENT")
             SUCCESS=$?
-            log_debug "$FAILED_TESTS"
             if [ $SUCCESS -eq 0 ]; then
-                log_info "$size tests passed."
+                log_debug "$size tests passed"
                 break
             fi
         done
