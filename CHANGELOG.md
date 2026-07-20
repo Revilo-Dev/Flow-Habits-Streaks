@@ -1,5 +1,31 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Add habit search that filters by name, question and notes (@I-Dont-Remember)
+- Add archive and unarchive actions on the habit statistics page (@KyleSCraig)
+- Add option to select a public folder for automatic backups via SAF (@mihanentalpo)
+- Allow adding newlines to the habit name field (@powerjungle)
+
+### Changed
+
+- Auto-save notes when dismissing checkmark and number dialogs (@fictiontoreality)
+- Show a toast message after archiving or unarchiving habits (@iSoron)
+
+### Fixed
+
+- Fix streak chart date format to be more compact (@iSoron)
+- Support content URIs when sharing backup files (@iSoron)
+- Fix frequency chart rendering random data in production (@TangilHossain)
+- Fix ripple effect on pure-dark mode and navigation bar insets on settings screen (Uladzislau Petrushkevich)
+
+### Refactoring & Testing
+
+- Migrate uhabits-core to Kotlin multiplatform (JVM + JS) (@sgallese, @iSoron)
+- Improve build.sh logging, validation, emulator lifecycle and ARM64 support (@iSoron)
+
 ## [2.3.1] -- 2025-08-13
 
 ### Changed
