@@ -4,22 +4,22 @@
 
 ### Added
 
-- Add habit search that filters by name, question and notes (@I-Dont-Remember)
-- Add archive and unarchive actions on the habit statistics page (@KyleSCraig)
-- Add option to select a public folder for automatic backups via SAF (@mihanentalpo)
-- Allow adding newlines to the habit name field (@powerjungle)
+- Add habit search that filters by name, question and notes (@I-Dont-Remember, #2338)
+- Add archive and unarchive actions on the habit statistics page (@KyleSCraig, #2194)
+- Add option to select a public folder for automatic backups via SAF (@MihanEntalpo, #2209)
+- Allow adding newlines to the habit name field (@powerjungle, #2137)
 
 ### Changed
 
-- Auto-save notes when dismissing checkmark and number dialogs (@fictiontoreality)
-- Show a toast message after archiving or unarchiving habits (@iSoron)
+- Auto-save notes when dismissing checkmark and number dialogs (@fictiontoreality, #2261)
+- Show a toast message after archiving or unarchiving habits (@iSoron, 54275020)
 
 ### Fixed
 
-- Fix streak chart date format to be more compact (@iSoron)
-- Support content URIs when sharing backup files (@iSoron)
-- Fix frequency chart rendering random data in production (@TangilHossain)
-- Fix ripple effect on pure-dark mode and navigation bar insets on settings screen (Uladzislau Petrushkevich)
+- Fix streak chart date format to be more compact (@iSoron, 07d87e4a)
+- Support content URIs when sharing backup files (@iSoron, 4383b3ed)
+- Fix frequency chart rendering random data in production (@TangilHossain, #2242)
+- Fix ripple effect on pure-dark mode and navigation bar insets on settings screen (@Vladuken, #2219)
 
 ### Refactoring & Testing
 
