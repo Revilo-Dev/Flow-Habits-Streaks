@@ -110,7 +110,7 @@
     </style>
 
     <style name="FlowPopupTheme" parent="ThemeOverlay.MaterialComponents">
-        <item name="android:colorBackground">?attr/flowSurfaceColor</item>
+        <item name="android:colorBackground">?attr/flowSurfaceSecondaryColor</item>
         <item name="android:textColor">?attr/flowTextPrimaryColor</item>
         <item name="android:textColorPrimary">?attr/flowTextPrimaryColor</item>
         <item name="android:textColorSecondary">?attr/flowTextSecondaryColor</item>
@@ -160,7 +160,7 @@
         <item name="colorAccent">?attr/flowAccentColor</item>
         <item name="colorControlActivated">?attr/flowAccentColor</item>
         <item name="colorControlHighlight">?attr/flowRippleColor</item>
-        <item name="colorSurface">?attr/flowSurfaceColor</item>
+        <item name="colorSurface">?attr/flowSurfaceSecondaryColor</item>
     </style>
 
     <style name="FlowBottomSheet" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">

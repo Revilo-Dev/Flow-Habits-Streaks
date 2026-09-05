@@ -171,13 +171,25 @@ class HabitCardView(
         }
 
         selectionCheck = ImageView(context).apply {
+            val size = resources.getDimensionPixelSize(R.dimen.flow_icon_container_size)
             layoutParams = FrameLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.flow_icon_size),
-                resources.getDimensionPixelSize(R.dimen.flow_icon_size),
+                size,
+                size,
                 Gravity.CENTER
             )
             contentDescription = resources.getString(R.string.flow_selected)
             setImageResource(R.drawable.flow_ic_select_check)
+            setColorFilter(sres.getColor(R.attr.flowOnAccentColor))
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(sres.getColor(R.attr.flowAccentColor))
+            }
+            setPadding(
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing),
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing),
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing),
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+            )
             visibility = GONE
         }
 
@@ -283,11 +295,11 @@ class HabitCardView(
             val verticalPadding = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
             setPadding(0, verticalPadding, 0, verticalPadding)
 
+            addView(dragHandle)
             addView(habitIcon)
             addView(labelContainer)
             addView(checkmarkPanel)
             addView(numberPanel)
-            addView(dragHandle)
 
             setOnTouchListener { v, event ->
                 v.background.setHotspot(event.x, event.y)

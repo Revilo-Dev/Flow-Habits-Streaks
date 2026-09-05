@@ -36,6 +36,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.GridLayout
@@ -608,6 +609,9 @@ class EditHabitActivity : AppCompatActivity() {
         }
         val dialog = BottomSheetDialog(this, R.style.FlowBottomSheet).apply {
             setContentView(content)
+            setOnShowListener {
+                window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+            }
         }
         useButton.setOnClickListener {
             val selectedIcon = firstGrapheme(input.text.toString())

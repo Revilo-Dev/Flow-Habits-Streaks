@@ -110,11 +110,6 @@ class HeaderView(
             typeface = Typeface.DEFAULT_BOLD
             color = dateTextColor
         }
-        private val todayBackgroundPaint = Paint().apply {
-            isAntiAlias = true
-            color = sres.getColor(R.attr.flowSurfaceSecondaryColor)
-        }
-
         fun draw(canvas: Canvas) {
             val today = getToday()
             val width = dim(R.dimen.checkmarkWidth)
@@ -145,17 +140,6 @@ class HeaderView(
 
                 val date = today.minus(index + dataOffset)
                 val isToday = date == today
-                if (isToday) {
-                    val backgroundRect = RectF(rect).apply {
-                        inset(dim(R.dimen.flow_small_spacing), dim(R.dimen.flow_small_spacing))
-                    }
-                    canvas.drawRoundRect(
-                        backgroundRect,
-                        dim(R.dimen.flow_date_header_radius),
-                        dim(R.dimen.flow_date_header_radius),
-                        todayBackgroundPaint
-                    )
-                }
                 paint.color = if (isToday) todayTextColor else dateTextColor
                 val dayOfWeek = dateFormatter
                     .shortWeekdayName(date)

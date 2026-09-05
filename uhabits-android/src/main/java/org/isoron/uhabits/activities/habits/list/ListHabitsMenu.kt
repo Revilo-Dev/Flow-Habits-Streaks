@@ -24,7 +24,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.HabitList
@@ -33,6 +32,7 @@ import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsMenuBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
+import org.isoron.uhabits.activities.habits.list.views.FlowHomeSearchBar
 import org.isoron.uhabits.utils.StyledResources
 
 @Inject
@@ -44,14 +44,9 @@ class ListHabitsMenu(
     val behavior: ListHabitsMenuBehavior
 ) {
     val activity = context as AppCompatActivity
-    private var menu: Menu? = null
-    private var isSearchActive = false
-
     fun onCreate(inflater: MenuInflater, menu: Menu) {
-        this.menu = menu
         menu.clear()
         inflater.inflate(R.menu.list_habits, menu)
-        createSearchBar(menu)
         createMenuItems(menu)
         updateArrows(menu)
     }
@@ -67,30 +62,6 @@ class ListHabitsMenu(
             hideCompletedItem.title = activity.resources.getString(R.string.hide_entered)
         } else {
             hideCompletedItem.title = activity.resources.getString(R.string.hide_completed)
-        }
-    }
-
-    private fun createSearchBar(menu: Menu) {
-        val searchContainer = menu.findItem(R.id.actionSearchContainer)
-        searchContainer.isVisible = isSearchActive
-        menu.setGroupVisible(R.id.actionItems, !isSearchActive)
-        with(searchContainer.actionView as SearchView) {
-            queryHint = activity.getString(R.string.search)
-            isIconified = false
-            setQuery(behavior.searchQuery, false)
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String) = false
-                override fun onQueryTextChange(newText: String): Boolean {
-                    behavior.onSearchQueryChanged(newText)
-                    return true
-                }
-            })
-            setOnCloseListener {
-                isSearchActive = false
-                menu.setGroupVisible(R.id.actionItems, true)
-                activity.invalidateOptionsMenu()
-                true
-            }
         }
     }
 
@@ -181,8 +152,8 @@ class ListHabitsMenu(
             }
 
             R.id.actionSearch -> {
-                isSearchActive = true
-                activity.invalidateOptionsMenu()
+                activity.findViewById<FlowHomeSearchBar>(R.id.flowHomeSearchBar)
+                    ?.open(behavior.searchQuery, behavior::onSearchQueryChanged)
                 return true
             }
 

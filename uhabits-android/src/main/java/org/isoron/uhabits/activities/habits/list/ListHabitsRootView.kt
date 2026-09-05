@@ -44,6 +44,7 @@ import org.isoron.uhabits.activities.common.views.ScrollableChart
 import org.isoron.uhabits.activities.common.views.TaskProgressBar
 import org.isoron.uhabits.activities.habits.list.views.EmptyListView
 import org.isoron.uhabits.activities.habits.list.views.FlowLargeHeaderView
+import org.isoron.uhabits.activities.habits.list.views.FlowHomeSearchBar
 import org.isoron.uhabits.activities.habits.list.views.FlowSelectionActionBar
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListView
@@ -92,6 +93,9 @@ class ListHabitsRootView(
     val largeHeader = FlowLargeHeaderView(context, midnightTimer, preferences)
     val selectionActions = FlowSelectionActionBar(context).apply {
         id = R.id.flowSelectionActions
+    }
+    private val homeSearchBar = FlowHomeSearchBar(context).apply {
+        id = R.id.flowHomeSearchBar
     }
     var onCreateHabit: (() -> Unit)? = null
 
@@ -185,11 +189,19 @@ class ListHabitsRootView(
                 }
             )
             addView(
+                homeSearchBar,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    gravity = Gravity.BOTTOM
+                    marginStart = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+                    marginEnd = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+                }
+            )
+            addView(
                 selectionActions,
                 CoordinatorLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                    gravity = Gravity.START or Gravity.BOTTOM
-                    marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
-                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+                    gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_selection_actions_bottom_margin)
                 }
             )
             addView(
@@ -199,8 +211,8 @@ class ListHabitsRootView(
                     resources.getDimensionPixelSize(R.dimen.flow_fab_size)
                 ).apply {
                     gravity = Gravity.END or Gravity.BOTTOM
-                    marginEnd = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
-                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+                    marginEnd = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
                 }
             )
             addView(
@@ -208,7 +220,9 @@ class ListHabitsRootView(
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             )
         }
-        val baseFabBottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+        homeSearchBar.onOpen = { addButton.visibility = INVISIBLE }
+        homeSearchBar.onDismiss = { addButton.visibility = VISIBLE }
+        val baseFabBottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
         ViewCompat.setOnApplyWindowInsetsListener(addButton) { button, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             (button.layoutParams as CoordinatorLayout.LayoutParams).apply {
@@ -217,7 +231,8 @@ class ListHabitsRootView(
             }
             insets
         }
-        val baseSelectionBottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+        val baseSelectionBottomMargin =
+            resources.getDimensionPixelSize(R.dimen.flow_selection_actions_bottom_margin)
         ViewCompat.setOnApplyWindowInsetsListener(selectionActions) { actions, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             (actions.layoutParams as CoordinatorLayout.LayoutParams).apply {
@@ -278,6 +293,10 @@ class ListHabitsRootView(
         header.setMaxDataOffset(MAX_CHECKMARK_COUNT - HOME_CHECKMARK_COUNT)
         listView.checkmarkCount = HOME_CHECKMARK_COUNT
         super.onSizeChanged(w, h, oldw, oldh)
+    }
+
+    fun openSearch(initialQuery: String, onQueryChanged: (String) -> Unit) {
+        homeSearchBar.open(initialQuery, onQueryChanged)
     }
 
     private fun updateHeader() {

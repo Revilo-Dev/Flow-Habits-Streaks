@@ -13,6 +13,7 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
 import android.text.format.DateFormat
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -37,12 +38,22 @@ class FlowLargeHeaderView(
     preferences: Preferences
 ) : LinearLayout(context), MidnightTimer.MidnightListener {
 
+    private var hasPlayedIntro = false
+
+    private val titleView = TextView(context).apply {
+        text = resources.getString(R.string.flow_app_title)
+        gravity = Gravity.CENTER_HORIZONTAL
+        setTextAppearance(R.style.TextAppearance_Flow_ScreenTitle)
+    }
+
     private val dateView = TextView(context).apply {
+        gravity = Gravity.CENTER_HORIZONTAL
         setTextAppearance(R.style.TextAppearance_Flow_Supporting)
         setTextColor(sres.getColor(R.attr.flowTextSecondaryColor))
     }
 
     private val summaryView = TextView(context).apply {
+        gravity = Gravity.CENTER_HORIZONTAL
         setTextAppearance(R.style.TextAppearance_Flow_Supporting)
         setTextColor(sres.getColor(R.attr.flowAccentColor))
         accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
@@ -62,10 +73,6 @@ class FlowLargeHeaderView(
             dim(R.dimen.flow_header_bottom_spacing).toInt()
         )
 
-        val titleView = TextView(context).apply {
-            text = resources.getString(R.string.flow_app_title)
-            setTextAppearance(R.style.TextAppearance_Flow_ScreenTitle)
-        }
         ViewCompat.setAccessibilityHeading(titleView, true)
 
         addView(titleView, LayoutParams(MATCH_PARENT, WRAP_CONTENT))
@@ -112,6 +119,19 @@ class FlowLargeHeaderView(
         super.onAttachedToWindow()
         midnightTimer.addListener(this)
         updateDate()
+        if (!hasPlayedIntro) {
+            hasPlayedIntro = true
+            listOf(titleView, dateView, summaryView, perfectStreakView).forEachIndexed { index, view ->
+                view.alpha = 0f
+                view.translationY = dim(R.dimen.flow_large_spacing)
+                view.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setStartDelay(index * 45L)
+                    .setDuration(220)
+                    .start()
+            }
+        }
     }
 
     override fun onDetachedFromWindow() {

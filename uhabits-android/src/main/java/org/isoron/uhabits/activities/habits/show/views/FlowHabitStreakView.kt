@@ -165,10 +165,13 @@ class FlowHabitStreakView(
             val date = weekStart.plus(offset)
             date to (recentCompletions[date] ?: false)
         }.forEachIndexed { index, (date, complete) ->
+            val isFutureDay = date.daysSince2000 > today.daysSince2000
             val weekday = dayFormatter.shortWeekdayName(date)
             dayLabels[index].apply {
                 text = weekday.take(1).uppercase(Locale.getDefault())
-                setTextColor(Color.WHITE)
+                setTextColor(
+                    if (isFutureDay) ColorUtils.setAlphaComponent(Color.WHITE, 105) else Color.WHITE
+                )
             }
             dayMarks[index].apply {
                 setImageResource(
@@ -178,6 +181,7 @@ class FlowHabitStreakView(
                     if (complete) R.string.flow_day_completed else R.string.flow_day_not_completed,
                     weekday
                 )
+                alpha = if (isFutureDay) 0.35f else 1f
             }
         }
     }

@@ -283,6 +283,7 @@
     <string name="flow_remove_icon">Remove icon</string>
     <string name="flow_use_icon">Use icon</string>
     <string name="flow_discard">Discard</string>
+    <string name="flow_close_search">Close search</string>
     <string name="flow_create_habit_title">Create a new habit</string>
     <string name="flow_create_habit_message">Choose how you want to track it.</string>
     <string name="flow_schedule">Schedule and target</string>

@@ -37,12 +37,14 @@
     <dimen name="flow_toolbar_height">56dp</dimen>
     <dimen name="flow_fab_size">56dp</dimen>
     <dimen name="flow_fab_safe_margin">36dp</dimen>
+    <dimen name="flow_fab_inline_margin">16dp</dimen>
+    <dimen name="flow_selection_actions_bottom_margin">80dp</dimen>
     <dimen name="flow_fab_clearance">96dp</dimen>
     <dimen name="flow_fab_elevation">6dp</dimen>
     <dimen name="flow_card_elevation">4dp</dimen>
     <dimen name="flow_editor_action_height">60dp</dimen>
     <dimen name="flow_editor_action_clearance">116dp</dimen>
-    <dimen name="flow_switch_min_width">54dp</dimen>
+    <dimen name="flow_switch_min_width">52dp</dimen>
     <dimen name="flow_emoji_preview_height">72dp</dimen>
 
     <!-- Type scale; sp preserves the user's font-scale preference. -->

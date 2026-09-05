@@ -171,10 +171,13 @@ class FlowPerfectStreakView(
             date to (recentCompletions[date] ?: false)
         }
         orderedDays.forEachIndexed { index, (date, complete) ->
+            val isFutureDay = date.daysSince2000 > today.daysSince2000
             val label = dayFormatter.shortWeekdayName(date).take(1).uppercase(Locale.getDefault())
             dayLabels[index].apply {
                 text = label
-                setTextColor(Color.WHITE)
+                setTextColor(
+                    if (isFutureDay) ColorUtils.setAlphaComponent(Color.WHITE, 105) else Color.WHITE
+                )
             }
             dayMarks[index].apply {
                 setImageResource(
@@ -188,6 +191,7 @@ class FlowPerfectStreakView(
                     if (complete) R.string.flow_day_completed else R.string.flow_day_not_completed,
                     dayFormatter.shortWeekdayName(date)
                 )
+                alpha = if (isFutureDay) 0.35f else 1f
             }
         }
     }

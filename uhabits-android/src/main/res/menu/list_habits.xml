@@ -22,13 +22,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <item
-        android:id="@+id/actionSearchContainer"
-        android:title="@string/search"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="always"/>
-
     <group android:id="@+id/actionItems">
+        <item
+            android:id="@+id/actionSearch"
+            android:icon="@drawable/flow_ic_search"
+            android:orderInCategory="5"
+            android:title="@string/search"
+            app:showAsAction="always" />
+
         <item
             android:id="@+id/action_filter"
             android:icon="?iconFilter"
@@ -70,10 +71,6 @@
                             android:title="@string/by_status"/>
                     </menu>
                 </item>
-                <item
-                    android:id="@+id/actionSearch"
-                    android:enabled="true"
-                    android:title="@string/search"/>
             </menu>
         </item>
 
