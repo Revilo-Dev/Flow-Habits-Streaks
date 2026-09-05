@@ -114,11 +114,11 @@ class WidgetReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val ACTION_ADD_REPETITION = "org.isoron.uhabits.ACTION_ADD_REPETITION"
-        const val ACTION_DISMISS_REMINDER = "org.isoron.uhabits.ACTION_DISMISS_REMINDER"
-        const val ACTION_REMOVE_REPETITION = "org.isoron.uhabits.ACTION_REMOVE_REPETITION"
-        const val ACTION_TOGGLE_REPETITION = "org.isoron.uhabits.ACTION_TOGGLE_REPETITION"
-        const val ACTION_UPDATE_WIDGETS_VALUE = "org.isoron.uhabits.ACTION_UPDATE_WIDGETS_VALUE"
+        const val ACTION_ADD_REPETITION = "org.isoron.uhabits.flow.ACTION_ADD_REPETITION"
+        const val ACTION_DISMISS_REMINDER = "org.isoron.uhabits.flow.ACTION_DISMISS_REMINDER"
+        const val ACTION_REMOVE_REPETITION = "org.isoron.uhabits.flow.ACTION_REMOVE_REPETITION"
+        const val ACTION_TOGGLE_REPETITION = "org.isoron.uhabits.flow.ACTION_TOGGLE_REPETITION"
+        const val ACTION_UPDATE_WIDGETS_VALUE = "org.isoron.uhabits.flow.ACTION_UPDATE_WIDGETS_VALUE"
         private const val TAG = "WidgetReceiver"
         var lastReceivedIntent: Intent? = null
             private set

@@ -34,6 +34,7 @@ import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import org.hamcrest.CoreMatchers
 import org.isoron.uhabits.BaseUserInterfaceTest
+import org.isoron.uhabits.BuildConfig
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.habits.list.ListHabitsActivity
 import org.junit.Assert.assertTrue
@@ -56,7 +57,7 @@ object CommonSteps : BaseUserInterfaceTest() {
     fun launchApp() {
         startActivity(ListHabitsActivity::class.java)
         assertTrue(
-            device.wait(Until.hasObject(By.pkg("org.isoron.uhabits")), 5000)
+            device.wait(Until.hasObject(By.pkg(BuildConfig.APPLICATION_ID)), 5000)
         )
         device.waitForIdle()
     }

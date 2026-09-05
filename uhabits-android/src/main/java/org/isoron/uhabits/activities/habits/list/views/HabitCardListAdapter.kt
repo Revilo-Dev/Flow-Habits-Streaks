@@ -126,10 +126,20 @@ class HabitCardListAdapter(
         if (listView == null) return
         val habit = cache.getHabitByPosition(position)
         val score = cache.getScore(habit!!.id!!)
+        val currentStreak = cache.getCurrentStreak(habit.id!!)
         val checkmarks = cache.getCheckmarks(habit.id!!)
         val notes = cache.getNotes(habit.id!!)
         val selected = selected.contains(habit)
-        listView!!.bindCardView(holder, habit, score, checkmarks, notes, selected)
+        listView!!.bindCardView(
+            holder,
+            habit,
+            score,
+            currentStreak,
+            checkmarks,
+            notes,
+            selected,
+            selectionActive = !isSelectionEmpty
+        )
     }
 
     override fun onViewAttachedToWindow(holder: HabitCardViewHolder) {
@@ -215,6 +225,14 @@ class HabitCardListAdapter(
 
     override fun refresh() {
         cache.refreshAllHabits()
+    }
+
+    fun getCompletionSummary(): HabitCardListCache.CompletionSummary {
+        return cache.getCompletionSummary()
+    }
+
+    fun getPerfectStreakSummary(): HabitCardListCache.PerfectStreakSummary {
+        return cache.getPerfectStreakSummary()
     }
 
     override fun setFilter(matcher: HabitMatcher) {

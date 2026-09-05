@@ -21,7 +21,8 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <TextView
         android:id="@+id/title"
-        style="@style/CardHeader"
+        style="@style/ShowHabit.Flow.CardHeader"
+        android:drawableStart="@drawable/flow_ic_streak"
         android:text="@string/best_streaks"/>
 
     <org.isoron.uhabits.activities.common.views.StreakChart

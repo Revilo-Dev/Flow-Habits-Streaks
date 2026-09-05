@@ -102,7 +102,7 @@ open class BaseUserInterfaceTest {
     }
 
     companion object {
-        private const val PKG = "org.isoron.uhabits"
+        private const val PKG = BuildConfig.APPLICATION_ID
         const val EMPTY_DESCRIPTION_HABIT_NAME = "Read books"
         lateinit var device: UiDevice
         fun startActivity(cls: Class<*>) {

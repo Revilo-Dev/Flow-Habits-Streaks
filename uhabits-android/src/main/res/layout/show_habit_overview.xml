@@ -23,7 +23,8 @@
 
     <TextView
         android:id="@+id/title"
-        style="@style/CardHeader"
+        style="@style/ShowHabit.Flow.CardHeader"
+        android:drawableStart="@drawable/flow_ic_overview"
         android:text="@string/overview"/>
 
     <LinearLayout
@@ -64,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/score"
-                android:textColor="?attr/contrast60"/>
+                android:textColor="?attr/flowTextSecondaryColor"/>
 
         </LinearLayout>
 
@@ -83,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/month"
-                android:textColor="?attr/contrast60"/>
+                android:textColor="?attr/flowTextSecondaryColor"/>
 
         </LinearLayout>
 
@@ -102,7 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/year"
-                android:textColor="?attr/contrast60"/>
+                android:textColor="?attr/flowTextSecondaryColor"/>
 
         </LinearLayout>
 
@@ -121,7 +122,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/total"
-                android:textColor="?attr/contrast60"/>
+                android:textColor="?attr/flowTextSecondaryColor"/>
 
         </LinearLayout>
     </LinearLayout>

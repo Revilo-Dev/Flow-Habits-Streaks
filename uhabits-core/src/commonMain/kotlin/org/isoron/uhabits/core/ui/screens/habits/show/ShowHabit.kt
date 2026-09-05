@@ -26,6 +26,8 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.show.views.BarCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.BarCardState
+import org.isoron.uhabits.core.ui.screens.habits.show.views.CurrentStreakCardPresenter
+import org.isoron.uhabits.core.ui.screens.habits.show.views.CurrentStreakCardState
 import org.isoron.uhabits.core.ui.screens.habits.show.views.FrequencyCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.FrequencyCardState
 import org.isoron.uhabits.core.ui.screens.habits.show.views.HistoryCardPresenter
@@ -36,8 +38,6 @@ import org.isoron.uhabits.core.ui.screens.habits.show.views.OverviewCardPresente
 import org.isoron.uhabits.core.ui.screens.habits.show.views.OverviewCardState
 import org.isoron.uhabits.core.ui.screens.habits.show.views.ScoreCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.ScoreCardState
-import org.isoron.uhabits.core.ui.screens.habits.show.views.StreakCardState
-import org.isoron.uhabits.core.ui.screens.habits.show.views.StreakCartPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.SubtitleCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.SubtitleCardState
 import org.isoron.uhabits.core.ui.screens.habits.show.views.TargetCardPresenter
@@ -46,13 +46,14 @@ import org.isoron.uhabits.core.ui.views.Theme
 
 data class ShowHabitState(
     val title: String = "",
+    val icon: String = "",
     val isNumerical: Boolean = false,
     val color: PaletteColor = PaletteColor(1),
     val subtitle: SubtitleCardState,
     val overview: OverviewCardState,
     val notes: NotesCardState,
     val target: TargetCardState,
-    val streaks: StreakCardState,
+    val currentStreak: CurrentStreakCardState,
     val scores: ScoreCardState,
     val frequency: FrequencyCardState,
     val history: HistoryCardState,
@@ -93,6 +94,7 @@ class ShowHabitPresenter(
         ): ShowHabitState {
             return ShowHabitState(
                 title = habit.name,
+                icon = habit.icon,
                 color = habit.color,
                 isNumerical = habit.isNumerical,
                 theme = theme,
@@ -112,9 +114,9 @@ class ShowHabitPresenter(
                     firstWeekday = preferences.firstWeekdayInt,
                     theme = theme
                 ),
-                streaks = StreakCartPresenter.buildState(
+                currentStreak = CurrentStreakCardPresenter.buildState(
                     habit = habit,
-                    theme = theme
+                    firstWeekday = preferences.firstWeekday
                 ),
                 scores = ScoreCardPresenter.buildState(
                     spinnerPosition = preferences.scoreCardSpinnerPosition,

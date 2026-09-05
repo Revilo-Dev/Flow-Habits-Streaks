@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="flow_background">@color/flow_dark_background</color>
+    <color name="flow_surface">@color/flow_dark_surface</color>
+    <color name="flow_surface_secondary">@color/flow_dark_surface_secondary</color>
+    <color name="flow_divider">@color/flow_dark_divider</color>
+    <color name="flow_text_primary">@color/flow_dark_text_primary</color>
+    <color name="flow_text_secondary">@color/flow_dark_text_secondary</color>
+    <color name="flow_text_tertiary">@color/flow_dark_text_tertiary</color>
+    <color name="flow_accent">@color/flow_dark_accent</color>
+    <color name="flow_on_accent">@color/flow_dark_on_accent</color>
+    <color name="flow_error">@color/flow_dark_error</color>
+    <color name="flow_success">@color/flow_dark_success</color>
+    <color name="flow_disabled">@color/flow_dark_disabled</color>
+    <color name="flow_ripple">@color/flow_dark_ripple</color>
+</resources>

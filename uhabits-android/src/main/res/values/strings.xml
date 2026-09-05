@@ -24,6 +24,13 @@
 
     <string name="app_name" >Loop Habit Tracker</string>
     <string name="main_activity_title">Habits</string>
+    <string name="flow_app_title" translatable="false">Flow</string>
+    <plurals name="flow_habits_completed_today">
+        <item quantity="one">%1$d of %2$d habit completed today</item>
+        <item quantity="other">%1$d of %2$d habits completed today</item>
+    </plurals>
+    <string name="flow_day_number">Day %1$d</string>
+    <string name="flow_start_streak">Start a streak today</string>
     <string name="action_settings">Settings</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
@@ -238,4 +245,76 @@
     <string name="pref_midnight_delay_description">Wait until 3:00 AM to show a new day. Useful if you typically go to sleep after midnight. Requires app restart.</string>
     <string name="pref_animations_title">Disable animations</string>
     <string name="pref_animations_description">Disable confetti animation after adding a checkmark.</string>
+    <string name="flow_perfect_streak">Perfect streak</string>
+    <string name="flow_current_streak">Current streak</string>
+    <string name="flow_perfect_streak_start">Start your streak</string>
+    <plurals name="flow_perfect_streak_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="flow_perfect_incomplete_message">Complete every habit to make today perfect.</string>
+    <string name="flow_habit_streak_incomplete_message">Complete this habit today to keep it going.</string>
+    <string name="flow_day_completed">%1$s, completed</string>
+    <string name="flow_day_not_completed">%1$s, not completed</string>
+    <string name="flow_selected">Selected</string>
+    <string name="flow_reorder_habit">Reorder habit</string>
+    <string-array name="flow_perfect_messages">
+        <item>Perfect day — beautifully done!</item>
+        <item>You showed up for every goal!</item>
+        <item>That’s a clean sweep. Great work!</item>
+        <item>Every habit complete — keep flowing!</item>
+        <item>Wonderful work. Today is complete!</item>
+    </string-array>
+    <string-array name="flow_habit_streak_messages">
+        <item>Another day in the flow. Nice work!</item>
+        <item>You kept your promise to yourself.</item>
+        <item>Consistency looks good on you.</item>
+        <item>One more strong day on the board.</item>
+        <item>That streak is growing beautifully.</item>
+    </string-array>
+    <string name="flow_icon">Icon</string>
+    <string name="flow_choose_emoji">Choose an emoji</string>
+    <string name="flow_change_emoji">%1$s  Change emoji</string>
+    <string name="flow_emoji_picker_title">Habit icon</string>
+    <string name="flow_emoji_picker_hint">Use an emoji or Unicode symbol, or choose one below.</string>
+    <string name="flow_open_emoji_keyboard">Open emoji keyboard</string>
+    <string name="flow_icon_must_be_emoji_or_symbol">Use an emoji or Unicode symbol, not text.</string>
+    <string name="flow_suggested_icons">Suggested icons</string>
+    <string name="flow_remove_icon">Remove icon</string>
+    <string name="flow_use_icon">Use icon</string>
+    <string name="flow_discard">Discard</string>
+    <string name="flow_create_habit_title">Create a new habit</string>
+    <string name="flow_create_habit_message">Choose how you want to track it.</string>
+    <string name="flow_schedule">Schedule and target</string>
+    <string name="flow_settings_appearance">Appearance</string>
+    <string name="flow_settings_habits">Habits</string>
+    <string name="flow_settings_notifications">Notifications</string>
+    <string name="flow_settings_data">Data</string>
+    <string name="flow_settings_support">Help and about</string>
+    <string-array name="flow_emoji_suggestions">
+        <item>💧</item>
+        <item>📚</item>
+        <item>🏃</item>
+        <item>🧘</item>
+        <item>💪</item>
+        <item>🥗</item>
+        <item>💊</item>
+        <item>🪥</item>
+        <item>🛌</item>
+        <item>🌱</item>
+        <item>🎨</item>
+        <item>🎵</item>
+        <item>✍️</item>
+        <item>🧹</item>
+        <item>💰</item>
+        <item>📵</item>
+        <item>☀️</item>
+        <item>🌙</item>
+        <item>❤️</item>
+        <item>⭐</item>
+        <item>🔥</item>
+        <item>✅</item>
+        <item>🎯</item>
+        <item>✨</item>
+    </string-array>
 </resources>

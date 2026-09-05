@@ -20,16 +20,19 @@ package org.isoron.uhabits.core.ui.screens.habits.list
 
 import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.Synchronized
+import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.commands.Command
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.io.Logging
+import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitList.Order
 import org.isoron.uhabits.core.models.HabitMatcher
+import org.isoron.uhabits.core.models.NumericalHabitType
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
 
@@ -55,6 +58,19 @@ class HabitCardListCache(
     logging: Logging
 ) : CommandRunner.Listener {
 
+    data class CompletionSummary(
+        val completed: Int,
+        val total: Int
+    )
+
+    data class PerfectStreakSummary(
+        val currentStreak: Int,
+        val lastSevenDays: List<Boolean>
+    ) {
+        val todayComplete: Boolean
+            get() = lastSevenDays.lastOrNull() == true
+    }
+
     private val logger = logging.getLogger("HabitCardListCache")
 
     private var checkmarkCount = 0
@@ -72,6 +88,24 @@ class HabitCardListCache(
     @Synchronized
     fun getCheckmarks(habitId: Long): IntArray {
         return data.checkmarks[habitId]!!
+    }
+
+    @Synchronized
+    fun getCompletionSummary(): CompletionSummary {
+        return CompletionSummary(
+            completed = data.completedHabitCount,
+            total = data.activeHabitCount
+        )
+    }
+
+    @Synchronized
+    fun getPerfectStreakSummary(): PerfectStreakSummary {
+        return data.perfectStreakSummary
+    }
+
+    @Synchronized
+    fun getCurrentStreak(habitId: Long): Int {
+        return data.currentStreaks[habitId] ?: 0
     }
 
     @Synchronized
@@ -164,6 +198,7 @@ class HabitCardListCache(
         data.habits.removeAt(position)
         data.idToHabit.remove(id)
         data.checkmarks.remove(id)
+        data.currentStreaks.remove(id)
         data.notes.remove(id)
         data.scores.remove(id)
         listener.onItemRemoved(position)
@@ -205,9 +240,13 @@ class HabitCardListCache(
     }
 
     private inner class CacheData {
+        var activeHabitCount = 0
+        var completedHabitCount = 0
+        var perfectStreakSummary = PerfectStreakSummary(0, List(7) { false })
         val idToHabit: MutableMap<Long?, Habit> = mutableMapOf()
         val habits: MutableList<Habit>
         val checkmarks: MutableMap<Long?, IntArray>
+        val currentStreaks: MutableMap<Long?, Int>
         val scores: MutableMap<Long?, Double>
         val notes: MutableMap<Long?, Array<String>>
 
@@ -221,6 +260,13 @@ class HabitCardListCache(
                 } else {
                     checkmarks[id] = empty
                 }
+            }
+        }
+
+        @Synchronized
+        fun copyCurrentStreaksFrom(oldData: CacheData) {
+            for (id in idToHabit.keys) {
+                currentStreaks[id] = oldData.currentStreaks[id] ?: 0
             }
         }
 
@@ -258,12 +304,33 @@ class HabitCardListCache(
             }
         }
 
+        @Synchronized
+        fun fetchCompletionSummary() {
+            val activeHabits = allHabits.filter { !it.isArchived }
+            val today = getToday()
+            activeHabitCount = activeHabits.size
+            completedHabitCount = activeHabits.count { isCompleteForPerfectDay(it, today) }
+
+            val lastSevenDays = (6 downTo 0).map { offset ->
+                isPerfectDay(activeHabits, today.minus(offset))
+            }
+            val todayComplete = lastSevenDays.last()
+            var currentStreak = 0
+            var date = today.minus(if (todayComplete) 0 else 1)
+            while (isPerfectDay(activeHabits, date)) {
+                currentStreak++
+                date = date.minus(1)
+            }
+            perfectStreakSummary = PerfectStreakSummary(currentStreak, lastSevenDays)
+        }
+
         /**
          * Creates a new CacheData without any content.
          */
         init {
             habits = mutableListOf()
             checkmarks = mutableMapOf()
+            currentStreaks = mutableMapOf()
             scores = mutableMapOf()
             notes = mutableMapOf()
         }
@@ -294,8 +361,10 @@ class HabitCardListCache(
         @Synchronized
         override suspend fun doInBackground() {
             newData.fetchHabits()
+            newData.fetchCompletionSummary()
             newData.copyScoresFrom(data)
             newData.copyCheckmarksFrom(data)
+            newData.copyCurrentStreaksFrom(data)
             newData.copyNoteIndicatorsFrom(data)
             val today = getToday()
             val dateFrom = today.minus(checkmarkCount - 1)
@@ -305,6 +374,12 @@ class HabitCardListCache(
                 val habit = newData.habits[position]
                 if (targetId != null && targetId != habit.id) continue
                 newData.scores[habit.id] = habit.scores[today].value
+                val latestStreak = habit.streaks.getBest(Int.MAX_VALUE).firstOrNull()
+                newData.currentStreaks[habit.id] = when {
+                    latestStreak == null -> 0
+                    latestStreak.end.daysSince2000 < today.minus(1).daysSince2000 -> 0
+                    else -> latestStreak.length
+                }
                 val checkmarkList = mutableListOf<Int>()
                 val noteList = mutableListOf<String>()
                 for ((_, value, note) in habit.computedEntries.getByInterval(dateFrom, today)) {
@@ -340,6 +415,7 @@ class HabitCardListCache(
             data.idToHabit[id] = habit
             data.scores[id] = newData.scores[id]!!
             data.checkmarks[id] = newData.checkmarks[id]!!
+            data.currentStreaks[id] = newData.currentStreaks[id]!!
             data.notes[id] = newData.notes[id]!!
             listener.onItemInserted(position)
         }
@@ -368,17 +444,21 @@ class HabitCardListCache(
         private fun performUpdate(id: Long, position: Int) {
             val oldScore = data.scores[id]!!
             val oldCheckmarks = data.checkmarks[id]
+            val oldCurrentStreak = data.currentStreaks[id]
             val oldNoteIndicators = data.notes[id]
             val newScore = newData.scores[id]!!
             val newCheckmarks = newData.checkmarks[id]!!
+            val newCurrentStreak = newData.currentStreaks[id]!!
             val newNoteIndicators = newData.notes[id]!!
             var unchanged = true
             if (oldScore != newScore) unchanged = false
             if (!oldCheckmarks.contentEquals(newCheckmarks)) unchanged = false
+            if (oldCurrentStreak != newCurrentStreak) unchanged = false
             if (!oldNoteIndicators.contentEquals(newNoteIndicators)) unchanged = false
             if (unchanged) return
             data.scores[id] = newScore
             data.checkmarks[id] = newCheckmarks
+            data.currentStreaks[id] = newCurrentStreak
             data.notes[id] = newNoteIndicators
             listener.onItemChanged(position)
         }
@@ -405,6 +485,9 @@ class HabitCardListCache(
 
         @Synchronized
         private fun processRemovedHabits() {
+            data.activeHabitCount = newData.activeHabitCount
+            data.completedHabitCount = newData.completedHabitCount
+            data.perfectStreakSummary = newData.perfectStreakSummary
             val before: Set<Long?> = data.idToHabit.keys
             val after: Set<Long?> = newData.idToHabit.keys
             val removed = before - after
@@ -417,5 +500,22 @@ class HabitCardListCache(
         this.taskRunner = taskRunner
         listener = object : Listener {}
         data = CacheData()
+    }
+
+    private fun isPerfectDay(activeHabits: List<Habit>, date: LocalDate): Boolean {
+        return activeHabits.isNotEmpty() && activeHabits.all { isCompleteForPerfectDay(it, date) }
+    }
+
+    private fun isCompleteForPerfectDay(habit: Habit, date: LocalDate): Boolean {
+        val value = habit.computedEntries.get(date).value
+        if (!habit.isNumerical) {
+            return value == Entry.YES_MANUAL || value == Entry.YES_AUTO
+        }
+        if (value == Entry.UNKNOWN) return false
+        val enteredValue = value / 1000.0
+        return when (habit.targetType) {
+            NumericalHabitType.AT_LEAST -> enteredValue >= habit.targetValue
+            NumericalHabitType.AT_MOST -> enteredValue <= habit.targetValue
+        }
     }
 }

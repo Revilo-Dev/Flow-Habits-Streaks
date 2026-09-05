@@ -19,8 +19,10 @@
           android:id="@android:id/title"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:layout_marginBottom="0dip"
-          android:textColor="?aboutScreenColor"
-          android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-          android:paddingStart="?android:attr/listPreferredItemPaddingLeft"
-          android:paddingTop="8dip" />
+          android:layout_marginBottom="@dimen/flow_medium_spacing"
+          android:fontFamily="sans-serif-medium"
+          android:paddingStart="@dimen/flow_medium_spacing"
+          android:paddingTop="@dimen/flow_section_spacing"
+          android:paddingEnd="@dimen/flow_medium_spacing"
+          android:textColor="?attr/flowTextTertiaryColor"
+          android:textSize="@dimen/flow_text_section_title" />

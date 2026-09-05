@@ -20,40 +20,38 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.Gravity.CENTER
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import org.isoron.uhabits.R
 import org.isoron.uhabits.utils.dp
-import org.isoron.uhabits.utils.getFontAwesome
-import org.isoron.uhabits.utils.sp
 import org.isoron.uhabits.utils.sres
 import org.isoron.uhabits.utils.str
 
 class EmptyListView(context: Context) : LinearLayout(context) {
     var textTextView: TextView
-    var iconTextView: TextView
+    var iconView: AppCompatImageView
 
     init {
         orientation = VERTICAL
         gravity = CENTER
         visibility = View.GONE
 
-        iconTextView = TextView(context).apply {
-            text = str(R.string.fa_star_half_o)
-            typeface = getFontAwesome()
-            textSize = sp(40.0f)
-            gravity = CENTER
-            setTextColor(sres.getColor(R.attr.contrast60))
+        iconView = AppCompatImageView(context).apply {
+            setImageResource(R.drawable.flow_ic_calendar_task)
+            imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextSecondaryColor))
+            contentDescription = null
         }
 
         addView(
-            iconTextView,
+            iconView,
             MATCH_PARENT,
-            WRAP_CONTENT
+            dp(48.0f).toInt()
         )
 
         textTextView = TextView(context).apply {
@@ -71,13 +69,13 @@ class EmptyListView(context: Context) : LinearLayout(context) {
 
     fun showDone() {
         visibility = VISIBLE
-        iconTextView.text = str(R.string.fa_umbrella_beach)
+        iconView.setImageResource(R.drawable.checkbox_checked)
         textTextView.text = str(R.string.no_habits_left_to_do)
     }
 
     fun showEmpty() {
         visibility = VISIBLE
-        iconTextView.text = str(R.string.fa_star_half_o)
+        iconView.setImageResource(R.drawable.flow_ic_calendar_task)
         textTextView.text = str(R.string.no_habits_found)
     }
 

@@ -29,10 +29,10 @@
         android:allowBackup="true"
         android:backupAgent=".HabitsBackupAgent"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/main_activity_title"
+        android:label="@string/flow_app_title"
         android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
-        android:theme="@style/AppBaseTheme">
+        android:theme="@style/FlowTheme.Light">
 
         <activity
             android:name=".activities.habits.edit.EditHabitActivity"
@@ -49,16 +49,16 @@
         <activity
             android:name=".activities.habits.list.ListHabitsActivity"
             android:exported="true"
-            android:label="@string/main_activity_title"
+            android:label="@string/flow_app_title"
             android:launchMode="singleTop" />
 
         <activity-alias
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/main_activity_title"
+            android:label="@string/flow_app_title"
             android:launchMode="singleTop"
             android:targetActivity=".activities.habits.list.ListHabitsActivity">
-            <intent-filter android:label="@string/main_activity_title">
+            <intent-filter android:label="@string/flow_app_title">
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -223,36 +223,36 @@
             android:permission="false">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
-                <action android:name="org.isoron.uhabits.ACTION_SET_NUMERICAL_VALUE" />
+                <action android:name="org.isoron.uhabits.flow.ACTION_SET_NUMERICAL_VALUE" />
                 <data
-                    android:host="org.isoron.uhabits"
+                    android:host="org.isoron.uhabits.flow"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <action android:name="org.isoron.uhabits.ACTION_TOGGLE_REPETITION" />
+                <action android:name="org.isoron.uhabits.flow.ACTION_TOGGLE_REPETITION" />
 
                 <data
-                    android:host="org.isoron.uhabits"
+                    android:host="org.isoron.uhabits.flow"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <action android:name="org.isoron.uhabits.ACTION_ADD_REPETITION" />
+                <action android:name="org.isoron.uhabits.flow.ACTION_ADD_REPETITION" />
 
                 <data
-                    android:host="org.isoron.uhabits"
+                    android:host="org.isoron.uhabits.flow"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <action android:name="org.isoron.uhabits.ACTION_REMOVE_REPETITION" />
+                <action android:name="org.isoron.uhabits.flow.ACTION_REMOVE_REPETITION" />
 
                 <data
-                    android:host="org.isoron.uhabits"
+                    android:host="org.isoron.uhabits.flow"
                     android:scheme="content" />
             </intent-filter>
         </receiver>
@@ -262,7 +262,7 @@
             android:name=".automation.EditSettingActivity"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name">
+            android:label="@string/flow_app_title">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
             </intent-filter>
@@ -279,7 +279,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="org.isoron.uhabits"
+            android:authorities="${applicationId}"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

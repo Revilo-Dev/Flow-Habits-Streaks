@@ -55,7 +55,7 @@ android {
         versionName = "2.3.1"
         minSdk = 28
         targetSdk = 36
-        applicationId = "org.isoron.uhabits"
+        applicationId = "org.isoron.uhabits.flow"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -81,6 +81,15 @@ android {
 
         debug {
             enableUnitTestCoverage = true
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    applicationVariants.all {
+        val apkFileName = "Flow-Habits-Streaks-v$versionName-$name.apk"
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                apkFileName
         }
     }
 

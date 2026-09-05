@@ -25,21 +25,22 @@
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="22dp"
+            style="@style/Widget.Flow.InlineDropdown"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:entries="@array/strengthIntervalNames"
-            android:theme="@style/SmallSpinner"
+            android:spinnerMode="dropdown"
+            android:theme="@style/FlowPopupTheme"
             />
 
         <TextView
             android:id="@+id/title"
-            style="@style/CardHeader"
+            style="@style/ShowHabit.Flow.CardHeader"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
+            android:drawableStart="@drawable/flow_ic_score"
             android:text="@string/score"/>
 
         <org.isoron.uhabits.activities.common.views.ScoreChart

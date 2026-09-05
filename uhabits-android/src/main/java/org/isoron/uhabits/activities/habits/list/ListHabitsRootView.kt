@@ -19,16 +19,32 @@
 
 package org.isoron.uhabits.activities.habits.list
 
+import android.app.Activity
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
-import android.widget.RelativeLayout
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.tatarka.inject.annotations.Inject
 import nl.dionsegijn.konfetti.xml.KonfettiView
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.ScrollableChart
 import org.isoron.uhabits.activities.common.views.TaskProgressBar
 import org.isoron.uhabits.activities.habits.list.views.EmptyListView
+import org.isoron.uhabits.activities.habits.list.views.FlowLargeHeaderView
+import org.isoron.uhabits.activities.habits.list.views.FlowSelectionActionBar
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListView
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListViewFactory
@@ -42,19 +58,15 @@ import org.isoron.uhabits.core.ui.screens.habits.list.HintListFactory
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
-import org.isoron.uhabits.utils.addAtBottom
-import org.isoron.uhabits.utils.addAtTop
-import org.isoron.uhabits.utils.addBelow
-import org.isoron.uhabits.utils.buildToolbar
+import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.buildFlowToolbar
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dim
-import org.isoron.uhabits.utils.dp
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import kotlin.math.max
-import kotlin.math.min
 
 const val MAX_CHECKMARK_COUNT = 60
+const val HOME_CHECKMARK_COUNT = 4
 
 @Inject
 @ActivityScope
@@ -70,44 +82,174 @@ class ListHabitsRootView(
 
     val listView: HabitCardListView = habitCardListViewFactory.create()
     val llEmpty = EmptyListView(context)
-    val tbar = buildToolbar()
+    val tbar = buildFlowToolbar()
     val konfettiView = KonfettiView(context).apply {
         translationZ = 10f
     }
     val progressBar = TaskProgressBar(context, runner)
     val hintView: HintView
     val header = HeaderView(context, preferences, midnightTimer)
+    val largeHeader = FlowLargeHeaderView(context, midnightTimer, preferences)
+    val selectionActions = FlowSelectionActionBar(context).apply {
+        id = R.id.flowSelectionActions
+    }
+    var onCreateHabit: (() -> Unit)? = null
+
+    private val addButton = FloatingActionButton(context).apply {
+        id = R.id.actionCreateHabit
+        customSize = resources.getDimensionPixelSize(R.dimen.flow_fab_size)
+        setImageResource(R.drawable.flow_ic_add)
+        backgroundTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowSurfaceSecondaryColor))
+        imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowAccentColor))
+        contentDescription = resources.getString(R.string.add_habit)
+        compatElevation = if (
+            ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
+        ) {
+            dim(R.dimen.flow_fab_elevation)
+        } else {
+            0f
+        }
+        setOnClickListener { onCreateHabit?.invoke() }
+    }
 
     init {
         val hints = resources.getStringArray(R.array.hints)
         val hintList = hintListFactory.create(hints)
         hintView = HintView(context, hintList)
 
-        val rootView = RelativeLayout(context).apply {
-            background = sres.getDrawable(R.attr.windowBackgroundColor)
-            addAtTop(konfettiView)
-            addAtTop(tbar)
-            addBelow(header, tbar)
-            addBelow(listView, header, height = MATCH_PARENT)
-            addBelow(llEmpty, header, height = MATCH_PARENT)
-            addBelow(progressBar, header) {
-                it.topMargin = dp(-6.0f).toInt()
+        val flowBackground = sres.getColor(R.attr.flowBackgroundColor)
+        val toolbarHeight = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+        val appBar = AppBarLayout(context).apply {
+            setBackgroundColor(flowBackground)
+            elevation = 0f
+            applyToolbarInsets()
+        }
+        val collapsingToolbar = CollapsingToolbarLayout(context).apply {
+            title = resources.getString(R.string.flow_app_title)
+            setExpandedTitleColor(Color.TRANSPARENT)
+            setCollapsedTitleTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
+            setContentScrimColor(flowBackground)
+            setStatusBarScrimColor(flowBackground)
+            addView(
+                largeHeader,
+                CollapsingToolbarLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                    topMargin = toolbarHeight
+                    collapseMode = CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PARALLAX
+                    parallaxMultiplier = 0.7f
+                }
+            )
+            addView(
+                tbar,
+                CollapsingToolbarLayout.LayoutParams(MATCH_PARENT, toolbarHeight).apply {
+                    collapseMode = CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PIN
+                }
+            )
+        }
+        appBar.addView(
+            collapsingToolbar,
+            AppBarLayout.LayoutParams(
+                MATCH_PARENT,
+                resources.getDimensionPixelSize(R.dimen.flow_home_header_expanded_height)
+            ).apply {
+                scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED or
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
             }
-            addAtBottom(hintView)
+        )
+        appBar.addView(header, AppBarLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+
+        val content = FrameLayout(context).apply {
+            setBackgroundColor(flowBackground)
+            addView(listView, LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            addView(llEmpty, LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            addView(
+                progressBar,
+                LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    topMargin = -resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+                }
+            )
+        }
+        val rootView = CoordinatorLayout(context).apply {
+            setBackgroundColor(flowBackground)
+            addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(
+                content,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                    behavior = AppBarLayout.ScrollingViewBehavior()
+                }
+            )
+            addView(
+                hintView,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    gravity = Gravity.BOTTOM
+                }
+            )
+            addView(
+                selectionActions,
+                CoordinatorLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    gravity = Gravity.START or Gravity.BOTTOM
+                    marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+                }
+            )
+            addView(
+                addButton,
+                CoordinatorLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.flow_fab_size),
+                    resources.getDimensionPixelSize(R.dimen.flow_fab_size)
+                ).apply {
+                    gravity = Gravity.END or Gravity.BOTTOM
+                    marginEnd = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+                }
+            )
+            addView(
+                konfettiView,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            )
+        }
+        val baseFabBottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+        ViewCompat.setOnApplyWindowInsetsListener(addButton) { button, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            (button.layoutParams as CoordinatorLayout.LayoutParams).apply {
+                bottomMargin = baseFabBottomMargin + systemBars.bottom
+                button.layoutParams = this
+            }
+            insets
+        }
+        val baseSelectionBottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_safe_margin)
+        ViewCompat.setOnApplyWindowInsetsListener(selectionActions) { actions, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            (actions.layoutParams as CoordinatorLayout.LayoutParams).apply {
+                bottomMargin = baseSelectionBottomMargin + systemBars.bottom
+                actions.layoutParams = this
+            }
+            insets
         }
         rootView.setupToolbar(
             toolbar = tbar,
-            title = resources.getString(R.string.main_activity_title),
+            title = "",
             color = PaletteColor(17),
             displayHomeAsUpEnabled = false,
-            theme = currentTheme()
+            theme = currentTheme(),
+            applyTopInset = false
         )
+        tbar.overflowIcon = AppCompatResources.getDrawable(context, R.drawable.flow_ic_more)
+        tbar.background = ColorDrawable(flowBackground)
+        tbar.elevation = 0f
+        val window = (context as Activity).window
+        window.statusBarColor = flowBackground
+        WindowInsetsControllerCompat(window, rootView).isAppearanceLightStatusBars =
+            ColorUtils.calculateLuminance(flowBackground) > 0.5
+        listView.setBackgroundColor(flowBackground)
         addView(rootView, MATCH_PARENT, MATCH_PARENT)
         listAdapter.setListView(listView)
+        updateHeader()
     }
 
     override fun onModelChange() {
         updateEmptyView()
+        updateHeader()
     }
 
     private fun setupControllers() {
@@ -132,19 +274,17 @@ class ListHabitsRootView(
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        val count = getCheckmarkCount()
-        header.buttonCount = count
-        header.setMaxDataOffset(max(MAX_CHECKMARK_COUNT - count, 0))
-        listView.checkmarkCount = count
+        header.buttonCount = HOME_CHECKMARK_COUNT
+        header.setMaxDataOffset(MAX_CHECKMARK_COUNT - HOME_CHECKMARK_COUNT)
+        listView.checkmarkCount = HOME_CHECKMARK_COUNT
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
-    private fun getCheckmarkCount(): Int {
-        val nameWidth = dim(R.dimen.habitNameWidth)
-        val buttonWidth = dim(R.dimen.checkmarkWidth)
-        val labelWidth = max((measuredWidth / 3).toFloat(), nameWidth)
-        val buttonCount = ((measuredWidth - labelWidth) / buttonWidth).toInt()
-        return min(MAX_CHECKMARK_COUNT, max(0, buttonCount))
+    private fun updateHeader() {
+        largeHeader.updateSummary(
+            listAdapter.getCompletionSummary(),
+            listAdapter.getPerfectStreakSummary()
+        )
     }
 
     private fun updateEmptyView() {

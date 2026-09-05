@@ -1,272 +1,292 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright (C) 2016-2025 Álinson Santos Xavier <git@axavier.org>
-  ~
-  ~ This file is part of Loop Habit Tracker.
-  ~
-  ~ Loop Habit Tracker is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by the
-  ~ Free Software Foundation, either version 3 of the License, or (at your
-  ~ option) any later version.
-  ~
-  ~ Loop Habit Tracker is distributed in the hope that it will be useful, but
-  ~ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-  ~ more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along
-  ~ with this program. If not, see <http://www.gnu.org/licenses/>.
-  -->
-
-<LinearLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/contrast0"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
+    android:background="?attr/flowBackgroundColor"
     tools:context=".activities.habits.edit.EditHabitActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/flowBackgroundColor"
+        android:elevation="0dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:elevation="2dp"
-            android:gravity="end"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:title="@string/create_habit"
-            app:titleTextColor="@color/white">
+            android:layout_height="@dimen/flow_secondary_header_expanded_height"
+            app:collapsedTitleTextColor="?attr/flowTextPrimaryColor"
+            app:contentScrim="?attr/flowBackgroundColor"
+            app:expandedTitleMarginBottom="@dimen/flow_extra_large_spacing"
+            app:expandedTitleMarginEnd="@dimen/flow_screen_padding"
+            app:expandedTitleMarginStart="@dimen/flow_screen_padding"
+            app:expandedTitleTextAppearance="@style/TextAppearance.Flow.ScreenTitle"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:statusBarScrim="?attr/flowBackgroundColor">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonSave"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="16dp"
-                android:text="@string/save"
-                android:textColor="@color/white"
-                app:rippleColor="@color/white"
-                app:strokeColor="@color/white" />
-        </androidx.appcompat.widget.Toolbar>
-
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/flow_toolbar_height"
+                android:background="@android:color/transparent"
+                android:elevation="0dp"
+                android:theme="?attr/flowToolbarTheme"
+                app:layout_collapseMode="pin"
+                app:popupTheme="?toolbarPopupTheme" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/editorScrollView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="?attr/contrast0">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="@dimen/flow_editor_action_clearance"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="8dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp">
+            android:paddingStart="@dimen/flow_body_padding"
+            android:paddingTop="@dimen/flow_large_spacing"
+            android:paddingEnd="@dimen/flow_body_padding"
+            android:paddingBottom="@dimen/flow_section_spacing">
 
-            <!-- Title and color -->
+            <TextView
+                style="@style/Flow.Form.SectionLabel"
+                android:text="@string/habit" />
+
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+                style="@style/Flow.Form.Card"
+                android:orientation="vertical">
 
-                <!-- Habit Title -->
-                <FrameLayout
-                    style="@style/FormOuterBox"
-                    android:layout_width="0dp"
-                    android:layout_weight="1">
-                    <LinearLayout style="@style/FormInnerBox">
-                        <TextView
-                            style="@style/FormLabel"
-                            android:text="@string/name" />
-                        <EditText
-                            android:id="@+id/nameInput"
-                            style="@style/FormInput"
-                            android:maxLines="2"
-                            android:maxLength="50"
-                            android:inputType="textCapSentences|textMultiLine"
-                            android:hint="@string/yes_or_no_short_example"
-                            />
-                    </LinearLayout>
-                </FrameLayout>
+                <TextView
+                    style="@style/Flow.Form.Label"
+                    android:text="@string/name" />
 
-                <!-- Habit Color -->
-                <FrameLayout
-                    style="@style/FormOuterBox"
-                    android:layout_width="80dp"
-                    android:layout_height="match_parent">
-                    <LinearLayout style="@style/FormInnerBox">
-                        <TextView
-                            style="@style/FormLabel"
-                            android:text="@string/color" />
-                        <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/colorButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="16dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginRight="16dp"
-                            android:layout_marginBottom="8dp"
-                            android:backgroundTint="#E23673" />
+                <EditText
+                    android:id="@+id/nameInput"
+                    style="@style/Flow.Form.Input"
+                    android:hint="@string/yes_or_no_short_example"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLength="50"
+                    android:maxLines="2" />
 
-                    </LinearLayout>
-                </FrameLayout>
+                <View style="@style/Flow.Form.Divider" />
+
+                <TextView
+                    style="@style/Flow.Form.Label"
+                    android:text="@string/flow_icon" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/iconButton"
+                    style="@style/Flow.Form.Picker"
+                    android:text="@string/flow_choose_emoji" />
+
+                <View style="@style/Flow.Form.Divider" />
+
+                <TextView
+                    style="@style/Flow.Form.Label"
+                    android:text="@string/question" />
+
+                <EditText
+                    android:id="@+id/questionInput"
+                    style="@style/Flow.Form.Input"
+                    android:hint="@string/example_question_boolean"
+                    android:inputType="textCapSentences|textMultiLine" />
+
+                <View style="@style/Flow.Form.Divider" />
+
+                <TextView
+                    style="@style/Flow.Form.Label"
+                    android:text="@string/color" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/colorButton"
+                    android:layout_width="64dp"
+                    android:layout_height="@dimen/flow_min_touch_target"
+                    android:layout_marginTop="@dimen/flow_medium_spacing"
+                    android:background="@drawable/flow_color_swatch_background"
+                    android:backgroundTint="#E23673"
+                    android:contentDescription="@string/color" />
+
+                <View style="@style/Flow.Form.Divider" />
+
+                <TextView
+                    style="@style/Flow.Form.Label"
+                    android:text="@string/notes" />
+
+                <EditText
+                    android:id="@+id/notesInput"
+                    style="@style/Flow.Form.Input"
+                    android:hint="@string/example_notes"
+                    android:inputType="textCapSentences|textMultiLine" />
             </LinearLayout>
 
-            <!-- Habit Question -->
-            <FrameLayout style="@style/FormOuterBox">
-                <LinearLayout style="@style/FormInnerBox">
-                    <TextView
-                        style="@style/FormLabel"
-                        android:text="@string/question" />
-                    <EditText
-                        android:id="@+id/questionInput"
-                        style="@style/FormInput"
-                        android:inputType="textCapSentences|textMultiLine"
-                        android:hint="@string/example_question_boolean"
-                         />
-                </LinearLayout>
-            </FrameLayout>
-
-            <!-- Frequency -->
-            <FrameLayout
-                android:id="@+id/frequencyOuterBox"
-                style="@style/FormOuterBox">
-                <LinearLayout style="@style/FormInnerBox">
-                    <TextView
-                        style="@style/FormLabel"
-                        android:text="@string/frequency" />
-                    <TextView
-                        style="@style/FormDropdown"
-                        android:id="@+id/boolean_frequency_picker"
-                        android:text="@string/every_day" />
-                </LinearLayout>
-            </FrameLayout>
-
-            <!-- Target value, unit and frequency -->
-            <FrameLayout
-                android:id="@+id/unitOuterBox"
-                style="@style/FormOuterBox">
-                <LinearLayout style="@style/FormInnerBox">
-                    <TextView
-                        style="@style/FormLabel"
-                        android:text="@string/unit" />
-                    <EditText
-                        style="@style/FormInput"
-                        android:id="@+id/unitInput"
-                        android:maxLines="1"
-                        android:ems="10"
-                        android:hint="@string/measurable_units_example"/>
-                </LinearLayout>
-            </FrameLayout>
+            <TextView
+                style="@style/Flow.Form.SectionLabel"
+                android:layout_marginTop="@dimen/flow_section_spacing"
+                android:text="@string/flow_schedule" />
 
             <LinearLayout
-                android:id="@+id/targetOuterBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+                style="@style/Flow.Form.Card"
+                android:orientation="vertical">
+
                 <FrameLayout
-                    style="@style/FormOuterBox"
-                    android:layout_width="0dp"
-                    android:layout_weight="1">
-                    <LinearLayout style="@style/FormInnerBox">
+                    android:id="@+id/frequencyOuterBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
                         <TextView
-                            style="@style/FormLabel"
-                            android:text="@string/target" />
-                        <EditText
-                            style="@style/FormInput"
-                            android:id="@+id/targetInput"
-                            android:maxLines="1"
-                            android:inputType="numberDecimal"
-                            android:hint="@string/example_target"/>
-                    </LinearLayout>
-                </FrameLayout>
-                <FrameLayout
-                    style="@style/FormOuterBox"
-                    android:layout_width="0dp"
-                    android:layout_weight="1">
-                    <LinearLayout style="@style/FormInnerBox">
-                        <TextView
-                            style="@style/FormLabel"
+                            style="@style/Flow.Form.Label"
                             android:text="@string/frequency" />
                         <TextView
-                            style="@style/FormDropdown"
-                            android:id="@+id/numericalFrequencyPicker"
-                            android:text="@string/every_week"
-                            android:textColor="?attr/contrast100"
-                            />
+                            android:id="@+id/boolean_frequency_picker"
+                            style="@style/Flow.Form.TextPicker"
+                            android:text="@string/every_day" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/unitOuterBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            style="@style/Flow.Form.Label"
+                            android:text="@string/unit" />
+                        <EditText
+                            android:id="@+id/unitInput"
+                            style="@style/Flow.Form.Input"
+                            android:hint="@string/measurable_units_example"
+                            android:maxLines="1" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/targetOuterBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/Flow.Form.Label"
+                        android:text="@string/target" />
+                    <EditText
+                        android:id="@+id/targetInput"
+                        style="@style/Flow.Form.Input"
+                        android:hint="@string/example_target"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1" />
+                    <View style="@style/Flow.Form.Divider" />
+                    <TextView
+                        style="@style/Flow.Form.Label"
+                        android:text="@string/frequency" />
+                    <TextView
+                        android:id="@+id/numericalFrequencyPicker"
+                        style="@style/Flow.Form.TextPicker"
+                        android:text="@string/every_week" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:id="@+id/targetTypeOuterBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <View style="@style/Flow.Form.Divider" />
+                        <TextView
+                            style="@style/Flow.Form.Label"
+                            android:text="@string/target_type" />
+                        <TextView
+                            android:id="@+id/targetTypePicker"
+                            style="@style/Flow.Form.TextPicker" />
                     </LinearLayout>
                 </FrameLayout>
             </LinearLayout>
 
-            <FrameLayout
-                android:id="@+id/targetTypeOuterBox"
-                style="@style/FormOuterBox">
-                <LinearLayout style="@style/FormInnerBox">
-                    <TextView
-                        style="@style/FormLabel"
-                        android:text="@string/target_type" />
-                    <TextView
-                        style="@style/FormDropdown"
-                        android:id="@+id/targetTypePicker"
-                        android:textColor="?attr/contrast100"
-                        />
-                </LinearLayout>
-            </FrameLayout>
+            <TextView
+                style="@style/Flow.Form.SectionLabel"
+                android:layout_marginTop="@dimen/flow_section_spacing"
+                android:text="@string/reminder" />
 
-
-            <!-- Reminder -->
-            <FrameLayout style="@style/FormOuterBox">
-                <LinearLayout style="@style/FormInnerBox">
-                    <TextView
-                        style="@style/FormLabel"
-                        android:text="@string/reminder" />
-
-                    <TextView
-                        style="@style/FormDropdown"
-                        android:id="@+id/reminderTimePicker"
-                        android:text="@string/reminder_off" />
-
-                    <View
-                        style="@style/FormDivider"
-                        android:id="@+id/reminderDivider"/>
-
-                    <TextView
-                        style="@style/FormDropdown"
-                        android:id="@+id/reminderDatePicker"
-                        android:text="" />
-                </LinearLayout>
-            </FrameLayout>
-
-
-            <!-- Notes -->
-            <FrameLayout style="@style/FormOuterBox">
-                <LinearLayout style="@style/FormInnerBox">
-                    <TextView
-                        style="@style/FormLabel"
-                        android:text="@string/notes" />
-
-                    <EditText
-                        android:id="@+id/notesInput"
-                        style="@style/FormInput"
-                        android:inputType="textCapSentences|textMultiLine"
-                        android:hint="@string/example_notes" />
-                </LinearLayout>
-            </FrameLayout>
+            <LinearLayout
+                style="@style/Flow.Form.Card"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/reminderTimePicker"
+                    style="@style/Flow.Form.TextPicker"
+                    android:text="@string/reminder_off" />
+                <View
+                    android:id="@+id/reminderDivider"
+                    style="@style/Flow.Form.Divider" />
+                <TextView
+                    android:id="@+id/reminderDatePicker"
+                    style="@style/Flow.Form.TextPicker" />
+            </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-</LinearLayout>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/flow_editor_action_height"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="@dimen/flow_screen_padding"
+        android:layout_marginEnd="@dimen/flow_screen_padding"
+        android:layout_marginBottom="@dimen/flow_large_spacing"
+        app:cardBackgroundColor="?attr/flowSurfaceSecondaryColor"
+        app:cardCornerRadius="@dimen/flow_dialog_radius"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/flow_medium_spacing"
+            android:paddingEnd="@dimen/flow_medium_spacing">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonDiscard"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/flow_discard"
+                android:textAllCaps="false"
+                android:textColor="?attr/flowTextSecondaryColor"
+                app:rippleColor="?attr/flowRippleColor" />
+
+            <View
+                android:layout_width="@dimen/flow_divider_size"
+                android:layout_height="28dp"
+                android:background="?attr/flowDividerColor" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonSave"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/save"
+                android:textAllCaps="false"
+                android:textColor="?attr/flowAccentColor"
+                app:rippleColor="?attr/flowRippleColor" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

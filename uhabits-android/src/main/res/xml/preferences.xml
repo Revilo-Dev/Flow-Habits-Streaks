@@ -21,58 +21,24 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-            android:key="interfaceCategory"
-            android:title="@string/interface_preferences">
-
-        <SwitchPreferenceCompat
-                android:defaultValue="false"
-                android:key="pref_short_toggle"
-                android:summary="@string/pref_toggle_description_2"
-                android:title="@string/pref_toggle_title"
-                app:iconSpaceReserved="false" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="pref_midnight_delay"
-            android:summary="@string/pref_midnight_delay_description"
-            android:title="@string/pref_midnight_delay_title"
-            app:iconSpaceReserved="false" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="pref_skip_enabled"
-            android:summary="@string/pref_skip_description"
-            android:title="@string/pref_skip_title"
-            app:iconSpaceReserved="false" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="pref_unknown_enabled"
-            android:summary="@string/pref_unknown_description"
-            android:title="@string/pref_unknown_title"
-            app:iconSpaceReserved="false" />
-
-        <SwitchPreferenceCompat
-                android:defaultValue="false"
-                android:key="pref_checkmark_reverse_order"
-                android:summary="@string/reverse_days_description"
-                android:title="@string/reverse_days"
-                app:iconSpaceReserved="false" />
-
+            android:key="appearanceCategory"
+            android:title="@string/flow_settings_appearance">
 
         <SwitchPreferenceCompat
                 android:defaultValue="false"
                 android:key="pref_pure_black"
                 android:summary="@string/pure_black_description"
                 android:title="@string/use_pure_black"
-                app:iconSpaceReserved="false" />
+                app:iconSpaceReserved="false"
+                app:widgetLayout="@layout/flow_preference_switch" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="pref_disable_animation"
             android:summary="@string/pref_animations_description"
             android:title="@string/pref_animations_title"
-            app:iconSpaceReserved="false" />
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
 
         <ListPreference
                 android:defaultValue="255"
@@ -83,6 +49,53 @@
                 android:title="@string/widget_opacity_title"
                 app:iconSpaceReserved="false" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:key="interfaceCategory"
+            android:title="@string/flow_settings_habits">
+
+        <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="pref_short_toggle"
+                android:summary="@string/pref_toggle_description_2"
+                android:title="@string/pref_toggle_title"
+                app:iconSpaceReserved="false"
+                app:widgetLayout="@layout/flow_preference_switch" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="pref_midnight_delay"
+            android:summary="@string/pref_midnight_delay_description"
+            android:title="@string/pref_midnight_delay_title"
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="pref_skip_enabled"
+            android:summary="@string/pref_skip_description"
+            android:title="@string/pref_skip_title"
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="pref_unknown_enabled"
+            android:summary="@string/pref_unknown_description"
+            android:title="@string/pref_unknown_title"
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
+
+        <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="pref_checkmark_reverse_order"
+                android:summary="@string/reverse_days_description"
+                android:title="@string/reverse_days"
+                app:iconSpaceReserved="false"
+                app:widgetLayout="@layout/flow_preference_switch" />
+
+
         <ListPreference
                 android:key="pref_first_weekday"
                 android:title="@string/first_day_of_the_week"
@@ -92,7 +105,7 @@
 
     <PreferenceCategory
             android:key="reminderCategory"
-            android:title="@string/reminder">
+            android:title="@string/flow_settings_notifications">
 
         <Preference
                 android:key="reminderSound"
@@ -104,7 +117,8 @@
                 android:key="pref_sticky_notifications"
                 android:summary="@string/sticky_notifications_description"
                 android:title="@string/sticky_notifications"
-                app:iconSpaceReserved="false" />
+                app:iconSpaceReserved="false"
+                app:widgetLayout="@layout/flow_preference_switch" />
 
         <Preference
                 android:key="reminderCustomize"
@@ -116,7 +130,7 @@
 
     <PreferenceCategory
             android:key="databaseCategory"
-            android:title="@string/database">
+            android:title="@string/flow_settings_data">
 
         <Preference
                 android:key="exportDB"
@@ -162,7 +176,7 @@
 
     <PreferenceCategory
             android:key="linksCategory"
-            android:title="@string/links">
+            android:title="@string/flow_settings_support">
 
         <Preference
                 android:title="@string/help"
@@ -184,7 +198,7 @@
             <intent
                     android:action="android.intent.action.VIEW"
                     android:targetClass="org.isoron.uhabits.activities.about.AboutActivity"
-                    android:targetPackage="org.isoron.uhabits" />
+                    android:targetPackage="org.isoron.uhabits.flow" />
         </Preference>
 
     </PreferenceCategory>
@@ -197,7 +211,8 @@
                 android:defaultValue="false"
                 android:key="pref_developer"
                 android:title="Enable developer mode"
-                app:iconSpaceReserved="false" />
+                app:iconSpaceReserved="false"
+                app:widgetLayout="@layout/flow_preference_switch" />
 
         <EditTextPreference
             android:defaultValue="@string/syncBaseURL"

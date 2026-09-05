@@ -26,7 +26,8 @@
 
     <TextView
         android:id="@+id/title"
-        style="@style/CardHeader"
+        style="@style/ShowHabit.Flow.CardHeader"
+        android:drawableStart="@drawable/flow_ic_calendar"
         android:text="@string/calendar"/>
 
     <org.isoron.platform.gui.AndroidDataView
@@ -34,15 +35,15 @@
         android:layout_width="match_parent"
         android:layout_height="160dp"/>
 
-    <androidx.appcompat.widget.AppCompatButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/edit"
-        style="?android:borderlessButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/flow_min_touch_target"
+        android:layout_height="@dimen/flow_min_touch_target"
         android:layout_gravity="center"
-        android:src="@drawable/ic_action_edit_light"
-        android:text="@string/edit"
-        android:textColor="@color/grey_400"
-        android:textSize="@dimen/smallTextSize"/>
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/edit"
+        android:padding="@dimen/flow_medium_spacing"
+        android:src="@drawable/flow_ic_edit"
+        android:tint="?attr/flowTextSecondaryColor" />
 
 </merge>

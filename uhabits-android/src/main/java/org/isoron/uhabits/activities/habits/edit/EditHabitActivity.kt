@@ -22,18 +22,37 @@ package org.isoron.uhabits.activities.habits.edit
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.icu.text.BreakIterator
 import android.os.Bundle
 import android.text.Html
+import android.text.InputFilter
+import android.text.InputType
 import android.text.Spanned
 import android.text.format.DateFormat
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.GridLayout
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
 import com.android.datetimepicker.time.RadialPickerLayout
 import com.android.datetimepicker.time.TimePickerDialog
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.button.MaterialButton
 import org.isoron.platform.gui.toInt
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
@@ -52,12 +71,14 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.databinding.ActivityEditHabitBinding
-import org.isoron.uhabits.utils.applyBottomInset
+import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.dismissCurrentAndShow
 import org.isoron.uhabits.utils.formatTime
+import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import org.isoron.uhabits.utils.toFormattedString
+import java.util.Locale
 
 fun formatFrequency(freqNum: Int, freqDen: Int, resources: Resources) = when {
     freqNum == 1 && (freqDen == 30 || freqDen == 31) -> resources.getString(R.string.every_month)
@@ -77,6 +98,7 @@ class EditHabitActivity : AppCompatActivity() {
 
     var habitId = -1L
     lateinit var habitType: HabitType
+    var icon = ""
     var unit = ""
     var color = PaletteColor(11)
     var androidColor = 0
@@ -96,12 +118,20 @@ class EditHabitActivity : AppCompatActivity() {
 
         binding = ActivityEditHabitBinding.inflate(layoutInflater)
         binding.root.applyRootViewInsets()
-        binding.root.applyBottomInset()
-        binding.toolbar.applyToolbarInsets()
+        binding.appBar.applyToolbarInsets()
+        val baseActionMargin = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomActionBar) { actionBar, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            actionBar.layoutParams =
+                (actionBar.layoutParams as androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams).apply {
+                    bottomMargin = baseActionMargin + systemBars.bottom
+                }
+            insets
+        }
         setContentView(binding.root)
 
         if (intent.hasExtra("habitId")) {
-            binding.toolbar.title = getString(R.string.edit_habit)
+            binding.collapsingToolbar.title = getString(R.string.edit_habit)
             habitId = intent.getLongExtra("habitId", -1)
             val habit = component.habitList.getById(habitId)!!
             habitType = habit.type
@@ -109,6 +139,7 @@ class EditHabitActivity : AppCompatActivity() {
             freqNum = habit.frequency.numerator
             freqDen = habit.frequency.denominator
             targetType = habit.targetType
+            icon = habit.icon
             habit.reminder?.let {
                 reminderHour = it.hour
                 reminderMin = it.minute
@@ -120,6 +151,7 @@ class EditHabitActivity : AppCompatActivity() {
             binding.unitInput.setText(habit.unit)
             binding.targetInput.setText(habit.targetValue.toString())
         } else {
+            binding.collapsingToolbar.title = getString(R.string.create_habit)
             habitType = HabitType.fromInt(intent.getIntExtra("habitType", HabitType.YES_NO.value))
         }
 
@@ -132,9 +164,11 @@ class EditHabitActivity : AppCompatActivity() {
             reminderHour = state.getInt("reminderHour")
             reminderMin = state.getInt("reminderMin")
             reminderDays = WeekdayList(state.getInt("reminderDays"))
+            icon = state.getString("icon", "")
         }
 
         updateColors()
+        updateIconButton()
 
         when (habitType) {
             HabitType.YES_NO -> {
@@ -152,7 +186,12 @@ class EditHabitActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.elevation = 10.0f
+        supportActionBar?.title = ""
+        supportActionBar?.elevation = 0f
+        binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
+        binding.toolbar.setNavigationOnClickListener { finish() }
+
+        binding.iconButton.setOnClickListener { showEmojiPicker() }
 
         val colorPickerDialogFactory = ColorPickerDialogFactory(this)
         binding.colorButton.setOnClickListener {
@@ -254,6 +293,7 @@ class EditHabitActivity : AppCompatActivity() {
         binding.buttonSave.setOnClickListener {
             if (validate()) save()
         }
+        binding.buttonDiscard.setOnClickListener { finish() }
 
         for (fragment in supportFragmentManager.fragments) {
             (fragment as DialogFragment).dismiss()
@@ -273,6 +313,7 @@ class EditHabitActivity : AppCompatActivity() {
         habit.name = binding.nameInput.text.trim().toString()
         habit.question = binding.questionInput.text.trim().toString()
         habit.description = binding.notesInput.text.trim().toString()
+        habit.icon = icon
         habit.color = color
         if (reminderHour >= 0) {
             habit.reminder = Reminder(reminderHour, reminderMin, reminderDays)
@@ -355,15 +396,316 @@ class EditHabitActivity : AppCompatActivity() {
     private fun updateColors() {
         androidColor = themeSwitcher.currentTheme.color(color).toInt()
         binding.colorButton.backgroundTintList = ColorStateList.valueOf(androidColor)
-        if (!themeSwitcher.isNightMode) {
-            window.statusBarColor = androidColor
-            binding.toolbar.setBackgroundColor(androidColor)
+        val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
+        window.statusBarColor = flowBackground
+        binding.toolbar.setBackgroundColor(Color.TRANSPARENT)
+        binding.bottomActionBar.cardElevation = if (ColorUtils.calculateLuminance(flowBackground) > 0.5) {
+            resources.getDimension(R.dimen.flow_fab_elevation)
+        } else {
+            0f
+        }
+        WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars =
+            ColorUtils.calculateLuminance(flowBackground) > 0.5
+    }
+
+    private fun updateIconButton() {
+        binding.iconButton.text = if (icon.isBlank()) {
+            getString(R.string.flow_choose_emoji)
+        } else {
+            getString(R.string.flow_change_emoji, icon)
+        }
+    }
+
+    private fun showEmojiPicker() {
+        val smallSpacing = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+        val largeSpacing = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
+        val bodyPadding = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+        val styledResources = StyledResources(this)
+        val secondarySurface = styledResources.getColor(R.attr.flowSurfaceSecondaryColor)
+        val secondaryText = styledResources.getColor(R.attr.flowTextSecondaryColor)
+        val tertiaryText = styledResources.getColor(R.attr.flowTextTertiaryColor)
+        val accent = styledResources.getColor(R.attr.flowAccentColor)
+
+        val input = EditText(this).apply {
+            gravity = Gravity.CENTER
+            hint = "😀"
+            inputType = InputType.TYPE_CLASS_TEXT or
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD or
+                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            filters = arrayOf(iconCharacterFilter, InputFilter.LengthFilter(32))
+            maxLines = 1
+            textSize = 32f
+            minHeight = resources.getDimensionPixelSize(R.dimen.flow_emoji_preview_height)
+            setPadding(largeSpacing, smallSpacing, largeSpacing, smallSpacing)
+            setTextColor(styledResources.getColor(R.attr.flowTextPrimaryColor))
+            setHintTextColor(tertiaryText)
+            setBackgroundResource(R.drawable.flow_surface_secondary_background)
+            setText(icon)
+            setSelection(text.length)
+        }
+        val emojiKeyboardButton = MaterialButton(
+            this,
+            null,
+            com.google.android.material.R.attr.materialButtonOutlinedStyle
+        ).apply {
+            contentDescription = getString(R.string.flow_open_emoji_keyboard)
+            setIconResource(R.drawable.flow_ic_emoji)
+            iconSize = resources.getDimensionPixelSize(R.dimen.flow_icon_size)
+            minimumWidth = 0
+            minWidth = 0
+            minimumHeight = 0
+            minHeight = 0
+            insetTop = 0
+            insetBottom = 0
+            cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
+            backgroundTintList = ColorStateList.valueOf(secondarySurface)
+            rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
+            strokeWidth = 0
+            setOnClickListener {
+                input.requestFocus()
+                input.requestFocusWithKeyboard()
+            }
+        }
+        val inputRow = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            orientation = LinearLayout.HORIZONTAL
+            addView(input, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
+            addView(
+                emojiKeyboardButton,
+                LinearLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.flow_min_touch_target),
+                    resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+                ).apply {
+                    marginStart = smallSpacing
+                }
+            )
+        }
+        val dragHandle = View(this).apply {
+            background = GradientDrawable().apply {
+                cornerRadius = resources.displayMetrics.density * 2
+                setColor(ColorUtils.setAlphaComponent(tertiaryText, 150))
+            }
+        }
+        val title = TextView(this).apply {
+            text = getString(R.string.flow_emoji_picker_title)
+            setTextColor(styledResources.getColor(R.attr.flowTextPrimaryColor))
+            setTextSize(
+                android.util.TypedValue.COMPLEX_UNIT_PX,
+                resources.getDimension(R.dimen.flow_text_sheet_title)
+            )
+            setTypeface(typeface, Typeface.BOLD)
+        }
+        val hint = TextView(this).apply {
+            text = getString(R.string.flow_emoji_picker_hint)
+            setTextAppearance(R.style.TextAppearance_Flow_Supporting)
+        }
+        val suggestionsTitle = TextView(this).apply {
+            text = getString(R.string.flow_suggested_icons)
+            setTextAppearance(R.style.TextAppearance_Flow_SectionTitle)
+        }
+        val suggestions = GridLayout(this).apply {
+            columnCount = 6
+            alignmentMode = GridLayout.ALIGN_BOUNDS
+        }
+        resources.getStringArray(R.array.flow_emoji_suggestions).forEach { emoji ->
+            suggestions.addView(
+                MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+                    gravity = Gravity.CENTER
+                    text = emoji
+                    textSize = 24f
+                    isAllCaps = false
+                    contentDescription = emoji
+                    minimumWidth = 0
+                    minWidth = 0
+                    minimumHeight = 0
+                    minHeight = 0
+                    insetTop = 0
+                    insetBottom = 0
+                    cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
+                    backgroundTintList = ColorStateList.valueOf(secondarySurface)
+                    rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
+                    strokeWidth = 0
+                    setOnClickListener {
+                        input.setText(emoji)
+                        input.setSelection(input.text.length)
+                    }
+                },
+                GridLayout.LayoutParams().apply {
+                    width = (resources.displayMetrics.density * 48).toInt()
+                    height = (resources.displayMetrics.density * 48).toInt()
+                    setMargins(smallSpacing / 2, smallSpacing / 2, smallSpacing / 2, smallSpacing / 2)
+                }
+            )
+        }
+        val removeButton = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonStyle).apply {
+            text = getString(R.string.flow_remove_icon)
+            isAllCaps = false
+            setTextColor(secondaryText)
+            backgroundTintList = ColorStateList.valueOf(secondarySurface)
+            rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
+            cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
+        }
+        val useButton = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonStyle).apply {
+            text = getString(R.string.flow_use_icon)
+            isAllCaps = false
+            setTextColor(styledResources.getColor(R.attr.flowOnAccentColor))
+            backgroundTintList = ColorStateList.valueOf(accent)
+            rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
+            cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
+        }
+        val actions = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            addView(removeButton, LinearLayout.LayoutParams(0, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target), 1f))
+            addView(
+                useButton,
+                LinearLayout.LayoutParams(0, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target), 1f).apply {
+                    marginStart = smallSpacing
+                }
+            )
+        }
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(bodyPadding, smallSpacing, bodyPadding, bodyPadding)
+            setBackgroundResource(R.drawable.flow_bottom_sheet_background)
+            addView(
+                dragHandle,
+                LinearLayout.LayoutParams(
+                    resources.displayMetrics.density.times(36).toInt(),
+                    resources.displayMetrics.density.times(4).toInt()
+                ).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    bottomMargin = largeSpacing
+                }
+            )
+            addView(title)
+            addView(
+                hint,
+                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    topMargin = smallSpacing
+                    bottomMargin = largeSpacing
+                }
+            )
+            addView(inputRow, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(
+                suggestionsTitle,
+                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    topMargin = largeSpacing
+                    bottomMargin = smallSpacing
+                }
+            )
+            addView(
+                suggestions,
+                LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                }
+            )
+            addView(
+                actions,
+                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    topMargin = largeSpacing
+                }
+            )
+        }
+        val dialog = BottomSheetDialog(this, R.style.FlowBottomSheet).apply {
+            setContentView(content)
+        }
+        useButton.setOnClickListener {
+            val selectedIcon = firstGrapheme(input.text.toString())
+            if (selectedIcon.isNotEmpty() && !isEmojiOrUnicodeSymbol(selectedIcon)) {
+                input.error = getString(R.string.flow_icon_must_be_emoji_or_symbol)
+                input.requestFocus()
+                return@setOnClickListener
+            }
+            icon = selectedIcon
+            updateIconButton()
+            dialog.dismiss()
+        }
+        removeButton.setOnClickListener {
+            icon = ""
+            updateIconButton()
+            dialog.dismiss()
+        }
+        dialog.dismissCurrentAndShow()
+    }
+
+    private fun firstGrapheme(value: String): String {
+        val trimmed = value.trim()
+        if (trimmed.isEmpty()) return ""
+        val iterator = BreakIterator.getCharacterInstance(Locale.getDefault())
+        iterator.setText(trimmed)
+        val end = iterator.following(0)
+        return if (end == BreakIterator.DONE) "" else trimmed.substring(0, end)
+    }
+
+    private fun isEmojiOrUnicodeSymbol(value: String): Boolean {
+        var hasSymbol = false
+        var index = 0
+        while (index < value.length) {
+            val codePoint = value.codePointAt(index)
+            val type = Character.getType(codePoint)
+            val allowed = when (type) {
+                Character.OTHER_SYMBOL.toInt(),
+                Character.MATH_SYMBOL.toInt(),
+                Character.CURRENCY_SYMBOL.toInt(),
+                Character.MODIFIER_SYMBOL.toInt(),
+                Character.NON_SPACING_MARK.toInt(),
+                Character.COMBINING_SPACING_MARK.toInt(),
+                Character.ENCLOSING_MARK.toInt() -> true
+
+                else -> codePoint == ZERO_WIDTH_JOINER ||
+                    codePoint == TEXT_VARIATION_SELECTOR ||
+                    codePoint == EMOJI_VARIATION_SELECTOR
+            }
+            if (!allowed) return false
+            if (type == Character.OTHER_SYMBOL.toInt() ||
+                type == Character.MATH_SYMBOL.toInt() ||
+                type == Character.CURRENCY_SYMBOL.toInt() ||
+                type == Character.MODIFIER_SYMBOL.toInt()) {
+                hasSymbol = true
+            }
+            index += Character.charCount(codePoint)
+        }
+        return hasSymbol
+    }
+
+    private val iconCharacterFilter = InputFilter { source, start, end, _, _, _ ->
+        val entered = source.subSequence(start, end).toString()
+        val filtered = buildString {
+            var index = 0
+            while (index < entered.length) {
+                val codePoint = entered.codePointAt(index)
+                if (isAllowedIconCodePoint(codePoint)) appendCodePoint(codePoint)
+                index += Character.charCount(codePoint)
+            }
+        }
+        if (entered == filtered) null else filtered
+    }
+
+    private fun isAllowedIconCodePoint(codePoint: Int): Boolean {
+        return when (Character.getType(codePoint)) {
+            Character.OTHER_SYMBOL.toInt(),
+            Character.MATH_SYMBOL.toInt(),
+            Character.CURRENCY_SYMBOL.toInt(),
+            Character.MODIFIER_SYMBOL.toInt(),
+            Character.NON_SPACING_MARK.toInt(),
+            Character.COMBINING_SPACING_MARK.toInt(),
+            Character.ENCLOSING_MARK.toInt() -> true
+
+            else -> codePoint == ZERO_WIDTH_JOINER ||
+                codePoint == TEXT_VARIATION_SELECTOR ||
+                codePoint == EMOJI_VARIATION_SELECTOR
         }
     }
 
     private fun getFormattedValidationError(@StringRes resId: Int): Spanned {
         val html = "<font color=#FFFFFF>${getString(resId)}</font>"
         return Html.fromHtml(html)
+    }
+
+    companion object {
+        const val ZERO_WIDTH_JOINER = 0x200D
+        const val TEXT_VARIATION_SELECTOR = 0xFE0E
+        const val EMOJI_VARIATION_SELECTOR = 0xFE0F
     }
 
     override fun onSaveInstanceState(state: Bundle) {
@@ -378,6 +720,7 @@ class EditHabitActivity : AppCompatActivity() {
             putInt("reminderHour", reminderHour)
             putInt("reminderMin", reminderMin)
             putInt("reminderDays", reminderDays.toInteger())
+            putString("icon", icon)
         }
     }
 }

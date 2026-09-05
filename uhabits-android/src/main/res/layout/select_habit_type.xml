@@ -1,89 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright (C) 2016-2025 Álinson Santos Xavier <git@axavier.org>
-  ~
-  ~ This file is part of Loop Habit Tracker.
-  ~
-  ~ Loop Habit Tracker is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by the
-  ~ Free Software Foundation, either version 3 of the License, or (at your
-  ~ option) any later version.
-  ~
-  ~ Loop Habit Tracker is distributed in the hope that it will be useful, but
-  ~ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-  ~ or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-  ~ more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along
-  ~ with this program. If not, see <http://www.gnu.org/licenses/>.
-  -->
-
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="#a0000000"
+    android:background="#66000000"
     android:clickable="true"
-    android:id="@+id/background"
-    >
+    android:focusable="true"
+    android:padding="@dimen/flow_screen_padding">
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/dialogCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/buttonYesNo"
-        style="@style/SelectHabitTypeButton">
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:elevation="12dp"
+        app:cardBackgroundColor="?attr/flowSurfaceColor"
+        app:cardCornerRadius="@dimen/flow_dialog_radius"
+        app:cardElevation="12dp"
+        app:strokeWidth="0dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/SelectHabitTypeButtonTitle"
-            android:text="@string/yes_or_no" />
+            android:orientation="vertical"
+            android:padding="@dimen/flow_card_padding">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/SelectHabitTypeButtonBody"
-            android:text="@string/yes_or_no_example" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/flow_create_habit_title"
+                android:textColor="?attr/flowTextPrimaryColor"
+                android:textSize="@dimen/flow_text_sheet_title"
+                android:textStyle="bold" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/buttonMeasurable"
-        style="@style/SelectHabitTypeButton">
+            <TextView
+                style="@style/TextAppearance.Flow.Supporting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/flow_small_spacing"
+                android:layout_marginBottom="@dimen/flow_large_spacing"
+                android:text="@string/flow_create_habit_message" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/SelectHabitTypeButtonTitle"
-            android:text="@string/measurable" />
+            <LinearLayout
+                android:id="@+id/buttonYesNo"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:background="@drawable/flow_surface_secondary_selectable_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/flow_large_spacing"
+                android:paddingEnd="@dimen/flow_large_spacing">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/SelectHabitTypeButtonBody"
-            android:text="@string/measurable_example" />
-    </LinearLayout>
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="@null"
+                    android:padding="6dp"
+                    android:src="@drawable/flow_ic_habit_binary" />
 
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:id="@+id/buttonSubjective"-->
-<!--        style="@style/SelectHabitTypeButton">-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/flow_large_spacing"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            style="@style/SelectHabitTypeButtonTitle"-->
-<!--            android:text="@string/subjective" />-->
+                    <TextView
+                        style="@style/TextAppearance.Flow.Body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/yes_or_no"
+                        android:textStyle="bold" />
 
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            style="@style/SelectHabitTypeButtonBody"-->
-<!--            android:text="@string/subjective_example" />-->
-<!--    </LinearLayout>-->
+                    <TextView
+                        style="@style/TextAppearance.Flow.Metadata"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="1"
+                        android:text="@string/yes_or_no_example" />
+                </LinearLayout>
+            </LinearLayout>
 
-</LinearLayout>
+            <LinearLayout
+                android:id="@+id/buttonMeasurable"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginTop="@dimen/flow_card_spacing"
+                android:background="@drawable/flow_surface_secondary_selectable_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/flow_large_spacing"
+                android:paddingEnd="@dimen/flow_large_spacing">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="@null"
+                    android:padding="6dp"
+                    android:src="@drawable/flow_ic_habit_number" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/flow_large_spacing"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.Flow.Body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/measurable"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        style="@style/TextAppearance.Flow.Metadata"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:maxLines="1"
+                        android:text="@string/measurable_example" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonCancel"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/flow_min_touch_target"
+                android:layout_gravity="end"
+                android:layout_marginTop="@dimen/flow_medium_spacing"
+                android:text="@android:string/cancel"
+                android:textAllCaps="false"
+                android:textColor="?attr/flowAccentColor"
+                app:rippleColor="?attr/flowRippleColor" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

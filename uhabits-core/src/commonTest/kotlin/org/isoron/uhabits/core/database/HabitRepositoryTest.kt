@@ -29,7 +29,8 @@ class HabitRepositoryTest {
             unit = "",
             targetValue = 0.0,
             targetType = 0,
-            uuid = "abc-123"
+            uuid = "abc-123",
+            icon = "🌅"
         )
         val id = repo.insert(data)
         assertTrue(id > 0)
@@ -39,6 +40,7 @@ class HabitRepositoryTest {
         assertEquals("Wake up early", all[0].name)
         assertEquals("Did you wake up early?", all[0].question)
         assertEquals("abc-123", all[0].uuid)
+        assertEquals("🌅", all[0].icon)
         assertEquals(id, all[0].id)
 
         db.close()
@@ -175,7 +177,8 @@ class HabitRepositoryTest {
             targetValue = 10.0,
             targetType = 1,
             unit = "minutes",
-            uuid = "550e8400-e29b-41d4-a716-446655440000"
+            uuid = "550e8400-e29b-41d4-a716-446655440000",
+            icon = "🧘"
         )
         original.id = repo.insert(original)
 
@@ -197,6 +200,7 @@ class HabitRepositoryTest {
         assertEquals(original.targetType, loaded.targetType)
         assertEquals(original.unit, loaded.unit)
         assertEquals(original.uuid, loaded.uuid)
+        assertEquals(original.icon, loaded.icon)
         assertNotNull(loaded.id)
         assertEquals(original.id, loaded.id)
 

@@ -47,6 +47,7 @@ class HabitTest : BaseUnitTest() {
         model.isArchived = true
         model.color = PaletteColor(0)
         model.frequency = Frequency(10, 20)
+        model.icon = "🌱"
         model.reminder = Reminder(8, 30, WeekdayList(1))
         val habit = modelFactory.buildHabit()
         habit.copyFrom(model)
@@ -54,6 +55,7 @@ class HabitTest : BaseUnitTest() {
         assertEquals(model.isArchived, habit.isArchived)
         assertEquals(model.color, habit.color)
         assertEquals(model.frequency, habit.frequency)
+        assertEquals(model.icon, habit.icon)
         assertEquals(model.reminder, habit.reminder)
     }
 
@@ -117,6 +119,6 @@ class HabitTest : BaseUnitTest() {
         val h = modelFactory.buildHabit()
         habitList.add(h)
         assertEquals(0L, h.id)
-        assertEquals("content://org.isoron.uhabits/habit/0", h.uriString)
+        assertEquals("content://org.isoron.uhabits.flow/habit/0", h.uriString)
     }
 }

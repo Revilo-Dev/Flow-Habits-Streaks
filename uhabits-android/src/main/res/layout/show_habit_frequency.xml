@@ -21,7 +21,8 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <TextView
         android:id="@+id/title"
-        style="@style/CardHeader"
+        style="@style/ShowHabit.Flow.CardHeader"
+        android:drawableStart="@drawable/flow_ic_frequency"
         android:text="@string/frequency"/>
 
     <org.isoron.uhabits.activities.common.views.FrequencyChart

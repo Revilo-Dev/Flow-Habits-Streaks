@@ -25,31 +25,32 @@
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/numericalSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="22dp"
+            style="@style/Widget.Flow.InlineDropdown"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:entries="@array/strengthIntervalNames"
-            android:theme="@style/SmallSpinner" />
+            android:spinnerMode="dropdown"
+            android:theme="@style/FlowPopupTheme" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/boolSpinner"
-            android:layout_width="wrap_content"
-            android:layout_height="22dp"
+            style="@style/Widget.Flow.InlineDropdown"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:entries="@array/strengthIntervalNamesWithoutDay"
-            android:theme="@style/SmallSpinner" />
+            android:spinnerMode="dropdown"
+            android:theme="@style/FlowPopupTheme" />
 
 
         <TextView
             android:id="@+id/title"
-            style="@style/CardHeader"
+            style="@style/ShowHabit.Flow.CardHeader"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
+            android:drawableStart="@drawable/flow_ic_history"
             android:text="@string/history" />
 
         <org.isoron.platform.gui.AndroidDataView

@@ -21,7 +21,6 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
@@ -34,7 +33,6 @@ import org.isoron.uhabits.activities.common.views.ScrollableChart
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.utils.dim
-import org.isoron.uhabits.utils.dp
 import org.isoron.uhabits.utils.isRTL
 import org.isoron.uhabits.utils.sres
 import org.isoron.uhabits.utils.toMeasureSpec
@@ -58,8 +56,7 @@ class HeaderView(
 
     init {
         setScrollerBucketSize(dim(R.dimen.checkmarkWidth).toInt())
-        setBackgroundColor(sres.getColor(R.attr.headerBackgroundColor))
-        elevation = dp(2.0f)
+        setBackgroundColor(sres.getColor(R.attr.flowBackgroundColor))
     }
 
     override fun atMidnight() {
@@ -104,26 +101,32 @@ class HeaderView(
     private inner class Drawer {
         private val rect = RectF()
         private val dateFormatter = JavaLocalDateFormatter(Locale.getDefault())
+        private val dateTextColor = sres.getColor(R.attr.flowTextTertiaryColor)
+        private val todayTextColor = sres.getColor(R.attr.flowAccentColor)
         private val paint = TextPaint().apply {
-            color = Color.BLACK
             isAntiAlias = true
             textSize = dim(R.dimen.tinyTextSize)
             textAlign = Paint.Align.CENTER
             typeface = Typeface.DEFAULT_BOLD
-            color = sres.getColor(R.attr.contrast60)
+            color = dateTextColor
+        }
+        private val todayBackgroundPaint = Paint().apply {
+            isAntiAlias = true
+            color = sres.getColor(R.attr.flowSurfaceSecondaryColor)
         }
 
         fun draw(canvas: Canvas) {
             val today = getToday()
             val width = dim(R.dimen.checkmarkWidth)
             val height = dim(R.dimen.checkmarkHeight)
+            val endInset = dim(R.dimen.flow_body_padding)
             val isReversed = prefs.isCheckmarkSequenceReversed
 
             val em = paint.measureText("m")
 
             repeat(buttonCount) { index ->
                 rect.set(0f, 0f, width, height)
-                rect.offset(canvas.width.toFloat() - dp(3.0f), 0f)
+                rect.offset(canvas.width.toFloat() - endInset, 0f)
 
                 if (isReversed) {
                     rect.offset(-(index + 1) * width, 0f)
@@ -141,7 +144,23 @@ class HeaderView(
                 }
 
                 val date = today.minus(index + dataOffset)
-                val dayOfWeek = dateFormatter.shortWeekdayName(date).uppercase()
+                val isToday = date == today
+                if (isToday) {
+                    val backgroundRect = RectF(rect).apply {
+                        inset(dim(R.dimen.flow_small_spacing), dim(R.dimen.flow_small_spacing))
+                    }
+                    canvas.drawRoundRect(
+                        backgroundRect,
+                        dim(R.dimen.flow_date_header_radius),
+                        dim(R.dimen.flow_date_header_radius),
+                        todayBackgroundPaint
+                    )
+                }
+                paint.color = if (isToday) todayTextColor else dateTextColor
+                val dayOfWeek = dateFormatter
+                    .shortWeekdayName(date)
+                    .take(1)
+                    .uppercase(Locale.getDefault())
                 val dayOfMonth = date.day.toString()
                 val y1 = rect.centerY() - 0.25 * em
                 val y2 = rect.centerY() + 1.25 * em

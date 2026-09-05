@@ -75,7 +75,8 @@ class HabitCardListView(
     }
 
     init {
-        setHasFixedSize(true)
+        setHasFixedSize(false)
+        itemAnimator = null
         isLongClickable = true
         layoutManager = LinearLayoutManager(context)
         applyBottomInset()
@@ -96,7 +97,8 @@ class HabitCardListView(
                 ) {
                     val itemCount = parent.adapter?.itemCount
                     if (parent.getChildAdapterPosition(view) == itemCount?.minus(1)) {
-                        outRect.bottom = systemBarsInsets.bottom
+                        outRect.bottom = systemBarsInsets.bottom +
+                            resources.getDimensionPixelSize(R.dimen.flow_fab_clearance)
                     }
                 }
             })
@@ -112,20 +114,25 @@ class HabitCardListView(
         holder: HabitCardViewHolder,
         habit: Habit,
         score: Double,
+        currentStreak: Int,
         checkmarks: IntArray,
         notes: Array<String>,
-        selected: Boolean
+        selected: Boolean,
+        selectionActive: Boolean
     ): View {
         val cardView = holder.itemView as HabitCardView
         cardView.habit = habit
+        cardView.isSelectionMode = selectionActive
         cardView.isSelected = selected
         cardView.values = checkmarks
         cardView.buttonCount = checkmarkCount
         cardView.dataOffset = dataOffset
         cardView.score = score
+        cardView.currentStreak = currentStreak
         cardView.unit = habit.unit
         cardView.threshold = habit.targetValue / habit.frequency.denominator
         cardView.notes = notes
+        cardView.requestLayout()
 
         val detector = GestureDetector(context, CardViewGestureDetector(holder))
         cardView.setOnTouchListener { _, ev ->

@@ -20,7 +20,9 @@ package org.isoron.uhabits.activities.habits.show.views
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import org.isoron.platform.gui.toInt
 import org.isoron.uhabits.core.ui.screens.habits.show.views.StreakCardState
@@ -33,6 +35,9 @@ class StreakCardView(context: Context, attrs: AttributeSet) : LinearLayout(conte
         binding.title.setTextColor(androidColor)
         binding.streakChart.setColor(androidColor)
         binding.streakChart.setStreaks(state.bestStreaks)
+        val isEmpty = state.bestStreaks.isEmpty()
+        binding.title.gravity = if (isEmpty) Gravity.CENTER else Gravity.CENTER_VERTICAL
+        binding.streakChart.visibility = if (isEmpty) View.GONE else View.VISIBLE
         postInvalidate()
     }
 }

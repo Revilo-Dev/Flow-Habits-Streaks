@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Fixed palette values let Flow's explicit in-app theme setting work even
+      when it differs from the system night-mode setting. Screen styles should
+      consume the Flow theme attributes declared in flow_theme.xml.
+    -->
+    <color name="flow_light_background">#F3F3F5</color>
+    <color name="flow_light_surface">#FCFCFF</color>
+    <color name="flow_light_surface_secondary">#EBEBEF</color>
+    <color name="flow_light_divider">#E4E4E7</color>
+    <color name="flow_light_text_primary">#000000</color>
+    <color name="flow_light_text_secondary">#606067</color>
+    <color name="flow_light_text_tertiary">#848487</color>
+    <color name="flow_light_accent">#006EDB</color>
+    <color name="flow_light_accent_gradient_end">#7657E8</color>
+    <color name="flow_light_on_accent">#FFFFFF</color>
+    <color name="flow_light_error">#B3261E</color>
+    <color name="flow_light_success">#177245</color>
+    <color name="flow_light_disabled">#A9A9AE</color>
+    <color name="flow_light_ripple">#1F000000</color>
+
+    <color name="flow_dark_background">#000000</color>
+    <color name="flow_dark_surface">#1C1C1E</color>
+    <color name="flow_dark_surface_secondary">#252528</color>
+    <color name="flow_dark_divider">#303033</color>
+    <color name="flow_dark_text_primary">#FFFFFF</color>
+    <color name="flow_dark_text_secondary">#A6A6AA</color>
+    <color name="flow_dark_text_tertiary">#85858A</color>
+    <color name="flow_dark_accent">#3B95FF</color>
+    <color name="flow_dark_accent_gradient_end">#806BFF</color>
+    <color name="flow_dark_on_accent">#000000</color>
+    <color name="flow_dark_error">#FFB4AB</color>
+    <color name="flow_dark_success">#6EDB8F</color>
+    <color name="flow_dark_disabled">#66666B</color>
+    <color name="flow_dark_ripple">#33FFFFFF</color>
+
+    <color name="flow_pure_black_surface">#121214</color>
+    <color name="flow_pure_black_surface_secondary">#1C1C1F</color>
+
+    <!-- Semantic defaults; values-night supplies the system-dark equivalents. -->
+    <color name="flow_background">@color/flow_light_background</color>
+    <color name="flow_surface">@color/flow_light_surface</color>
+    <color name="flow_surface_secondary">@color/flow_light_surface_secondary</color>
+    <color name="flow_divider">@color/flow_light_divider</color>
+    <color name="flow_text_primary">@color/flow_light_text_primary</color>
+    <color name="flow_text_secondary">@color/flow_light_text_secondary</color>
+    <color name="flow_text_tertiary">@color/flow_light_text_tertiary</color>
+    <color name="flow_accent">@color/flow_light_accent</color>
+    <color name="flow_on_accent">@color/flow_light_on_accent</color>
+    <color name="flow_error">@color/flow_light_error</color>
+    <color name="flow_success">@color/flow_light_success</color>
+    <color name="flow_disabled">@color/flow_light_disabled</color>
+    <color name="flow_ripple">@color/flow_light_ripple</color>
+</resources>

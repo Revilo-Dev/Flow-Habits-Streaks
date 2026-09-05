@@ -105,9 +105,9 @@ class ReminderReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val ACTION_DISMISS_REMINDER = "org.isoron.uhabits.ACTION_DISMISS_REMINDER"
-        const val ACTION_SHOW_REMINDER = "org.isoron.uhabits.ACTION_SHOW_REMINDER"
-        const val ACTION_SNOOZE_REMINDER = "org.isoron.uhabits.ACTION_SNOOZE_REMINDER"
+        const val ACTION_DISMISS_REMINDER = "org.isoron.uhabits.flow.ACTION_DISMISS_REMINDER"
+        const val ACTION_SHOW_REMINDER = "org.isoron.uhabits.flow.ACTION_SHOW_REMINDER"
+        const val ACTION_SNOOZE_REMINDER = "org.isoron.uhabits.flow.ACTION_SNOOZE_REMINDER"
         private const val TAG = "ReminderReceiver"
         var lastReceivedIntent: Intent? = null
             private set

@@ -102,6 +102,11 @@ fun ViewGroup.buildToolbar(): Toolbar {
     return inflater.inflate(R.layout.toolbar, null) as Toolbar
 }
 
+fun ViewGroup.buildFlowToolbar(): Toolbar {
+    val inflater = LayoutInflater.from(context)
+    return inflater.inflate(R.layout.flow_toolbar, null) as Toolbar
+}
+
 fun View.showMessage(msg: String) {
     try {
         val snackbar = Snackbar.make(this, msg, Snackbar.LENGTH_SHORT)
@@ -124,7 +129,7 @@ fun Activity.showSendFileScreen(archiveFilename: String) {
         uri
     } else {
         val file = if (uri.scheme == "file") File(uri.path!!) else File(archiveFilename)
-        FileProvider.getUriForFile(this, "org.isoron.uhabits", file)
+        FileProvider.getUriForFile(this, packageName, file)
     }
     this.startActivitySafely(
         Intent().apply {
@@ -178,7 +183,8 @@ fun View.setupToolbar(
     title: String,
     color: PaletteColor,
     theme: Theme,
-    displayHomeAsUpEnabled: Boolean = true
+    displayHomeAsUpEnabled: Boolean = true,
+    applyTopInset: Boolean = true
 ) {
     toolbar.elevation = InterfaceUtils.dpToPixels(context, 2f)
     val res = StyledResources(context)
@@ -189,11 +195,12 @@ fun View.setupToolbar(
         theme.color(color).toInt()
     }
     toolbar.background = ColorDrawable(toolbarColor)
-    toolbar.applyToolbarInsets()
+    if (applyTopInset) toolbar.applyToolbarInsets()
     val activity = context as AppCompatActivity
     activity.window.statusBarColor = toolbarColor
     activity.setSupportActionBar(toolbar)
     activity.supportActionBar?.setDisplayHomeAsUpEnabled(displayHomeAsUpEnabled)
+    if (displayHomeAsUpEnabled) toolbar.setNavigationIcon(R.drawable.flow_ic_back)
 }
 
 fun View.currentTheme(): Theme {
@@ -266,7 +273,6 @@ fun View.applyRootViewInsets() {
         val left = maxOf(systemBarsInsets.left, displayCutoutInsets.left)
         val right = maxOf(systemBarsInsets.right, displayCutoutInsets.right)
         view.setPadding(left, 0, right, 0)
-        view.background = ColorDrawable(Color.BLACK)
         insets
     }
 }

@@ -31,6 +31,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class HabitCardListCacheTest : BaseUnitTest() {
     private lateinit var cache: HabitCardListCache
@@ -91,6 +93,34 @@ class HabitCardListCacheTest : BaseUnitTest() {
             .getByInterval(today.minus(9), today)
             .map { it.value }.toIntArray()
         assertContentEquals(expectedCheckmarks, actualCheckmarks)
+        assertTrue(cache.getCurrentStreak(h.id!!) > 0)
+
+        val summary = cache.getCompletionSummary()
+        assertEquals(10, summary.completed)
+        assertEquals(10, summary.total)
+        val perfectStreak = cache.getPerfectStreakSummary()
+        assertTrue(perfectStreak.todayComplete)
+        assertEquals(7, perfectStreak.lastSevenDays.size)
+    }
+
+    @Test
+    fun testPerfectStreakCountsManualAndAutomaticEntriesButNotSkips() {
+        habitList.removeAll()
+        val manual = fixtures.createEmptyHabit()
+        val automatic = fixtures.createEmptyHabit()
+        habitList.add(manual)
+        habitList.add(automatic)
+        manual.computedEntries.add(Entry(today, Entry.YES_MANUAL))
+        automatic.computedEntries.add(Entry(today, Entry.YES_AUTO))
+
+        cache.refreshAllHabits()
+        assertTrue(cache.getPerfectStreakSummary().todayComplete)
+        assertEquals(1, cache.getPerfectStreakSummary().currentStreak)
+
+        automatic.computedEntries.add(Entry(today, Entry.SKIP))
+        cache.refreshAllHabits()
+        assertFalse(cache.getPerfectStreakSummary().todayComplete)
+        assertEquals(1, cache.getCompletionSummary().completed)
     }
 
     @Test

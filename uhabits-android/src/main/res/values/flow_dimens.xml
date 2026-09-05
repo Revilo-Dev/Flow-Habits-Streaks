@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Layout rhythm -->
+    <dimen name="flow_screen_padding">24dp</dimen>
+    <dimen name="flow_body_padding">16dp</dimen>
+    <dimen name="flow_section_spacing">24dp</dimen>
+    <dimen name="flow_card_spacing">12dp</dimen>
+    <dimen name="flow_card_padding">16dp</dimen>
+    <dimen name="flow_row_horizontal_padding">16dp</dimen>
+    <dimen name="flow_row_vertical_padding">12dp</dimen>
+    <dimen name="flow_small_spacing">4dp</dimen>
+    <dimen name="flow_medium_spacing">8dp</dimen>
+    <dimen name="flow_large_spacing">16dp</dimen>
+    <dimen name="flow_extra_large_spacing">24dp</dimen>
+
+    <!-- Shape and control sizing -->
+    <dimen name="flow_card_radius">24dp</dimen>
+    <dimen name="flow_control_radius">16dp</dimen>
+    <dimen name="flow_dialog_radius">28dp</dimen>
+    <dimen name="flow_row_height">64dp</dimen>
+    <dimen name="flow_min_touch_target">48dp</dimen>
+    <dimen name="flow_icon_size">24dp</dimen>
+    <dimen name="flow_icon_container_size">40dp</dimen>
+    <dimen name="flow_icon_ring_thickness">3dp</dimen>
+    <dimen name="flow_divider_size">1dp</dimen>
+    <dimen name="flow_divider_inset">20dp</dimen>
+
+    <!-- Viewing-area spacing -->
+    <dimen name="flow_header_top_spacing">40dp</dimen>
+    <dimen name="flow_header_bottom_spacing">24dp</dimen>
+    <dimen name="flow_date_header_radius">16dp</dimen>
+    <dimen name="flow_perfect_day_size">30dp</dimen>
+    <dimen name="flow_home_header_expanded_height">376dp</dimen>
+    <dimen name="flow_secondary_header_expanded_height">184dp</dimen>
+    <dimen name="flow_show_habit_header_expanded_height">456dp</dimen>
+    <dimen name="flow_show_habit_header_numerical_height">392dp</dimen>
+    <dimen name="flow_toolbar_height">56dp</dimen>
+    <dimen name="flow_fab_size">56dp</dimen>
+    <dimen name="flow_fab_safe_margin">36dp</dimen>
+    <dimen name="flow_fab_clearance">96dp</dimen>
+    <dimen name="flow_fab_elevation">6dp</dimen>
+    <dimen name="flow_card_elevation">4dp</dimen>
+    <dimen name="flow_editor_action_height">60dp</dimen>
+    <dimen name="flow_editor_action_clearance">116dp</dimen>
+    <dimen name="flow_switch_min_width">54dp</dimen>
+    <dimen name="flow_emoji_preview_height">72dp</dimen>
+
+    <!-- Type scale; sp preserves the user's font-scale preference. -->
+    <dimen name="flow_text_screen_title">36sp</dimen>
+    <dimen name="flow_text_section_title">15sp</dimen>
+    <dimen name="flow_text_body">16sp</dimen>
+    <dimen name="flow_text_supporting">14sp</dimen>
+    <dimen name="flow_text_metadata">12sp</dimen>
+    <dimen name="flow_text_emoji">22sp</dimen>
+    <dimen name="flow_text_sheet_title">28sp</dimen>
+</resources>

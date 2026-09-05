@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.SwitchCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/switchWidget"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/flow_min_touch_target"
+    android:clickable="false"
+    android:focusable="false"
+    android:gravity="center"
+    android:thumb="@drawable/flow_switch_thumb"
+    android:track="@drawable/flow_switch_track"
+    app:showText="false"
+    app:splitTrack="false"
+    app:switchMinWidth="@dimen/flow_switch_min_width"
+    app:switchPadding="0dp"
+    app:thumbTextPadding="0dp"
+    app:thumbTint="@null"
+    app:trackTint="@null" />

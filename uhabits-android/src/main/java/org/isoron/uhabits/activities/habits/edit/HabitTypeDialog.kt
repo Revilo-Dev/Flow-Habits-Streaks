@@ -37,7 +37,8 @@ class HabitTypeDialog : AppCompatDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = SelectHabitTypeBinding.inflate(inflater, container, false)
+        val themedInflater = LayoutInflater.from(requireActivity())
+        val binding = SelectHabitTypeBinding.inflate(themedInflater, container, false)
 
         binding.buttonYesNo.setOnClickListener {
             val intent = IntentFactory().startEditActivity(requireActivity(), HabitType.YES_NO.value)
@@ -54,6 +55,7 @@ class HabitTypeDialog : AppCompatDialogFragment() {
         binding.background.setOnClickListener {
             dismiss()
         }
+        binding.buttonCancel.setOnClickListener { dismiss() }
 
         return binding.root
     }

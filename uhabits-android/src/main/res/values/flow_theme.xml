@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Flow semantic color contract for custom Views and XML components. -->
+    <attr name="flowBackgroundColor" format="color" />
+    <attr name="flowSurfaceColor" format="color" />
+    <attr name="flowSurfaceSecondaryColor" format="color" />
+    <attr name="flowDividerColor" format="color" />
+    <attr name="flowTextPrimaryColor" format="color" />
+    <attr name="flowTextSecondaryColor" format="color" />
+    <attr name="flowTextTertiaryColor" format="color" />
+    <attr name="flowAccentColor" format="color" />
+    <attr name="flowAccentGradientEndColor" format="color" />
+    <attr name="flowOnAccentColor" format="color" />
+    <attr name="flowErrorColor" format="color" />
+    <attr name="flowSuccessColor" format="color" />
+    <attr name="flowDisabledColor" format="color" />
+    <attr name="flowRippleColor" format="color" />
+    <attr name="flowToolbarTheme" format="reference" />
+
+    <style name="FlowTheme.Light" parent="AppBaseTheme">
+        <item name="android:alertDialogTheme">@style/FlowDialog</item>
+        <item name="android:dialogTheme">@style/FlowDialog</item>
+        <item name="flowBackgroundColor">@color/flow_light_background</item>
+        <item name="flowSurfaceColor">@color/flow_light_surface</item>
+        <item name="flowSurfaceSecondaryColor">@color/flow_light_surface_secondary</item>
+        <item name="flowDividerColor">@color/flow_light_divider</item>
+        <item name="flowTextPrimaryColor">@color/flow_light_text_primary</item>
+        <item name="flowTextSecondaryColor">@color/flow_light_text_secondary</item>
+        <item name="flowTextTertiaryColor">@color/flow_light_text_tertiary</item>
+        <item name="flowAccentColor">@color/flow_light_accent</item>
+        <item name="flowAccentGradientEndColor">@color/flow_light_accent_gradient_end</item>
+        <item name="flowOnAccentColor">@color/flow_light_on_accent</item>
+        <item name="flowErrorColor">@color/flow_light_error</item>
+        <item name="flowSuccessColor">@color/flow_light_success</item>
+        <item name="flowDisabledColor">@color/flow_light_disabled</item>
+        <item name="flowRippleColor">@color/flow_light_ripple</item>
+        <item name="flowToolbarTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="toolbarPopupTheme">@style/FlowPopupTheme</item>
+        <item name="actionBarPopupTheme">@style/FlowPopupTheme</item>
+        <item name="iconAdd">@drawable/flow_ic_add</item>
+        <item name="iconEdit">@drawable/flow_ic_edit</item>
+        <item name="iconFilter">@drawable/flow_ic_filter</item>
+    </style>
+
+    <style name="FlowTheme.Dark" parent="AppBaseThemeDark">
+        <item name="android:alertDialogTheme">@style/FlowDialog</item>
+        <item name="android:dialogTheme">@style/FlowDialog</item>
+        <item name="flowBackgroundColor">@color/flow_dark_background</item>
+        <item name="flowSurfaceColor">@color/flow_dark_surface</item>
+        <item name="flowSurfaceSecondaryColor">@color/flow_dark_surface_secondary</item>
+        <item name="flowDividerColor">@color/flow_dark_divider</item>
+        <item name="flowTextPrimaryColor">@color/flow_dark_text_primary</item>
+        <item name="flowTextSecondaryColor">@color/flow_dark_text_secondary</item>
+        <item name="flowTextTertiaryColor">@color/flow_dark_text_tertiary</item>
+        <item name="flowAccentColor">@color/flow_dark_accent</item>
+        <item name="flowAccentGradientEndColor">@color/flow_dark_accent_gradient_end</item>
+        <item name="flowOnAccentColor">@color/flow_dark_on_accent</item>
+        <item name="flowErrorColor">@color/flow_dark_error</item>
+        <item name="flowSuccessColor">@color/flow_dark_success</item>
+        <item name="flowDisabledColor">@color/flow_dark_disabled</item>
+        <item name="flowRippleColor">@color/flow_dark_ripple</item>
+        <item name="flowToolbarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="toolbarPopupTheme">@style/FlowPopupTheme</item>
+        <item name="actionBarPopupTheme">@style/FlowPopupTheme</item>
+        <item name="iconAdd">@drawable/flow_ic_add</item>
+        <item name="iconEdit">@drawable/flow_ic_edit</item>
+        <item name="iconFilter">@drawable/flow_ic_filter</item>
+    </style>
+
+    <style name="FlowTheme.Dark.PureBlack" parent="AppBaseThemeDark.PureBlack">
+        <item name="android:alertDialogTheme">@style/FlowDialog</item>
+        <item name="android:dialogTheme">@style/FlowDialog</item>
+        <item name="flowBackgroundColor">@color/flow_dark_background</item>
+        <item name="flowSurfaceColor">@color/flow_pure_black_surface</item>
+        <item name="flowSurfaceSecondaryColor">@color/flow_pure_black_surface_secondary</item>
+        <item name="flowDividerColor">@color/flow_dark_divider</item>
+        <item name="flowTextPrimaryColor">@color/flow_dark_text_primary</item>
+        <item name="flowTextSecondaryColor">@color/flow_dark_text_secondary</item>
+        <item name="flowTextTertiaryColor">@color/flow_dark_text_tertiary</item>
+        <item name="flowAccentColor">@color/flow_dark_accent</item>
+        <item name="flowAccentGradientEndColor">@color/flow_dark_accent_gradient_end</item>
+        <item name="flowOnAccentColor">@color/flow_dark_on_accent</item>
+        <item name="flowErrorColor">@color/flow_dark_error</item>
+        <item name="flowSuccessColor">@color/flow_dark_success</item>
+        <item name="flowDisabledColor">@color/flow_dark_disabled</item>
+        <item name="flowRippleColor">@color/flow_dark_ripple</item>
+        <item name="flowToolbarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="toolbarPopupTheme">@style/FlowPopupTheme</item>
+        <item name="actionBarPopupTheme">@style/FlowPopupTheme</item>
+        <item name="iconAdd">@drawable/flow_ic_add</item>
+        <item name="iconEdit">@drawable/flow_ic_edit</item>
+        <item name="iconFilter">@drawable/flow_ic_filter</item>
+    </style>
+</resources>

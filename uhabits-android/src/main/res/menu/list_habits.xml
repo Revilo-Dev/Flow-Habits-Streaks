@@ -30,13 +30,6 @@
 
     <group android:id="@+id/actionItems">
         <item
-            android:id="@+id/actionCreateHabit"
-            android:enabled="true"
-            android:icon="?iconAdd"
-            android:title="@string/add_habit"
-            app:showAsAction="always"/>
-
-        <item
             android:id="@+id/action_filter"
             android:icon="?iconFilter"
             android:title="@string/filter"

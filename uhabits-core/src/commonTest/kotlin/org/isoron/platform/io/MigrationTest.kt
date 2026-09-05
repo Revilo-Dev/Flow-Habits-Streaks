@@ -8,7 +8,7 @@ class MigrationTest {
     @Test
     fun testMigrateFromScratch() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
-        assertEquals(25, db.getVersion())
+        assertEquals(26, db.getVersion())
 
         db.run(
             """
@@ -23,9 +23,10 @@ class MigrationTest {
             """
         )
 
-        val stmt = db.prepareStatement("select name from Habits where id = 1")
+        val stmt = db.prepareStatement("select name, icon from Habits where id = 1")
         assertEquals(StepResult.ROW, stmt.step())
         assertEquals("Test", stmt.getText(0))
+        assertEquals("", stmt.getText(1))
         stmt.finalize()
 
         db.close()

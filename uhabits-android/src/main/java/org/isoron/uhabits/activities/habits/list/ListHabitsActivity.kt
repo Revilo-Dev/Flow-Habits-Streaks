@@ -97,6 +97,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         adapter = component.habitCardListAdapter
         taskRunner = appComponent.taskRunner
         menu = component.listHabitsMenu
+        rootView.onCreateHabit = { menu.behavior.onCreateHabit() }
         Thread.setDefaultUncaughtExceptionHandler(BaseExceptionHandler(this))
         component.listHabitsBehavior.onStartup()
         rootView.applyRootViewInsets()
@@ -191,6 +192,6 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
     }
 
     companion object {
-        const val ACTION_EDIT = "org.isoron.uhabits.ACTION_EDIT"
+        const val ACTION_EDIT = "org.isoron.uhabits.flow.ACTION_EDIT"
     }
 }

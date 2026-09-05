@@ -21,6 +21,8 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
 import android.graphics.PointF
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.graphics.text.LineBreaker.BREAK_STRATEGY_BALANCED
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
@@ -32,8 +34,11 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.ViewCompat
 import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.gui.toInt
 import org.isoron.platform.time.LocalDate
@@ -45,8 +50,8 @@ import org.isoron.uhabits.core.models.ModelObservable
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.utils.currentTheme
-import org.isoron.uhabits.utils.dp
 import org.isoron.uhabits.utils.sres
+import java.util.Locale
 
 @Inject
 class HabitCardViewFactory(
@@ -97,6 +102,18 @@ class HabitCardView(
             scoreRing.setPrecision(1.0f / 16)
         }
 
+    var currentStreak: Int = 0
+        set(value) {
+            field = value
+            updateStreakLabel()
+        }
+
+    var isSelectionMode: Boolean = false
+        set(value) {
+            field = value
+            updateSelectionVisuals(isSelected)
+        }
+
     var unit
         get() = numberPanel.units
         set(value) {
@@ -124,32 +141,88 @@ class HabitCardView(
         }
 
     var checkmarkPanel: CheckmarkPanelView
+    private var habitInitial: TextView
     private var numberPanel: NumberPanelView
     private var innerFrame: LinearLayout
     private var label: TextView
+    private var streakLabel: TextView
     private var scoreRing: RingView
+    private var selectionCheck: ImageView
+    private var dragHandle: ImageView
 
     private var currentToggleTaskId = 0
 
     init {
         scoreRing = RingView(context).apply {
-            val thickness = dp(3f)
-            val margin = dp(8f).toInt()
-            val ringSize = dp(15f).toInt()
-            layoutParams = LinearLayout.LayoutParams(ringSize, ringSize).apply {
-                setMargins(margin, 0, margin, 0)
-                gravity = Gravity.CENTER
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            setThickness(resources.getDimension(R.dimen.flow_icon_ring_thickness))
+            setIsTransparencyEnabled(true)
+        }
+
+        habitInitial = TextView(context).apply {
+            gravity = Gravity.CENTER
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+            setTextSize(
+                android.util.TypedValue.COMPLEX_UNIT_PX,
+                resources.getDimension(R.dimen.flow_text_supporting)
+            )
+            setTypeface(Typeface.DEFAULT, Typeface.BOLD)
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        }
+
+        selectionCheck = ImageView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                resources.getDimensionPixelSize(R.dimen.flow_icon_size),
+                resources.getDimensionPixelSize(R.dimen.flow_icon_size),
+                Gravity.CENTER
+            )
+            contentDescription = resources.getString(R.string.flow_selected)
+            setImageResource(R.drawable.flow_ic_select_check)
+            visibility = GONE
+        }
+
+        val habitIcon = FrameLayout(context).apply {
+            val size = resources.getDimensionPixelSize(R.dimen.flow_icon_container_size)
+            layoutParams = LinearLayout.LayoutParams(size, size).apply {
+                val margin = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+                marginStart = margin
+                marginEnd = resources.getDimensionPixelSize(R.dimen.flow_card_spacing)
+                gravity = Gravity.CENTER_VERTICAL
             }
-            setThickness(thickness)
+            addView(habitInitial)
+            addView(scoreRing)
+            addView(selectionCheck)
         }
 
         label = TextView(context).apply {
-            maxLines = 2
+            setTextAppearance(R.style.TextAppearance_Flow_Body)
+            setTypeface(typeface, Typeface.BOLD)
+            maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
-            layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
             if (SDK_INT >= Build.VERSION_CODES.Q) {
                 breakStrategy = BREAK_STRATEGY_BALANCED
             }
+        }
+
+        streakLabel = TextView(context).apply {
+            setTextAppearance(R.style.TextAppearance_Flow_Supporting)
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+        }
+
+        val labelContainer = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply {
+                marginEnd = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+            }
+            addView(label, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(
+                streakLabel,
+                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    topMargin = resources.getDimensionPixelSize(R.dimen.flow_small_spacing)
+                }
+            )
         }
 
         checkmarkPanel = checkmarkPanelFactory.create().apply {
@@ -183,16 +256,38 @@ class HabitCardView(
             }
         }
 
+        dragHandle = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                resources.getDimensionPixelSize(R.dimen.flow_min_touch_target),
+                resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+            ).apply {
+                marginEnd = resources.getDimensionPixelSize(R.dimen.flow_small_spacing)
+            }
+            contentDescription = resources.getString(R.string.flow_reorder_habit)
+            setPadding(
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing),
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing),
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing),
+                resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+            )
+            setImageResource(R.drawable.flow_ic_drag_handle)
+            visibility = GONE
+        }
+
         innerFrame = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-            elevation = dp(1f)
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            minimumHeight = resources.getDimensionPixelSize(R.dimen.flow_row_height)
+            clipToOutline = true
+            val verticalPadding = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+            setPadding(0, verticalPadding, 0, verticalPadding)
 
-            addView(scoreRing)
-            addView(label)
+            addView(habitIcon)
+            addView(labelContainer)
             addView(checkmarkPanel)
             addView(numberPanel)
+            addView(dragHandle)
 
             setOnTouchListener { v, event ->
                 v.background.setHotspot(event.x, event.y)
@@ -202,9 +297,11 @@ class HabitCardView(
 
         clipToPadding = false
         layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-        val margin = dp(3f).toInt()
-        setPadding(margin, 0, margin, margin)
+        val horizontalMargin = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+        val verticalMargin = resources.getDimensionPixelSize(R.dimen.flow_card_spacing) / 2
+        setPadding(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
         addView(innerFrame)
+        updateBackground(false)
     }
 
     override fun onModelChange() {
@@ -216,6 +313,7 @@ class HabitCardView(
     override fun setSelected(isSelected: Boolean) {
         super.setSelected(isSelected)
         updateBackground(isSelected)
+        updateSelectionVisuals(isSelected)
     }
 
     fun triggerRipple(date: LocalDate) {
@@ -272,13 +370,49 @@ class HabitCardView(
         }
 
         val c = getActiveColor(h)
+        val labelColorAttr = if (h.isArchived) {
+            R.attr.flowTextSecondaryColor
+        } else {
+            R.attr.flowTextPrimaryColor
+        }
         label.apply {
             text = h.name
-            setTextColor(c)
+            setTextColor(sres.getColor(labelColorAttr))
         }
+        habitInitial.apply {
+            val hasIcon = h.icon.isNotBlank()
+            text = if (hasIcon) h.icon else h.name.trim().take(1).uppercase(Locale.getDefault())
+            setTextSize(
+                android.util.TypedValue.COMPLEX_UNIT_PX,
+                resources.getDimension(
+                    if (hasIcon) R.dimen.flow_text_emoji else R.dimen.flow_text_supporting
+                )
+            )
+            setTypeface(Typeface.DEFAULT, if (hasIcon) Typeface.NORMAL else Typeface.BOLD)
+            setTextColor(c)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(ColorUtils.setAlphaComponent(c, 38))
+            }
+            ViewCompat.setElevation(
+                this,
+                if (ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5) {
+                    resources.getDimension(R.dimen.flow_card_elevation)
+                } else {
+                    0f
+                }
+            )
+        }
+        val streakColorAttr = if (h.isArchived) {
+            R.attr.flowTextTertiaryColor
+        } else {
+            R.attr.flowTextSecondaryColor
+        }
+        streakLabel.setTextColor(sres.getColor(streakColorAttr))
         scoreRing.apply {
             setColor(c)
         }
+        updateStreakLabel()
         checkmarkPanel.apply {
             color = c
             visibility = when (h.isNumerical) {
@@ -296,6 +430,7 @@ class HabitCardView(
                 false -> View.GONE
             }
         }
+        updateSelectionVisuals(isSelected)
     }
 
     private fun triggerRipple(x: Float, y: Float) {
@@ -310,10 +445,47 @@ class HabitCardView(
 
     private fun updateBackground(isSelected: Boolean) {
         val background = when (isSelected) {
-            true -> R.drawable.selected_box
-            false -> R.drawable.ripple
+            true -> R.drawable.flow_card_selected_background
+            false -> R.drawable.flow_card_selectable_background
         }
         innerFrame.setBackgroundResource(background)
+    }
+
+    private fun updateSelectionVisuals(isSelected: Boolean) {
+        val numerical = habit?.isNumerical == true
+        val selectionActive = isSelectionMode
+        checkmarkPanel.visibility = if (!selectionActive && !numerical) VISIBLE else GONE
+        numberPanel.visibility = if (!selectionActive && numerical) VISIBLE else GONE
+        dragHandle.visibility = if (selectionActive) VISIBLE else GONE
+        streakLabel.visibility = if (selectionActive) GONE else VISIBLE
+
+        val showSelectionCheck = selectionActive && isSelected
+        if (showSelectionCheck) {
+            if (selectionCheck.visibility != VISIBLE) {
+                habitInitial.animate().cancel()
+                scoreRing.animate().cancel()
+                habitInitial.animate().alpha(0f).scaleX(0.82f).scaleY(0.82f).setDuration(110).start()
+                scoreRing.animate().alpha(0f).scaleX(0.82f).scaleY(0.82f).setDuration(110).start()
+                selectionCheck.apply {
+                    visibility = VISIBLE
+                    alpha = 0f
+                    scaleX = 0.74f
+                    scaleY = 0.74f
+                    animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(170).start()
+                }
+            }
+        } else {
+            selectionCheck.animate().cancel()
+            selectionCheck.visibility = GONE
+            habitInitial.animate().cancel()
+            scoreRing.animate().cancel()
+            habitInitial.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(110).start()
+            scoreRing.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(110).start()
+        }
+    }
+
+    private fun updateStreakLabel() {
+        streakLabel.text = resources.getString(R.string.flow_day_number, currentStreak)
     }
 
     companion object {

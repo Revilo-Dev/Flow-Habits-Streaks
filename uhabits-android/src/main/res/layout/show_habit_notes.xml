@@ -25,9 +25,14 @@
     tools:parentTag="android.widget.LinearLayout">
 
     <TextView
+        style="@style/ShowHabit.Flow.CardHeader"
+        android:drawableStart="@drawable/flow_ic_notes"
+        android:text="@string/notes" />
+
+    <TextView
         android:id="@+id/habitNotes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="?attr/contrast100"
+        android:textColor="?attr/flowTextPrimaryColor"
         tools:text="This is some example text for the notes" />
 </merge>

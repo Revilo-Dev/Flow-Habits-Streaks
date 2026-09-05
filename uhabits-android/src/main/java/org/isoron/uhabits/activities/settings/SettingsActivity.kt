@@ -18,15 +18,20 @@
  */
 package org.isoron.uhabits.activities.settings
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowInsetsControllerCompat
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.databinding.SettingsActivityBinding
+import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyRootViewInsets
+import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.setupToolbar
 
 class SettingsActivity : AppCompatActivity() {
@@ -39,11 +44,22 @@ class SettingsActivity : AppCompatActivity() {
         val binding = SettingsActivityBinding.inflate(LayoutInflater.from(this))
         binding.root.setupToolbar(
             toolbar = binding.toolbar,
-            title = resources.getString(R.string.settings),
+            title = "",
             color = PaletteColor(11),
-            theme = themeSwitcher.currentTheme
+            theme = themeSwitcher.currentTheme,
+            applyTopInset = false
         )
+        binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
+        binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.collapsingToolbar.title = resources.getString(R.string.settings)
+        binding.toolbar.setBackgroundColor(Color.TRANSPARENT)
+        binding.toolbar.elevation = 0f
+        val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
+        window.statusBarColor = flowBackground
+        WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars =
+            ColorUtils.calculateLuminance(flowBackground) > 0.5
         binding.root.applyRootViewInsets()
+        binding.appBar.applyToolbarInsets()
         setContentView(binding.root)
     }
 }

@@ -20,18 +20,11 @@
 package org.isoron.uhabits.activities.habits.list
 
 import android.content.Context
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
 import me.tatarka.inject.annotations.Inject
-import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
-import org.isoron.uhabits.activities.habits.list.views.HabitCardListController
-import org.isoron.uhabits.core.commands.CommandRunner
-import org.isoron.uhabits.core.preferences.Preferences
-import org.isoron.uhabits.core.ui.NotificationTray
+import org.isoron.uhabits.activities.habits.list.views.FlowSelectionActionBar
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
@@ -41,88 +34,44 @@ import org.isoron.uhabits.inject.ActivityScope
 class ListHabitsSelectionMenu(
     @ActivityContext context: Context,
     private val listAdapter: HabitCardListAdapter,
-    var commandRunner: CommandRunner,
-    private val prefs: Preferences,
-    private val behavior: ListHabitsSelectionMenuBehavior,
-    private val listController: Lazy<HabitCardListController>,
-    private val notificationTray: NotificationTray
-) : ActionMode.Callback {
+    private val behavior: ListHabitsSelectionMenuBehavior
+) {
 
     val activity = (context as AppCompatActivity)
 
-    var activeActionMode: ActionMode? = null
-
     fun onSelectionStart() {
-        activity.startSupportActionMode(this)
+        updateActions()
     }
 
     fun onSelectionChange() {
-        activeActionMode?.invalidate()
+        updateActions()
     }
 
     fun onSelectionFinish() {
-        activeActionMode?.finish()
+        selectionActions()?.hide()
     }
 
-    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-        activeActionMode = mode
-        activity.menuInflater.inflate(R.menu.list_habits_selection, menu)
-        return true
-    }
-
-    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-        val itemEdit = menu.findItem(R.id.action_edit_habit)
-        val itemColor = menu.findItem(R.id.action_color)
-        val itemArchive = menu.findItem(R.id.action_archive_habit)
-        val itemUnarchive = menu.findItem(R.id.action_unarchive_habit)
-        val itemNotify = menu.findItem(R.id.action_notify)
-
-        itemColor.isVisible = true
-        itemEdit.isVisible = behavior.canEdit()
-        itemArchive.isVisible = behavior.canArchive()
-        itemUnarchive.isVisible = behavior.canUnarchive()
-        itemNotify.isVisible = prefs.isDeveloper
-        activeActionMode?.title = listAdapter.selected.size.toString()
-        return true
-    }
-    override fun onDestroyActionMode(mode: ActionMode?) {
-        listController.value.onSelectionFinished()
-    }
-
-    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_edit_habit -> {
-                behavior.onEditHabits()
-                return true
-            }
-
-            R.id.action_archive_habit -> {
-                behavior.onArchiveHabits()
-                return true
-            }
-
-            R.id.action_unarchive_habit -> {
-                behavior.onUnarchiveHabits()
-                return true
-            }
-
-            R.id.action_delete -> {
-                behavior.onDeleteHabits()
-                return true
-            }
-
-            R.id.action_color -> {
-                behavior.onChangeColor()
-                return true
-            }
-
-            R.id.action_notify -> {
-                for (h in listAdapter.selected)
-                    notificationTray.show(h, getToday(), 0)
-                return true
-            }
-
-            else -> return false
+    private fun updateActions() {
+        if (listAdapter.isSelectionEmpty) {
+            onSelectionFinish()
+            return
         }
+        selectionActions()?.apply {
+            setActions(
+                canEdit = behavior.canEdit(),
+                canArchive = behavior.canArchive(),
+                canUnarchive = behavior.canUnarchive(),
+                onEdit = behavior::onEditHabits,
+                onColor = behavior::onChangeColor,
+                onArchive = behavior::onArchiveHabits,
+                onUnarchive = behavior::onUnarchiveHabits,
+                onDelete = behavior::onDeleteHabits
+            )
+            show()
+        }
+    }
+
+    private fun selectionActions(): FlowSelectionActionBar? {
+        return activity.findViewById(R.id.flowSelectionActions)
     }
 }

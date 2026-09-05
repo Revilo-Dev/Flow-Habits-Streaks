@@ -18,10 +18,14 @@
  */
 package org.isoron.uhabits.activities.settings
 
+import android.annotation.SuppressLint
 import android.app.backup.BackupManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RectF
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -31,10 +35,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.children
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroupAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
@@ -107,8 +113,8 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val sr = StyledResources(context!!)
-        view.setBackgroundColor(sr.getColor(R.attr.contrast0))
+        val sr = StyledResources(requireContext())
+        view.setBackgroundColor(sr.getColor(R.attr.flowBackgroundColor))
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -117,8 +123,14 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         parent: ViewGroup?,
         savedInstanceState: Bundle?
     ): RecyclerView? {
-        return super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-            .also { it.applyBottomInset() }
+        return super.onCreateRecyclerView(inflater, parent, savedInstanceState).also { list ->
+            val horizontalPadding = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+            list.setPadding(horizontalPadding, 0, horizontalPadding, 0)
+            list.clipToPadding = false
+            list.itemAnimator = null
+            list.addItemDecoration(FlowPreferenceCardDecoration(requireContext()))
+            list.applyBottomInset()
+        }
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
@@ -189,7 +201,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             Log.d("SettingsFragment", "updating widgets")
             widgetUpdater!!.updateWidgets()
         }
-        BackupManager.dataChanged("org.isoron.uhabits")
+        BackupManager.dataChanged(requireContext().packageName)
         updateWeekdayPreference()
     }
 
@@ -264,5 +276,53 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     companion object {
         private const val RINGTONE_REQUEST_CODE = 1
         private const val PUBLIC_BACKUP_REQUEST_CODE = 2
+    }
+}
+
+@SuppressLint("RestrictedApi")
+private class FlowPreferenceCardDecoration(context: android.content.Context) :
+    RecyclerView.ItemDecoration() {
+    private val surfacePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = StyledResources(context).getColor(R.attr.flowSurfaceColor)
+    }
+    private val dividerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = StyledResources(context).getColor(R.attr.flowDividerColor)
+        strokeWidth = context.resources.getDimension(R.dimen.flow_divider_size)
+    }
+    private val radius = context.resources.getDimension(R.dimen.flow_card_radius)
+    private val dividerInset = context.resources.getDimension(R.dimen.flow_divider_inset)
+    private val rect = RectF()
+
+    override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        val adapter = parent.adapter as? PreferenceGroupAdapter ?: return
+        parent.children.forEach { child ->
+            val position = parent.getChildAdapterPosition(child)
+            if (position == RecyclerView.NO_POSITION) return@forEach
+            if (adapter.getItem(position) is PreferenceCategory) return@forEach
+
+            val isFirst = position == 0 || adapter.getItem(position - 1) is PreferenceCategory
+            val isLast = position == adapter.itemCount - 1 ||
+                adapter.getItem(position + 1) is PreferenceCategory
+            rect.set(
+                parent.paddingLeft.toFloat(),
+                child.top.toFloat(),
+                (parent.width - parent.paddingRight).toFloat(),
+                child.bottom.toFloat()
+            )
+            canvas.drawRoundRect(rect, radius, radius, surfacePaint)
+            if (!isFirst) {
+                canvas.drawRect(rect.left, rect.top, rect.right, rect.centerY(), surfacePaint)
+                canvas.drawLine(
+                    rect.left + dividerInset,
+                    rect.top,
+                    rect.right - dividerInset,
+                    rect.top,
+                    dividerPaint
+                )
+            }
+            if (!isLast) {
+                canvas.drawRect(rect.left, rect.centerY(), rect.right, rect.bottom, surfacePaint)
+            }
+        }
     }
 }
