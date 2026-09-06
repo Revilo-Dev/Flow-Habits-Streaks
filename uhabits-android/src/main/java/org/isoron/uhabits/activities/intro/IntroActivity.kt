@@ -19,12 +19,17 @@
 
 package org.isoron.uhabits.activities.intro
 
-import android.graphics.Color
 import android.os.Bundle
+import android.view.MotionEvent
+import android.view.View
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import com.github.appintro.AppIntro2
 import com.github.appintro.AppIntroFragment
 import org.isoron.uhabits.R
+import org.isoron.uhabits.HabitsApplication
+import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.utils.StyledResources
 
 /**
  * Activity that introduces the app to the user, shown only after the app is
@@ -35,31 +40,74 @@ class IntroActivity : AppIntro2() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         showStatusBar(false)
+        val themeSwitcher = AndroidThemeSwitcher(
+            this,
+            (application as HabitsApplication).component.preferences
+        )
+        themeSwitcher.apply()
+        val colors = StyledResources(this)
+        val background = colors.getColor(R.attr.flowBackgroundColor)
+        val secondarySurface = colors.getColor(R.attr.flowSurfaceSecondaryColor)
+        val primaryText = colors.getColor(R.attr.flowTextPrimaryColor)
+        val secondaryText = colors.getColor(R.attr.flowTextSecondaryColor)
+        val accent = colors.getColor(R.attr.flowAccentColor)
+        setBarColor(secondarySurface)
+        setNextArrowColor(accent)
+        setSkipArrowColor(primaryText)
+        setIndicatorColor(accent, secondaryText)
+        findViewById<ImageButton>(com.github.appintro.R.id.next).apply {
+            setImageResource(R.drawable.control_next)
+            setColorFilter(accent)
+            contentDescription = getString(R.string.flow_onboarding_next)
+        }
+        findViewById<ImageButton>(com.github.appintro.R.id.back).apply {
+            setImageResource(R.drawable.flow_ic_back)
+            setColorFilter(primaryText)
+            contentDescription = getString(R.string.flow_onboarding_back)
+        }
+        setImageSkipButton(getDrawable(R.drawable.flow_ic_close)!!)
+        setImageDoneButton(getDrawable(R.drawable.checkbox_checked)!!)
+        findViewById<ImageButton>(com.github.appintro.R.id.skip).contentDescription =
+            getString(R.string.flow_onboarding_skip)
+        findViewById<ImageButton>(com.github.appintro.R.id.done).contentDescription =
+            getString(R.string.flow_onboarding_done)
+        isButtonsEnabled = false
+        findViewById<View>(com.github.appintro.R.id.bottom).visibility = View.GONE
+        findViewById<View>(com.github.appintro.R.id.view_pager).setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) goToNextSlide()
+            true
+        }
 
         addSlide(
             AppIntroFragment.newInstance(
-                getString(R.string.intro_title_1),
-                getString(R.string.intro_description_1),
-                R.drawable.intro_icon_1,
-                Color.parseColor("#194673")
+                title = getString(R.string.intro_title_1),
+                description = getString(R.string.intro_description_1),
+                imageDrawable = R.drawable.onboarding_appicon,
+                backgroundColor = background,
+                titleColor = primaryText,
+                descriptionColor = secondaryText
             )
         )
 
         addSlide(
             AppIntroFragment.newInstance(
-                getString(R.string.intro_title_2),
-                getString(R.string.intro_description_2),
-                R.drawable.intro_icon_2,
-                Color.parseColor("#ffa726")
+                title = getString(R.string.intro_title_2),
+                description = getString(R.string.intro_description_2),
+                imageDrawable = R.drawable.onboarding_createhabits,
+                backgroundColor = background,
+                titleColor = primaryText,
+                descriptionColor = secondaryText
             )
         )
 
         addSlide(
             AppIntroFragment.newInstance(
-                getString(R.string.intro_title_4),
-                getString(R.string.intro_description_4),
-                R.drawable.intro_icon_4,
-                Color.parseColor("#9575cd")
+                title = getString(R.string.intro_title_4),
+                description = getString(R.string.intro_description_4),
+                imageDrawable = R.drawable.onboarding_trackprogress,
+                backgroundColor = background,
+                titleColor = primaryText,
+                descriptionColor = secondaryText
             )
         )
     }

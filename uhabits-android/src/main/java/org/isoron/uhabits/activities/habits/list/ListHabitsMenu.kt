@@ -24,6 +24,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
 import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.HabitList
@@ -47,6 +48,7 @@ class ListHabitsMenu(
     fun onCreate(inflater: MenuInflater, menu: Menu) {
         menu.clear()
         inflater.inflate(R.menu.list_habits, menu)
+        (menu as? MenuBuilder)?.setOptionalIconsVisible(true)
         createMenuItems(menu)
         updateArrows(menu)
     }

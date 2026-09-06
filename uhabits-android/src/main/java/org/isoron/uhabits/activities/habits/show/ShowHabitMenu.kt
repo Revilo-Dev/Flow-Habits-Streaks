@@ -21,6 +21,7 @@ package org.isoron.uhabits.activities.habits.show
 
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.view.menu.MenuBuilder
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitMenuPresenter
@@ -32,6 +33,7 @@ class ShowHabitMenu(
 ) {
     fun onCreateOptionsMenu(menu: Menu): Boolean {
         activity.menuInflater.inflate(R.menu.show_habit, menu)
+        (menu as? MenuBuilder)?.setOptionalIconsVisible(true)
         if (preferences.isDeveloper) {
             menu.findItem(R.id.action_randomize).isVisible = true
         }

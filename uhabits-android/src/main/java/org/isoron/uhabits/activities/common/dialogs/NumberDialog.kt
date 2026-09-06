@@ -50,6 +50,7 @@ class NumberDialog : AppCompatDialogFragment() {
         if (!prefs.isSkipEnabled) view.skipBtnNumber.visibility = View.GONE
         if (!prefs.areQuestionMarksEnabled) view.unknownBtnNumber.visibility = View.GONE
         view.numberButtons.visibility = View.VISIBLE
+        view.numberFooter.visibility = View.VISIBLE
         fixDecimalSeparator(view)
         originalNotes = requireArguments().getString("notes")!!
         originalValue = requireArguments().getDouble("value")
@@ -69,6 +70,9 @@ class NumberDialog : AppCompatDialogFragment() {
         }
         view.saveBtn.setOnClickListener {
             save()
+        }
+        view.dismissBtn.setOnClickListener {
+            requireDialog().dismiss()
         }
         view.skipBtnNumber.setOnClickListener {
             view.value.setText(DecimalFormat("#.###").format((Entry.SKIP.toDouble() / 1000)))

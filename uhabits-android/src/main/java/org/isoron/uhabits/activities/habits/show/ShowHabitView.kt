@@ -41,6 +41,7 @@ import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
+import org.isoron.uhabits.utils.updateFlowStickyControls
 import kotlin.math.abs
 
 class ShowHabitView(context: Context) : FrameLayout(context) {
@@ -59,11 +60,13 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         }
         binding.appBar.addOnOffsetChangedListener(
             AppBarLayout.OnOffsetChangedListener { appBar, verticalOffset ->
-                binding.largeHeader.visibility = if (abs(verticalOffset) >= appBar.totalScrollRange) {
+                val isSticky = abs(verticalOffset) >= appBar.totalScrollRange
+                binding.largeHeader.visibility = if (isSticky) {
                     INVISIBLE
                 } else {
                     VISIBLE
                 }
+                binding.toolbar.updateFlowStickyControls(isSticky)
             }
         )
     }
@@ -79,12 +82,12 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
             theme = data.theme,
             applyTopInset = false
         )
-        binding.collapsingToolbar.title = data.title
-        binding.collapsingToolbar.setContentScrimColor(backgroundColor)
-        binding.collapsingToolbar.setStatusBarScrimColor(backgroundColor)
+        binding.collapsingToolbar.title = ""
+        binding.collapsingToolbar.setContentScrimColor(Color.TRANSPARENT)
+        binding.collapsingToolbar.setStatusBarScrimColor(Color.TRANSPARENT)
         binding.toolbar.background = ColorDrawable(Color.TRANSPARENT)
         binding.toolbar.elevation = 0f
-        binding.toolbar.overflowIcon = AppCompatResources.getDrawable(context, R.drawable.flow_ic_more)
+        binding.toolbar.overflowIcon = AppCompatResources.getDrawable(context, R.drawable.more)
         binding.toolbar.setNavigationOnClickListener { (context as Activity).finish() }
         binding.habitTitle.text = data.title
         binding.habitIcon.apply {
@@ -104,6 +107,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         binding.notesCard.setState(data.notes)
         binding.targetCard.setState(data.target)
         binding.currentStreakCard.setState(data.currentStreak)
+        binding.bestStreakCard.setState(data.bestStreaks)
         binding.scoreCard.setState(data.scores)
         binding.frequencyCard.setState(data.frequency)
         binding.historyCard.setState(data.history)
@@ -124,6 +128,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         listOf(
             binding.overviewCard,
             binding.currentStreakCard,
+            binding.bestStreakCard,
             binding.historyCard,
             binding.scoreCard,
             binding.barCard,

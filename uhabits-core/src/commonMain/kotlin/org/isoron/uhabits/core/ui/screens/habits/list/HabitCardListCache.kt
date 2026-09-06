@@ -508,6 +508,7 @@ class HabitCardListCache(
 
     private fun isCompleteForPerfectDay(habit: Habit, date: LocalDate): Boolean {
         val value = habit.computedEntries.get(date).value
+        if (value == Entry.SKIP) return true
         if (!habit.isNumerical) {
             return value == Entry.YES_MANUAL || value == Entry.YES_AUTO
         }

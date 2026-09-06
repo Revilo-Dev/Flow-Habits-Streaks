@@ -28,8 +28,11 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.databinding.AboutBinding
 import org.isoron.uhabits.utils.applyBottomInset
 import org.isoron.uhabits.utils.applyRootViewInsets
+import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.setupToolbar
+import org.isoron.uhabits.utils.sres
+import org.isoron.uhabits.utils.updateFlowStickyControls
 
 @SuppressLint("ViewConstructor")
 class AboutView(
@@ -44,10 +47,23 @@ class AboutView(
         setupToolbar(
             toolbar = binding.toolbar,
             color = PaletteColor(11),
-            title = resources.getString(R.string.about),
-            theme = currentTheme()
+            title = "",
+            theme = currentTheme(),
+            applyTopInset = false
         )
-        val version = resources.getString(R.string.version_n)
+        binding.collapsingToolbar.title = resources.getString(R.string.about)
+        binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
+        binding.toolbar.setNavigationOnClickListener { (context as android.app.Activity).finish() }
+        binding.toolbar.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        binding.toolbar.elevation = 0f
+        binding.appBar.applyToolbarInsets()
+        binding.appBar.addOnOffsetChangedListener(
+            com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener { bar, offset ->
+                binding.toolbar.updateFlowStickyControls(kotlin.math.abs(offset) >= bar.totalScrollRange)
+            }
+        )
+        (context as android.app.Activity).window.statusBarColor =
+            sres.getColor(R.attr.flowBackgroundColor)
         binding.tvContributors.setOnClickListener { screen.showCodeContributorsWebsite() }
         binding.tvFeedback.setOnClickListener { screen.showSendFeedbackScreen() }
         binding.tvPrivacy.setOnClickListener { screen.showPrivacyPolicyWebsite() }
@@ -55,7 +71,7 @@ class AboutView(
         binding.tvSource.setOnClickListener { screen.showSourceCodeWebsite() }
         binding.tvTranslate.setOnClickListener { screen.showTranslationWebsite() }
         binding.tvVersion.setOnClickListener { screen.onPressDeveloperCountdown() }
-        binding.tvVersion.text = String.format(version, BuildConfig.VERSION_NAME)
+        binding.tvVersion.text = resources.getString(R.string.version_n, "1.0.0")
         binding.outerLinearLayout.applyBottomInset()
         applyRootViewInsets()
     }

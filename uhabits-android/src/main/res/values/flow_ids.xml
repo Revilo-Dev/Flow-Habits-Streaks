@@ -3,4 +3,5 @@
     <item name="actionCreateHabit" type="id" />
     <item name="flowSelectionActions" type="id" />
     <item name="flowHomeSearchBar" type="id" />
+    <item name="flowReorderPrompt" type="id" />
 </resources>

@@ -115,6 +115,7 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
     override fun onResume() {
         adapter.refresh()
         screen.onAttached()
+        rootView.showMostRecentDays()
         rootView.postInvalidate()
         midnightTimer.onResume()
 

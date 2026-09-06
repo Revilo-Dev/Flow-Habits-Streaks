@@ -17,37 +17,70 @@
   ~ with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="?windowBackgroundColor"
+    android:background="?attr/flowBackgroundColor"
     android:fillViewport="true">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        app:popupTheme="?toolbarPopupTheme"
-        style="@style/Toolbar" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/flow_secondary_header_expanded_height"
+            app:collapsedTitleTextColor="@android:color/transparent"
+            app:contentScrim="@android:color/transparent"
+            app:expandedTitleGravity="center_horizontal|bottom"
+            app:expandedTitleMarginBottom="@dimen/flow_extra_large_spacing"
+            app:expandedTitleMarginEnd="@dimen/flow_screen_padding"
+            app:expandedTitleMarginStart="@dimen/flow_screen_padding"
+            app:expandedTitleTextAppearance="@style/TextAppearance.Flow.ScreenTitle"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:statusBarScrim="@android:color/transparent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/flow_toolbar_height"
+                android:background="@android:color/transparent"
+                android:theme="?attr/flowToolbarTheme"
+                app:contentInsetEnd="0dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:layout_collapseMode="pin"
+                app:popupTheme="?toolbarPopupTheme" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:id="@+id/outerLinearLayout"
-            style="@style/CardList">
+            style="@style/CardList"
+            android:paddingStart="@dimen/flow_body_padding"
+            android:paddingTop="@dimen/flow_large_spacing"
+            android:paddingEnd="@dimen/flow_body_padding">
 
             <LinearLayout
                 style="@style/Card"
+                android:background="@drawable/flow_card_background"
                 android:gravity="center">
 
                 <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
                     android:layout_margin="6dp"
-                    android:src="@drawable/intro_icon_1" />
+                    android:src="@drawable/onboarding_appicon" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -56,7 +89,7 @@
                     android:textStyle="bold"
                     android:textSize="16sp"
                     android:layout_margin="6dp"
-                    android:textColor="?aboutScreenColor"
+                    android:textColor="?attr/flowTextPrimaryColor"
                     android:text="@string/app_name" />
 
                 <TextView
@@ -70,12 +103,13 @@
 
             <LinearLayout
                 style="@style/Card"
+                android:background="@drawable/flow_card_background"
                 android:gravity="center">
 
                 <TextView
                     style="@style/CardHeader"
                     android:text="@string/links"
-                    android:textColor="?aboutScreenColor" />
+                    android:textColor="?attr/flowTextPrimaryColor" />
 
                 <TextView
                     android:id="@+id/tvRate"
@@ -106,12 +140,13 @@
 
             <LinearLayout
                 style="@style/Card"
+                android:background="@drawable/flow_card_background"
                 android:gravity="center">
 
                 <TextView
                     style="@style/CardHeader"
                     android:text="@string/developers"
-                    android:textColor="?aboutScreenColor" />
+                    android:textColor="?attr/flowTextPrimaryColor" />
 
                 <!--
                 This file lists developers who contributed with at least 100 lines
@@ -189,8 +224,7 @@
 
             <include layout="@layout/about_translators" />
 
-            >
         </LinearLayout>
     </ScrollView>
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

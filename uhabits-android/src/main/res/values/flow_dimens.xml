@@ -17,6 +17,8 @@
     <dimen name="flow_card_radius">24dp</dimen>
     <dimen name="flow_control_radius">16dp</dimen>
     <dimen name="flow_dialog_radius">28dp</dimen>
+    <dimen name="flow_toolbar_pill_radius">28dp</dimen>
+    <dimen name="flow_sticky_control_inset">8dp</dimen>
     <dimen name="flow_row_height">64dp</dimen>
     <dimen name="flow_min_touch_target">48dp</dimen>
     <dimen name="flow_icon_size">24dp</dimen>
@@ -32,13 +34,15 @@
     <dimen name="flow_perfect_day_size">30dp</dimen>
     <dimen name="flow_home_header_expanded_height">376dp</dimen>
     <dimen name="flow_secondary_header_expanded_height">184dp</dimen>
-    <dimen name="flow_show_habit_header_expanded_height">456dp</dimen>
-    <dimen name="flow_show_habit_header_numerical_height">392dp</dimen>
+    <dimen name="flow_show_habit_header_expanded_height">536dp</dimen>
+    <dimen name="flow_show_habit_header_numerical_height">472dp</dimen>
     <dimen name="flow_toolbar_height">56dp</dimen>
     <dimen name="flow_fab_size">56dp</dimen>
     <dimen name="flow_fab_safe_margin">36dp</dimen>
     <dimen name="flow_fab_inline_margin">16dp</dimen>
-    <dimen name="flow_selection_actions_bottom_margin">80dp</dimen>
+    <dimen name="flow_selection_actions_bottom_margin">16dp</dimen>
+    <dimen name="flow_selection_actions_gap">8dp</dimen>
+    <dimen name="flow_reorder_prompt_bottom_margin">76dp</dimen>
     <dimen name="flow_fab_clearance">96dp</dimen>
     <dimen name="flow_fab_elevation">6dp</dimen>
     <dimen name="flow_card_elevation">4dp</dimen>

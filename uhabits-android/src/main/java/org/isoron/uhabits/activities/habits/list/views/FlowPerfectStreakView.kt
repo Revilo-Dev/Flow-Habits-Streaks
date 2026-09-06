@@ -154,10 +154,7 @@ class FlowPerfectStreakView(
             0 -> resources.getString(R.string.flow_perfect_streak_start)
             else -> resources.getString(R.string.flow_day_number, summary.currentStreak)
         }
-        messageView.text = if (summary.todayComplete) {
-            val messages = resources.getStringArray(R.array.flow_perfect_messages)
-            messages[getToday().daysSince2000.absoluteValue % messages.size]
-        } else {
+        messageView.text = if (summary.todayComplete) perfectMessage(summary.currentStreak) else {
             resources.getString(R.string.flow_perfect_incomplete_message)
         }
 
@@ -192,6 +189,21 @@ class FlowPerfectStreakView(
                     dayFormatter.shortWeekdayName(date)
                 )
                 alpha = if (isFutureDay) 0.35f else 1f
+            }
+        }
+    }
+
+    private fun perfectMessage(streak: Int): String {
+        return when {
+            streak > 0 && streak % 100 == 0 ->
+                resources.getString(R.string.flow_perfect_milestone_century, streak)
+            streak > 0 && streak % 30 == 0 ->
+                resources.getString(R.string.flow_perfect_milestone_month, streak)
+            streak > 0 && streak % 7 == 0 ->
+                resources.getString(R.string.flow_perfect_milestone_week, streak)
+            else -> {
+                val messages = resources.getStringArray(R.array.flow_perfect_messages)
+                messages[getToday().daysSince2000.absoluteValue % messages.size]
             }
         }
     }

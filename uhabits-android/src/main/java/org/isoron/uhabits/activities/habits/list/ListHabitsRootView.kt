@@ -25,9 +25,11 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
+import android.view.View.GONE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
@@ -65,6 +67,8 @@ import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
+import org.isoron.uhabits.utils.updateFlowStickyControls
+import kotlin.math.abs
 
 const val MAX_CHECKMARK_COUNT = 60
 const val HOME_CHECKMARK_COUNT = 4
@@ -93,6 +97,14 @@ class ListHabitsRootView(
     val largeHeader = FlowLargeHeaderView(context, midnightTimer, preferences)
     val selectionActions = FlowSelectionActionBar(context).apply {
         id = R.id.flowSelectionActions
+    }
+    val reorderPrompt = TextView(context).apply {
+        id = R.id.flowReorderPrompt
+        text = resources.getString(R.string.flow_drag_to_reorder)
+        setTextAppearance(R.style.TextAppearance_Flow_Metadata)
+        setTextColor(sres.getColor(R.attr.flowTextTertiaryColor))
+        gravity = Gravity.CENTER
+        visibility = GONE
     }
     private val homeSearchBar = FlowHomeSearchBar(context).apply {
         id = R.id.flowHomeSearchBar
@@ -124,16 +136,16 @@ class ListHabitsRootView(
         val flowBackground = sres.getColor(R.attr.flowBackgroundColor)
         val toolbarHeight = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
         val appBar = AppBarLayout(context).apply {
-            setBackgroundColor(flowBackground)
+            setBackgroundColor(Color.TRANSPARENT)
             elevation = 0f
             applyToolbarInsets()
         }
         val collapsingToolbar = CollapsingToolbarLayout(context).apply {
-            title = resources.getString(R.string.flow_app_title)
+            title = ""
             setExpandedTitleColor(Color.TRANSPARENT)
-            setCollapsedTitleTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
-            setContentScrimColor(flowBackground)
-            setStatusBarScrimColor(flowBackground)
+            setCollapsedTitleTextColor(Color.TRANSPARENT)
+            setContentScrimColor(Color.TRANSPARENT)
+            setStatusBarScrimColor(Color.TRANSPARENT)
             addView(
                 largeHeader,
                 CollapsingToolbarLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
@@ -160,7 +172,18 @@ class ListHabitsRootView(
                     AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
             }
         )
-        appBar.addView(header, AppBarLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+        appBar.addView(
+            header,
+            AppBarLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                    AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+            }
+        )
+        appBar.addOnOffsetChangedListener(
+            AppBarLayout.OnOffsetChangedListener { bar, offset ->
+                tbar.updateFlowStickyControls(abs(offset) >= bar.totalScrollRange)
+            }
+        )
 
         val content = FrameLayout(context).apply {
             setBackgroundColor(flowBackground)
@@ -205,6 +228,13 @@ class ListHabitsRootView(
                 }
             )
             addView(
+                reorderPrompt,
+                CoordinatorLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_reorder_prompt_bottom_margin)
+                }
+            )
+            addView(
                 addButton,
                 CoordinatorLayout.LayoutParams(
                     resources.getDimensionPixelSize(R.dimen.flow_fab_size),
@@ -241,6 +271,16 @@ class ListHabitsRootView(
             }
             insets
         }
+        val baseReorderPromptBottomMargin =
+            resources.getDimensionPixelSize(R.dimen.flow_reorder_prompt_bottom_margin)
+        ViewCompat.setOnApplyWindowInsetsListener(reorderPrompt) { prompt, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            (prompt.layoutParams as CoordinatorLayout.LayoutParams).apply {
+                bottomMargin = baseReorderPromptBottomMargin + systemBars.bottom
+                prompt.layoutParams = this
+            }
+            insets
+        }
         rootView.setupToolbar(
             toolbar = tbar,
             title = "",
@@ -249,8 +289,8 @@ class ListHabitsRootView(
             theme = currentTheme(),
             applyTopInset = false
         )
-        tbar.overflowIcon = AppCompatResources.getDrawable(context, R.drawable.flow_ic_more)
-        tbar.background = ColorDrawable(flowBackground)
+        tbar.overflowIcon = AppCompatResources.getDrawable(context, R.drawable.more)
+        tbar.background = ColorDrawable(Color.TRANSPARENT)
         tbar.elevation = 0f
         val window = (context as Activity).window
         window.statusBarColor = flowBackground
@@ -280,12 +320,25 @@ class ListHabitsRootView(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         setupControllers()
+        listView.dataOffset = 0
         listAdapter.observable.addListener(this)
     }
 
     override fun onDetachedFromWindow() {
         listAdapter.observable.removeListener(this)
         super.onDetachedFromWindow()
+    }
+
+    /** Restores the home timeline to today whenever the screen becomes active. */
+    fun showMostRecentDays() {
+        listView.dataOffset = 0
+    }
+
+    fun alignSelectionControls(selected: Boolean) {
+        val actionsParams = selectionActions.layoutParams as CoordinatorLayout.LayoutParams
+        actionsParams.gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+        selectionActions.translationX = 0f
+        selectionActions.layoutParams = actionsParams
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

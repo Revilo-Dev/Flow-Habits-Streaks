@@ -22,7 +22,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
 
-    <string name="app_name" >Loop Habit Tracker</string>
+    <string name="app_name" >Flow Habits</string>
     <string name="main_activity_title">Habits</string>
     <string name="flow_app_title" translatable="false">Flow</string>
     <plurals name="flow_habits_completed_today">
@@ -71,12 +71,16 @@
     <string name="edit_habit">Edit habit</string>
     <string name="check">Check</string>
     <string name="snooze">Later</string>
-    <string name="intro_title_1">Welcome</string>
-    <string name="intro_description_1">Loop Habit Tracker helps you create and maintain good habits.</string>
-    <string name="intro_title_2">Create some new habits</string>
-    <string name="intro_description_2">Every day, after performing your habit, put a checkmark on the app.</string>
-    <string name="intro_title_4">Track your progress</string>
-    <string name="intro_description_4">Detailed graphs show you how your habits improved over time.</string>
+    <string name="intro_title_1">Welcome to Flow</string>
+    <string name="intro_description_1">Build small daily habits and keep your momentum visible.</string>
+    <string name="intro_title_2">Create a habit</string>
+    <string name="intro_description_2">Add a name, an icon, and a schedule that works for you.</string>
+    <string name="intro_title_4">See your momentum</string>
+    <string name="intro_description_4">Check in each day and celebrate the streaks you build.</string>
+    <string name="flow_onboarding_next">Continue</string>
+    <string name="flow_onboarding_back">Back</string>
+    <string name="flow_onboarding_skip">Skip onboarding</string>
+    <string name="flow_onboarding_done">Start using Flow</string>
     <string name="interval_15_minutes">15 minutes</string>
     <string name="interval_30_minutes">30 minutes</string>
     <string name="interval_1_hour">1 hour</string>
@@ -253,6 +257,10 @@
         <item quantity="other">%d days</item>
     </plurals>
     <string name="flow_perfect_incomplete_message">Complete every habit to make today perfect.</string>
+    <string name="flow_perfect_milestone_week">A perfect week — %1$d days in a row!</string>
+    <string name="flow_perfect_milestone_month">A flawless month — %1$d days strong!</string>
+    <string name="flow_perfect_milestone_century">A remarkable %1$d perfect days — incredible!</string>
+    <string name="flow_drag_to_reorder">Drag to reorder</string>
     <string name="flow_habit_streak_incomplete_message">Complete this habit today to keep it going.</string>
     <string name="flow_day_completed">%1$s, completed</string>
     <string name="flow_day_not_completed">%1$s, not completed</string>
@@ -276,9 +284,8 @@
     <string name="flow_choose_emoji">Choose an emoji</string>
     <string name="flow_change_emoji">%1$s  Change emoji</string>
     <string name="flow_emoji_picker_title">Habit icon</string>
-    <string name="flow_emoji_picker_hint">Use an emoji or Unicode symbol, or choose one below.</string>
+    <string name="flow_emoji_picker_hint">Choose an emoji, symbol, or a single character for this habit.</string>
     <string name="flow_open_emoji_keyboard">Open emoji keyboard</string>
-    <string name="flow_icon_must_be_emoji_or_symbol">Use an emoji or Unicode symbol, not text.</string>
     <string name="flow_suggested_icons">Suggested icons</string>
     <string name="flow_remove_icon">Remove icon</string>
     <string name="flow_use_icon">Use icon</string>

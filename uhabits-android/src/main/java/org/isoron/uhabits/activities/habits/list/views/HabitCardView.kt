@@ -269,11 +269,12 @@ class HabitCardView(
         }
 
         dragHandle = ImageView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
+            layoutParams = FrameLayout.LayoutParams(
                 resources.getDimensionPixelSize(R.dimen.flow_min_touch_target),
-                resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+                resources.getDimensionPixelSize(R.dimen.flow_min_touch_target),
+                Gravity.END or Gravity.CENTER_VERTICAL
             ).apply {
-                marginEnd = resources.getDimensionPixelSize(R.dimen.flow_small_spacing)
+                marginEnd = -resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
             }
             contentDescription = resources.getString(R.string.flow_reorder_habit)
             setPadding(
@@ -282,7 +283,7 @@ class HabitCardView(
                 resources.getDimensionPixelSize(R.dimen.flow_medium_spacing),
                 resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
             )
-            setImageResource(R.drawable.flow_ic_drag_handle)
+            setImageResource(R.drawable.drag)
             visibility = GONE
         }
 
@@ -295,7 +296,6 @@ class HabitCardView(
             val verticalPadding = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
             setPadding(0, verticalPadding, 0, verticalPadding)
 
-            addView(dragHandle)
             addView(habitIcon)
             addView(labelContainer)
             addView(checkmarkPanel)
@@ -313,6 +313,7 @@ class HabitCardView(
         val verticalMargin = resources.getDimensionPixelSize(R.dimen.flow_card_spacing) / 2
         setPadding(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
         addView(innerFrame)
+        addView(dragHandle)
         updateBackground(false)
     }
 

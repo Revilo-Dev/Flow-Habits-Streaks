@@ -40,6 +40,8 @@ import org.isoron.uhabits.core.ui.screens.habits.show.views.ScoreCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.ScoreCardState
 import org.isoron.uhabits.core.ui.screens.habits.show.views.SubtitleCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.SubtitleCardState
+import org.isoron.uhabits.core.ui.screens.habits.show.views.StreakCardState
+import org.isoron.uhabits.core.ui.screens.habits.show.views.StreakCartPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.TargetCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.TargetCardState
 import org.isoron.uhabits.core.ui.views.Theme
@@ -54,6 +56,7 @@ data class ShowHabitState(
     val notes: NotesCardState,
     val target: TargetCardState,
     val currentStreak: CurrentStreakCardState,
+    val bestStreaks: StreakCardState,
     val scores: ScoreCardState,
     val frequency: FrequencyCardState,
     val history: HistoryCardState,
@@ -117,6 +120,10 @@ class ShowHabitPresenter(
                 currentStreak = CurrentStreakCardPresenter.buildState(
                     habit = habit,
                     firstWeekday = preferences.firstWeekday
+                ),
+                bestStreaks = StreakCartPresenter.buildState(
+                    habit = habit,
+                    theme = theme
                 ),
                 scores = ScoreCardPresenter.buildState(
                     spinnerPosition = preferences.scoreCardSpinnerPosition,

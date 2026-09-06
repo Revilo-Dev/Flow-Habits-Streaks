@@ -12,21 +12,22 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/flowBackgroundColor"
+        android:background="@android:color/transparent"
         android:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/flow_secondary_header_expanded_height"
-            app:collapsedTitleTextColor="?attr/flowTextPrimaryColor"
-            app:contentScrim="?attr/flowBackgroundColor"
+            app:collapsedTitleTextColor="@android:color/transparent"
+            app:contentScrim="@android:color/transparent"
+            app:expandedTitleGravity="center_horizontal|bottom"
             app:expandedTitleMarginBottom="@dimen/flow_extra_large_spacing"
             app:expandedTitleMarginEnd="@dimen/flow_screen_padding"
             app:expandedTitleMarginStart="@dimen/flow_screen_padding"
             app:expandedTitleTextAppearance="@style/TextAppearance.Flow.ScreenTitle"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            app:statusBarScrim="?attr/flowBackgroundColor">
+            app:statusBarScrim="@android:color/transparent">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -35,6 +36,8 @@
                 android:background="@android:color/transparent"
                 android:elevation="0dp"
                 android:theme="?attr/flowToolbarTheme"
+                app:contentInsetEnd="0dp"
+                app:contentInsetStartWithNavigation="0dp"
                 app:layout_collapseMode="pin"
                 app:popupTheme="?toolbarPopupTheme" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -47,6 +50,7 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingBottom="@dimen/flow_editor_action_clearance"
+        app:behavior_overlapTop="@dimen/flow_toolbar_height"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout

@@ -20,6 +20,8 @@
 package org.isoron.uhabits.activities.habits.list
 
 import android.content.Context
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
@@ -49,6 +51,8 @@ class ListHabitsSelectionMenu(
 
     fun onSelectionFinish() {
         selectionActions()?.hide()
+        reorderPrompt()?.visibility = View.GONE
+        rootView()?.alignSelectionControls(false)
     }
 
     private fun updateActions() {
@@ -69,9 +73,18 @@ class ListHabitsSelectionMenu(
             )
             show()
         }
+        rootView()?.alignSelectionControls(true)
+        reorderPrompt()?.visibility = View.VISIBLE
     }
 
     private fun selectionActions(): FlowSelectionActionBar? {
         return activity.findViewById(R.id.flowSelectionActions)
     }
+
+    private fun reorderPrompt(): TextView? {
+        return activity.findViewById(R.id.flowReorderPrompt)
+    }
+
+    private fun rootView(): ListHabitsRootView? =
+        (activity as? ListHabitsActivity)?.rootView
 }

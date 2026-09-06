@@ -27,7 +27,7 @@
     <TextView
         android:id="@+id/title"
         style="@style/ShowHabit.Flow.CardHeader"
-        android:drawableStart="@drawable/flow_ic_calendar"
+        android:drawableStart="@drawable/calendar"
         android:text="@string/calendar"/>
 
     <org.isoron.platform.gui.AndroidDataView

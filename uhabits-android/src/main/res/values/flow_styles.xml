@@ -196,9 +196,12 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">@dimen/flow_min_touch_target</item>
-        <item name="android:backgroundTint">?attr/flowAccentColor</item>
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingEnd">0dp</item>
+        <item name="android:layout_marginTop">@dimen/flow_small_spacing</item>
+        <item name="android:background">@drawable/flow_surface_secondary_background</item>
+        <item name="android:paddingStart">@dimen/flow_large_spacing</item>
+        <item name="android:paddingTop">@dimen/flow_small_spacing</item>
+        <item name="android:paddingEnd">@dimen/flow_large_spacing</item>
+        <item name="android:paddingBottom">@dimen/flow_small_spacing</item>
         <item name="android:textColor">?attr/flowTextPrimaryColor</item>
         <item name="android:textColorHint">?attr/flowTextTertiaryColor</item>
         <item name="android:textSize">@dimen/flow_text_body</item>
@@ -222,8 +225,12 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">@dimen/flow_min_touch_target</item>
+        <item name="android:layout_marginTop">@dimen/flow_small_spacing</item>
+        <item name="android:background">@drawable/flow_surface_secondary_background</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/flow_large_spacing</item>
+        <item name="android:paddingEnd">@dimen/flow_large_spacing</item>
     </style>
 
     <style name="Flow.Form.Divider" parent="">

@@ -26,10 +26,10 @@ import org.isoron.uhabits.utils.sres
 
 class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
     private val edit = addAction(R.drawable.flow_ic_edit, R.string.edit)
-    private val color = addAction(R.drawable.flow_ic_color, R.string.color)
-    private val archive = addAction(R.drawable.flow_ic_archive, R.string.archive)
+    private val color = addAction(R.drawable.palette, R.string.color)
+    private val archive = addAction(R.drawable.archive, R.string.archive)
     private val unarchive = addAction(R.drawable.flow_ic_unarchive, R.string.unarchive)
-    private val delete = addAction(R.drawable.flow_ic_delete, R.string.delete)
+    private val delete = addAction(R.drawable.checkbox_crossed, R.string.delete)
 
     init {
         orientation = HORIZONTAL

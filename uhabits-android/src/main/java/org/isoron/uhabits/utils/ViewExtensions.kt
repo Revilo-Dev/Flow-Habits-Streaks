@@ -29,6 +29,8 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Handler
 import android.view.LayoutInflater
@@ -45,8 +47,10 @@ import android.widget.RelativeLayout.BELOW
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.FileProvider
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.snackbar.Snackbar
@@ -104,12 +108,18 @@ fun ViewGroup.buildToolbar(): Toolbar {
 
 fun ViewGroup.buildFlowToolbar(): Toolbar {
     val inflater = LayoutInflater.from(context)
-    return inflater.inflate(R.layout.flow_toolbar, null) as Toolbar
+    return (inflater.inflate(R.layout.flow_toolbar, null) as Toolbar).apply {
+        setContentInsetsRelative(0, 0)
+        contentInsetStartWithNavigation = 0
+    }
 }
 
 fun View.showMessage(msg: String) {
     try {
         val snackbar = Snackbar.make(this, msg, Snackbar.LENGTH_SHORT)
+        snackbar.view.setBackgroundResource(R.drawable.flow_snackbar_background)
+        snackbar.animationMode = Snackbar.ANIMATION_MODE_FADE
+        snackbar.view.elevation = dim(R.dimen.flow_card_elevation)
         val tvId = R.id.snackbar_text
         val tv = snackbar.view.findViewById<TextView>(tvId)
         tv?.setTextColor(Color.WHITE)
@@ -201,6 +211,42 @@ fun View.setupToolbar(
     activity.setSupportActionBar(toolbar)
     activity.supportActionBar?.setDisplayHomeAsUpEnabled(displayHomeAsUpEnabled)
     if (displayHomeAsUpEnabled) toolbar.setNavigationIcon(R.drawable.flow_ic_back)
+}
+
+/** Gives only sticky toolbar controls the translucent One UI surface. */
+fun Toolbar.updateFlowStickyControls(isSticky: Boolean) {
+    val surface = sres.getColor(R.attr.flowSurfaceSecondaryColor)
+    val backgroundColor = ColorUtils.setAlphaComponent(surface, 224)
+    val inset = dim(R.dimen.flow_sticky_control_inset).toInt()
+    for (index in 0 until childCount) {
+        when (val child = getChildAt(index)) {
+            is ActionMenuView -> {
+                child.background = if (isSticky) {
+                    InsetDrawable(
+                        GradientDrawable().apply {
+                            cornerRadius = dim(R.dimen.flow_toolbar_pill_radius)
+                            setColor(backgroundColor)
+                        },
+                        0,
+                        inset,
+                        0,
+                        inset
+                    )
+                } else null
+                child.setPadding(0, 0, 0, 0)
+            }
+
+            is android.widget.ImageButton -> child.background = if (isSticky) {
+                InsetDrawable(
+                    GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(backgroundColor)
+                    },
+                    inset
+                )
+            } else null
+        }
+    }
 }
 
 fun View.currentTheme(): Theme {

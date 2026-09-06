@@ -28,9 +28,10 @@ import android.graphics.drawable.GradientDrawable
 import android.icu.text.BreakIterator
 import android.os.Bundle
 import android.text.Html
-import android.text.InputFilter
 import android.text.InputType
 import android.text.Spanned
+import android.text.TextWatcher
+import android.text.Editable
 import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.View
@@ -79,6 +80,7 @@ import org.isoron.uhabits.utils.dismissCurrentAndShow
 import org.isoron.uhabits.utils.formatTime
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import org.isoron.uhabits.utils.toFormattedString
+import org.isoron.uhabits.utils.updateFlowStickyControls
 import java.util.Locale
 
 fun formatFrequency(freqNum: Int, freqDen: Int, resources: Resources) = when {
@@ -191,6 +193,11 @@ class EditHabitActivity : AppCompatActivity() {
         supportActionBar?.elevation = 0f
         binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
         binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.appBar.addOnOffsetChangedListener(
+            com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener { bar, offset ->
+                binding.toolbar.updateFlowStickyControls(kotlin.math.abs(offset) >= bar.totalScrollRange)
+            }
+        )
 
         binding.iconButton.setOnClickListener { showEmojiPicker() }
 
@@ -314,7 +321,7 @@ class EditHabitActivity : AppCompatActivity() {
         habit.name = binding.nameInput.text.trim().toString()
         habit.question = binding.questionInput.text.trim().toString()
         habit.description = binding.notesInput.text.trim().toString()
-        habit.icon = icon
+        habit.icon = icon.ifBlank { firstGrapheme(habit.name) }
         habit.color = color
         if (reminderHour >= 0) {
             habit.reminder = Reminder(reminderHour, reminderMin, reminderDays)
@@ -410,10 +417,13 @@ class EditHabitActivity : AppCompatActivity() {
     }
 
     private fun updateIconButton() {
-        binding.iconButton.text = if (icon.isBlank()) {
+        val defaultIcon = firstGrapheme(binding.nameInput.text.toString())
+        binding.iconButton.text = when {
+            icon.isNotBlank() -> getString(R.string.flow_change_emoji, icon)
+            defaultIcon.isNotBlank() -> getString(R.string.flow_change_emoji, defaultIcon)
+            else -> {
             getString(R.string.flow_choose_emoji)
-        } else {
-            getString(R.string.flow_change_emoji, icon)
+            }
         }
     }
 
@@ -430,10 +440,7 @@ class EditHabitActivity : AppCompatActivity() {
         val input = EditText(this).apply {
             gravity = Gravity.CENTER
             hint = "😀"
-            inputType = InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            filters = arrayOf(iconCharacterFilter, InputFilter.LengthFilter(32))
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL
             maxLines = 1
             textSize = 32f
             minHeight = resources.getDimensionPixelSize(R.dimen.flow_emoji_preview_height)
@@ -441,9 +448,23 @@ class EditHabitActivity : AppCompatActivity() {
             setTextColor(styledResources.getColor(R.attr.flowTextPrimaryColor))
             setHintTextColor(tertiaryText)
             setBackgroundResource(R.drawable.flow_surface_secondary_background)
-            setText(icon)
+            setText(icon.ifBlank { firstGrapheme(binding.nameInput.text.toString()) })
             setSelection(text.length)
         }
+        input.addTextChangedListener(object : TextWatcher {
+            private var updating = false
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(editable: Editable?) {
+                if (updating) return
+                val singleCharacter = firstGrapheme(editable?.toString().orEmpty())
+                if (editable?.toString() == singleCharacter) return
+                updating = true
+                input.setText(singleCharacter)
+                input.setSelection(singleCharacter.length)
+                updating = false
+            }
+        })
         val emojiKeyboardButton = MaterialButton(
             this,
             null,
@@ -505,7 +526,7 @@ class EditHabitActivity : AppCompatActivity() {
             setTextAppearance(R.style.TextAppearance_Flow_SectionTitle)
         }
         val suggestions = GridLayout(this).apply {
-            columnCount = 6
+            columnCount = 5
             alignmentMode = GridLayout.ALIGN_BOUNDS
         }
         resources.getStringArray(R.array.flow_emoji_suggestions).forEach { emoji ->
@@ -532,8 +553,8 @@ class EditHabitActivity : AppCompatActivity() {
                     }
                 },
                 GridLayout.LayoutParams().apply {
-                    width = (resources.displayMetrics.density * 48).toInt()
-                    height = (resources.displayMetrics.density * 48).toInt()
+                    width = (resources.displayMetrics.density * 52).toInt()
+                    height = (resources.displayMetrics.density * 52).toInt()
                     setMargins(smallSpacing / 2, smallSpacing / 2, smallSpacing / 2, smallSpacing / 2)
                 }
             )
@@ -615,11 +636,6 @@ class EditHabitActivity : AppCompatActivity() {
         }
         useButton.setOnClickListener {
             val selectedIcon = firstGrapheme(input.text.toString())
-            if (selectedIcon.isNotEmpty() && !isEmojiOrUnicodeSymbol(selectedIcon)) {
-                input.error = getString(R.string.flow_icon_must_be_emoji_or_symbol)
-                input.requestFocus()
-                return@setOnClickListener
-            }
             icon = selectedIcon
             updateIconButton()
             dialog.dismiss()
@@ -641,75 +657,9 @@ class EditHabitActivity : AppCompatActivity() {
         return if (end == BreakIterator.DONE) "" else trimmed.substring(0, end)
     }
 
-    private fun isEmojiOrUnicodeSymbol(value: String): Boolean {
-        var hasSymbol = false
-        var index = 0
-        while (index < value.length) {
-            val codePoint = value.codePointAt(index)
-            val type = Character.getType(codePoint)
-            val allowed = when (type) {
-                Character.OTHER_SYMBOL.toInt(),
-                Character.MATH_SYMBOL.toInt(),
-                Character.CURRENCY_SYMBOL.toInt(),
-                Character.MODIFIER_SYMBOL.toInt(),
-                Character.NON_SPACING_MARK.toInt(),
-                Character.COMBINING_SPACING_MARK.toInt(),
-                Character.ENCLOSING_MARK.toInt() -> true
-
-                else -> codePoint == ZERO_WIDTH_JOINER ||
-                    codePoint == TEXT_VARIATION_SELECTOR ||
-                    codePoint == EMOJI_VARIATION_SELECTOR
-            }
-            if (!allowed) return false
-            if (type == Character.OTHER_SYMBOL.toInt() ||
-                type == Character.MATH_SYMBOL.toInt() ||
-                type == Character.CURRENCY_SYMBOL.toInt() ||
-                type == Character.MODIFIER_SYMBOL.toInt()) {
-                hasSymbol = true
-            }
-            index += Character.charCount(codePoint)
-        }
-        return hasSymbol
-    }
-
-    private val iconCharacterFilter = InputFilter { source, start, end, _, _, _ ->
-        val entered = source.subSequence(start, end).toString()
-        val filtered = buildString {
-            var index = 0
-            while (index < entered.length) {
-                val codePoint = entered.codePointAt(index)
-                if (isAllowedIconCodePoint(codePoint)) appendCodePoint(codePoint)
-                index += Character.charCount(codePoint)
-            }
-        }
-        if (entered == filtered) null else filtered
-    }
-
-    private fun isAllowedIconCodePoint(codePoint: Int): Boolean {
-        return when (Character.getType(codePoint)) {
-            Character.OTHER_SYMBOL.toInt(),
-            Character.MATH_SYMBOL.toInt(),
-            Character.CURRENCY_SYMBOL.toInt(),
-            Character.MODIFIER_SYMBOL.toInt(),
-            Character.NON_SPACING_MARK.toInt(),
-            Character.COMBINING_SPACING_MARK.toInt(),
-            Character.ENCLOSING_MARK.toInt() -> true
-
-            else -> codePoint == ZERO_WIDTH_JOINER ||
-                codePoint == TEXT_VARIATION_SELECTOR ||
-                codePoint == EMOJI_VARIATION_SELECTOR
-        }
-    }
-
     private fun getFormattedValidationError(@StringRes resId: Int): Spanned {
         val html = "<font color=#FFFFFF>${getString(resId)}</font>"
         return Html.fromHtml(html)
-    }
-
-    companion object {
-        const val ZERO_WIDTH_JOINER = 0x200D
-        const val TEXT_VARIATION_SELECTOR = 0xFE0E
-        const val EMOJI_VARIATION_SELECTOR = 0xFE0F
     }
 
     override fun onSaveInstanceState(state: Bundle) {
