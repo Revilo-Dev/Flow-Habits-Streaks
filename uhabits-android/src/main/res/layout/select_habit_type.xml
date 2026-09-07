@@ -28,26 +28,10 @@
             android:orientation="vertical"
             android:padding="@dimen/flow_card_padding">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/flow_create_habit_title"
-                android:textColor="?attr/flowTextPrimaryColor"
-                android:textSize="@dimen/flow_text_sheet_title"
-                android:textStyle="bold" />
-
-            <TextView
-                style="@style/TextAppearance.Flow.Supporting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/flow_small_spacing"
-                android:layout_marginBottom="@dimen/flow_large_spacing"
-                android:text="@string/flow_create_habit_message" />
-
             <LinearLayout
                 android:id="@+id/buttonYesNo"
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
+                android:layout_height="wrap_content" android:minHeight="88dp" android:paddingTop="16dp" android:paddingBottom="16dp"
                 android:background="@drawable/flow_surface_secondary_selectable_background"
                 android:clickable="true"
                 android:focusable="true"
@@ -56,19 +40,8 @@
                 android:paddingStart="@dimen/flow_large_spacing"
                 android:paddingEnd="@dimen/flow_large_spacing">
 
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@null"
-                    android:padding="6dp"
-                    android:src="@drawable/flow_ic_habit_binary" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/flow_large_spacing"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                <ImageView android:layout_width="28dp" android:layout_height="28dp" android:layout_marginEnd="16dp" android:src="@drawable/checkbox_checked" app:tint="?attr/flowAccentColor" android:importantForAccessibility="no" />
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
 
                     <TextView
                         style="@style/TextAppearance.Flow.Body"
@@ -76,21 +49,15 @@
                         android:layout_height="wrap_content"
                         android:text="@string/yes_or_no"
                         android:textStyle="bold" />
+                    <TextView style="@style/TextAppearance.Flow.Supporting" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/yes_or_no_example" />
 
-                    <TextView
-                        style="@style/TextAppearance.Flow.Metadata"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:maxLines="1"
-                        android:text="@string/yes_or_no_example" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/buttonMeasurable"
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
+                android:layout_height="wrap_content" android:minHeight="88dp" android:paddingTop="16dp" android:paddingBottom="16dp"
                 android:layout_marginTop="@dimen/flow_card_spacing"
                 android:background="@drawable/flow_surface_secondary_selectable_background"
                 android:clickable="true"
@@ -100,19 +67,8 @@
                 android:paddingStart="@dimen/flow_large_spacing"
                 android:paddingEnd="@dimen/flow_large_spacing">
 
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@null"
-                    android:padding="6dp"
-                    android:src="@drawable/flow_ic_habit_number" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/flow_large_spacing"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                <ImageView android:layout_width="28dp" android:layout_height="28dp" android:layout_marginEnd="16dp" android:src="@drawable/flow_ic_habit_number" app:tint="?attr/flowAccentColor" android:importantForAccessibility="no" />
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
 
                     <TextView
                         style="@style/TextAppearance.Flow.Body"
@@ -120,14 +76,8 @@
                         android:layout_height="wrap_content"
                         android:text="@string/measurable"
                         android:textStyle="bold" />
+                    <TextView style="@style/TextAppearance.Flow.Supporting" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/measurable_example" />
 
-                    <TextView
-                        style="@style/TextAppearance.Flow.Metadata"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:maxLines="1"
-                        android:text="@string/measurable_example" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -136,7 +86,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/flow_min_touch_target"
-                android:layout_gravity="end"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/flow_medium_spacing"
                 android:text="@android:string/cancel"
                 android:textAllCaps="false"

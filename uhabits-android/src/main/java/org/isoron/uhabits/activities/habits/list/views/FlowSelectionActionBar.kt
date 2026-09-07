@@ -29,7 +29,7 @@ class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
     private val color = addAction(R.drawable.palette, R.string.color)
     private val archive = addAction(R.drawable.archive, R.string.archive)
     private val unarchive = addAction(R.drawable.flow_ic_unarchive, R.string.unarchive)
-    private val delete = addAction(R.drawable.checkbox_crossed, R.string.delete)
+    private val delete = addAction(R.drawable.delete, R.string.delete)
 
     init {
         orientation = HORIZONTAL

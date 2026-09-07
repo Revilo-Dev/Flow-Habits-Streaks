@@ -20,11 +20,10 @@
 package org.isoron.uhabits.activities.habits.edit
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.icu.text.BreakIterator
 import android.os.Bundle
 import android.text.Html
@@ -37,7 +36,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.GridLayout
@@ -53,7 +51,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
 import com.android.datetimepicker.time.RadialPickerLayout
 import com.android.datetimepicker.time.TimePickerDialog
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import org.isoron.platform.gui.toInt
 import org.isoron.uhabits.HabitsApplication
@@ -502,29 +499,6 @@ class EditHabitActivity : AppCompatActivity() {
                 }
             )
         }
-        val dragHandle = View(this).apply {
-            background = GradientDrawable().apply {
-                cornerRadius = resources.displayMetrics.density * 2
-                setColor(ColorUtils.setAlphaComponent(tertiaryText, 150))
-            }
-        }
-        val title = TextView(this).apply {
-            text = getString(R.string.flow_emoji_picker_title)
-            setTextColor(styledResources.getColor(R.attr.flowTextPrimaryColor))
-            setTextSize(
-                android.util.TypedValue.COMPLEX_UNIT_PX,
-                resources.getDimension(R.dimen.flow_text_sheet_title)
-            )
-            setTypeface(typeface, Typeface.BOLD)
-        }
-        val hint = TextView(this).apply {
-            text = getString(R.string.flow_emoji_picker_hint)
-            setTextAppearance(R.style.TextAppearance_Flow_Supporting)
-        }
-        val suggestionsTitle = TextView(this).apply {
-            text = getString(R.string.flow_suggested_icons)
-            setTextAppearance(R.style.TextAppearance_Flow_SectionTitle)
-        }
         val suggestions = GridLayout(this).apply {
             columnCount = 5
             alignmentMode = GridLayout.ALIGN_BOUNDS
@@ -577,44 +551,22 @@ class EditHabitActivity : AppCompatActivity() {
         }
         val actions = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
+            setBackgroundResource(R.drawable.flow_dialog_action_bar_background)
+            setPadding(smallSpacing / 2, smallSpacing / 2, smallSpacing / 2, smallSpacing / 2)
             addView(removeButton, LinearLayout.LayoutParams(0, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target), 1f))
             addView(
                 useButton,
-                LinearLayout.LayoutParams(0, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target), 1f).apply {
-                    marginStart = smallSpacing
-                }
+                LinearLayout.LayoutParams(0, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target), 1f)
             )
         }
+        removeButton.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+        removeButton.setTextColor(styledResources.getColor(R.attr.flowOnAccentColor))
+        useButton.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(bodyPadding, smallSpacing, bodyPadding, bodyPadding)
-            setBackgroundResource(R.drawable.flow_bottom_sheet_background)
-            addView(
-                dragHandle,
-                LinearLayout.LayoutParams(
-                    resources.displayMetrics.density.times(36).toInt(),
-                    resources.displayMetrics.density.times(4).toInt()
-                ).apply {
-                    gravity = Gravity.CENTER_HORIZONTAL
-                    bottomMargin = largeSpacing
-                }
-            )
-            addView(title)
-            addView(
-                hint,
-                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = smallSpacing
-                    bottomMargin = largeSpacing
-                }
-            )
+            setPadding(bodyPadding, bodyPadding, bodyPadding, bodyPadding)
+            setBackgroundResource(R.drawable.flow_dialog_background)
             addView(inputRow, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
-            addView(
-                suggestionsTitle,
-                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = largeSpacing
-                    bottomMargin = smallSpacing
-                }
-            )
             addView(
                 suggestions,
                 LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
@@ -628,10 +580,10 @@ class EditHabitActivity : AppCompatActivity() {
                 }
             )
         }
-        val dialog = BottomSheetDialog(this, R.style.FlowBottomSheet).apply {
+        val dialog = Dialog(this).apply {
             setContentView(content)
             setOnShowListener {
-                window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                window?.setBackgroundDrawableResource(android.R.color.transparent)
             }
         }
         useButton.setOnClickListener {

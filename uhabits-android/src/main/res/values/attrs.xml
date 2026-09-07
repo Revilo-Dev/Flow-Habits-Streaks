@@ -49,6 +49,8 @@
 
     <attr name="widgetShadowAlpha" format="float"/>
     <attr name="widgetBackgroundAlpha" format="float"/>
+    <!-- One UI Home widget metadata. Other launchers safely ignore these values. -->
+    <attr name="widgetStyle" format="string"/>
     <attr name="palette" format="reference"/>
 
     <!-- Pre-Lollipop -->

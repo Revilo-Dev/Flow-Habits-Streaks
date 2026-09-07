@@ -201,7 +201,7 @@ open class Preferences(private val storage: Storage) {
             storage.putInt("last_version", version)
         }
     open var widgetOpacity: Int
-        get() = storage.getString("pref_widget_opacity", "255").toInt()
+        get() = storage.getString("pref_widget_opacity", "102").toInt()
         set(value) {
             storage.putString("pref_widget_opacity", value.toString())
         }

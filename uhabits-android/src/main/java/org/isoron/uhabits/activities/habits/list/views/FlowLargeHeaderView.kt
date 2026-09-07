@@ -63,6 +63,7 @@ class FlowLargeHeaderView(
     }
 
     private val perfectStreakView = FlowPerfectStreakView(context, preferences)
+    private var hintView: HintView? = null
 
     init {
         orientation = VERTICAL
@@ -111,6 +112,20 @@ class FlowLargeHeaderView(
         perfectStreakView.update(perfectStreak)
     }
 
+    /** Places the dismissible tip above the streak card, inside the home header. */
+    fun setHintView(view: HintView) {
+        hintView?.let { removeView(it) }
+        hintView = view
+        addView(
+            view,
+            indexOfChild(perfectStreakView),
+            LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                topMargin = dim(R.dimen.flow_large_spacing).toInt()
+                bottomMargin = dim(R.dimen.flow_card_spacing).toInt()
+            }
+        )
+    }
+
     override fun atMidnight() {
         post { updateDate() }
     }
@@ -121,7 +136,7 @@ class FlowLargeHeaderView(
         updateDate()
         if (!hasPlayedIntro) {
             hasPlayedIntro = true
-            listOf(titleView, dateView, summaryView, perfectStreakView).forEachIndexed { index, view ->
+            listOf(titleView, dateView, summaryView, hintView, perfectStreakView).filterNotNull().forEachIndexed { index, view ->
                 view.alpha = 0f
                 view.translationY = dim(R.dimen.flow_large_spacing)
                 view.animate()

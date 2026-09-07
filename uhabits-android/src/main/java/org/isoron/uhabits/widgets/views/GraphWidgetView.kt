@@ -39,7 +39,7 @@ class GraphWidgetView(context: Context?, val dataView: View) : HabitWidgetView(c
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         dataView.layoutParams = params
-        val innerFrame = findViewById<View>(R.id.innerFrame) as ViewGroup
+        val innerFrame = findViewById<View>(R.id.frame) as ViewGroup
         innerFrame.addView(dataView)
         title = findViewById<View>(R.id.title) as TextView
         title.visibility = VISIBLE

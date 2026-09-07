@@ -132,7 +132,7 @@ internal class StackRemoteViewsFactory(private val context: Context, intent: Int
 
     override fun getLoadingView(): RemoteViews {
         val options = AppWidgetManager.getInstance(context).getAppWidgetOptions(widgetId)
-        val widget = EmptyWidget(context, widgetId)
+        val widget = EmptyWidget(context, widgetId, stacked = true)
         widget.setDimensions(getDimensionsFromOptions(context, options))
         val landscapeViews = widget.landscapeRemoteViews
         val portraitViews = widget.portraitRemoteViews

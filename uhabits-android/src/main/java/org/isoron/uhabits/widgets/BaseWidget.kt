@@ -116,8 +116,16 @@ abstract class BaseWidget(val context: Context, val id: Int, val stacked: Boolea
         val view = buildView()!!
         measureView(view, width, height)
         refreshData(view)
+        // Content is rasterized; only the launcher-visible root owns the surface.
+        view.findViewById<View>(android.R.id.background)?.background = null
         if (view.isLayoutRequested) measureView(view, width, height)
         val remoteViews = RemoteViews(context.packageName, R.layout.widget_wrapper)
+        if (stacked) {
+            // Stack items sit inside the stack's single translucent surface.
+            remoteViews.setInt(android.R.id.background, "setBackgroundResource", 0)
+        } else {
+            WidgetSurface.apply(remoteViews, preferedBackgroundAlpha)
+        }
         buildRemoteViews(view, remoteViews, width, height)
         return remoteViews
     }
@@ -146,13 +154,7 @@ abstract class BaseWidget(val context: Context, val id: Int, val stacked: Boolea
     }
 
     protected val preferedBackgroundAlpha: Int
-        get() {
-            return if (stacked) {
-                255
-            } else {
-                prefs.widgetOpacity
-            }
-        }
+        get() = prefs.widgetOpacity.coerceIn(1, 254)
 
     init {
         val app = context.applicationContext as HabitsApplication
@@ -167,4 +169,5 @@ abstract class BaseWidget(val context: Context, val id: Int, val stacked: Boolea
             defaultHeight
         )
     }
+
 }

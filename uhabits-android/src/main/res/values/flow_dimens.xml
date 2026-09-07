@@ -32,7 +32,7 @@
     <dimen name="flow_header_bottom_spacing">24dp</dimen>
     <dimen name="flow_date_header_radius">16dp</dimen>
     <dimen name="flow_perfect_day_size">30dp</dimen>
-    <dimen name="flow_home_header_expanded_height">376dp</dimen>
+    <dimen name="flow_home_header_expanded_height">432dp</dimen>
     <dimen name="flow_secondary_header_expanded_height">184dp</dimen>
     <dimen name="flow_show_habit_header_expanded_height">536dp</dimen>
     <dimen name="flow_show_habit_header_numerical_height">472dp</dimen>

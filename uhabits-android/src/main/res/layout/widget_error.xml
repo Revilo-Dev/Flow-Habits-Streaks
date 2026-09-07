@@ -20,9 +20,10 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
+    android:background="@drawable/widget_oneui_blur_background"
     android:gravity="center"
     android:orientation="vertical"
     android:paddingTop="4dp"

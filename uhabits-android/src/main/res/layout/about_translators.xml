@@ -1,5 +1,5 @@
-<LinearLayout style="@style/Card" android:gravity="center" xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView style="@style/CardHeader" android:text="@string/translators" android:textColor="?aboutScreenColor" />
+<LinearLayout style="@style/Flow.About.Card" android:gravity="center" xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView style="@style/CardHeader" android:text="@string/translators" android:textColor="?attr/flowTextPrimaryColor" />
     <!-- This list is automatically generated, do not edit manually. -->
     <TextView style="@style/About.Item.Language" android:text="Bahasa Indonesia" />
     <TextView style="@style/About.Item" android:text="Angga Rifandi" />

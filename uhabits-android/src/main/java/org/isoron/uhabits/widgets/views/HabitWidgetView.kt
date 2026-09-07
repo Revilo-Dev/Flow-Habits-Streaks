@@ -92,7 +92,7 @@ abstract class HabitWidgetView : FrameLayout {
         )
         backgroundPaint?.color = res!!.getColor(R.attr.cardBgColor)
         backgroundPaint?.alpha = backgroundAlpha
-        frame = findViewById<View>(R.id.frame) as ViewGroup
+        frame = findViewById<View>(android.R.id.background) as ViewGroup
         if (frame != null) frame!!.background = background
     }
 

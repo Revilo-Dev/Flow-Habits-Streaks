@@ -130,6 +130,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         e: RuntimeException
     ) {
         val errorView = RemoteViews(context.packageName, R.layout.widget_error)
+        WidgetSurface.apply(errorView, preferences.widgetOpacity)
         if (e is HabitNotFoundException) {
             errorView.setCharSequence(
                 R.id.label,

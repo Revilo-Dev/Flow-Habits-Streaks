@@ -78,21 +78,21 @@
             android:id="@+id/actionToggleNightMode"
             android:checkable="true"
             android:enabled="true"
-            android:icon="@drawable/night"
+            android:icon="@drawable/dark" app:iconTint="?attr/flowTextPrimaryColor"
             android:orderInCategory="50"
             android:title="@string/night_mode"
             app:showAsAction="never"/>
 
         <item
             android:id="@+id/actionSettings"
-            android:icon="@drawable/category_settings"
+            android:icon="@drawable/settings" app:iconTint="?attr/flowTextPrimaryColor"
             android:orderInCategory="100"
             android:title="@string/action_settings"
             app:showAsAction="never"/>
 
         <item
             android:id="@+id/actionFAQ"
-            android:icon="@drawable/info"
+            android:icon="@drawable/help" app:iconTint="?attr/flowTextPrimaryColor"
             android:orderInCategory="100"
             android:title="@string/help"
             app:showAsAction="never"/>

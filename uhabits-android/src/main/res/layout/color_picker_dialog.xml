@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
-        android:padding="28dp" >
+        android:padding="16dp" >
 
         <ProgressBar
             android:id="@android:id/progress"

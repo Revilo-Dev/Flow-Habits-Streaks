@@ -149,7 +149,10 @@
         <item name="android:textColor">?attr/flowTextSecondaryColor</item>
     </style>
 
-    <style name="FlowDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+    <style name="FlowDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Flow.DialogAction</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Flow.DialogAction</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Flow.DialogAction</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:colorBackground">?attr/flowSurfaceColor</item>
         <item name="android:textColor">?attr/flowTextPrimaryColor</item>
@@ -289,5 +292,18 @@
         <item name="android:layout_marginBottom">@dimen/flow_card_spacing</item>
         <item name="android:drawablePadding">@dimen/flow_medium_spacing</item>
         <item name="android:gravity">center_vertical</item>
+    </style>
+    <style name="Widget.Flow.DialogAction" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">?attr/flowAccentColor</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="rippleColor">?attr/flowRippleColor</item>
+    </style>
+    <style name="Flow.About.Card" parent="Widget.Flow.Card">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginBottom">@dimen/flow_card_spacing</item>
     </style>
 </resources>

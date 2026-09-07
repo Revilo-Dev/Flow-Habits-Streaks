@@ -18,6 +18,7 @@
     <attr name="flowToolbarTheme" format="reference" />
 
     <style name="FlowTheme.Light" parent="AppBaseTheme">
+        <item name="alertDialogTheme">@style/FlowDialog</item>
         <item name="android:alertDialogTheme">@style/FlowDialog</item>
         <item name="android:dialogTheme">@style/FlowDialog</item>
         <item name="flowBackgroundColor">@color/flow_light_background</item>
@@ -43,6 +44,7 @@
     </style>
 
     <style name="FlowTheme.Dark" parent="AppBaseThemeDark">
+        <item name="alertDialogTheme">@style/FlowDialog</item>
         <item name="android:alertDialogTheme">@style/FlowDialog</item>
         <item name="android:dialogTheme">@style/FlowDialog</item>
         <item name="flowBackgroundColor">@color/flow_dark_background</item>
@@ -68,6 +70,7 @@
     </style>
 
     <style name="FlowTheme.Dark.PureBlack" parent="AppBaseThemeDark.PureBlack">
+        <item name="alertDialogTheme">@style/FlowDialog</item>
         <item name="android:alertDialogTheme">@style/FlowDialog</item>
         <item name="android:dialogTheme">@style/FlowDialog</item>
         <item name="flowBackgroundColor">@color/flow_dark_background</item>

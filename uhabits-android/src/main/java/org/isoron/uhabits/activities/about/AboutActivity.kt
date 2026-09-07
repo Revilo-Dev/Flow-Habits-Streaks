@@ -29,6 +29,8 @@ import org.isoron.uhabits.activities.AndroidThemeSwitcher
  */
 class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val preferences = (application as HabitsApplication).component.preferences
+        AndroidThemeSwitcher(this, preferences).apply()
         super.onCreate(savedInstanceState)
         val app = application as HabitsApplication
         val screen = AboutScreen(

@@ -19,10 +19,11 @@
   -->
 
 <LinearLayout
-    android:id="@+id/frame"
+    android:id="@android:id/background"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/widget_oneui_blur_background"
     xmlns:habit="http://isoron.org/android"
     android:gravity="center"
     android:orientation="vertical">

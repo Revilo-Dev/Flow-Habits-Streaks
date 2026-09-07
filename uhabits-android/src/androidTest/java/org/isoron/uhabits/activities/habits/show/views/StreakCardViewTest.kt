@@ -40,10 +40,7 @@ class StreakCardViewTest : BaseViewTest() {
     override fun setUp() {
         super.setUp()
         val habit = fixtures.createLongHabit()
-        view = LayoutInflater
-            .from(targetContext)
-            .inflate(R.layout.show_habit, null)
-            .findViewById<View>(R.id.streakCard) as StreakCardView
+        view = StreakCardView(targetContext, android.util.Xml.asAttributeSet(android.util.Xml.newPullParser()))
         view.setState(
             StreakCardState(
                 bestStreaks = habit.streaks.getBest(10),

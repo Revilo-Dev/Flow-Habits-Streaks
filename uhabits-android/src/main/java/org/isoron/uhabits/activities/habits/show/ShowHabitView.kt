@@ -66,7 +66,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
                 } else {
                     VISIBLE
                 }
-                binding.toolbar.updateFlowStickyControls(isSticky)
+                binding.toolbar.updateFlowStickyControls(isSticky, compact = true)
             }
         )
     }

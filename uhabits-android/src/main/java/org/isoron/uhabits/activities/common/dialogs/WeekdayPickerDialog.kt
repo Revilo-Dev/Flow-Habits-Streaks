@@ -28,6 +28,7 @@ import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.WeekdayList
+import org.isoron.uhabits.utils.sres
 import java.util.Locale
 
 /**
@@ -64,7 +65,6 @@ class WeekdayPickerDialog :
             requireActivity()
         )
         builder
-            .setTitle(R.string.select_weekdays)
             .setMultiChoiceItems(
                 JavaLocalDateFormatter(Locale.getDefault()).longWeekdayNames(DayOfWeek.SATURDAY),
                 selectedDays,
@@ -75,7 +75,20 @@ class WeekdayPickerDialog :
                 android.R.string.cancel
             ) { _: DialogInterface?, _: Int -> dismiss() }
 
-        return builder.create()
+        return builder.create().apply {
+            setOnShowListener {
+                getButton(AlertDialog.BUTTON_POSITIVE).apply {
+                    setBackgroundResource(R.drawable.flow_dialog_save_action_background)
+                    setTextColor(sres.getColor(R.attr.flowOnAccentColor))
+                    minHeight = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+                }
+                getButton(AlertDialog.BUTTON_NEGATIVE).apply {
+                    setBackgroundResource(R.drawable.flow_surface_secondary_selectable_background)
+                    setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
+                    minHeight = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+                }
+            }
+        }
     }
 
     fun setListener(listener: OnWeekdaysPickedListener?) {

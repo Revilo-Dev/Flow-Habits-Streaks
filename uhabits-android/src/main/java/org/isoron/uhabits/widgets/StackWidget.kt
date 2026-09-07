@@ -54,6 +54,7 @@ class StackWidget(
         val manager = AppWidgetManager.getInstance(context)
         val remoteViews =
             RemoteViews(context.packageName, StackWidgetType.getStackWidgetLayoutId(widgetType))
+        WidgetSurface.apply(remoteViews, preferedBackgroundAlpha)
         val serviceIntent = Intent(context, StackWidgetService::class.java)
         val habitIds = StringUtils.joinLongs(habits.map { it.id!! }.toLongArray())
 

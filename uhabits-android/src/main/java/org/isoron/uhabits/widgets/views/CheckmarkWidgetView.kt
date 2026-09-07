@@ -76,11 +76,11 @@ class CheckmarkWidgetView : HabitWidgetView {
             }
             NO, UNKNOWN -> {
                 bgColor = res.getColor(R.attr.cardBgColor)
-                fgColor = res.getColor(R.attr.contrast60)
+                fgColor = res.getColor(R.attr.contrast0)
             }
             else -> {
                 bgColor = res.getColor(R.attr.cardBgColor)
-                fgColor = res.getColor(R.attr.contrast60)
+                fgColor = res.getColor(R.attr.contrast0)
             }
         }
         ring.setPercentage(percentage)

@@ -21,46 +21,55 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.graphics.Color.WHITE
 import android.graphics.Typeface
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.ui.screens.habits.list.HintList
 import org.isoron.uhabits.utils.dp
+import org.isoron.uhabits.utils.sres
 
 class HintView(
     context: Context,
     private val hintList: HintList
-) : LinearLayout(context) {
+) : FrameLayout(context) {
 
     val hintContent: TextView
 
     init {
         isClickable = true
         visibility = GONE
-        orientation = VERTICAL
-        val p1 = dp(16.0f).toInt()
-        val p2 = dp(4.0f).toInt()
-        setPadding(p1, p1, p2, p1)
-        setBackgroundColor(resources.getColor(R.color.indigo_500))
+        val padding = dp(16.0f).toInt()
+        setPadding(padding, padding, padding, padding)
+        setBackgroundResource(R.drawable.flow_surface_secondary_background)
 
         val hintTitle = TextView(context).apply {
-            setTextColor(WHITE)
+            setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
             setTypeface(null, Typeface.BOLD)
             text = resources.getString(R.string.hint_title)
         }
 
         hintContent = TextView(context).apply {
-            setTextColor(WHITE)
+            setTextColor(sres.getColor(R.attr.flowTextSecondaryColor))
             setPadding(0, dp(5.0f).toInt(), 0, 0)
         }
 
-        addView(hintTitle, WRAP_CONTENT, WRAP_CONTENT)
-        addView(hintContent, WRAP_CONTENT, WRAP_CONTENT)
-        setOnClickListener { dismiss() }
+        addView(LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(hintTitle, WRAP_CONTENT, WRAP_CONTENT)
+            addView(hintContent, WRAP_CONTENT, WRAP_CONTENT)
+        }, LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply { marginEnd = dp(28f).toInt() })
+        addView(ImageButton(context).apply {
+            setImageResource(R.drawable.flow_ic_close)
+            background = null
+            contentDescription = resources.getString(android.R.string.cancel)
+            setOnClickListener { dismiss() }
+        }, LayoutParams(dp(32f).toInt(), dp(32f).toInt(), android.view.Gravity.TOP or android.view.Gravity.END))
     }
 
     public override fun onAttachedToWindow() {

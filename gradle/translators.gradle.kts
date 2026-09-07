@@ -98,14 +98,14 @@ task("updateTranslators") {
             xml.doubleQuotes = true
             xml.withGroovyBuilder {
                 "LinearLayout"(
-                    "style" to "@style/Card",
+                    "style" to "@style/Flow.About.Card",
                     "android:gravity" to "center",
                     "xmlns:android" to "http://schemas.android.com/apk/res/android"
                 ) {
                     "TextView"(
                         "style" to "@style/CardHeader",
                         "android:text" to "@string/translators",
-                        "android:textColor" to "?aboutScreenColor"
+                        "android:textColor" to "?attr/flowTextPrimaryColor"
                     )
 
                     xml.mkp.yield('\n' + indent)

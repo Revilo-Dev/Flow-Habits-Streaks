@@ -214,10 +214,13 @@ fun View.setupToolbar(
 }
 
 /** Gives only sticky toolbar controls the translucent One UI surface. */
-fun Toolbar.updateFlowStickyControls(isSticky: Boolean) {
-    val surface = sres.getColor(R.attr.flowSurfaceSecondaryColor)
-    val backgroundColor = ColorUtils.setAlphaComponent(surface, 224)
-    val inset = dim(R.dimen.flow_sticky_control_inset).toInt()
+fun Toolbar.updateFlowStickyControls(isSticky: Boolean, compact: Boolean = false) {
+    val isLight = ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
+    val surface = if (isLight) Color.WHITE else sres.getColor(R.attr.flowSurfaceSecondaryColor)
+    val backgroundColor = ColorUtils.setAlphaComponent(surface, if (isLight) 255 else 224)
+    val inset = dim(R.dimen.flow_sticky_control_inset).toInt() / 2
+    val verticalInset = if (compact) inset else 0
+    elevation = if (isSticky && isLight) dim(R.dimen.flow_fab_elevation) else 0f
     for (index in 0 until childCount) {
         when (val child = getChildAt(index)) {
             is ActionMenuView -> {
@@ -228,12 +231,13 @@ fun Toolbar.updateFlowStickyControls(isSticky: Boolean) {
                             setColor(backgroundColor)
                         },
                         0,
-                        inset,
+                        verticalInset,
                         0,
-                        inset
+                        verticalInset
                     )
                 } else null
-                child.setPadding(0, 0, 0, 0)
+                child.setPadding(inset, 0, inset, 0)
+                child.translationX = if (isSticky && compact) -inset.toFloat() else 0f
             }
 
             is android.widget.ImageButton -> child.background = if (isSticky) {

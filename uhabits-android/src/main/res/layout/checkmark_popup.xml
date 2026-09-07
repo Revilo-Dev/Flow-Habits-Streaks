@@ -24,15 +24,19 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/flow_dialog_background"
-    android:minWidth="320dp"
+    android:minWidth="280dp"
     android:orientation="vertical"
     android:padding="@dimen/flow_large_spacing">
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/notes"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:background="@drawable/flow_dialog_input_background"
+        android:layout_height="132dp"
+        android:background="@drawable/flow_surface_secondary_background"
+        android:backgroundTint="@null"
+        app:backgroundTint="@null"
+        android:textColor="?attr/flowTextPrimaryColor"
+        android:textColorHint="?attr/flowTextTertiaryColor"
         android:gravity="start|top"
         android:hint="@string/notes"
         android:inputType="textCapSentences|textMultiLine"
@@ -43,7 +47,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/booleanButtons"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/flow_min_touch_target"
+        android:layout_height="56dp"
         android:layout_marginTop="@dimen/flow_large_spacing"
         android:orientation="horizontal"
         android:visibility="gone"
@@ -52,28 +56,35 @@
         <TextView
             android:id="@+id/yesBtn"
             style="@style/CheckmarkPopupBtn"
+            android:background="@drawable/flow_surface_secondary_selectable_background"
             android:text="@string/fa_check" />
 
         <TextView
             android:id="@+id/skipBtn"
             style="@style/CheckmarkPopupBtn"
+            android:layout_marginStart="@dimen/flow_small_spacing"
+            android:background="@drawable/flow_surface_secondary_selectable_background"
             android:text="@string/fa_skipped" />
 
         <TextView
             android:id="@+id/noBtn"
             style="@style/CheckmarkPopupBtn"
+            android:layout_marginStart="@dimen/flow_small_spacing"
+            android:background="@drawable/flow_surface_secondary_selectable_background"
             android:text="@string/fa_times" />
 
         <TextView
             android:id="@+id/unknownBtn"
             style="@style/CheckmarkPopupBtn"
+            android:layout_marginStart="@dimen/flow_small_spacing"
+            android:background="@drawable/flow_surface_secondary_selectable_background"
             android:text="@string/fa_question" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/numberButtons"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/flow_min_touch_target"
+        android:layout_height="56dp"
         android:layout_marginTop="@dimen/flow_medium_spacing"
         android:orientation="horizontal"
         android:visibility="gone"
@@ -84,7 +95,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:background="@drawable/flow_dialog_input_background"
+            android:background="@drawable/flow_surface_secondary_background"
+        android:backgroundTint="@null"
+        app:backgroundTint="@null"
+        android:textColor="?attr/flowTextPrimaryColor"
+        android:textColorHint="?attr/flowTextTertiaryColor"
             android:inputType="numberDecimal"
             android:selectAllOnFocus="true"
             android:textAlignment="center"
@@ -92,34 +107,52 @@
 
         <TextView
             android:id="@+id/skipBtnNumber"
-            style="@style/NumericalPopupBtn"
-            android:text="@string/skip_day" />
+            style="@style/CheckmarkPopupBtn"
+            android:layout_marginStart="@dimen/flow_medium_spacing"
+            android:background="@drawable/flow_surface_secondary_selectable_background"
+            android:text="@string/fa_skipped" />
 
         <TextView
             android:id="@+id/unknownBtnNumber"
             style="@style/CheckmarkPopupBtn"
+            android:layout_marginStart="@dimen/flow_small_spacing"
+            android:background="@drawable/flow_surface_secondary_selectable_background"
             android:text="@string/fa_question" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/numberFooter"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/flow_min_touch_target"
+        android:layout_height="56dp"
         android:layout_marginTop="@dimen/flow_medium_spacing"
+        android:background="@android:color/transparent"
         android:orientation="horizontal"
+        android:padding="4dp"
         android:visibility="gone">
 
         <TextView
             android:id="@+id/dismissBtn"
             style="@style/CheckmarkPopupBtn"
-            android:text="@string/flow_discard"
-            android:textColor="?attr/flowTextSecondaryColor" />
+            android:text="@android:string/cancel"
+            android:background="?android:attr/selectableItemBackground"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="17sp"
+            android:textColor="?attr/flowAccentColor" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?attr/flowDividerColor" />
 
         <TextView
             android:id="@+id/saveBtn"
             style="@style/CheckmarkPopupBtn"
-            android:background="@drawable/flow_dialog_save_action_background"
             android:text="@string/save"
-            android:textColor="?attr/flowOnAccentColor" />
+            android:background="?android:attr/selectableItemBackground"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="17sp"
+            android:textColor="?attr/flowAccentColor" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

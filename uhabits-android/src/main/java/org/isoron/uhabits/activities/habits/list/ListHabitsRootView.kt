@@ -132,6 +132,7 @@ class ListHabitsRootView(
         val hints = resources.getStringArray(R.array.hints)
         val hintList = hintListFactory.create(hints)
         hintView = HintView(context, hintList)
+        largeHeader.setHintView(hintView)
 
         val flowBackground = sres.getColor(R.attr.flowBackgroundColor)
         val toolbarHeight = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
@@ -181,7 +182,9 @@ class ListHabitsRootView(
         )
         appBar.addOnOffsetChangedListener(
             AppBarLayout.OnOffsetChangedListener { bar, offset ->
-                tbar.updateFlowStickyControls(abs(offset) >= bar.totalScrollRange)
+                val isCollapsed = abs(offset) >= bar.totalScrollRange
+                tbar.updateFlowStickyControls(isCollapsed)
+                tbar.title = if (isCollapsed) resources.getString(R.string.flow_app_title) else ""
             }
         )
 
@@ -203,12 +206,6 @@ class ListHabitsRootView(
                 content,
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
                     behavior = AppBarLayout.ScrollingViewBehavior()
-                }
-            )
-            addView(
-                hintView,
-                CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    gravity = Gravity.BOTTOM
                 }
             )
             addView(
@@ -289,6 +286,7 @@ class ListHabitsRootView(
             theme = currentTheme(),
             applyTopInset = false
         )
+        tbar.setTitleMarginStart(resources.getDimensionPixelSize(R.dimen.flow_screen_padding))
         tbar.overflowIcon = AppCompatResources.getDrawable(context, R.drawable.more)
         tbar.background = ColorDrawable(Color.TRANSPARENT)
         tbar.elevation = 0f

@@ -38,13 +38,13 @@ class NumberDialog : AppCompatDialogFragment() {
         val appComponent = (requireActivity().application as HabitsApplication).component
         val prefs = appComponent.preferences
         view = CheckmarkPopupBinding.inflate(LayoutInflater.from(context))
-        arrayOf(view.yesBtn).forEach {
+        arrayOf(view.skipBtnNumber).forEach {
             it.setTextColor(requireArguments().getInt("color"))
         }
         arrayOf(view.noBtn, view.unknownBtnNumber).forEach {
             it.setTextColor(view.root.sres.getColor(R.attr.contrast60))
         }
-        arrayOf(view.yesBtn, view.noBtn, view.unknownBtnNumber).forEach {
+        arrayOf(view.yesBtn, view.skipBtnNumber, view.noBtn, view.unknownBtnNumber).forEach {
             it.typeface = InterfaceUtils.getFontAwesome(requireContext())
         }
         if (!prefs.isSkipEnabled) view.skipBtnNumber.visibility = View.GONE

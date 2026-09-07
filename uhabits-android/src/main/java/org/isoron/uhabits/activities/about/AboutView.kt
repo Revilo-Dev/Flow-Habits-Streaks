@@ -22,7 +22,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import org.isoron.uhabits.BuildConfig
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowInsetsControllerCompat
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.databinding.AboutBinding
@@ -64,6 +65,8 @@ class AboutView(
         )
         (context as android.app.Activity).window.statusBarColor =
             sres.getColor(R.attr.flowBackgroundColor)
+        WindowInsetsControllerCompat(context.window, binding.root).isAppearanceLightStatusBars =
+            ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
         binding.tvContributors.setOnClickListener { screen.showCodeContributorsWebsite() }
         binding.tvFeedback.setOnClickListener { screen.showSendFeedbackScreen() }
         binding.tvPrivacy.setOnClickListener { screen.showPrivacyPolicyWebsite() }

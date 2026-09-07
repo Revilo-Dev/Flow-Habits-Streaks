@@ -19,6 +19,7 @@
   -->
 
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
                     android:minHeight="100dp"
                     android:minWidth="100dp"
                     android:minResizeWidth="100dp"
@@ -26,8 +27,10 @@
                     android:initialLayout="@layout/widget_graph"
                     android:previewImage="@drawable/widget_preview_frequency"
                     android:resizeMode="vertical|horizontal"
+                    android:widgetFeatures="reconfigurable"
                     android:updatePeriodMillis="3600000"
                     android:configure="org.isoron.uhabits.widgets.activities.HabitPickerDialog"
-                    android:widgetCategory="home_screen">
+                    android:widgetCategory="home_screen"
+                    app:widgetStyle="colorful">
 
 </appwidget-provider>

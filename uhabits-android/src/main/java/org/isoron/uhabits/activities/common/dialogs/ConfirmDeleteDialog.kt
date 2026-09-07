@@ -32,18 +32,26 @@ class ConfirmDeleteDialog(
     @ActivityContext context: Context,
     callback: OnConfirmedCallback,
     quantity: Int
-) : AlertDialog(context) {
+) : AlertDialog(context, R.style.FlowDialog) {
     init {
         val res = context.resources
+        setIcon(androidx.core.content.ContextCompat.getDrawable(context, R.drawable.delete)?.mutate()?.apply {
+            setTint(org.isoron.uhabits.utils.StyledResources(context).getColor(R.attr.flowErrorColor))
+        })
+        setOnShowListener {
+            getButton(BUTTON_POSITIVE).setTextColor(
+                org.isoron.uhabits.utils.StyledResources(context).getColor(R.attr.flowErrorColor)
+            )
+        }
         setTitle(res.getQuantityString(R.plurals.delete_habits_title, quantity))
         setMessage(res.getQuantityString(R.plurals.delete_habits_message, quantity))
         setButton(
             BUTTON_POSITIVE,
-            res.getString(R.string.yes)
+            res.getString(R.string.delete)
         ) { dialog: DialogInterface?, which: Int -> callback.onConfirmed() }
         setButton(
             BUTTON_NEGATIVE,
-            res.getString(R.string.no)
+            res.getString(android.R.string.cancel)
         ) { dialog: DialogInterface?, which: Int -> }
     }
 }

@@ -35,7 +35,8 @@
             android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/flow_secondary_header_expanded_height"
-            app:collapsedTitleTextColor="@android:color/transparent"
+            app:collapsedTitleTextColor="?attr/flowTextPrimaryColor"
+            app:expandedTitleTextColor="?attr/flowTextPrimaryColor"
             app:contentScrim="@android:color/transparent"
             app:expandedTitleGravity="center_horizontal|bottom"
             app:expandedTitleMarginBottom="@dimen/flow_extra_large_spacing"
@@ -58,7 +59,7 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -66,13 +67,13 @@
 
         <LinearLayout
             android:id="@+id/outerLinearLayout"
-            style="@style/CardList"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="?attr/flowBackgroundColor"
             android:paddingStart="@dimen/flow_body_padding"
             android:paddingTop="@dimen/flow_large_spacing"
             android:paddingEnd="@dimen/flow_body_padding">
 
             <LinearLayout
-                style="@style/Card"
+                style="@style/Flow.About.Card"
                 android:background="@drawable/flow_card_background"
                 android:gravity="center">
 
@@ -93,7 +94,7 @@
                     android:text="@string/app_name" />
 
                 <TextView
-                    android:id="@+id/tvVersion"
+                    android:id="@+id/tvVersion" android:textColor="?attr/flowTextSecondaryColor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -102,7 +103,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/Card"
+                style="@style/Flow.About.Card"
                 android:background="@drawable/flow_card_background"
                 android:gravity="center">
 
@@ -139,7 +140,7 @@
             </LinearLayout>
 
             <LinearLayout
-                style="@style/Card"
+                style="@style/Flow.About.Card"
                 android:background="@drawable/flow_card_background"
                 android:gravity="center">
 
@@ -225,6 +226,6 @@
             <include layout="@layout/about_translators" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
