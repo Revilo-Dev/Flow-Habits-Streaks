@@ -1,17 +1,11 @@
-<h1 align="center">Loop Habit Tracker</h1>
-<p align="center">
-  <a href="https://github.com/iSoron/uhabits/releases/latest">
-    <img alt="release" src="https://img.shields.io/github/v/release/iSoron/uhabits" />
-  </a>
-  <a href="https://github.com/iSoron/uhabits/discussions">
-    <img alt="GitHub" src="https://img.shields.io/badge/GitHub-Discussions-%23fc4ebc" />
-  </a>
-</p>
+<h1 align="center">Flow - Habits & Streaks</h1>
 
-Loop is a mobile app that helps you create and maintain good habits,
-allowing you to achieve your long-term goals. Detailed graphs and statistics
-show you how your habits improved over time. It is completely ad-free and open
-source.
+
+Flow is a modern habit tracker designed to help you build and maintain positive habits, stay consistent, and work toward your long-term goals.
+
+Track your progress with streaks, detailed statistics, and visual insights that show how your habits develop over time. Flow features a clean, customizable interface with additional appearance options and an Android-focused design.
+
+Flow is completely ad-free and open source.
 
 <p align="center">
   <a href="https://play.google.com/store/apps/details?id=org.isoron.uhabits&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="80px"/></a>
