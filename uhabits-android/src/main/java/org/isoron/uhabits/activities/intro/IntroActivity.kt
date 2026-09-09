@@ -72,7 +72,12 @@ class IntroActivity : AppIntro2() {
         findViewById<ImageButton>(com.github.appintro.R.id.done).contentDescription =
             getString(R.string.flow_onboarding_done)
         isButtonsEnabled = false
-        findViewById<View>(com.github.appintro.R.id.bottom).visibility = View.GONE
+        findViewById<View>(com.github.appintro.R.id.bottom).apply {
+            visibility = View.VISIBLE
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+        findViewById<View>(com.github.appintro.R.id.indicator_container).translationY =
+            -32 * resources.displayMetrics.density
         findViewById<View>(com.github.appintro.R.id.view_pager).setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) goToNextSlide()
             true
@@ -110,6 +115,11 @@ class IntroActivity : AppIntro2() {
                 descriptionColor = secondaryText
             )
         )
+    }
+
+    override fun onIntroFinished() {
+        super.onIntroFinished()
+        finish()
     }
 
     override fun onDonePressed(currentFragment: Fragment?) {

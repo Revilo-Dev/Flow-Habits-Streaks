@@ -33,7 +33,7 @@ import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.setupToolbar
-import org.isoron.uhabits.utils.updateFlowStickyControls
+import org.isoron.uhabits.utils.bindFlowHeader
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,11 +57,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.collapsingToolbar.setStatusBarScrimColor(Color.TRANSPARENT)
         binding.toolbar.setBackgroundColor(Color.TRANSPARENT)
         binding.toolbar.elevation = 0f
-        binding.appBar.addOnOffsetChangedListener(
-            com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener { bar, offset ->
-                binding.toolbar.updateFlowStickyControls(kotlin.math.abs(offset) >= bar.totalScrollRange)
-            }
-        )
+        binding.appBar.bindFlowHeader(binding.toolbar)
         val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
         window.statusBarColor = flowBackground
         WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars =

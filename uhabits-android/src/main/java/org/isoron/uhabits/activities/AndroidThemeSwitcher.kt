@@ -64,10 +64,8 @@ constructor(
     }
 
     override fun applyPureBlackTheme() {
-        currentTheme = FlowPureBlackTheme()
-        context.setTheme(R.style.FlowTheme_Dark_PureBlack)
-        (context as Activity).window.navigationBarColor =
-            ContextCompat.getColor(context, R.color.black)
+        // Temporarily unavailable, including for previously saved selections.
+        applyDarkTheme()
     }
 
     fun applyDialog() {

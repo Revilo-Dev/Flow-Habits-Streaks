@@ -67,7 +67,8 @@ import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.updateFlowStickyControls
+import org.isoron.uhabits.utils.bindFlowHeader
+import org.isoron.uhabits.utils.FlowHeaderBehavior
 import kotlin.math.abs
 
 const val MAX_CHECKMARK_COUNT = 60
@@ -109,6 +110,18 @@ class ListHabitsRootView(
     private val homeSearchBar = FlowHomeSearchBar(context).apply {
         id = R.id.flowHomeSearchBar
     }
+    private val collapsedBrand = TextView(context).apply {
+        text = resources.getString(R.string.flow_app_title)
+        setTextAppearance(R.style.TextAppearance_Flow_Body)
+        setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
+        val icon = AppCompatResources.getDrawable(context, R.drawable.onboarding_appicon)
+        val size = (28 * resources.displayMetrics.density).toInt()
+        icon?.setBounds(0, 0, size, size)
+        setCompoundDrawablesRelative(icon, null, null, null)
+        compoundDrawablePadding = (8 * resources.displayMetrics.density).toInt()
+        gravity = Gravity.CENTER_VERTICAL
+        visibility = INVISIBLE
+    }
     var onCreateHabit: (() -> Unit)? = null
 
     private val addButton = FloatingActionButton(context).apply {
@@ -142,6 +155,7 @@ class ListHabitsRootView(
             applyToolbarInsets()
         }
         val collapsingToolbar = CollapsingToolbarLayout(context).apply {
+            isTitleEnabled = false
             title = ""
             setExpandedTitleColor(Color.TRANSPARENT)
             setCollapsedTitleTextColor(Color.TRANSPARENT)
@@ -149,7 +163,7 @@ class ListHabitsRootView(
             setStatusBarScrimColor(Color.TRANSPARENT)
             addView(
                 largeHeader,
-                CollapsingToolbarLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                CollapsingToolbarLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     topMargin = toolbarHeight
                     collapseMode = CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PARALLAX
                     parallaxMultiplier = 0.7f
@@ -166,7 +180,7 @@ class ListHabitsRootView(
             collapsingToolbar,
             AppBarLayout.LayoutParams(
                 MATCH_PARENT,
-                resources.getDimensionPixelSize(R.dimen.flow_home_header_expanded_height)
+                WRAP_CONTENT
             ).apply {
                 scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
                     AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED or
@@ -180,14 +194,16 @@ class ListHabitsRootView(
                     AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
             }
         )
-        appBar.addOnOffsetChangedListener(
-            AppBarLayout.OnOffsetChangedListener { bar, offset ->
-                val isCollapsed = abs(offset) >= bar.totalScrollRange
-                tbar.updateFlowStickyControls(isCollapsed)
-                tbar.title = if (isCollapsed) resources.getString(R.string.flow_app_title) else ""
-            }
-        )
-
+        tbar.addView(collapsedBrand, androidx.appcompat.widget.Toolbar.LayoutParams(
+            WRAP_CONTENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
+        ).apply {
+            marginStart = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+        })
+        appBar.bindFlowHeader(tbar) { collapsed, _ ->
+            largeHeader.visibility = if (collapsed) INVISIBLE else VISIBLE
+            collapsedBrand.visibility = if (collapsed) VISIBLE else INVISIBLE
+            tbar.title = ""
+        }
         val content = FrameLayout(context).apply {
             setBackgroundColor(flowBackground)
             addView(listView, LayoutParams(MATCH_PARENT, MATCH_PARENT))
@@ -201,7 +217,9 @@ class ListHabitsRootView(
         }
         val rootView = CoordinatorLayout(context).apply {
             setBackgroundColor(flowBackground)
-            addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+            addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                behavior = FlowHeaderBehavior(context)
+            })
             addView(
                 content,
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
@@ -340,10 +358,38 @@ class ListHabitsRootView(
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        header.buttonCount = HOME_CHECKMARK_COUNT
-        header.setMaxDataOffset(MAX_CHECKMARK_COUNT - HOME_CHECKMARK_COUNT)
-        listView.checkmarkCount = HOME_CHECKMARK_COUNT
+        val count = if (resources.configuration.orientation ==
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE) 7 else HOME_CHECKMARK_COUNT
+        header.buttonCount = count
+        header.setMaxDataOffset(MAX_CHECKMARK_COUNT - count)
+        listView.checkmarkCount = count
         super.onSizeChanged(w, h, oldw, oldh)
+    }
+
+    fun dismissTransientUi(): Boolean {
+        if (!listAdapter.isSelectionEmpty) {
+            listAdapter.clearSelection()
+            selectionActions.hide()
+            reorderPrompt.visibility = GONE
+            return true
+        }
+        if (homeSearchBar.visibility == VISIBLE) {
+            homeSearchBar.close()
+            return true
+        }
+        return false
+    }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
+        if (event.action == android.view.MotionEvent.ACTION_UP && !listAdapter.isSelectionEmpty) {
+            val bounds = android.graphics.Rect()
+            fun contains(view: android.view.View): Boolean =
+                view.visibility == VISIBLE && view.getGlobalVisibleRect(bounds) &&
+                    bounds.contains(event.rawX.toInt(), event.rawY.toInt())
+            val onCard = (0 until listView.childCount).any { contains(listView.getChildAt(it)) }
+            if (!onCard && !contains(selectionActions)) dismissTransientUi()
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     fun openSearch(initialQuery: String, onQueryChanged: (String) -> Unit) {

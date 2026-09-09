@@ -325,4 +325,12 @@
         <item>🎯</item>
         <item>✨</item>
     </string-array>
+    <string name="flow_developers">Flow developers</string>
+    <string name="flow_source_developers">Source code developers</string>
+    <string name="flow_developer_support">Support · Ko-fi</string>
+    <string name="flow_developer_visit">Visit · revilodev.com</string>
+    <string name="flow_developer_x">X · @ReviloDev</string>
+    <string name="flow_upstream_source">GitHub · isoron/uhabits</string>
+    <string name="flow_translators_expand">Translators ⌄</string>
+    <string name="flow_translators_collapse">Translators ⌃</string>
 </resources>

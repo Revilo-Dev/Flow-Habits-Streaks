@@ -28,12 +28,15 @@
     <dimen name="flow_divider_inset">20dp</dimen>
 
     <!-- Viewing-area spacing -->
-    <dimen name="flow_header_top_spacing">40dp</dimen>
-    <dimen name="flow_header_bottom_spacing">24dp</dimen>
+    <dimen name="flow_header_top_spacing">16dp</dimen>
+    <dimen name="flow_header_bottom_spacing">16dp</dimen>
     <dimen name="flow_date_header_radius">16dp</dimen>
     <dimen name="flow_perfect_day_size">30dp</dimen>
-    <dimen name="flow_home_header_expanded_height">432dp</dimen>
-    <dimen name="flow_secondary_header_expanded_height">184dp</dimen>
+    <dimen name="flow_header_expanded_height">432dp</dimen>
+    <dimen name="flow_header_content_min_height">376dp</dimen>
+    <dimen name="flow_home_header_expanded_height">400dp</dimen>
+    <dimen name="flow_settings_header_expanded_height">@dimen/flow_home_header_expanded_height</dimen>
+    <dimen name="flow_secondary_header_expanded_height">@dimen/flow_header_expanded_height</dimen>
     <dimen name="flow_show_habit_header_expanded_height">536dp</dimen>
     <dimen name="flow_show_habit_header_numerical_height">472dp</dimen>
     <dimen name="flow_toolbar_height">56dp</dimen>

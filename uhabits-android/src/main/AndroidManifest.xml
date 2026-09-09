@@ -223,36 +223,36 @@
             android:permission="false">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
-                <action android:name="org.isoron.uhabits.flow.ACTION_SET_NUMERICAL_VALUE" />
+                <action android:name="dev.revilodev.flow.ACTION_SET_NUMERICAL_VALUE" />
                 <data
-                    android:host="org.isoron.uhabits.flow"
+                    android:host="dev.revilodev.flow"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <action android:name="org.isoron.uhabits.flow.ACTION_TOGGLE_REPETITION" />
+                <action android:name="dev.revilodev.flow.ACTION_TOGGLE_REPETITION" />
 
                 <data
-                    android:host="org.isoron.uhabits.flow"
+                    android:host="dev.revilodev.flow"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <action android:name="org.isoron.uhabits.flow.ACTION_ADD_REPETITION" />
+                <action android:name="dev.revilodev.flow.ACTION_ADD_REPETITION" />
 
                 <data
-                    android:host="org.isoron.uhabits.flow"
+                    android:host="dev.revilodev.flow"
                     android:scheme="content" />
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <action android:name="org.isoron.uhabits.flow.ACTION_REMOVE_REPETITION" />
+                <action android:name="dev.revilodev.flow.ACTION_REMOVE_REPETITION" />
 
                 <data
-                    android:host="org.isoron.uhabits.flow"
+                    android:host="dev.revilodev.flow"
                     android:scheme="content" />
             </intent-filter>
         </receiver>

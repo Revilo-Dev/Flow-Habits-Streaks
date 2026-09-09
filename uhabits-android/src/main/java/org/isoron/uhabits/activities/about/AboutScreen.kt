@@ -30,6 +30,11 @@ class AboutScreen(
     private val prefs: Preferences
 ) {
 
+    fun openDeveloperLink(url: String) =
+        activity.startActivitySafely(android.content.Intent(
+            android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)
+        ))
+
     private var developerCountdown = 5
 
     fun showRateAppWebsite() =

@@ -1,0 +1,3 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="?attr/flowRippleColor">
+    <item><shape><solid android:color="?attr/flowSurfaceSecondaryColor" /><corners android:radius="100dp" /></shape></item>
+</ripple>

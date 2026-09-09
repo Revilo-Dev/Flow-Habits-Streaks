@@ -26,6 +26,7 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
+        app:layout_behavior="org.isoron.uhabits.utils.FlowHeaderBehavior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -146,7 +147,16 @@
 
                 <TextView
                     style="@style/CardHeader"
-                    android:text="@string/developers"
+                    android:text="@string/flow_developers"
+                    android:textColor="?attr/flowTextPrimaryColor" />
+                <TextView style="@style/About.Item" android:text="ReviloDev @revilodev" />
+                <TextView android:id="@+id/tvFlowSupport" style="@style/About.Item.Clickable" android:text="@string/flow_developer_support" />
+                <TextView android:id="@+id/tvFlowWebsite" style="@style/About.Item.Clickable" android:text="@string/flow_developer_visit" />
+                <TextView android:id="@+id/tvFlowX" style="@style/About.Item.Clickable" android:text="@string/flow_developer_x" />
+            </LinearLayout>
+            <LinearLayout style="@style/Flow.About.Card" android:gravity="center">
+                <TextView style="@style/CardHeader" android:text="@string/flow_source_developers" android:textColor="?attr/flowTextPrimaryColor" />
+                <TextView android:id="@+id/tvUpstreamSource" style="@style/About.Item.Clickable" android:text="@string/flow_upstream_source"
                     android:textColor="?attr/flowTextPrimaryColor" />
 
                 <!--
@@ -223,7 +233,19 @@
 
             </LinearLayout>
 
-            <include layout="@layout/about_translators" />
+            <TextView
+                android:id="@+id/translatorsToggle"
+                style="@style/Widget.Flow.ListItem"
+                android:text="@string/flow_translators_expand"
+                android:textColor="?attr/flowTextPrimaryColor"
+                android:layout_marginBottom="@dimen/flow_card_spacing"
+                android:clickable="true"
+                android:focusable="true" />
+            <LinearLayout android:id="@+id/translatorsContent"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:visibility="gone">
+                <include layout="@layout/about_translators" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

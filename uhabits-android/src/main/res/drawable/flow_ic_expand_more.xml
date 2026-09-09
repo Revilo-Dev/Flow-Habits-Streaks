@@ -5,5 +5,5 @@
     android:tint="?attr/flowTextSecondaryColor"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <path android:fillColor="@android:color/white" android:pathData="M7.41,8.59 12,13.17 16.59,8.59 18,10l-6,6 -6,-6z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M7.41,8.59 12,13.17 16.59,8.59 18,10l-6,6 -6,-6z" />
 </vector>

@@ -10,6 +10,7 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
+        app:layout_behavior="org.isoron.uhabits.utils.FlowHeaderBehavior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -21,8 +22,9 @@
             android:layout_height="@dimen/flow_secondary_header_expanded_height"
             app:collapsedTitleTextColor="@android:color/transparent"
             app:contentScrim="@android:color/transparent"
-            app:expandedTitleGravity="center_horizontal|bottom"
-            app:expandedTitleMarginBottom="@dimen/flow_extra_large_spacing"
+            app:expandedTitleGravity="center"
+            app:expandedTitleMarginTop="0dp"
+            app:expandedTitleMarginBottom="0dp"
             app:expandedTitleMarginEnd="@dimen/flow_screen_padding"
             app:expandedTitleMarginStart="@dimen/flow_screen_padding"
             app:expandedTitleTextAppearance="@style/TextAppearance.Flow.ScreenTitle"
@@ -244,53 +246,5 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bottomActionBar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/flow_editor_action_height"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="@dimen/flow_screen_padding"
-        android:layout_marginEnd="@dimen/flow_screen_padding"
-        android:layout_marginBottom="@dimen/flow_large_spacing"
-        app:cardBackgroundColor="?attr/flowSurfaceSecondaryColor"
-        app:cardCornerRadius="@dimen/flow_dialog_radius"
-        app:cardElevation="0dp"
-        app:strokeWidth="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingStart="@dimen/flow_medium_spacing"
-            android:paddingEnd="@dimen/flow_medium_spacing">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonDiscard"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/flow_discard"
-                android:textAllCaps="false"
-                android:textColor="?attr/flowTextSecondaryColor"
-                app:rippleColor="?attr/flowRippleColor" />
-
-            <View
-                android:layout_width="@dimen/flow_divider_size"
-                android:layout_height="28dp"
-                android:background="?attr/flowDividerColor" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonSave"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/save"
-                android:textAllCaps="false"
-                android:textColor="?attr/flowAccentColor"
-                app:rippleColor="?attr/flowRippleColor" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    <include android:id="@+id/editorActions" layout="@layout/flow_editor_actions" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

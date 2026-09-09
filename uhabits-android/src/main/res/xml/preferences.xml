@@ -27,6 +27,8 @@
         <SwitchPreferenceCompat
                 android:defaultValue="false"
                 android:key="pref_pure_black"
+                android:enabled="false"
+                app:isPreferenceVisible="false"
                 android:summary="@string/pure_black_description"
                 android:title="@string/use_pure_black"
                 app:iconSpaceReserved="false"
@@ -198,7 +200,7 @@
             <intent
                     android:action="android.intent.action.VIEW"
                     android:targetClass="org.isoron.uhabits.activities.about.AboutActivity"
-                    android:targetPackage="org.isoron.uhabits.flow" />
+                    android:targetPackage="dev.revilodev.flow" />
         </Preference>
 
     </PreferenceCategory>

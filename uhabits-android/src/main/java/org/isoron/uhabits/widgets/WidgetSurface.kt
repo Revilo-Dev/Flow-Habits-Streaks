@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.os.Build
 import android.widget.RemoteViews
 
-/** Launcher-owned surface; older launchers retain the rounded XML fallback. */
+/** Tints the launcher-hosted widget background. This does not enable wallpaper blur. */
 internal object WidgetSurface {
     fun apply(views: RemoteViews, opacity: Int = 102) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

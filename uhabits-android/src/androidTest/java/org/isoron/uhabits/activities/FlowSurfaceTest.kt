@@ -38,11 +38,9 @@ class FlowSurfaceTest {
                 input.numberFooter.visibility = View.VISIBLE
                 input.value.setText("12")
                 input.skipBtnNumber.visibility = View.GONE
-                input.unknownBtnNumber.visibility = View.GONE
                 assertTrue(ColorUtils.calculateContrast(input.value.currentTextColor,
                     colors.getColor(R.attr.flowSurfaceSecondaryColor)) >= 4.5)
-                assertTrue(ColorUtils.calculateContrast(input.saveBtn.currentTextColor,
-                    colors.getColor(R.attr.flowSurfaceColor)) >= 4.5)
+                org.junit.Assert.assertEquals(android.graphics.Color.WHITE, input.saveBtn.currentTextColor)
                 val directory = target.getExternalFilesDir("oneui-review")!!
                 directory.mkdirs()
                 fun render(view: View, file: String, heightDp: Int? = null) {
@@ -60,7 +58,15 @@ class FlowSurfaceTest {
                     bitmap.recycle()
                 }
                 render(input.root, "input")
-                render(SelectHabitTypeBinding.inflate(inflater).root, "create", 700)
+                val creation = SelectHabitTypeBinding.inflate(inflater)
+                render(creation.root, "create", 700)
+                assertTrue("Cancel label must be laid out", creation.buttonCancel.layout.lineCount > 0)
+                assertTrue("Cancel label must fit vertically",
+                    creation.buttonCancel.height - creation.buttonCancel.compoundPaddingTop -
+                        creation.buttonCancel.compoundPaddingBottom >= creation.buttonCancel.layout.height)
+                assertTrue("Cancel pill must stay within its card",
+                    creation.buttonCancel.right <= (creation.buttonCancel.parent as View).width -
+                        (creation.buttonCancel.parent as View).paddingRight)
                 val about = AboutBinding.inflate(inflater)
                 about.collapsingToolbar.title = context.getString(R.string.about)
                 render(about.root, "about", 800)

@@ -40,6 +40,7 @@ class HintView(
 ) : FrameLayout(context) {
 
     val hintContent: TextView
+    var onHintVisibilityChanged: (() -> Unit)? = null
 
     init {
         isClickable = true
@@ -70,6 +71,12 @@ class HintView(
             contentDescription = resources.getString(android.R.string.cancel)
             setOnClickListener { dismiss() }
         }, LayoutParams(dp(32f).toInt(), dp(32f).toInt(), android.view.Gravity.TOP or android.view.Gravity.END))
+    }
+
+    override fun setVisibility(visibility: Int) {
+        val changed = this.visibility != visibility
+        super.setVisibility(visibility)
+        if (changed) onHintVisibilityChanged?.invoke()
     }
 
     public override fun onAttachedToWindow() {

@@ -110,6 +110,7 @@
     </style>
 
     <style name="FlowPopupTheme" parent="ThemeOverlay.MaterialComponents">
+        <item name="checkboxStyle">@style/Widget.Flow.MenuCheckbox</item>
         <item name="android:colorBackground">?attr/flowSurfaceSecondaryColor</item>
         <item name="android:textColor">?attr/flowTextPrimaryColor</item>
         <item name="android:textColorPrimary">?attr/flowTextPrimaryColor</item>
@@ -151,8 +152,8 @@
 
     <style name="FlowDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Flow.DialogAction</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.Flow.DialogAction</item>
-        <item name="buttonBarNeutralButtonStyle">@style/Widget.Flow.DialogAction</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Flow.DialogSecondaryAction</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Flow.DialogSecondaryAction</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:colorBackground">?attr/flowSurfaceColor</item>
         <item name="android:textColor">?attr/flowTextPrimaryColor</item>
@@ -293,14 +294,32 @@
         <item name="android:drawablePadding">@dimen/flow_medium_spacing</item>
         <item name="android:gravity">center_vertical</item>
     </style>
-    <style name="Widget.Flow.DialogAction" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">?attr/flowAccentColor</item>
+    <style name="Widget.Flow.DialogAction" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">17sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="backgroundTint">?attr/flowAccentColor</item>
+        <item name="cornerRadius">100dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="strokeWidth">0dp</item>
         <item name="rippleColor">?attr/flowRippleColor</item>
+    </style>
+    <style name="Widget.Flow.DialogSecondaryAction" parent="Widget.Flow.DialogAction">
+        <item name="android:textColor">?attr/flowTextSecondaryColor</item>
+        <item name="backgroundTint">?attr/flowSurfaceSecondaryColor</item>
+    </style>
+    <style name="Widget.Flow.MenuCheckbox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/flow_preference_checkbox</item>
+        <item name="buttonCompat">@drawable/flow_preference_checkbox</item>
+        <item name="buttonTint">@null</item>
     </style>
     <style name="Flow.About.Card" parent="Widget.Flow.Card">
         <item name="android:orientation">vertical</item>

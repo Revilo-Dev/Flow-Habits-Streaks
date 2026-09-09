@@ -53,6 +53,7 @@
         style="?android:attr/buttonBarStyle"
         android:layout_width="@dimen/date_picker_component_width"
         android:layout_height="wrap_content"
+        android:padding="12dp"
         android:orientation="horizontal" >
 
         <androidx.appcompat.widget.AppCompatButton
@@ -69,6 +70,7 @@
         <androidx.appcompat.widget.AppCompatButton
             style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/done_button"
+            android:layout_marginStart="8dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

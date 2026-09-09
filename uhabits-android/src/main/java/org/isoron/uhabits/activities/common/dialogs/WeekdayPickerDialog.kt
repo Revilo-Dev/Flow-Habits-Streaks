@@ -79,11 +79,11 @@ class WeekdayPickerDialog :
             setOnShowListener {
                 getButton(AlertDialog.BUTTON_POSITIVE).apply {
                     setBackgroundResource(R.drawable.flow_dialog_save_action_background)
-                    setTextColor(sres.getColor(R.attr.flowOnAccentColor))
+                    setTextColor(android.graphics.Color.WHITE)
                     minHeight = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
                 }
                 getButton(AlertDialog.BUTTON_NEGATIVE).apply {
-                    setBackgroundResource(R.drawable.flow_surface_secondary_selectable_background)
+                    setBackgroundResource(R.drawable.flow_dialog_secondary_action_background)
                     setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
                     minHeight = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
                 }

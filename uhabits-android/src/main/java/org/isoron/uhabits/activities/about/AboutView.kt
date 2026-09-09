@@ -33,7 +33,7 @@ import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.updateFlowStickyControls
+import org.isoron.uhabits.utils.bindFlowHeader
 
 @SuppressLint("ViewConstructor")
 class AboutView(
@@ -58,15 +58,22 @@ class AboutView(
         binding.toolbar.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         binding.toolbar.elevation = 0f
         binding.appBar.applyToolbarInsets()
-        binding.appBar.addOnOffsetChangedListener(
-            com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener { bar, offset ->
-                binding.toolbar.updateFlowStickyControls(kotlin.math.abs(offset) >= bar.totalScrollRange)
-            }
-        )
+        binding.appBar.bindFlowHeader(binding.toolbar)
         (context as android.app.Activity).window.statusBarColor =
             sres.getColor(R.attr.flowBackgroundColor)
         WindowInsetsControllerCompat(context.window, binding.root).isAppearanceLightStatusBars =
             ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
+        binding.tvFlowSupport.setOnClickListener { screen.openDeveloperLink("https://ko-fi.com/revilodev") }
+        binding.tvFlowWebsite.setOnClickListener { screen.openDeveloperLink("https://revilodev.com") }
+        binding.tvFlowX.setOnClickListener { screen.openDeveloperLink("https://x.com/ReviloDev") }
+        binding.tvUpstreamSource.setOnClickListener { screen.openDeveloperLink("https://github.com/isoron/uhabits") }
+        binding.translatorsToggle.setOnClickListener {
+            val expanded = binding.translatorsContent.visibility != VISIBLE
+            binding.translatorsContent.visibility = if (expanded) VISIBLE else GONE
+            binding.translatorsToggle.setText(
+                if (expanded) R.string.flow_translators_collapse else R.string.flow_translators_expand
+            )
+        }
         binding.tvContributors.setOnClickListener { screen.showCodeContributorsWebsite() }
         binding.tvFeedback.setOnClickListener { screen.showSendFeedbackScreen() }
         binding.tvPrivacy.setOnClickListener { screen.showPrivacyPolicyWebsite() }

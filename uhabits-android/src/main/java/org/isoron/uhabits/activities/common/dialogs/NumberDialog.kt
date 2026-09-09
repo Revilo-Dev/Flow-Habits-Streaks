@@ -15,10 +15,7 @@ import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.databinding.CheckmarkPopupBinding
-import org.isoron.uhabits.utils.InterfaceUtils
-import org.isoron.uhabits.utils.getCenter
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
-import org.isoron.uhabits.utils.sres
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
@@ -29,7 +26,6 @@ class NumberDialog : AppCompatDialogFragment() {
     var onToggle: (Double, String) -> Unit = { _, _ -> }
     var onDismiss: () -> Unit = {}
 
-    private var dismissedViaSaveAction = false
     private var originalNotes: String = ""
     private var originalValue: Double = 0.0
     private lateinit var view: CheckmarkPopupBinding
@@ -38,17 +34,7 @@ class NumberDialog : AppCompatDialogFragment() {
         val appComponent = (requireActivity().application as HabitsApplication).component
         val prefs = appComponent.preferences
         view = CheckmarkPopupBinding.inflate(LayoutInflater.from(context))
-        arrayOf(view.skipBtnNumber).forEach {
-            it.setTextColor(requireArguments().getInt("color"))
-        }
-        arrayOf(view.noBtn, view.unknownBtnNumber).forEach {
-            it.setTextColor(view.root.sres.getColor(R.attr.contrast60))
-        }
-        arrayOf(view.yesBtn, view.skipBtnNumber, view.noBtn, view.unknownBtnNumber).forEach {
-            it.typeface = InterfaceUtils.getFontAwesome(requireContext())
-        }
         if (!prefs.isSkipEnabled) view.skipBtnNumber.visibility = View.GONE
-        if (!prefs.areQuestionMarksEnabled) view.unknownBtnNumber.visibility = View.GONE
         view.numberButtons.visibility = View.VISIBLE
         view.numberFooter.visibility = View.VISIBLE
         fixDecimalSeparator(view)
@@ -75,13 +61,8 @@ class NumberDialog : AppCompatDialogFragment() {
             requireDialog().dismiss()
         }
         view.skipBtnNumber.setOnClickListener {
-            view.value.setText(DecimalFormat("#.###").format((Entry.SKIP.toDouble() / 1000)))
-            save()
-        }
-
-        view.unknownBtnNumber.setOnClickListener {
-            view.value.setText(DecimalFormat("#.###").format((Entry.UNKNOWN.toDouble() / 1000)))
-            save()
+            onToggle(Entry.SKIP.toDouble() / 1000, view.notes.text.toString().trim())
+            requireDialog().dismiss()
         }
 
         view.notes.setOnEditorActionListener { v, actionId, event ->
@@ -91,6 +72,7 @@ class NumberDialog : AppCompatDialogFragment() {
         view.value.requestFocusWithKeyboard()
         val dialog = Dialog(requireContext())
         dialog.setContentView(view.root)
+        dialog.setCanceledOnTouchOutside(true)
         dialog.window?.apply {
             setBackgroundDrawableResource(android.R.color.transparent)
         }
@@ -100,12 +82,6 @@ class NumberDialog : AppCompatDialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
 
-        if (!dismissedViaSaveAction) {
-            val currentNotes = view.notes.text.toString().trim()
-            if (currentNotes != originalNotes) {
-                onToggle(originalValue, currentNotes)
-            }
-        }
         onDismiss()
     }
 
@@ -125,7 +101,6 @@ class NumberDialog : AppCompatDialogFragment() {
     }
 
     fun save() {
-        dismissedViaSaveAction = true
         var value = originalValue
         try {
             val numberFormat = NumberFormat.getInstance()
@@ -139,7 +114,6 @@ class NumberDialog : AppCompatDialogFragment() {
             // NOP
         }
         val notes = view.notes.text.toString().trim()
-        val location = view.saveBtn.getCenter()
         onToggle(value, notes)
         requireDialog().dismiss()
     }

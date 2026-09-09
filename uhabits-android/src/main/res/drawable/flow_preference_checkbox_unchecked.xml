@@ -7,6 +7,6 @@
     <path
         android:strokeWidth="1.5"
         android:strokeColor="?attr/flowTextTertiaryColor"
-        android:fillColor="@android:color/transparent"
+        android:fillColor="#00000000"
         android:pathData="M14,3.5a10.5,10.5 0,1 0,0 21a10.5,10.5 0,1 0,0 -21z" />
 </vector>

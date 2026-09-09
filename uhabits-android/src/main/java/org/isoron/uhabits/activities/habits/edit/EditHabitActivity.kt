@@ -77,7 +77,7 @@ import org.isoron.uhabits.utils.dismissCurrentAndShow
 import org.isoron.uhabits.utils.formatTime
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import org.isoron.uhabits.utils.toFormattedString
-import org.isoron.uhabits.utils.updateFlowStickyControls
+import org.isoron.uhabits.utils.bindFlowHeader
 import java.util.Locale
 
 fun formatFrequency(freqNum: Int, freqDen: Int, resources: Resources) = when {
@@ -120,7 +120,7 @@ class EditHabitActivity : AppCompatActivity() {
         binding.root.applyRootViewInsets()
         binding.appBar.applyToolbarInsets()
         val baseActionMargin = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomActionBar) { actionBar, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.editorActions.root) { actionBar, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             actionBar.layoutParams =
                 (actionBar.layoutParams as androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams).apply {
@@ -190,11 +190,7 @@ class EditHabitActivity : AppCompatActivity() {
         supportActionBar?.elevation = 0f
         binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
         binding.toolbar.setNavigationOnClickListener { finish() }
-        binding.appBar.addOnOffsetChangedListener(
-            com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener { bar, offset ->
-                binding.toolbar.updateFlowStickyControls(kotlin.math.abs(offset) >= bar.totalScrollRange)
-            }
-        )
+        binding.appBar.bindFlowHeader(binding.toolbar)
 
         binding.iconButton.setOnClickListener { showEmojiPicker() }
 
@@ -295,10 +291,10 @@ class EditHabitActivity : AppCompatActivity() {
             dialog.dismissCurrentAndShow(supportFragmentManager, "dayPicker")
         }
 
-        binding.buttonSave.setOnClickListener {
+        binding.editorActions.buttonSave.setOnClickListener {
             if (validate()) save()
         }
-        binding.buttonDiscard.setOnClickListener { finish() }
+        binding.editorActions.buttonDiscard.setOnClickListener { finish() }
 
         for (fragment in supportFragmentManager.fragments) {
             (fragment as DialogFragment).dismiss()
@@ -404,7 +400,7 @@ class EditHabitActivity : AppCompatActivity() {
         val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
         window.statusBarColor = flowBackground
         binding.toolbar.setBackgroundColor(Color.TRANSPARENT)
-        binding.bottomActionBar.cardElevation = if (ColorUtils.calculateLuminance(flowBackground) > 0.5) {
+        binding.editorActions.root.cardElevation = if (ColorUtils.calculateLuminance(flowBackground) > 0.5) {
             resources.getDimension(R.dimen.flow_fab_elevation)
         } else {
             0f
@@ -430,9 +426,7 @@ class EditHabitActivity : AppCompatActivity() {
         val bodyPadding = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
         val styledResources = StyledResources(this)
         val secondarySurface = styledResources.getColor(R.attr.flowSurfaceSecondaryColor)
-        val secondaryText = styledResources.getColor(R.attr.flowTextSecondaryColor)
         val tertiaryText = styledResources.getColor(R.attr.flowTextTertiaryColor)
-        val accent = styledResources.getColor(R.attr.flowAccentColor)
 
         val input = EditText(this).apply {
             gravity = Gravity.CENTER
@@ -442,9 +436,13 @@ class EditHabitActivity : AppCompatActivity() {
             textSize = 32f
             minHeight = resources.getDimensionPixelSize(R.dimen.flow_emoji_preview_height)
             setPadding(largeSpacing, smallSpacing, largeSpacing, smallSpacing)
-            setTextColor(styledResources.getColor(R.attr.flowTextPrimaryColor))
+            setTextColor(Color.WHITE)
             setHintTextColor(tertiaryText)
-            setBackgroundResource(R.drawable.flow_surface_secondary_background)
+            backgroundTintList = null
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.BLACK)
+                cornerRadius = resources.getDimension(R.dimen.flow_control_radius)
+            }
             setText(icon.ifBlank { firstGrapheme(binding.nameInput.text.toString()) })
             setSelection(text.length)
         }
@@ -469,6 +467,7 @@ class EditHabitActivity : AppCompatActivity() {
         ).apply {
             contentDescription = getString(R.string.flow_open_emoji_keyboard)
             setIconResource(R.drawable.flow_ic_emoji)
+            iconTint = ColorStateList.valueOf(Color.WHITE)
             iconSize = resources.getDimensionPixelSize(R.dimen.flow_icon_size)
             minimumWidth = 0
             minWidth = 0
@@ -477,7 +476,7 @@ class EditHabitActivity : AppCompatActivity() {
             insetTop = 0
             insetBottom = 0
             cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
-            backgroundTintList = ColorStateList.valueOf(secondarySurface)
+            backgroundTintList = ColorStateList.valueOf(Color.BLACK)
             rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
             strokeWidth = 0
             setOnClickListener {
@@ -533,35 +532,10 @@ class EditHabitActivity : AppCompatActivity() {
                 }
             )
         }
-        val removeButton = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonStyle).apply {
-            text = getString(R.string.flow_remove_icon)
-            isAllCaps = false
-            setTextColor(secondaryText)
-            backgroundTintList = ColorStateList.valueOf(secondarySurface)
-            rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
-            cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
-        }
-        val useButton = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonStyle).apply {
-            text = getString(R.string.flow_use_icon)
-            isAllCaps = false
-            setTextColor(styledResources.getColor(R.attr.flowOnAccentColor))
-            backgroundTintList = ColorStateList.valueOf(accent)
-            rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
-            cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
-        }
-        val actions = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setBackgroundResource(R.drawable.flow_dialog_action_bar_background)
-            setPadding(smallSpacing / 2, smallSpacing / 2, smallSpacing / 2, smallSpacing / 2)
-            addView(removeButton, LinearLayout.LayoutParams(0, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target), 1f))
-            addView(
-                useButton,
-                LinearLayout.LayoutParams(0, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target), 1f)
-            )
-        }
-        removeButton.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-        removeButton.setTextColor(styledResources.getColor(R.attr.flowOnAccentColor))
-        useButton.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+        val actionBinding = org.isoron.uhabits.databinding.FlowEditorActionsBinding.inflate(layoutInflater)
+        val actions = actionBinding.root
+        val removeButton = actionBinding.buttonDiscard
+        val useButton = actionBinding.buttonSave
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(bodyPadding, bodyPadding, bodyPadding, bodyPadding)
@@ -575,13 +549,14 @@ class EditHabitActivity : AppCompatActivity() {
             )
             addView(
                 actions,
-                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                LinearLayout.LayoutParams(MATCH_PARENT, resources.getDimensionPixelSize(R.dimen.flow_editor_action_height)).apply {
                     topMargin = largeSpacing
                 }
             )
         }
         val dialog = Dialog(this).apply {
             setContentView(content)
+            setCanceledOnTouchOutside(true)
             setOnShowListener {
                 window?.setBackgroundDrawableResource(android.R.color.transparent)
             }
@@ -593,8 +568,6 @@ class EditHabitActivity : AppCompatActivity() {
             dialog.dismiss()
         }
         removeButton.setOnClickListener {
-            icon = ""
-            updateIconButton()
             dialog.dismiss()
         }
         dialog.dismissCurrentAndShow()

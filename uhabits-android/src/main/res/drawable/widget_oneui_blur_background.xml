@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Fallback surface. Compatible One UI Home builds composite wallpaper blur behind this tint. -->
+<!-- Translucent rounded surface only. This drawable does not request wallpaper blur. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <solid android:color="#66000000" />

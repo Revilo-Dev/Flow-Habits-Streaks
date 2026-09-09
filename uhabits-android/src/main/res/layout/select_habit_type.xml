@@ -83,14 +83,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonCancel"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/flow_min_touch_target"
+                style="@style/Widget.Flow.DialogAction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/flow_medium_spacing"
                 android:text="@android:string/cancel"
                 android:textAllCaps="false"
-                android:textColor="?attr/flowAccentColor"
+                android:textColor="@android:color/white"
                 app:rippleColor="?attr/flowRippleColor" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

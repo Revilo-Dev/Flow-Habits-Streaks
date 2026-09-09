@@ -1,0 +1,4 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape><solid android:color="?attr/flowSurfaceSecondaryColor" /><corners android:radius="@dimen/flow_control_radius" /></shape></item>
+    <item><shape><solid android:color="#18000000" /><corners android:radius="@dimen/flow_control_radius" /></shape></item>
+</layer-list>

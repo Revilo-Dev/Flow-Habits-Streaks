@@ -51,11 +51,11 @@ android {
     }
 
     defaultConfig {
-        versionCode = 20301
-        versionName = "2.3.1"
-        minSdk = 28
+        versionCode = 20303
+        versionName = "1.0.0"
+        minSdk = 23
         targetSdk = 36
-        applicationId = "org.isoron.uhabits.flow"
+        applicationId = "dev.revilodev.flow"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

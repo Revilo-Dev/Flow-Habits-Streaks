@@ -26,6 +26,11 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.view.Gravity
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
@@ -41,16 +46,39 @@ import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.updateFlowStickyControls
+import org.isoron.uhabits.utils.bindFlowHeader
 import kotlin.math.abs
 
 class ShowHabitView(context: Context) : FrameLayout(context) {
     private val binding = ShowHabitBinding.inflate(LayoutInflater.from(context))
 
+    private var headerCollapsed = false
+    private var contentScrolled = false
+    private val compactIcon = TextView(context).apply {
+        gravity = Gravity.CENTER
+        textSize = 20f
+    }
+    private val compactName = TextView(context).apply {
+        setTextAppearance(R.style.TextAppearance_Flow_Body)
+        setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
+        maxLines = 1
+        ellipsize = android.text.TextUtils.TruncateAt.END
+    }
+    private val compactIdentity = LinearLayout(context).apply {
+        gravity = Gravity.CENTER_VERTICAL
+        orientation = LinearLayout.HORIZONTAL
+        val size = (36 * resources.displayMetrics.density).toInt()
+        addView(compactIcon, LinearLayout.LayoutParams(size, size))
+        addView(compactName, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply {
+            marginStart = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+        })
+        visibility = GONE
+    }
     init {
         addView(binding.root)
         binding.appBar.applyToolbarInsets()
-        val contentTop = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
+        val contentTop = resources.getDimensionPixelSize(R.dimen.flow_large_spacing) +
+            resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
         val contentBottom = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
         ViewCompat.setOnApplyWindowInsetsListener(binding.linearLayout) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -58,17 +86,24 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
             view.setPadding(0, contentTop, 0, contentBottom + maxOf(bars.bottom, keyboard.bottom))
             insets
         }
-        binding.appBar.addOnOffsetChangedListener(
-            AppBarLayout.OnOffsetChangedListener { appBar, verticalOffset ->
-                val isSticky = abs(verticalOffset) >= appBar.totalScrollRange
-                binding.largeHeader.visibility = if (isSticky) {
-                    INVISIBLE
-                } else {
-                    VISIBLE
-                }
-                binding.toolbar.updateFlowStickyControls(isSticky, compact = true)
-            }
-        )
+        binding.toolbar.addView(compactIdentity, androidx.appcompat.widget.Toolbar.LayoutParams(
+            MATCH_PARENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
+        ))
+        binding.appBar.bindFlowHeader(binding.toolbar, compact = true) { collapsed, scrolled ->
+            binding.largeHeader.visibility = if (collapsed) INVISIBLE else VISIBLE
+            compactIdentity.visibility = if (collapsed) VISIBLE else GONE
+            binding.toolbar.title = ""
+            headerCollapsed = collapsed
+            contentScrolled = scrolled
+            updateToolbarFade()
+        }
+    }
+    private fun updateToolbarFade() {
+        val color = sres.getColor(R.attr.flowBackgroundColor)
+        binding.toolbar.background = if (headerCollapsed && contentScrolled) {
+            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(color, ColorUtils.setAlphaComponent(color, 0)))
+        } else ColorDrawable(Color.TRANSPARENT)
     }
 
     fun setState(data: ShowHabitState) {
@@ -85,10 +120,16 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         binding.collapsingToolbar.title = ""
         binding.collapsingToolbar.setContentScrimColor(Color.TRANSPARENT)
         binding.collapsingToolbar.setStatusBarScrimColor(Color.TRANSPARENT)
-        binding.toolbar.background = ColorDrawable(Color.TRANSPARENT)
-        binding.toolbar.elevation = 0f
+        updateToolbarFade()
         binding.toolbar.overflowIcon = AppCompatResources.getDrawable(context, R.drawable.more)
         binding.toolbar.setNavigationOnClickListener { (context as Activity).finish() }
+        compactName.text = data.title
+        compactIcon.text = data.icon.ifBlank { data.title.take(1).uppercase() }
+        compactIcon.setTextColor(habitColor)
+        compactIcon.background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(ColorUtils.setAlphaComponent(habitColor, if (isLight) 32 else 64))
+        }
         binding.habitTitle.text = data.title
         binding.habitIcon.apply {
             text = data.icon.ifBlank { data.title.take(1).uppercase() }
@@ -115,15 +156,6 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         binding.overviewCard.visibility = if (data.isNumerical) GONE else VISIBLE
         binding.targetCard.visibility = if (data.isNumerical) VISIBLE else GONE
 
-        val expandedHeight = if (data.isNumerical) {
-            R.dimen.flow_show_habit_header_numerical_height
-        } else {
-            R.dimen.flow_show_habit_header_expanded_height
-        }
-        (binding.collapsingToolbar.layoutParams as AppBarLayout.LayoutParams).apply {
-            height = resources.getDimensionPixelSize(expandedHeight)
-            binding.collapsingToolbar.layoutParams = this
-        }
         val cardElevation = if (isLight) dim(R.dimen.flow_card_elevation) else 0f
         listOf(
             binding.overviewCard,

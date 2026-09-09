@@ -102,6 +102,14 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
         component.listHabitsBehavior.onStartup()
         rootView.applyRootViewInsets()
         setContentView(rootView)
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (rootView.dismissTransientUi()) return
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
     }
 
     override fun onPause() {
@@ -193,6 +201,6 @@ class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
     }
 
     companion object {
-        const val ACTION_EDIT = "org.isoron.uhabits.flow.ACTION_EDIT"
+        const val ACTION_EDIT = "dev.revilodev.flow.ACTION_EDIT"
     }
 }

@@ -30,7 +30,6 @@ import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Entry.Companion.NO
 import org.isoron.uhabits.core.models.Entry.Companion.SKIP
-import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
 import org.isoron.uhabits.databinding.CheckmarkPopupBinding
 import org.isoron.uhabits.utils.InterfaceUtils.getFontAwesome
@@ -40,7 +39,6 @@ class CheckmarkDialog : AppCompatDialogFragment() {
     var onToggle: (Int, String) -> Unit = { _, _ -> }
     var onDismiss: () -> Unit = {}
 
-    private var dismissedViaSaveAction = false
     private var originalNotes: String = ""
     private var originalValue: Int = 0
     private lateinit var view: CheckmarkPopupBinding
@@ -50,38 +48,46 @@ class CheckmarkDialog : AppCompatDialogFragment() {
         val prefs = appComponent.preferences
         view = CheckmarkPopupBinding.inflate(LayoutInflater.from(context))
         val color = requireArguments().getInt("color")
-        arrayOf(view.yesBtn, view.skipBtn).forEach {
+        arrayOf(view.yesBtn).forEach {
             it.setTextColor(color)
         }
-        arrayOf(view.noBtn, view.unknownBtn).forEach {
+        arrayOf(view.noBtn).forEach {
             it.setTextColor(view.root.sres.getColor(R.attr.contrast60))
         }
-        arrayOf(view.yesBtn, view.noBtn, view.skipBtn, view.unknownBtn).forEach {
+        arrayOf(view.yesBtn, view.noBtn).forEach {
             it.typeface = getFontAwesome(requireContext())
         }
         originalNotes = requireArguments().getString("notes")!!
         originalValue = requireArguments().getInt("value")
         view.notes.setText(originalNotes)
-        if (!prefs.isSkipEnabled) view.skipBtn.visibility = GONE
-        if (!prefs.areQuestionMarksEnabled) view.unknownBtn.visibility = GONE
         view.booleanButtons.visibility = VISIBLE
+        view.numberFooter.visibility = VISIBLE
+        view.skipBtnNumber.visibility = if (prefs.isSkipEnabled) VISIBLE else GONE
         val dialog = Dialog(requireContext())
         dialog.setContentView(view.root)
+        dialog.setCanceledOnTouchOutside(true)
         dialog.window?.apply {
             setBackgroundDrawableResource(android.R.color.transparent)
         }
         fun onClick(v: Int) {
-            dismissedViaSaveAction = true
             val notes = view.notes.text.toString().trim()
             onToggle(v, notes)
             requireDialog().dismiss()
         }
-        view.yesBtn.setOnClickListener { onClick(YES_MANUAL) }
-        view.noBtn.setOnClickListener { onClick(NO) }
-        view.skipBtn.setOnClickListener { onClick(SKIP) }
-        view.unknownBtn.setOnClickListener { onClick(UNKNOWN) }
+        var selectedValue = originalValue
+        fun select(value: Int) {
+            selectedValue = value
+            view.yesBtn.alpha = if (value == YES_MANUAL) 1f else 0.45f
+            view.noBtn.alpha = if (value == NO) 1f else 0.45f
+        }
+        select(originalValue)
+        view.yesBtn.setOnClickListener { select(YES_MANUAL) }
+        view.noBtn.setOnClickListener { select(NO) }
+        view.dismissBtn.setOnClickListener { requireDialog().dismiss() }
+        view.skipBtnNumber.setOnClickListener { onClick(SKIP) }
+        view.saveBtn.setOnClickListener { onClick(selectedValue) }
         view.notes.setOnEditorActionListener { v, actionId, event ->
-            onClick(requireArguments().getInt("value"))
+            onClick(selectedValue)
             true
         }
 
@@ -91,12 +97,6 @@ class CheckmarkDialog : AppCompatDialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
 
-        if (!dismissedViaSaveAction) {
-            val currentNotes = view.notes.text.toString().trim()
-            if (currentNotes != originalNotes) {
-                onToggle(originalValue, currentNotes)
-            }
-        }
         onDismiss()
     }
 }

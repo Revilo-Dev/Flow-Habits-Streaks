@@ -368,10 +368,12 @@ public class TimePickerDialog extends AppCompatDialogFragment implements OnValue
         ((TextView) view.findViewById(R.id.separator)).setTextColor(contrast80);
         ((TextView) view.findViewById(R.id.ampm_label)).setTextColor(contrast80);
         view.findViewById(R.id.line).setBackgroundColor(contrast20);
-        mDoneButton.setTextColor(contrast80);
-        mDoneButton.setBackgroundColor(contrast0);
+        mDoneButton.setBackgroundTintList(null);
+        mClearButton.setBackgroundTintList(null);
+        mDoneButton.setTextColor(android.graphics.Color.WHITE);
+        mDoneButton.setBackgroundResource(R.drawable.flow_dialog_save_action_background);
         mClearButton.setTextColor(contrast80);
-        mClearButton.setBackgroundColor(contrast0);
+        mClearButton.setBackgroundResource(R.drawable.flow_dialog_secondary_action_background);
         mTimePicker.setBackgroundColor(contrast20);
         mUnselectedColor = contrast80;
         mMinuteView.setTextColor(mUnselectedColor);

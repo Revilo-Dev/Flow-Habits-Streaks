@@ -118,9 +118,33 @@ public class ColorPickerDialog extends AppCompatDialogFragment implements OnColo
         mAlertDialog = new AlertDialog.Builder(activity)
             .setTitle(mTitleResId)
             .setView(view)
+            .setPositiveButton(android.R.string.cancel, (dialog, which) -> dismiss())
             .create();
 
         return mAlertDialog;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        android.widget.Button button = mAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        button.setBackgroundTintList(null);
+        button.setBackgroundResource(R.drawable.flow_dialog_save_action_background);
+        button.setTextColor(android.graphics.Color.WHITE);
+        button.setGravity(android.view.Gravity.CENTER);
+        android.view.ViewGroup.LayoutParams params = button.getLayoutParams();
+        params.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+        params.height = (int) (48 * getResources().getDisplayMetrics().density);
+        if (params instanceof android.widget.LinearLayout.LayoutParams) {
+            ((android.widget.LinearLayout.LayoutParams) params).weight = 1f;
+        }
+        button.setLayoutParams(params);
+        android.view.ViewGroup row = (android.view.ViewGroup) button.getParent();
+        for (int i = 0; i < row.getChildCount(); i++) {
+            if (row.getChildAt(i) instanceof android.widget.Space) {
+                row.getChildAt(i).setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override

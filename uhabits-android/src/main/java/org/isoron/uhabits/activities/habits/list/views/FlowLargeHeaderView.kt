@@ -39,6 +39,7 @@ class FlowLargeHeaderView(
 ) : LinearLayout(context), MidnightTimer.MidnightListener {
 
     private var hasPlayedIntro = false
+    private var hasHabits = false
 
     private val titleView = TextView(context).apply {
         text = resources.getString(R.string.flow_app_title)
@@ -108,22 +109,32 @@ class FlowLargeHeaderView(
             summary.completed,
             summary.total
         )
-        perfectStreakView.visibility = if (summary.total == 0) View.GONE else View.VISIBLE
+        hasHabits = summary.total > 0
+        updateStreakVisibility()
         perfectStreakView.update(perfectStreak)
     }
 
-    /** Places the dismissible tip above the streak card, inside the home header. */
+    private fun updateStreakVisibility() {
+        perfectStreakView.visibility =
+            if (hasHabits && hintView?.visibility != View.VISIBLE) View.VISIBLE else View.GONE
+    }
+
+    /** Displays the dismissible tip in place of the streak card. */
     fun setHintView(view: HintView) {
-        hintView?.let { removeView(it) }
+        hintView?.let {
+            it.onHintVisibilityChanged = null
+            removeView(it)
+        }
         hintView = view
+        view.onHintVisibilityChanged = { updateStreakVisibility() }
         addView(
             view,
             indexOfChild(perfectStreakView),
             LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                 topMargin = dim(R.dimen.flow_large_spacing).toInt()
-                bottomMargin = dim(R.dimen.flow_card_spacing).toInt()
             }
         )
+        updateStreakVisibility()
     }
 
     override fun atMidnight() {
