@@ -62,6 +62,7 @@ import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
 import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.buildFlowToolbar
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dim
@@ -120,7 +121,7 @@ class ListHabitsRootView(
         setCompoundDrawablesRelative(icon, null, null, null)
         compoundDrawablePadding = (8 * resources.displayMetrics.density).toInt()
         gravity = Gravity.CENTER_VERTICAL
-        visibility = INVISIBLE
+        visibility = GONE
     }
     var onCreateHabit: (() -> Unit)? = null
 
@@ -195,13 +196,53 @@ class ListHabitsRootView(
             }
         )
         tbar.addView(collapsedBrand, androidx.appcompat.widget.Toolbar.LayoutParams(
-            WRAP_CONTENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
+            WRAP_CONTENT, WRAP_CONTENT, Gravity.END or Gravity.CENTER_VERTICAL
         ).apply {
-            marginStart = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+            marginEnd = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
         })
+        var previousCollapsed: Boolean? = null
         appBar.bindFlowHeader(tbar) { collapsed, _ ->
-            largeHeader.visibility = if (collapsed) INVISIBLE else VISIBLE
-            collapsedBrand.visibility = if (collapsed) VISIBLE else INVISIBLE
+            if (previousCollapsed == collapsed) return@bindFlowHeader
+            val animate = previousCollapsed != null
+            previousCollapsed = collapsed
+            if (!animate) {
+                largeHeader.visibility = if (collapsed) INVISIBLE else VISIBLE
+                largeHeader.alpha = 1f
+                collapsedBrand.visibility = if (collapsed) VISIBLE else GONE
+                collapsedBrand.alpha = 1f
+                collapsedBrand.translationY = 0f
+            } else if (collapsed) {
+                largeHeader.animate().cancel()
+                largeHeader.animate()
+                    .alpha(0f)
+                    .setDuration(150)
+                    .withEndAction { largeHeader.visibility = INVISIBLE }
+                    .start()
+                collapsedBrand.apply {
+                    visibility = VISIBLE
+                    alpha = 0f
+                    translationY = -dim(R.dimen.flow_small_spacing)
+                    animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setStartDelay(55)
+                        .setDuration(170)
+                        .start()
+                }
+            } else {
+                collapsedBrand.animate().cancel()
+                collapsedBrand.animate()
+                    .alpha(0f)
+                    .translationY(-dim(R.dimen.flow_small_spacing))
+                    .setDuration(110)
+                    .withEndAction { collapsedBrand.visibility = GONE }
+                    .start()
+                largeHeader.apply {
+                    visibility = VISIBLE
+                    alpha = 0f
+                    animate().alpha(1f).setDuration(170).start()
+                }
+            }
             tbar.title = ""
         }
         val content = FrameLayout(context).apply {
@@ -215,6 +256,7 @@ class ListHabitsRootView(
                 }
             )
         }
+        content.addFlowScrollFades(listView)
         val rootView = CoordinatorLayout(context).apply {
             setBackgroundColor(flowBackground)
             addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {

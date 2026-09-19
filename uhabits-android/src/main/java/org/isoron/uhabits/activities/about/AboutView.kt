@@ -30,6 +30,7 @@ import org.isoron.uhabits.databinding.AboutBinding
 import org.isoron.uhabits.utils.applyBottomInset
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
@@ -58,7 +59,13 @@ class AboutView(
         binding.toolbar.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         binding.toolbar.elevation = 0f
         binding.appBar.applyToolbarInsets()
-        binding.appBar.bindFlowHeader(binding.toolbar)
+        val scrollFades = binding.root.addFlowScrollFades(
+            scrollable = binding.scrollView,
+            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+        )
+        binding.appBar.bindFlowHeader(binding.toolbar) { collapsed, _ ->
+            scrollFades.update(topAllowed = collapsed)
+        }
         (context as android.app.Activity).window.statusBarColor =
             sres.getColor(R.attr.flowBackgroundColor)
         WindowInsetsControllerCompat(context.window, binding.root).isAppearanceLightStatusBars =

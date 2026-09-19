@@ -43,36 +43,48 @@ class StreakList {
         targetType: NumericalHabitType
     ) {
         list.clear()
-        val dates = computedEntries
-            .getByInterval(from, to)
-            .filter {
-                val value = it.value
-                if (isNumerical) {
-                    when (targetType) {
-                        NumericalHabitType.AT_LEAST -> value / 1000.0 >= targetValue
-                        NumericalHabitType.AT_MOST -> value != Entry.UNKNOWN && value / 1000.0 <= targetValue
-                    }
-                } else {
-                    value > 0
+        var start: LocalDate? = null
+        var end: LocalDate? = null
+        var trailingSkip: LocalDate? = null
+        var completedDays = 0
+
+        fun finishStreak() {
+            val streakStart = start ?: return
+            list.add(Streak(streakStart, end!!, completedDays, trailingSkip ?: end!!))
+            start = null
+            end = null
+            trailingSkip = null
+            completedDays = 0
+        }
+
+        computedEntries.getByInterval(from, to).forEach { entry ->
+            val complete = entry.value != Entry.SKIP && if (isNumerical) {
+                when (targetType) {
+                    NumericalHabitType.AT_LEAST -> entry.value / 1000.0 >= targetValue
+                    NumericalHabitType.AT_MOST ->
+                        entry.value != Entry.UNKNOWN && entry.value / 1000.0 <= targetValue
                 }
-            }
-            .map { it.date }
-            .toTypedArray()
-
-        if (dates.isEmpty()) return
-
-        var begin = dates[0]
-        var end = dates[0]
-        for (i in 1 until dates.size) {
-            val current = dates[i]
-            if (current == begin.minus(1)) {
-                begin = current
             } else {
-                list.add(Streak(begin, end))
-                begin = current
-                end = current
+                entry.value > 0
+            }
+
+            when {
+                complete -> {
+                    if (start == null) {
+                        start = entry.date
+                        end = entry.date
+                    } else {
+                        start = entry.date
+                    }
+                    completedDays++
+                }
+                entry.value == Entry.SKIP -> {
+                    // A skipped day bridges completed days, but is not itself a completed day.
+                    if (start == null && trailingSkip == null) trailingSkip = entry.date
+                }
+                else -> finishStreak()
             }
         }
-        list.add(Streak(begin, end))
+        finishStreak()
     }
 }

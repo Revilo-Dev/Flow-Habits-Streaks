@@ -43,6 +43,7 @@ import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitState
 import org.isoron.uhabits.databinding.ShowHabitBinding
 import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
@@ -76,6 +77,11 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
     }
     init {
         addView(binding.root)
+        val scrollFades = binding.root.addFlowScrollFades(
+            scrollable = binding.scrollView,
+            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+        )
+        scrollFades.update(topAllowed = false)
         binding.appBar.applyToolbarInsets()
         val contentTop = resources.getDimensionPixelSize(R.dimen.flow_large_spacing) +
             resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
@@ -96,6 +102,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
             headerCollapsed = collapsed
             contentScrolled = scrolled
             updateToolbarFade()
+            scrollFades.update(topAllowed = collapsed)
         }
     }
     private fun updateToolbarFade() {
@@ -155,6 +162,14 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         binding.barCard.setState(data.bar)
         binding.overviewCard.visibility = if (data.isNumerical) GONE else VISIBLE
         binding.targetCard.visibility = if (data.isNumerical) VISIBLE else GONE
+        binding.largeHeader.minimumHeight = resources.getDimensionPixelSize(
+            if (data.isNumerical) {
+                R.dimen.flow_header_content_numerical_min_height
+            } else {
+                R.dimen.flow_header_content_min_height
+            }
+        )
+        binding.largeHeader.requestLayout()
 
         val cardElevation = if (isLight) dim(R.dimen.flow_card_elevation) else 0f
         listOf(

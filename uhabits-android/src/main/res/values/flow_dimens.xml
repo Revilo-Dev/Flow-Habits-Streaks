@@ -26,6 +26,7 @@
     <dimen name="flow_icon_ring_thickness">3dp</dimen>
     <dimen name="flow_divider_size">1dp</dimen>
     <dimen name="flow_divider_inset">20dp</dimen>
+    <dimen name="flow_scroll_edge_fade_size">56dp</dimen>
 
     <!-- Viewing-area spacing -->
     <dimen name="flow_header_top_spacing">16dp</dimen>
@@ -34,6 +35,7 @@
     <dimen name="flow_perfect_day_size">30dp</dimen>
     <dimen name="flow_header_expanded_height">432dp</dimen>
     <dimen name="flow_header_content_min_height">376dp</dimen>
+    <dimen name="flow_header_content_numerical_min_height">312dp</dimen>
     <dimen name="flow_home_header_expanded_height">400dp</dimen>
     <dimen name="flow_settings_header_expanded_height">@dimen/flow_home_header_expanded_height</dimen>
     <dimen name="flow_secondary_header_expanded_height">@dimen/flow_header_expanded_height</dimen>

@@ -42,6 +42,8 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroupAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.appbar.AppBarLayout
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.HabitsApplication
@@ -57,6 +59,7 @@ import org.isoron.uhabits.notifications.AndroidNotificationTray.Companion.create
 import org.isoron.uhabits.notifications.RingtoneManager
 import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyBottomInset
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.startActivitySafely
 import org.isoron.uhabits.widgets.WidgetUpdater
 import java.util.Locale
@@ -130,6 +133,16 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             list.itemAnimator = null
             list.addItemDecoration(FlowPreferenceCardDecoration(requireContext()))
             list.applyBottomInset()
+            val container = requireActivity().findViewById<CoordinatorLayout>(R.id.container)
+            val scrollFades = container.addFlowScrollFades(
+                scrollable = list,
+                topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+            )
+            container.findViewById<AppBarLayout>(R.id.appBar)
+                .addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { bar, offset ->
+                    scrollFades.update(topAllowed = bar.totalScrollRange > 0 && -offset >= bar.totalScrollRange)
+                })
+            scrollFades.update(topAllowed = false)
         }
     }
 

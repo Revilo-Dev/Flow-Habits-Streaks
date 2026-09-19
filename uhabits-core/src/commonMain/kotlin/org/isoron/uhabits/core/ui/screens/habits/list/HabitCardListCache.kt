@@ -377,7 +377,7 @@ class HabitCardListCache(
                 val latestStreak = habit.streaks.getBest(Int.MAX_VALUE).firstOrNull()
                 newData.currentStreaks[habit.id] = when {
                     latestStreak == null -> 0
-                    latestStreak.end.daysSince2000 < today.minus(1).daysSince2000 -> 0
+                    latestStreak.lastRelevantDate.daysSince2000 < today.minus(1).daysSince2000 -> 0
                     else -> latestStreak.length
                 }
                 val checkmarkList = mutableListOf<Int>()

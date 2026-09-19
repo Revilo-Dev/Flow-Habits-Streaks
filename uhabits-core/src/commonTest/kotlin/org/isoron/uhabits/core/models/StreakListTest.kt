@@ -64,4 +64,20 @@ class StreakListTest : BaseUnitTest() {
         assertEquals(1, best.size)
         assertEquals(1, best[0].length)
     }
+
+    @Test
+    fun testSkippedNumericalDaysPreserveButDoNotIncreaseStreak() {
+        habit = fixtures.createEmptyNumericalHabit(NumericalHabitType.AT_LEAST)
+        habit.originalEntries.add(Entry(today, 2000))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(2), 2000))
+        habit.originalEntries.add(Entry(today.minus(3), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(4), 2000))
+        habit.recompute()
+
+        val streak = habit.streaks.getBest(1).single()
+        assertEquals(3, streak.length)
+        assertEquals(today.minus(4), streak.start)
+        assertEquals(today, streak.end)
+    }
 }

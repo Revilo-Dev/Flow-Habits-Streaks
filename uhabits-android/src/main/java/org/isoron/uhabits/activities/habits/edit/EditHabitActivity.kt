@@ -73,6 +73,7 @@ import org.isoron.uhabits.databinding.ActivityEditHabitBinding
 import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.dismissCurrentAndShow
 import org.isoron.uhabits.utils.formatTime
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
@@ -129,6 +130,11 @@ class EditHabitActivity : AppCompatActivity() {
             insets
         }
         setContentView(binding.root)
+        val scrollFades = binding.root.addFlowScrollFades(
+            scrollable = binding.editorScrollView,
+            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+        )
+        binding.editorActions.root.bringToFront()
 
         if (intent.hasExtra("habitId")) {
             binding.collapsingToolbar.title = getString(R.string.edit_habit)
@@ -190,7 +196,9 @@ class EditHabitActivity : AppCompatActivity() {
         supportActionBar?.elevation = 0f
         binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
         binding.toolbar.setNavigationOnClickListener { finish() }
-        binding.appBar.bindFlowHeader(binding.toolbar)
+        binding.appBar.bindFlowHeader(binding.toolbar) { collapsed, _ ->
+            scrollFades.update(topAllowed = collapsed)
+        }
 
         binding.iconButton.setOnClickListener { showEmojiPicker() }
 

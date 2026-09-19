@@ -22,7 +22,11 @@ import org.isoron.platform.time.LocalDate
 
 data class Streak(
     val start: LocalDate,
-    val end: LocalDate
+    val end: LocalDate,
+    /** Number of completed days, which can be shorter than the calendar span when days are skipped. */
+    private val completedDays: Int = start.daysUntil(end) + 1,
+    /** Latest date covered by this streak, including any trailing skipped days. */
+    val lastRelevantDate: LocalDate = end
 ) {
     fun compareLonger(other: Streak): Int {
         return if (length != other.length) {
@@ -37,5 +41,5 @@ data class Streak(
     }
 
     val length: Int
-        get() = start.daysUntil(end) + 1
+        get() = completedDays
 }
