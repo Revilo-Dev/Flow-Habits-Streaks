@@ -46,6 +46,16 @@ open class WidgetPreferences(private val storage: Preferences.Storage) {
     open fun removeWidget(id: Int) {
         val habitIdKey = getHabitIdKey(id)
         storage.remove(habitIdKey)
+        storage.remove(getBackgroundEnabledKey(id))
+    }
+
+    /** Checkmark widgets use a coloured surface by default when completed. */
+    open fun isBackgroundEnabled(widgetId: Int): Boolean {
+        return storage.getBoolean(getBackgroundEnabledKey(widgetId), true)
+    }
+
+    open fun setBackgroundEnabled(widgetId: Int, enabled: Boolean) {
+        storage.putBoolean(getBackgroundEnabledKey(widgetId), enabled)
     }
 
     open fun getSnoozeTime(id: Long): Long {
@@ -54,6 +64,10 @@ open class WidgetPreferences(private val storage: Preferences.Storage) {
 
     private fun getHabitIdKey(id: Int): String {
         return format("widget-%06d-habit", id)
+    }
+
+    private fun getBackgroundEnabledKey(id: Int): String {
+        return format("widget-%06d-background-enabled", id)
     }
 
     private fun getSnoozeKey(id: Long): String {

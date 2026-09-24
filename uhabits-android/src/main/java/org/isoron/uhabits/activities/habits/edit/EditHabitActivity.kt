@@ -24,6 +24,10 @@ import android.app.Dialog
 import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
 import android.icu.text.BreakIterator
 import android.os.Bundle
 import android.text.Html
@@ -38,7 +42,6 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.StringRes
@@ -132,9 +135,12 @@ class EditHabitActivity : AppCompatActivity() {
         setContentView(binding.root)
         val scrollFades = binding.root.addFlowScrollFades(
             scrollable = binding.editorScrollView,
-            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
+            includeTopInset = true
         )
+        scrollFades.update(topAllowed = false)
         binding.editorActions.root.bringToFront()
+        binding.appBar.bringToFront()
 
         if (intent.hasExtra("habitId")) {
             binding.collapsingToolbar.title = getString(R.string.edit_habit)
@@ -419,12 +425,25 @@ class EditHabitActivity : AppCompatActivity() {
 
     private fun updateIconButton() {
         val defaultIcon = firstGrapheme(binding.nameInput.text.toString())
-        binding.iconButton.text = when {
-            icon.isNotBlank() -> getString(R.string.flow_change_emoji, icon)
-            defaultIcon.isNotBlank() -> getString(R.string.flow_change_emoji, defaultIcon)
-            else -> {
-            getString(R.string.flow_choose_emoji)
+        val displayedIcon = icon.ifBlank { defaultIcon }
+        binding.iconButton.apply {
+            icon = displayedIcon.takeIf { it.isNotBlank() }?.let {
+                EmojiCircleDrawable(
+                    emoji = it,
+                    color = androidColor,
+                    textColor = StyledResources(this@EditHabitActivity)
+                        .getColor(R.attr.flowTextPrimaryColor)
+                )
             }
+            iconTint = null
+            iconSize = resources.getDimensionPixelSize(R.dimen.flow_icon_container_size)
+            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+            iconPadding = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+        }
+        binding.iconButton.text = if (displayedIcon.isNotBlank()) {
+            getString(R.string.flow_change_emoji_label)
+        } else {
+            getString(R.string.flow_choose_emoji)
         }
     }
 
@@ -481,8 +500,13 @@ class EditHabitActivity : AppCompatActivity() {
             minWidth = 0
             minimumHeight = 0
             minHeight = 0
+            setPadding(0, 0, 0, 0)
             insetTop = 0
             insetBottom = 0
+            insetLeft = 0
+            insetRight = 0
+            gravity = Gravity.CENTER
+            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
             cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
             backgroundTintList = ColorStateList.valueOf(Color.BLACK)
             rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
@@ -506,39 +530,50 @@ class EditHabitActivity : AppCompatActivity() {
                 }
             )
         }
-        val suggestions = GridLayout(this).apply {
-            columnCount = 5
-            alignmentMode = GridLayout.ALIGN_BOUNDS
+        val emojiKeySize = (resources.displayMetrics.density * 56).toInt()
+        val suggestions = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
         }
-        resources.getStringArray(R.array.flow_emoji_suggestions).forEach { emoji ->
-            suggestions.addView(
-                MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+        resources.getStringArray(R.array.flow_emoji_suggestions).asList().chunked(5).forEach { row ->
+            val suggestionRow = LinearLayout(this).apply {
+                gravity = Gravity.CENTER
+                orientation = LinearLayout.HORIZONTAL
+            }
+            row.forEach { emoji ->
+                suggestionRow.addView(
+                    MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
                     gravity = Gravity.CENTER
                     text = emoji
-                    textSize = 24f
+                    textAlignment = View.TEXT_ALIGNMENT_CENTER
+                    textSize = 26f
                     isAllCaps = false
                     contentDescription = emoji
                     minimumWidth = 0
                     minWidth = 0
                     minimumHeight = 0
                     minHeight = 0
+                    setPadding(0, 0, 0, 0)
                     insetTop = 0
                     insetBottom = 0
+                    insetLeft = 0
+                    insetRight = 0
                     cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
-                    backgroundTintList = ColorStateList.valueOf(secondarySurface)
+                    backgroundTintList = ColorStateList.valueOf(
+                        ColorUtils.blendARGB(secondarySurface, Color.BLACK, 0.10f)
+                    )
                     rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
                     strokeWidth = 0
                     setOnClickListener {
                         input.setText(emoji)
                         input.setSelection(input.text.length)
                     }
-                },
-                GridLayout.LayoutParams().apply {
-                    width = (resources.displayMetrics.density * 52).toInt()
-                    height = (resources.displayMetrics.density * 52).toInt()
-                    setMargins(smallSpacing / 2, smallSpacing / 2, smallSpacing / 2, smallSpacing / 2)
-                }
-            )
+                    },
+                    LinearLayout.LayoutParams(emojiKeySize, emojiKeySize).apply {
+                        setMargins(smallSpacing / 2, smallSpacing / 2, smallSpacing / 2, smallSpacing / 2)
+                    }
+                )
+            }
+            suggestions.addView(suggestionRow, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
         }
         val actionBinding = org.isoron.uhabits.databinding.FlowEditorActionsBinding.inflate(layoutInflater)
         val actions = actionBinding.root
@@ -593,6 +628,40 @@ class EditHabitActivity : AppCompatActivity() {
     private fun getFormattedValidationError(@StringRes resId: Int): Spanned {
         val html = "<font color=#FFFFFF>${getString(resId)}</font>"
         return Html.fromHtml(html)
+    }
+
+    /** A habit-coloured emoji preview used by the icon picker row. */
+    private class EmojiCircleDrawable(
+        private val emoji: String,
+        color: Int,
+        textColor: Int
+    ) : Drawable() {
+        private val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = ColorUtils.setAlphaComponent(color, 38)
+        }
+        private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = textColor
+            textAlign = Paint.Align.CENTER
+            textSize = 22f * Resources.getSystem().displayMetrics.scaledDensity
+        }
+
+        override fun draw(canvas: Canvas) {
+            val bounds = bounds
+            val centerX = bounds.exactCenterX()
+            val centerY = bounds.exactCenterY()
+            canvas.drawCircle(centerX, centerY, bounds.width() / 2f, circlePaint)
+            val baseline = centerY - (textPaint.ascent() + textPaint.descent()) / 2f
+            canvas.drawText(emoji, centerX, baseline, textPaint)
+        }
+
+        override fun getOpacity() = PixelFormat.TRANSLUCENT
+        override fun setAlpha(alpha: Int) { circlePaint.alpha = alpha }
+        override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) {
+            circlePaint.colorFilter = colorFilter
+            textPaint.colorFilter = colorFilter
+        }
+        override fun getIntrinsicWidth() = 40
+        override fun getIntrinsicHeight() = 40
     }
 
     override fun onSaveInstanceState(state: Bundle) {

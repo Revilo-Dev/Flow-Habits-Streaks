@@ -35,7 +35,7 @@ import org.isoron.uhabits.intents.PendingIntentFactory
 import kotlin.math.max
 
 abstract class BaseWidget(val context: Context, val id: Int, val stacked: Boolean) {
-    private val widgetPrefs: WidgetPreferences
+    protected val widgetPrefs: WidgetPreferences
     protected val prefs: Preferences
     protected val pendingIntentFactory: PendingIntentFactory
     protected val commandRunner: CommandRunner
@@ -66,6 +66,8 @@ abstract class BaseWidget(val context: Context, val id: Int, val stacked: Boolea
     protected abstract fun buildView(): View?
     protected abstract val defaultHeight: Int
     protected abstract val defaultWidth: Int
+    protected open val showBackground: Boolean = true
+    protected open fun completedBackgroundColor(): Int? = null
     private fun adjustRemoteViewsPadding(
         remoteViews: RemoteViews,
         view: View,
@@ -120,11 +122,11 @@ abstract class BaseWidget(val context: Context, val id: Int, val stacked: Boolea
         view.findViewById<View>(android.R.id.background)?.background = null
         if (view.isLayoutRequested) measureView(view, width, height)
         val remoteViews = RemoteViews(context.packageName, R.layout.widget_wrapper)
-        if (stacked) {
+        if (stacked || !showBackground) {
             // Stack items sit inside the stack's single translucent surface.
             remoteViews.setInt(android.R.id.background, "setBackgroundResource", 0)
         } else {
-            WidgetSurface.apply(remoteViews, preferedBackgroundAlpha)
+            WidgetSurface.apply(remoteViews, preferedBackgroundAlpha, completedBackgroundColor())
         }
         buildRemoteViews(view, remoteViews, width, height)
         return remoteViews

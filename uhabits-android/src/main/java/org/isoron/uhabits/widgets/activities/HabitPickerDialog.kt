@@ -20,18 +20,20 @@
 package org.isoron.uhabits.widgets.activities
 
 import android.app.Activity
+import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID
 import android.appwidget.AppWidgetManager.INVALID_APPWIDGET_ID
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
 import org.isoron.uhabits.core.preferences.WidgetPreferences
+import org.isoron.uhabits.widgets.CheckmarkWidgetProvider
 import org.isoron.uhabits.widgets.WidgetUpdater
 
 class BooleanHabitPickerDialog : HabitPickerDialog() {
@@ -81,7 +83,13 @@ open class HabitPickerDialog : Activity() {
 
         setContentView(R.layout.widget_configure_activity)
         val listView = findViewById<ListView>(R.id.listView)
-        val saveButton = findViewById<Button>(R.id.buttonSave)
+        val backgroundSwitch = findViewById<SwitchCompat>(R.id.widgetBackgroundSwitch)
+        val showsBackgroundOption = AppWidgetManager.getInstance(this)
+            .getAppWidgetInfo(widgetId)
+            ?.provider
+            ?.className == CheckmarkWidgetProvider::class.java.name
+        backgroundSwitch.visibility = if (showsBackgroundOption) android.view.View.VISIBLE else android.view.View.GONE
+        backgroundSwitch.isChecked = widgetPreferences.isBackgroundEnabled(widgetId)
 
         with(listView) {
             adapter = ArrayAdapter(
@@ -90,6 +98,9 @@ open class HabitPickerDialog : Activity() {
                 habitNames
             )
             setOnItemClickListener { parent, view, position, id ->
+                if (showsBackgroundOption) {
+                    widgetPreferences.setBackgroundEnabled(widgetId, backgroundSwitch.isChecked)
+                }
                 confirm(mutableListOf(habitIds[position]))
             }
         }

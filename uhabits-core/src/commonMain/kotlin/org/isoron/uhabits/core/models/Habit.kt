@@ -67,7 +67,7 @@ data class Habit(
                 NumericalHabitType.AT_MOST -> false
             }
         } else {
-            value != Entry.NO && value != Entry.UNKNOWN
+            value == Entry.YES_MANUAL || value == Entry.YES_AUTO
         }
     }
 

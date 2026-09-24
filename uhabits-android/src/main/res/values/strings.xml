@@ -213,6 +213,7 @@
     <string name="database">Database</string>
     <string name="widget_opacity_title">Widget opacity</string>
     <string name="widget_opacity_description">Makes widgets more transparent or more opaque in your home screen.</string>
+    <string name="widget_show_background">Show background</string>
     <string name="first_day_of_the_week">First day of the week</string>
     <string name="default_reminder_question">Have you completed this habit today?</string>
     <string name="notes">Notes</string>
@@ -283,6 +284,7 @@
     <string name="flow_icon">Icon</string>
     <string name="flow_choose_emoji">Choose an emoji</string>
     <string name="flow_change_emoji">%1$s  Change emoji</string>
+    <string name="flow_change_emoji_label">Change emoji</string>
     <string name="flow_emoji_picker_title">Habit icon</string>
     <string name="flow_emoji_picker_hint">Choose an emoji, symbol, or a single character for this habit.</string>
     <string name="flow_open_emoji_keyboard">Open emoji keyboard</string>
@@ -324,6 +326,7 @@
         <item>✅</item>
         <item>🎯</item>
         <item>✨</item>
+        <item>🧠</item>
     </string-array>
     <string name="flow_developers">Flow developers</string>
     <string name="flow_source_developers">Source code developers</string>

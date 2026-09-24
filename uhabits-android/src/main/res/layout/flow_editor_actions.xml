@@ -27,7 +27,7 @@
                 android:layout_weight="1"
                 android:text="@string/flow_discard"
                 android:textAllCaps="false"
-                android:textColor="?attr/flowTextSecondaryColor"
+                android:textColor="?attr/flowTextPrimaryColor"
                 app:rippleColor="?attr/flowRippleColor" />
 
             <View
@@ -43,7 +43,7 @@
                 android:layout_weight="1"
                 android:text="@string/save"
                 android:textAllCaps="false"
-                android:textColor="?attr/flowAccentColor"
+                android:textColor="?attr/flowTextPrimaryColor"
                 app:rippleColor="?attr/flowRippleColor" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

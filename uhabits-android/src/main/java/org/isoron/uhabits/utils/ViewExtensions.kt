@@ -220,7 +220,7 @@ fun Toolbar.updateFlowStickyControls(isSticky: Boolean, compact: Boolean = false
     val backgroundColor = ColorUtils.setAlphaComponent(surface, if (isLight) 255 else 224)
     val inset = dim(R.dimen.flow_sticky_control_inset).toInt() / 2
     val verticalInset = if (compact) inset else 0
-    elevation = if (isSticky && isLight) dim(R.dimen.flow_fab_elevation) else 0f
+    elevation = 0f
     for (index in 0 until childCount) {
         when (val child = getChildAt(index)) {
             is ActionMenuView -> {

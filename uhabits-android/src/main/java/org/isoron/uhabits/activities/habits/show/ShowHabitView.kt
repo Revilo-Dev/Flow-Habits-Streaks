@@ -79,7 +79,9 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         addView(binding.root)
         val scrollFades = binding.root.addFlowScrollFades(
             scrollable = binding.scrollView,
-            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
+            bottomHeight = resources.getDimensionPixelSize(R.dimen.flow_scroll_edge_fade_size) / 2,
+            includeTopInset = true
         )
         scrollFades.update(topAllowed = false)
         binding.appBar.applyToolbarInsets()
@@ -106,11 +108,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         }
     }
     private fun updateToolbarFade() {
-        val color = sres.getColor(R.attr.flowBackgroundColor)
-        binding.toolbar.background = if (headerCollapsed && contentScrolled) {
-            GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(color, ColorUtils.setAlphaComponent(color, 0)))
-        } else ColorDrawable(Color.TRANSPARENT)
+        binding.toolbar.background = ColorDrawable(Color.TRANSPARENT)
     }
 
     fun setState(data: ShowHabitState) {

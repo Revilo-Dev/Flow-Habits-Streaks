@@ -19,6 +19,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -131,6 +132,8 @@ class FlowHomeSearchBar(context: Context) : LinearLayout(context) {
     fun close() {
         onQueryChanged?.invoke("")
         onQueryChanged = null
+        (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(queryInput.windowToken, 0)
         queryInput.clearFocus()
         animate().alpha(0f).translationY(dim(R.dimen.flow_large_spacing)).setDuration(130)
             .withEndAction {

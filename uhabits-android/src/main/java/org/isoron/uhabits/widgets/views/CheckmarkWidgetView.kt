@@ -19,6 +19,7 @@
 package org.isoron.uhabits.widgets.views
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
@@ -51,6 +52,7 @@ class CheckmarkWidgetView : HabitWidgetView {
     var entryValue = 0
     var entryState = 0
     var isNumerical = false
+    var isBackgroundEnabled = true
     private var preferences: Preferences? = null
 
     constructor(context: Context?) : super(context) {
@@ -68,11 +70,19 @@ class CheckmarkWidgetView : HabitWidgetView {
         val fgColor: Int
         setShadowAlpha(0x4f)
         when (entryState) {
-            YES_MANUAL, SKIP, YES_AUTO -> {
-                bgColor = activeColor
+            YES_MANUAL, YES_AUTO -> {
+                bgColor = if (isBackgroundEnabled) activeColor else Color.TRANSPARENT
+                fgColor = if (isBackgroundEnabled) res.getColor(R.attr.contrast0) else activeColor
+                if (isBackgroundEnabled) {
+                    backgroundPaint!!.color = bgColor
+                    frame!!.setBackgroundDrawable(background)
+                } else {
+                    frame!!.background = null
+                }
+            }
+            SKIP -> {
+                bgColor = res.getColor(R.attr.cardBgColor)
                 fgColor = res.getColor(R.attr.contrast0)
-                backgroundPaint!!.color = bgColor
-                frame!!.setBackgroundDrawable(background)
             }
             NO, UNKNOWN -> {
                 bgColor = res.getColor(R.attr.cardBgColor)

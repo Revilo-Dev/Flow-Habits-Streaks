@@ -28,6 +28,7 @@
         android:name=".HabitsApplication"
         android:allowBackup="true"
         android:backupAgent=".HabitsBackupAgent"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/flow_app_title"
         android:localeConfig="@xml/locales_config"

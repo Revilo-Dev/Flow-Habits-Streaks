@@ -20,6 +20,7 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.PointF
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -284,6 +285,7 @@ class HabitCardView(
                 resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
             )
             setImageResource(R.drawable.drag)
+            imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextSecondaryColor))
             visibility = GONE
         }
 
@@ -308,6 +310,7 @@ class HabitCardView(
         }
 
         clipToPadding = false
+        clipChildren = false
         layoutParams = LayoutParams(MATCH_PARENT, WRAP_CONTENT)
         val horizontalMargin = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
         val verticalMargin = resources.getDimensionPixelSize(R.dimen.flow_card_spacing) / 2
@@ -462,6 +465,14 @@ class HabitCardView(
             false -> R.drawable.flow_card_selectable_background
         }
         innerFrame.setBackgroundResource(background)
+        ViewCompat.setElevation(
+            innerFrame,
+            if (ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5) {
+                resources.getDimension(R.dimen.flow_card_elevation) / 2f
+            } else {
+                0f
+            }
+        )
     }
 
     private fun updateSelectionVisuals(isSelected: Boolean) {

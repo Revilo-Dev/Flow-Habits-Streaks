@@ -77,6 +77,14 @@ class HabitTest : BaseUnitTest() {
     }
 
     @Test
+    fun test_skipIsNotCompleted() {
+        val h = modelFactory.buildHabit()
+        h.originalEntries.add(Entry(getToday(), Entry.SKIP))
+        h.recompute()
+        assertFalse(h.isCompletedToday())
+    }
+
+    @Test
     fun test_isEntered() {
         val h = modelFactory.buildHabit()
         assertFalse(h.isEnteredToday())

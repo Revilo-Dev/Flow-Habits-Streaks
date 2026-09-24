@@ -376,6 +376,7 @@ class HabitCardListCache(
                 newData.scores[habit.id] = habit.scores[today].value
                 val latestStreak = habit.streaks.getBest(Int.MAX_VALUE).firstOrNull()
                 newData.currentStreaks[habit.id] = when {
+                    isExplicitFailure(habit, today) -> 0
                     latestStreak == null -> 0
                     latestStreak.lastRelevantDate.daysSince2000 < today.minus(1).daysSince2000 -> 0
                     else -> latestStreak.length
@@ -508,7 +509,9 @@ class HabitCardListCache(
 
     private fun isCompleteForPerfectDay(habit: Habit, date: LocalDate): Boolean {
         val value = habit.computedEntries.get(date).value
-        if (value == Entry.SKIP) return true
+        // A skip can preserve an individual habit's streak, but it is not a
+        // completion and therefore cannot make a day perfect.
+        if (value == Entry.SKIP) return false
         if (!habit.isNumerical) {
             return value == Entry.YES_MANUAL || value == Entry.YES_AUTO
         }
@@ -518,5 +521,11 @@ class HabitCardListCache(
             NumericalHabitType.AT_LEAST -> enteredValue >= habit.targetValue
             NumericalHabitType.AT_MOST -> enteredValue <= habit.targetValue
         }
+    }
+
+    private fun isExplicitFailure(habit: Habit, date: LocalDate): Boolean {
+        val value = habit.computedEntries.get(date).value
+        if (value == Entry.UNKNOWN || value == Entry.SKIP) return false
+        return !isCompleteForPerfectDay(habit, date)
     }
 }

@@ -80,4 +80,35 @@ class StreakListTest : BaseUnitTest() {
         assertEquals(today.minus(4), streak.start)
         assertEquals(today, streak.end)
     }
+
+    @Test
+    fun testSkippedBooleanDayFillsAGapWithoutCountingAsACompletedDay() {
+        habit.originalEntries.clear()
+        habit.originalEntries.add(Entry(today, Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(2), Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(3), Entry.NO))
+        habit.recompute()
+
+        val streak = habit.streaks.getBest(1).single()
+        assertEquals(2, streak.length)
+        assertEquals(today.minus(2), streak.start)
+        assertEquals(today, streak.end)
+    }
+
+    @Test
+    fun testSkippedDayDoesNotKeepAnOlderStreakCurrentAfterFailedDays() {
+        habit.originalEntries.clear()
+        habit.originalEntries.add(Entry(today, Entry.NO))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(2), Entry.NO))
+        habit.originalEntries.add(Entry(today.minus(3), Entry.NO))
+        habit.originalEntries.add(Entry(today.minus(4), Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(5), Entry.YES_MANUAL))
+        habit.recompute()
+
+        val streak = habit.streaks.getBest(1).single()
+        assertEquals(2, streak.length)
+        assertEquals(today.minus(4), streak.lastRelevantDate)
+    }
 }

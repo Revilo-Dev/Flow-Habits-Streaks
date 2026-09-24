@@ -196,9 +196,9 @@ class ListHabitsRootView(
             }
         )
         tbar.addView(collapsedBrand, androidx.appcompat.widget.Toolbar.LayoutParams(
-            WRAP_CONTENT, WRAP_CONTENT, Gravity.END or Gravity.CENTER_VERTICAL
+            WRAP_CONTENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
         ).apply {
-            marginEnd = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+            marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
         })
         var previousCollapsed: Boolean? = null
         appBar.bindFlowHeader(tbar) { collapsed, _ ->

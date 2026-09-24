@@ -9,7 +9,6 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
-        android:translationZ="1dp"
         app:layout_behavior="org.isoron.uhabits.utils.FlowHeaderBehavior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,7 +23,7 @@
             app:collapsedTitleTextColor="@android:color/transparent"
             app:contentScrim="@android:color/transparent"
             app:expandedTitleTextColor="@android:color/transparent"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="@android:color/transparent">
 
             <LinearLayout
