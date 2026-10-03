@@ -28,11 +28,10 @@
 
             <LinearLayout
                 android:id="@+id/largeHeader"
-                android:minHeight="@dimen/flow_header_content_min_height"
                 android:layout_height="wrap_content"
                 style="@style/ShowHabit.Flow.HeaderContent"
                 android:layout_marginTop="@dimen/flow_toolbar_height"
-                app:layout_collapseMode="pin"
+                app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="1.0">
 
                 <LinearLayout
@@ -101,7 +100,7 @@
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             android:orientation="vertical"
-            android:paddingTop="@dimen/flow_large_spacing"
+            android:paddingTop="@dimen/flow_medium_spacing"
             android:paddingBottom="@dimen/flow_large_spacing">
 
             <org.isoron.uhabits.activities.habits.show.views.HistoryCardView

@@ -20,13 +20,13 @@
 package org.isoron.uhabits.automation
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.utils.applyRootViewInsets
 
-class EditSettingActivity : AppCompatActivity() {
+class EditSettingActivity : FlowActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val app = applicationContext as HabitsApplication

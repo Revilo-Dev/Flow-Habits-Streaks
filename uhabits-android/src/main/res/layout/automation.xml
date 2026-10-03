@@ -38,7 +38,7 @@
             android:gravity="end"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:title="@string/app_name"
+            app:title="@string/flow_app_title"
             app:titleTextColor="@color/white">
 
             <com.google.android.material.button.MaterialButton

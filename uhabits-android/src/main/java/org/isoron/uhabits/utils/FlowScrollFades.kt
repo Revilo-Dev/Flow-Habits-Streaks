@@ -105,6 +105,7 @@ fun ViewGroup.addFlowScrollFades(
             view.layoutParams = view.layoutParams
             insets
         }
+        ViewCompat.requestApplyInsets(topFade)
     }
     return FlowScrollFades(scrollable, topFade, bottomFade).also { it.update() }
 }

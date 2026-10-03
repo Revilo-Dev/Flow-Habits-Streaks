@@ -45,15 +45,13 @@ class StreakList {
         list.clear()
         var start: LocalDate? = null
         var end: LocalDate? = null
-        var trailingSkip: LocalDate? = null
         var completedDays = 0
 
         fun finishStreak() {
             val streakStart = start ?: return
-            list.add(Streak(streakStart, end!!, completedDays, trailingSkip ?: end!!))
+            list.add(Streak(streakStart, end!!, completedDays))
             start = null
             end = null
-            trailingSkip = null
             completedDays = 0
         }
 
@@ -79,8 +77,8 @@ class StreakList {
                     completedDays++
                 }
                 entry.value == Entry.SKIP -> {
-                    // A skipped day bridges completed days, but is not itself a completed day.
-                    if (start == null && trailingSkip == null) trailingSkip = entry.date
+                    // A skip is only a filler inside a streak. It cannot extend
+                    // a streak past a failed day or start one by itself.
                 }
                 else -> finishStreak()
             }

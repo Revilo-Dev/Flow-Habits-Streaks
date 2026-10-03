@@ -186,8 +186,8 @@
     <string name="yes_or_no_example">예) 오늘 일찍 일어났나요? 운동 하셨나요? 체스를 하셨나요?</string>
     <string name="measurable">측정 가능한</string>
     <string name="measurable_example">예) 오늘 몇 마일을 달렸습니까? 몇 페이지를 읽었습니까?</string>
-    <string name="x_times_per_week">일주일에 몇 번</string>
-    <string name="x_times_per_month">한 달에 몇 번</string>
+    <string name="x_times_per_week">일주일에 %d번</string>
+    <string name="x_times_per_month">한 달에 %d번</string>
     <string name="x_times_per_y_days">%d 번 %d 일 동안</string>
     <string name="yes_or_no_short_example">예) 운동</string>
     <string name="color">색</string>

@@ -12,6 +12,7 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
@@ -100,6 +101,7 @@ class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
             background = resources.getDrawable(R.drawable.flow_selection_action_background, context.theme)
             contentDescription = resources.getString(description)
             setImageResource(icon)
+            imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextPrimaryColor))
             setPadding(
                 dim(R.dimen.flow_medium_spacing).toInt(),
                 dim(R.dimen.flow_medium_spacing).toInt(),

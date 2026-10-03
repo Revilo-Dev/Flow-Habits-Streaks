@@ -1,6 +1,7 @@
 [versions]
 agp = "8.9.2"
 annotation = "1.9.1"
+activity = "1.8.0"
 appcompat = "1.7.0"
 appintro = "6.3.1"
 commonsCodec = "1.16.0"
@@ -33,6 +34,7 @@ documentfile = "1.0.1"
 
 [libraries]
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 appIntro = { group = "com.github.AppIntro", name = "AppIntro", version.ref = "appintro" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commonsCodec" }

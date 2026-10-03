@@ -207,7 +207,6 @@ fun View.setupToolbar(
     toolbar.background = ColorDrawable(toolbarColor)
     if (applyTopInset) toolbar.applyToolbarInsets()
     val activity = context as AppCompatActivity
-    activity.window.statusBarColor = toolbarColor
     activity.setSupportActionBar(toolbar)
     activity.supportActionBar?.setDisplayHomeAsUpEnabled(displayHomeAsUpEnabled)
     if (displayHomeAsUpEnabled) toolbar.setNavigationIcon(R.drawable.flow_ic_back)

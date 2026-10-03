@@ -24,7 +24,6 @@ import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,6 +32,7 @@ import org.isoron.uhabits.AndroidDirFinder
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.activities.HabitsDirFinder
 import org.isoron.uhabits.activities.common.dialogs.CheckmarkDialog
 import org.isoron.uhabits.activities.common.dialogs.ConfirmDeleteDialog
@@ -58,7 +58,7 @@ import org.isoron.uhabits.utils.showMessage
 import org.isoron.uhabits.utils.showSendFileScreen
 import org.isoron.uhabits.widgets.WidgetUpdater
 
-class ShowHabitActivity : AppCompatActivity(), CommandRunner.Listener {
+class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
 
     private lateinit var commandRunner: CommandRunner
     private lateinit var menu: ShowHabitMenu

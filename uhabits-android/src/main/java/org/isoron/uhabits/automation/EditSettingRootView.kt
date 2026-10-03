@@ -51,7 +51,7 @@ class EditSettingRootView(
         addView(binding.root)
         setupToolbar(
             toolbar = binding.toolbar,
-            title = resources.getString(R.string.app_name),
+            title = resources.getString(R.string.flow_app_title),
             color = PaletteColor(11),
             displayHomeAsUpEnabled = false,
             theme = currentTheme()

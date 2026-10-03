@@ -51,7 +51,7 @@ android {
     }
 
     defaultConfig {
-        versionCode = 20303
+        versionCode = 20304
         versionName = "1.0.0"
         minSdk = 23
         targetSdk = 36
@@ -127,6 +127,7 @@ dependencies {
     implementation(libs.kotlin.stdlib.jdk8)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.legacy.preference.v14)
     implementation(libs.legacy.support.v4)
@@ -148,5 +149,6 @@ dependencies {
     androidTestImplementation(libs.uiautomator)
 
     testImplementation(libs.kotlin.inject.runtime)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit.junit)
 }

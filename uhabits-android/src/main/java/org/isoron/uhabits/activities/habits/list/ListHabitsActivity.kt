@@ -28,13 +28,13 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.checkSelfPermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseExceptionHandler
 import org.isoron.uhabits.HabitsApplication
+import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.TaskRunner
@@ -48,7 +48,7 @@ import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.dismissCurrentDialog
 import org.isoron.uhabits.utils.restartWithFade
 
-class ListHabitsActivity : AppCompatActivity(), Preferences.Listener {
+class ListHabitsActivity : FlowActivity(), Preferences.Listener {
 
     var pureBlack: Boolean = false
     lateinit var appComponent: HabitsApplicationComponent

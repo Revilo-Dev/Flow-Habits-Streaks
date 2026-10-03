@@ -21,12 +21,12 @@ package org.isoron.uhabits.activities.settings
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsControllerCompat
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.databinding.SettingsActivityBinding
 import org.isoron.uhabits.utils.StyledResources
@@ -35,7 +35,7 @@ import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.bindFlowHeader
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : FlowActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val component = (application as HabitsApplication).component
@@ -59,7 +59,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.toolbar.elevation = 0f
         binding.appBar.bindFlowHeader(binding.toolbar)
         val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
-        window.statusBarColor = flowBackground
         WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars =
             ColorUtils.calculateLuminance(flowBackground) > 0.5
         binding.root.applyRootViewInsets()

@@ -145,7 +145,6 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
             }
         }
         val window = (context as Activity).window
-        window.statusBarColor = backgroundColor
         WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars = isLight
 
         binding.subtitleCard.setState(data.subtitle)

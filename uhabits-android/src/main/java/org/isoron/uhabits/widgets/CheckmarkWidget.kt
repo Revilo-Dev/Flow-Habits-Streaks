@@ -38,7 +38,6 @@ open class CheckmarkWidget(
 
     private var isCompleted = false
     private var activeColor = 0
-    private var isBackgroundVisible = true
 
     override val defaultHeight: Int = 125
     override val defaultWidth: Int = 125
@@ -57,8 +56,6 @@ open class CheckmarkWidget(
             setBackgroundAlpha(preferedBackgroundAlpha)
             activeColor = WidgetTheme().color(habit.color).toInt()
             this@CheckmarkWidget.activeColor = activeColor
-            isBackgroundEnabled = widgetPrefs.isBackgroundEnabled(id)
-            isBackgroundVisible = isBackgroundEnabled
             name = habit.name
             entryValue = habit.computedEntries.get(today).value
             if (habit.isNumerical) {
@@ -77,11 +74,8 @@ open class CheckmarkWidget(
         return CheckmarkWidgetView(context)
     }
 
-    override val showBackground: Boolean
-        get() = isBackgroundVisible
-
     override fun completedBackgroundColor(): Int? {
-        return activeColor.takeIf { isCompleted && isBackgroundVisible }
+        return activeColor.takeIf { isCompleted }
     }
 
     private fun getNumericalEntryState(): Int {

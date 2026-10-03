@@ -24,6 +24,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
+import androidx.activity.enableEdgeToEdge
 import com.github.appintro.AppIntro2
 import com.github.appintro.AppIntroFragment
 import org.isoron.uhabits.R
@@ -38,6 +39,7 @@ import org.isoron.uhabits.utils.StyledResources
 class IntroActivity : AppIntro2() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         showStatusBar(false)
         val themeSwitcher = AndroidThemeSwitcher(

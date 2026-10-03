@@ -38,14 +38,16 @@ object CurrentStreakCardPresenter {
         }
         val todayComplete = lastSevenDays.last()
         var currentStreak = 0
-        var date = today.minus(if (todayComplete || isSkipped(habit, today)) 0 else 1)
-        while (true) {
-            when {
-                isComplete(habit, date) -> currentStreak++
-                isSkipped(habit, date) -> Unit
-                else -> break
+        if (!isExplicitFailure(habit, today)) {
+            var date = today.minus(if (todayComplete || isSkipped(habit, today)) 0 else 1)
+            while (true) {
+                when {
+                    isComplete(habit, date) -> currentStreak++
+                    isSkipped(habit, date) -> Unit
+                    else -> break
+                }
+                date = date.minus(1)
             }
-            date = date.minus(1)
         }
         return CurrentStreakCardState(
             currentStreak = currentStreak,
@@ -69,5 +71,10 @@ object CurrentStreakCardPresenter {
 
     private fun isSkipped(habit: Habit, date: LocalDate): Boolean {
         return habit.computedEntries.get(date).value == Entry.SKIP
+    }
+
+    private fun isExplicitFailure(habit: Habit, date: LocalDate): Boolean {
+        val value = habit.computedEntries.get(date).value
+        return value != Entry.UNKNOWN && value != Entry.SKIP && !isComplete(habit, date)
     }
 }

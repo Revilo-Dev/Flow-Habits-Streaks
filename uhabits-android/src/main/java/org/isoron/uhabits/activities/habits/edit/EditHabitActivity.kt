@@ -28,7 +28,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
-import android.icu.text.BreakIterator
 import android.os.Bundle
 import android.text.Html
 import android.text.InputType
@@ -46,7 +45,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -59,6 +57,7 @@ import org.isoron.platform.gui.toInt
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
 import org.isoron.uhabits.activities.common.dialogs.FrequencyPickerDialog
 import org.isoron.uhabits.activities.common.dialogs.WeekdayPickerDialog
@@ -82,6 +81,7 @@ import org.isoron.uhabits.utils.formatTime
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import org.isoron.uhabits.utils.toFormattedString
 import org.isoron.uhabits.utils.bindFlowHeader
+import java.text.BreakIterator
 import java.util.Locale
 
 fun formatFrequency(freqNum: Int, freqDen: Int, resources: Resources) = when {
@@ -94,7 +94,7 @@ fun formatFrequency(freqNum: Int, freqDen: Int, resources: Resources) = when {
     else -> resources.getString(R.string.x_times_per_y_days, freqNum, freqDen)
 }
 
-class EditHabitActivity : AppCompatActivity() {
+class EditHabitActivity : FlowActivity() {
 
     private lateinit var themeSwitcher: AndroidThemeSwitcher
     private lateinit var binding: ActivityEditHabitBinding
@@ -412,7 +412,6 @@ class EditHabitActivity : AppCompatActivity() {
         androidColor = themeSwitcher.currentTheme.color(color).toInt()
         binding.colorButton.backgroundTintList = ColorStateList.valueOf(androidColor)
         val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
-        window.statusBarColor = flowBackground
         binding.toolbar.setBackgroundColor(Color.TRANSPARENT)
         binding.editorActions.root.cardElevation = if (ColorUtils.calculateLuminance(flowBackground) > 0.5) {
             resources.getDimension(R.dimen.flow_fab_elevation)
@@ -503,8 +502,6 @@ class EditHabitActivity : AppCompatActivity() {
             setPadding(0, 0, 0, 0)
             insetTop = 0
             insetBottom = 0
-            insetLeft = 0
-            insetRight = 0
             gravity = Gravity.CENTER
             iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
             cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
@@ -555,8 +552,6 @@ class EditHabitActivity : AppCompatActivity() {
                     setPadding(0, 0, 0, 0)
                     insetTop = 0
                     insetBottom = 0
-                    insetLeft = 0
-                    insetRight = 0
                     cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
                     backgroundTintList = ColorStateList.valueOf(
                         ColorUtils.blendARGB(secondarySurface, Color.BLACK, 0.10f)

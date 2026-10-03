@@ -19,8 +19,10 @@
 package org.isoron.uhabits.activities.about
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.FrameLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsControllerCompat
@@ -53,22 +55,22 @@ class AboutView(
             theme = currentTheme(),
             applyTopInset = false
         )
-        binding.collapsingToolbar.title = resources.getString(R.string.about)
         binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
-        binding.toolbar.setNavigationOnClickListener { (context as android.app.Activity).finish() }
+        binding.toolbar.setNavigationOnClickListener { (context as Activity).finish() }
         binding.toolbar.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         binding.toolbar.elevation = 0f
         binding.appBar.applyToolbarInsets()
         val scrollFades = binding.root.addFlowScrollFades(
             scrollable = binding.scrollView,
-            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
+            includeTopInset = true
         )
         binding.appBar.bindFlowHeader(binding.toolbar) { collapsed, _ ->
+            binding.aboutHeader.visibility = if (collapsed) View.INVISIBLE else View.VISIBLE
             scrollFades.update(topAllowed = collapsed)
         }
-        (context as android.app.Activity).window.statusBarColor =
-            sres.getColor(R.attr.flowBackgroundColor)
-        WindowInsetsControllerCompat(context.window, binding.root).isAppearanceLightStatusBars =
+        WindowInsetsControllerCompat((context as Activity).window, binding.root)
+            .isAppearanceLightStatusBars =
             ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
         binding.tvFlowSupport.setOnClickListener { screen.openDeveloperLink("https://ko-fi.com/revilodev") }
         binding.tvFlowWebsite.setOnClickListener { screen.openDeveloperLink("https://revilodev.com") }

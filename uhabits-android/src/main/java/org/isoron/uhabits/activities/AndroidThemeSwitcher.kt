@@ -25,6 +25,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Build.VERSION.SDK_INT
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
@@ -54,13 +55,13 @@ constructor(
     override fun applyDarkTheme() {
         currentTheme = FlowDarkTheme()
         context.setTheme(R.style.FlowTheme_Dark)
-        (context as Activity).window.navigationBarColor =
-            ContextCompat.getColor(context, R.color.grey_900)
+        setLightNavigationBarIcons(false)
     }
 
     override fun applyLightTheme() {
         currentTheme = FlowLightTheme()
         context.setTheme(R.style.FlowTheme_Light)
+        setLightNavigationBarIcons(true)
     }
 
     override fun applyPureBlackTheme() {
@@ -77,5 +78,11 @@ constructor(
         } else {
             context.setTheme(R.style.BaseDialog)
         }
+    }
+
+    private fun setLightNavigationBarIcons(light: Boolean) {
+        val activity = context as? Activity ?: return
+        WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+            .isAppearanceLightNavigationBars = light
     }
 }

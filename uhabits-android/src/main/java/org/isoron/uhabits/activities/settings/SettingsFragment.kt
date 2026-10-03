@@ -119,6 +119,23 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         val sr = StyledResources(requireContext())
         view.setBackgroundColor(sr.getColor(R.attr.flowBackgroundColor))
         super.onViewCreated(view, savedInstanceState)
+        view.post {
+            val list = listView
+            val host = activity ?: return@post
+            val container = host.findViewById<CoordinatorLayout>(R.id.container) ?: return@post
+            val scrollFades = container.addFlowScrollFades(
+                scrollable = list,
+                topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
+                includeTopInset = true
+            )
+            container.findViewById<AppBarLayout>(R.id.appBar)
+                .addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { bar, offset ->
+                    scrollFades.update(
+                        topAllowed = bar.totalScrollRange > 0 && -offset >= bar.totalScrollRange
+                    )
+                })
+            scrollFades.update(topAllowed = false)
+        }
     }
 
     override fun onCreateRecyclerView(
@@ -133,16 +150,6 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             list.itemAnimator = null
             list.addItemDecoration(FlowPreferenceCardDecoration(requireContext()))
             list.applyBottomInset()
-            val container = requireActivity().findViewById<CoordinatorLayout>(R.id.container)
-            val scrollFades = container.addFlowScrollFades(
-                scrollable = list,
-                topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
-            )
-            container.findViewById<AppBarLayout>(R.id.appBar)
-                .addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { bar, offset ->
-                    scrollFades.update(topAllowed = bar.totalScrollRange > 0 && -offset >= bar.totalScrollRange)
-                })
-            scrollFades.update(topAllowed = false)
         }
     }
 

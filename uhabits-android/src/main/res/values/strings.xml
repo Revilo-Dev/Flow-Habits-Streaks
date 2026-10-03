@@ -24,7 +24,7 @@
 
     <string name="app_name" >Flow Habits</string>
     <string name="main_activity_title">Habits</string>
-    <string name="flow_app_title" translatable="false">Flow</string>
+    <string name="flow_app_title" translatable="false">Flow Habits</string>
     <plurals name="flow_habits_completed_today">
         <item quantity="one">%1$d of %2$d habit completed today</item>
         <item quantity="other">%1$d of %2$d habits completed today</item>
@@ -213,7 +213,6 @@
     <string name="database">Database</string>
     <string name="widget_opacity_title">Widget opacity</string>
     <string name="widget_opacity_description">Makes widgets more transparent or more opaque in your home screen.</string>
-    <string name="widget_show_background">Show background</string>
     <string name="first_day_of_the_week">First day of the week</string>
     <string name="default_reminder_question">Have you completed this habit today?</string>
     <string name="notes">Notes</string>

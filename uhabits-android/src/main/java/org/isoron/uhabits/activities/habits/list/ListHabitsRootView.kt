@@ -351,7 +351,6 @@ class ListHabitsRootView(
         tbar.background = ColorDrawable(Color.TRANSPARENT)
         tbar.elevation = 0f
         val window = (context as Activity).window
-        window.statusBarColor = flowBackground
         WindowInsetsControllerCompat(window, rootView).isAppearanceLightStatusBars =
             ColorUtils.calculateLuminance(flowBackground) > 0.5
         listView.setBackgroundColor(flowBackground)

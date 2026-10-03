@@ -19,15 +19,15 @@
 package org.isoron.uhabits.activities.about
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
+import org.isoron.uhabits.activities.FlowActivity
 
 /**
  * Activity that allows the user to see information about the app itself.
  * Display current version, link to Google Play and list of contributors.
  */
-class AboutActivity : AppCompatActivity() {
+class AboutActivity : FlowActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val preferences = (application as HabitsApplication).component.preferences
         AndroidThemeSwitcher(this, preferences).apply()
