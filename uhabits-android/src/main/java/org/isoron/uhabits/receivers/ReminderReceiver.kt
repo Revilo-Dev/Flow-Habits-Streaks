@@ -94,8 +94,9 @@ class ReminderReceiver : BroadcastReceiver() {
                         )
                     }
                 }
-                Intent.ACTION_BOOT_COMPLETED -> {
+                Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_TIME_CHANGED -> {
                     Log.d("ReminderReceiver", "onBootCompleted")
+                    app.checkInManager.configure()
                     reminderController.onBootCompleted()
                 }
             }

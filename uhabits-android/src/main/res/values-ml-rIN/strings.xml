@@ -107,7 +107,7 @@
     <string name="about">കുറിച്ച്</string>
     <string name="translators">പരിഭാഷകർ</string>
     <string name="developers">ഡെവലപ്പർമാർ</string>
-    <string name="version_n">പതിപ്പുകൾ</string>
+    <string name="version_n">പതിപ്പ് %s</string>
     <string name="frequency">ആവൃത്തി</string>
     <string name="checkmark">ചെക്ക്മാർക്ക്</string>
     <string name="best_streaks">മികച്ച വരകൾ</string>

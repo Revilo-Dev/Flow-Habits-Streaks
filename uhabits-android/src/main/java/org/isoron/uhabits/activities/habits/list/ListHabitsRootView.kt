@@ -69,7 +69,6 @@ import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
 import org.isoron.uhabits.utils.bindFlowHeader
-import org.isoron.uhabits.utils.FlowHeaderBehavior
 import kotlin.math.abs
 
 const val MAX_CHECKMARK_COUNT = 60
@@ -151,7 +150,7 @@ class ListHabitsRootView(
         val flowBackground = sres.getColor(R.attr.flowBackgroundColor)
         val toolbarHeight = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
         val appBar = AppBarLayout(context).apply {
-            setBackgroundColor(Color.TRANSPARENT)
+            setBackgroundColor(flowBackground)
             elevation = 0f
             applyToolbarInsets()
         }
@@ -260,7 +259,7 @@ class ListHabitsRootView(
         val rootView = CoordinatorLayout(context).apply {
             setBackgroundColor(flowBackground)
             addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                behavior = FlowHeaderBehavior(context)
+                behavior = AppBarLayout.Behavior()
             })
             addView(
                 content,

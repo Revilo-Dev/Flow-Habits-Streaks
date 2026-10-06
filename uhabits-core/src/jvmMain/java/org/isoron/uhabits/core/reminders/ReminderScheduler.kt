@@ -25,10 +25,13 @@ import org.isoron.uhabits.core.commands.ChangeHabitColorCommand
 import org.isoron.uhabits.core.commands.Command
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
+import org.isoron.uhabits.core.commands.DeleteHabitsCommand
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitMatcher
 import org.isoron.uhabits.core.preferences.WidgetPreferences
+import java.util.Calendar
+import java.util.TimeZone
 
 @AppScope
 @Inject
@@ -42,6 +45,7 @@ open class ReminderScheduler(
     override fun onCommandFinished(command: Command) {
         if (command is CreateRepetitionCommand) return
         if (command is ChangeHabitColorCommand) return
+        if (command is DeleteHabitsCommand) command.selected.forEach { sys.cancelShowReminder(it) }
         scheduleAll()
     }
 
@@ -52,13 +56,35 @@ open class ReminderScheduler(
             return
         }
         if (!habit.hasReminder()) {
+            sys.cancelShowReminder(habit)
             sys.log("ReminderScheduler", "habit=" + habit.id + " has no reminder. Skipping.")
             return
         }
-        var reminderTime = DateUtils.getUpcomingTimeInMillis(
-            habit.reminder!!.hour,
-            habit.reminder!!.minute
-        )
+        if (habit.isArchived) {
+            sys.cancelShowReminder(habit)
+            return
+        }
+        val reminder = habit.reminder!!
+        val tz = DateUtils.fixedTimeZone ?: TimeZone.getDefault()
+        val now = DateUtils.applyTimezone(DateUtils.getLocalTime(tz), tz)
+        val calendar = Calendar.getInstance(tz).apply {
+            timeInMillis = now
+            set(Calendar.HOUR_OF_DAY, reminder.hour)
+            set(Calendar.MINUTE, reminder.minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val days = reminder.days.toArray()
+        if (days.none { it }) {
+            sys.cancelShowReminder(habit)
+            return
+        }
+        for (offset in 0..7) {
+            val weekday = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
+            if (calendar.timeInMillis > now && days[weekday]) break
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+        var reminderTime = calendar.timeInMillis
         val snoozeReminderTime = widgetPreferences.getSnoozeTime(habit.id!!)
         if (snoozeReminderTime != 0L) {
             val now = DateUtils.applyTimezone(DateUtils.getLocalTime())
@@ -93,8 +119,7 @@ open class ReminderScheduler(
     @Synchronized
     open fun scheduleAll() {
         sys.log("ReminderScheduler", "Scheduling all alarms")
-        val reminderHabits = habitList.getFiltered(HabitMatcher.WITH_ALARM)
-        for (habit in reminderHabits) schedule(habit)
+        for (habit in habitList) schedule(habit)
     }
 
     @Synchronized
@@ -121,6 +146,7 @@ open class ReminderScheduler(
     }
 
     interface SystemScheduler {
+        fun cancelShowReminder(habit: Habit) {}
         fun scheduleShowReminder(
             reminderTime: Long,
             habit: Habit,

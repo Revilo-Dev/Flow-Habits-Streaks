@@ -131,6 +131,31 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+            android:key="nowbarCategory"
+            android:title="@string/flow_nowbar_title">
+
+        <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="pref_nowbar_enabled"
+                android:title="@string/flow_nowbar_enabled"
+                android:summary="@string/flow_nowbar_enabled_summary"
+                app:iconSpaceReserved="false"
+                app:widgetLayout="@layout/flow_preference_switch" />
+
+        <Preference
+                android:key="nowbarTime"
+                android:title="@string/flow_nowbar_time"
+                app:iconSpaceReserved="false" />
+
+        <Preference
+                android:key="nowbarAppearNow"
+                android:title="@string/flow_nowbar_appear_now"
+                android:summary="@string/flow_nowbar_appear_now_summary"
+                app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
             android:key="databaseCategory"
             android:title="@string/flow_settings_data">
 

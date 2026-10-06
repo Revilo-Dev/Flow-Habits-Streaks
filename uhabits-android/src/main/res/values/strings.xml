@@ -61,6 +61,25 @@
     <string name="history">History</string>
     <string name="clear">Clear</string>
     <string name="reminder">Reminder</string>
+    <string name="flow_checkin_channel">Habit check-ins</string>
+    <string name="flow_nowbar_title">Nowbar</string>
+    <string name="flow_nowbar_enabled">Enable Nowbar</string>
+    <string name="flow_nowbar_enabled_summary">Show a daily habit check-in notification</string>
+    <string name="flow_nowbar_time">Daily appearance time</string>
+    <string name="flow_nowbar_appear_now">Appear now</string>
+    <string name="flow_nowbar_appear_now_summary">Show the Nowbar notification for testing</string>
+    <string name="flow_checkin_channel_description">Your daily habit check-in at the time you choose</string>
+    <string name="flow_checkin_morning">Morning check-in</string>
+    <string name="flow_checkin_afternoon">Afternoon check-in</string>
+    <string name="flow_checkin_evening">Evening check-in</string>
+    <string name="flow_checkin_progress">%1$d of %2$d habits completed</string>
+    <string name="flow_checkin_open">Open check-in</string>
+    <string name="flow_checkin_chip">Check in</string>
+    <string name="flow_checkin_complete">Today’s check-in complete</string>
+    <plurals name="flow_checkin_remaining">
+        <item quantity="one">%d habit remaining</item>
+        <item quantity="other">%d habits remaining</item>
+    </plurals>
     <string name="save">Save</string>
     <string name="streaks">Streaks</string>
     <string name="no_habits_found">You have no active habits</string>

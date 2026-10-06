@@ -142,6 +142,22 @@ class ReminderSchedulerTest : BaseUnitTest() {
     }
 
     @Test
+    fun testSchedule_nextSelectedWeekday() {
+        // Monday afternoon locally: a Tuesday-only habit should skip Monday.
+        setFixedLocalTime(unixTime(2015, 0, 26, 13, 0))
+        val days = BooleanArray(7).apply { this[1] = true }
+        habit.reminder = Reminder(8, 30, WeekdayList(days))
+        reminderScheduler.schedule(habit)
+        verify {
+            sys.scheduleShowReminder(
+                unixTime(2015, 0, 27, 12, 30),
+                habit,
+                unixTime(2015, 0, 27, 0, 0)
+            )
+        }
+    }
+
+    @Test
     fun testSchedule_withoutReminder() {
         reminderScheduler.schedule(habit)
     }

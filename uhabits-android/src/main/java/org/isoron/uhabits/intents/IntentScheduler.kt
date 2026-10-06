@@ -58,10 +58,15 @@ class IntentScheduler(
             return SchedulerResult.IGNORED
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !manager.canScheduleExactAlarms()) {
-            Log.e("IntentScheduler", "No permission to schedule exact alarms")
-            return SchedulerResult.IGNORED
+            Log.i("IntentScheduler", "Exact alarms unavailable; scheduling an inexact reminder")
+            manager.setAndAllowWhileIdle(alarmType, timestamp, intent)
+            return SchedulerResult.OK
         }
-        manager.setExactAndAllowWhileIdle(alarmType, timestamp, intent)
+        try {
+            manager.setExactAndAllowWhileIdle(alarmType, timestamp, intent)
+        } catch (e: SecurityException) {
+            manager.setAndAllowWhileIdle(alarmType, timestamp, intent)
+        }
         return SchedulerResult.OK
     }
 
@@ -73,6 +78,13 @@ class IntentScheduler(
         val intent = pendingIntents.showReminder(habit, reminderTime, timestamp)
         logReminderScheduled(habit, reminderTime)
         return schedule(reminderTime, intent, RTC_WAKEUP)
+    }
+
+    override fun cancelShowReminder(habit: Habit) {
+        pendingIntents.cancelShowReminder(habit)?.let {
+            manager.cancel(it)
+            it.cancel()
+        }
     }
 
     override fun scheduleWidgetUpdate(updateTime: Long): SchedulerResult {

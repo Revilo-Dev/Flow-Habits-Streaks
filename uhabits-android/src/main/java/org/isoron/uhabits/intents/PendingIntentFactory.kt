@@ -22,6 +22,7 @@ package org.isoron.uhabits.intents
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.FLAG_NO_CREATE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.PendingIntent.getActivity
 import android.app.PendingIntent.getBroadcast
@@ -122,6 +123,19 @@ class PendingIntentFactory(
             },
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
+
+    fun cancelShowReminder(habit: Habit): PendingIntent? {
+        val id = habit.id ?: return null
+        return getBroadcast(
+            context,
+            (id % Integer.MAX_VALUE).toInt() + 1,
+            Intent(context, ReminderReceiver::class.java).apply {
+                action = ReminderReceiver.ACTION_SHOW_REMINDER
+                data = Uri.parse(habit.uriString)
+            },
+            FLAG_IMMUTABLE or FLAG_NO_CREATE
+        )
+    }
 
     fun snoozeNotification(habit: Habit): PendingIntent =
         getBroadcast(

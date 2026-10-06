@@ -28,6 +28,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
 import android.text.Html
 import android.text.InputType
@@ -41,6 +43,8 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.StringRes
@@ -453,6 +457,7 @@ class EditHabitActivity : FlowActivity() {
         val styledResources = StyledResources(this)
         val secondarySurface = styledResources.getColor(R.attr.flowSurfaceSecondaryColor)
         val tertiaryText = styledResources.getColor(R.attr.flowTextTertiaryColor)
+        val inputHeight = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
 
         val input = EditText(this).apply {
             gravity = Gravity.CENTER
@@ -460,8 +465,9 @@ class EditHabitActivity : FlowActivity() {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL
             maxLines = 1
             textSize = 32f
-            minHeight = resources.getDimensionPixelSize(R.dimen.flow_emoji_preview_height)
-            setPadding(largeSpacing, smallSpacing, largeSpacing, smallSpacing)
+            minimumHeight = 0
+            includeFontPadding = false
+            setPadding(largeSpacing, 0, largeSpacing, 0)
             setTextColor(Color.WHITE)
             setHintTextColor(tertiaryText)
             backgroundTintList = null
@@ -486,28 +492,22 @@ class EditHabitActivity : FlowActivity() {
                 updating = false
             }
         })
-        val emojiKeyboardButton = MaterialButton(
-            this,
-            null,
-            com.google.android.material.R.attr.materialButtonOutlinedStyle
-        ).apply {
+        val emojiKeyboardButton = ImageButton(this).apply {
             contentDescription = getString(R.string.flow_open_emoji_keyboard)
-            setIconResource(R.drawable.flow_ic_emoji)
-            iconTint = ColorStateList.valueOf(Color.WHITE)
-            iconSize = resources.getDimensionPixelSize(R.dimen.flow_icon_size)
+            setImageResource(R.drawable.flow_ic_emoji)
+            setColorFilter(Color.WHITE)
+            scaleType = ImageView.ScaleType.CENTER
             minimumWidth = 0
-            minWidth = 0
             minimumHeight = 0
-            minHeight = 0
             setPadding(0, 0, 0, 0)
-            insetTop = 0
-            insetBottom = 0
-            gravity = Gravity.CENTER
-            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-            cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
-            backgroundTintList = ColorStateList.valueOf(Color.BLACK)
-            rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
-            strokeWidth = 0
+            background = RippleDrawable(
+                ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor)),
+                GradientDrawable().apply {
+                    setColor(Color.BLACK)
+                    cornerRadius = resources.getDimension(R.dimen.flow_control_radius)
+                },
+                null
+            )
             setOnClickListener {
                 input.requestFocus()
                 input.requestFocusWithKeyboard()
@@ -516,12 +516,12 @@ class EditHabitActivity : FlowActivity() {
         val inputRow = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = LinearLayout.HORIZONTAL
-            addView(input, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
+            addView(input, LinearLayout.LayoutParams(0, inputHeight, 1f))
             addView(
                 emojiKeyboardButton,
                 LinearLayout.LayoutParams(
-                    resources.getDimensionPixelSize(R.dimen.flow_min_touch_target),
-                    resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+                    inputHeight,
+                    inputHeight
                 ).apply {
                     marginStart = smallSpacing
                 }

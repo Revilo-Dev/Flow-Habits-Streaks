@@ -20,6 +20,7 @@ package org.isoron.uhabits.activities.settings
 
 import android.annotation.SuppressLint
 import android.app.backup.BackupManager
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -31,6 +32,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.Settings
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -57,12 +59,14 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.notifications.AndroidNotificationTray.Companion.createAndroidNotificationChannel
 import org.isoron.uhabits.notifications.RingtoneManager
+import org.isoron.uhabits.notifications.HabitCheckInManager
 import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyBottomInset
 import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.startActivitySafely
 import org.isoron.uhabits.widgets.WidgetUpdater
 import java.util.Locale
+import java.util.Calendar
 
 class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
     private var sharedPrefs: SharedPreferences? = null
@@ -183,6 +187,28 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                 startActivityForResult(intent, PUBLIC_BACKUP_REQUEST_CODE)
                 return true
             }
+            "nowbarTime" -> {
+                val minuteOfDay = sharedPrefs!!.getInt(
+                    HabitCheckInManager.KEY_TIME,
+                    HabitCheckInManager.DEFAULT_TIME
+                )
+                TimePickerDialog(
+                    requireContext(),
+                    { _, hour, minute ->
+                        sharedPrefs!!.edit()
+                            .putInt(HabitCheckInManager.KEY_TIME, hour * 60 + minute)
+                            .apply()
+                    },
+                    minuteOfDay / 60,
+                    minuteOfDay % 60,
+                    DateFormat.is24HourFormat(requireContext())
+                ).show()
+                return true
+            }
+            "nowbarAppearNow" -> {
+                (requireContext().applicationContext as HabitsApplication).checkInManager.showNow()
+                return true
+            }
         }
         return super.onPreferenceTreeClick(preference)
     }
@@ -198,6 +224,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         }
         updateWeekdayPreference()
         updatePublicBackupFolderSummary()
+        updateNowbarPreferences()
 
         findPreference("reminderSound").isVisible = false
     }
@@ -221,8 +248,28 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             Log.d("SettingsFragment", "updating widgets")
             widgetUpdater!!.updateWidgets()
         }
+        if (key == HabitCheckInManager.KEY_ENABLED || key == HabitCheckInManager.KEY_TIME) {
+            updateNowbarPreferences()
+            (requireContext().applicationContext as HabitsApplication).checkInManager.configure()
+        }
         BackupManager.dataChanged(requireContext().packageName)
         updateWeekdayPreference()
+    }
+
+    private fun updateNowbarPreferences() {
+        val enabled = sharedPrefs!!.getBoolean(HabitCheckInManager.KEY_ENABLED, false)
+        findPreference("nowbarTime")?.isVisible = enabled
+        findPreference("nowbarAppearNow")?.isVisible = enabled
+        val minuteOfDay = sharedPrefs!!.getInt(
+            HabitCheckInManager.KEY_TIME,
+            HabitCheckInManager.DEFAULT_TIME
+        )
+        val time = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, minuteOfDay / 60)
+            set(Calendar.MINUTE, minuteOfDay % 60)
+        }
+        findPreference("nowbarTime")?.summary =
+            DateFormat.getTimeFormat(requireContext()).format(time.time)
     }
 
     private fun setResultOnPreferenceClick(key: String, result: Int) {

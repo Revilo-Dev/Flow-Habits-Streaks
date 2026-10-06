@@ -28,6 +28,7 @@ import org.isoron.uhabits.core.reminders.ReminderScheduler
 import org.isoron.uhabits.core.ui.NotificationTray
 import org.isoron.uhabits.inject.HabitsApplicationComponent
 import org.isoron.uhabits.inject.create
+import org.isoron.uhabits.notifications.HabitCheckInManager
 import org.isoron.uhabits.utils.DatabaseUtils
 import org.isoron.uhabits.widgets.WidgetUpdater
 import java.io.File
@@ -41,6 +42,8 @@ class HabitsApplication : Application() {
     private lateinit var widgetUpdater: WidgetUpdater
     private lateinit var reminderScheduler: ReminderScheduler
     private lateinit var notificationTray: NotificationTray
+    lateinit var checkInManager: HabitCheckInManager
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -84,6 +87,9 @@ class HabitsApplication : Application() {
         notificationTray = component.notificationTray
         notificationTray.startListening()
 
+        checkInManager = HabitCheckInManager(this, habitList, component.commandRunner)
+        checkInManager.start()
+
         val taskRunner = component.taskRunner
         taskRunner.execute {
             reminderScheduler.scheduleAll()
@@ -95,6 +101,7 @@ class HabitsApplication : Application() {
         reminderScheduler.stopListening()
         widgetUpdater.stopListening()
         notificationTray.stopListening()
+        checkInManager.stop()
         super.onTerminate()
     }
 

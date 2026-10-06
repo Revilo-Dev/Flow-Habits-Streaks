@@ -85,8 +85,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         )
         scrollFades.update(topAllowed = false)
         binding.appBar.applyToolbarInsets()
-        val contentTop = resources.getDimensionPixelSize(R.dimen.flow_large_spacing) +
-            resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+        val contentTop = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
         val contentBottom = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
         ViewCompat.setOnApplyWindowInsetsListener(binding.linearLayout) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

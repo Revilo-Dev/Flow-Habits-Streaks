@@ -54,7 +54,6 @@
     <dimen name="flow_editor_action_height">60dp</dimen>
     <dimen name="flow_editor_action_clearance">116dp</dimen>
     <dimen name="flow_switch_min_width">52dp</dimen>
-    <dimen name="flow_emoji_preview_height">72dp</dimen>
 
     <!-- Type scale; sp preserves the user's font-scale preference. -->
     <dimen name="flow_text_screen_title">36sp</dimen>
