@@ -23,19 +23,17 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.res.ColorStateList
 import android.content.res.Resources
-import android.graphics.Color
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
-import android.text.Html
-import android.text.InputType
-import android.text.Spanned
-import android.text.TextWatcher
 import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.View
@@ -46,14 +44,11 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.fragment.app.DialogFragment
 import com.android.datetimepicker.time.RadialPickerLayout
 import com.android.datetimepicker.time.TimePickerDialog
 import com.google.android.material.button.MaterialButton
@@ -65,7 +60,6 @@ import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
 import org.isoron.uhabits.activities.common.dialogs.FrequencyPickerDialog
 import org.isoron.uhabits.activities.common.dialogs.WeekdayPickerDialog
-import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateHabitCommand
 import org.isoron.uhabits.core.commands.EditHabitCommand
 import org.isoron.uhabits.core.models.Frequency
@@ -77,15 +71,19 @@ import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.databinding.ActivityEditHabitBinding
 import org.isoron.uhabits.utils.StyledResources
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
-import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.bindBottomActionClearance
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.dismissCurrentAndShow
 import org.isoron.uhabits.utils.formatTime
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import org.isoron.uhabits.utils.toFormattedString
-import org.isoron.uhabits.utils.bindFlowHeader
 import java.text.BreakIterator
+import java.text.DecimalFormatSymbols
+import java.text.NumberFormat
+import java.text.ParsePosition
 import java.util.Locale
 
 fun formatFrequency(freqNum: Int, freqDen: Int, resources: Resources) = when {
@@ -102,7 +100,9 @@ class EditHabitActivity : FlowActivity() {
 
     private lateinit var themeSwitcher: AndroidThemeSwitcher
     private lateinit var binding: ActivityEditHabitBinding
-    private lateinit var commandRunner: CommandRunner
+    private var initialDraft = ""
+    private var saving = false
+    private var validatedTarget = 0.0
 
     var habitId = -1L
     lateinit var habitType: HabitType
@@ -128,14 +128,7 @@ class EditHabitActivity : FlowActivity() {
         binding.root.applyRootViewInsets()
         binding.appBar.applyToolbarInsets()
         val baseActionMargin = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.editorActions.root) { actionBar, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            actionBar.layoutParams =
-                (actionBar.layoutParams as androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams).apply {
-                    bottomMargin = baseActionMargin + systemBars.bottom
-                }
-            insets
-        }
+        binding.editorActions.root.bindBottomActionClearance(binding.editorScrollView, baseActionMargin)
         setContentView(binding.root)
         val scrollFades = binding.root.addFlowScrollFades(
             scrollable = binding.editorScrollView,
@@ -156,6 +149,7 @@ class EditHabitActivity : FlowActivity() {
             freqDen = habit.frequency.denominator
             targetType = habit.targetType
             icon = habit.icon
+            binding.skipsCountTowardsStreaks.isChecked = habit.skipsCountTowardsStreaks
             habit.reminder?.let {
                 reminderHour = it.hour
                 reminderMin = it.minute
@@ -165,11 +159,18 @@ class EditHabitActivity : FlowActivity() {
             binding.questionInput.setText(habit.question)
             binding.notesInput.setText(habit.description)
             binding.unitInput.setText(habit.unit)
-            binding.targetInput.setText(habit.targetValue.toString())
+            binding.targetInput.setText(
+                NumberFormat.getNumberInstance().apply {
+                    isGroupingUsed = false
+                    maximumFractionDigits = 10
+                }.format(habit.targetValue)
+            )
         } else {
             binding.collapsingToolbar.title = getString(R.string.create_habit)
             habitType = HabitType.fromInt(intent.getIntExtra("habitType", HabitType.YES_NO.value))
         }
+
+        initialDraft = state?.getString("initialDraft") ?: draftSignature()
 
         if (state != null) {
             habitId = state.getLong("habitId")
@@ -181,6 +182,13 @@ class EditHabitActivity : FlowActivity() {
             reminderMin = state.getInt("reminderMin")
             reminderDays = WeekdayList(state.getInt("reminderDays"))
             icon = state.getString("icon", "")
+            targetType = NumericalHabitType.fromInt(state.getInt("targetType"))
+            binding.nameInput.setText(state.getString("draftName"))
+            binding.questionInput.setText(state.getString("draftQuestion"))
+            binding.notesInput.setText(state.getString("draftNotes"))
+            binding.unitInput.setText(state.getString("draftUnit"))
+            binding.targetInput.setText(state.getString("draftTarget"))
+            binding.skipsCountTowardsStreaks.isChecked = state.getBoolean("skipsCountTowardsStreaks")
         }
 
         updateColors()
@@ -202,12 +210,25 @@ class EditHabitActivity : FlowActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.title = ""
+        supportActionBar?.title = binding.collapsingToolbar.title
         supportActionBar?.elevation = 0f
-        binding.toolbar.setNavigationIcon(R.drawable.flow_ic_back)
-        binding.toolbar.setNavigationOnClickListener { finish() }
-        binding.appBar.bindFlowHeader(binding.toolbar) { collapsed, _ ->
-            scrollFades.update(topAllowed = collapsed)
+        binding.toolbar.setNavigationIcon(R.drawable.flow_ic_close)
+        binding.toolbar.setNavigationContentDescription(android.R.string.cancel)
+        binding.toolbar.setNavigationOnClickListener { requestDiscard() }
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : androidx.activity.OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (ViewCompat.getRootWindowInsets(binding.root)?.isVisible(WindowInsetsCompat.Type.ime()) == true) {
+                        WindowInsetsControllerCompat(window, binding.root).hide(WindowInsetsCompat.Type.ime())
+                    } else {
+                        requestDiscard()
+                    }
+                }
+            }
+        )
+        binding.appBar.bindFlowHeader(binding.toolbar, compact = true) { _, scrolled ->
+            scrollFades.update(topAllowed = scrolled)
         }
 
         binding.iconButton.setOnClickListener { showEmojiPicker() }
@@ -310,16 +331,51 @@ class EditHabitActivity : FlowActivity() {
         }
 
         binding.editorActions.buttonSave.setOnClickListener {
-            if (validate()) save()
+            if (!saving && validate()) save()
         }
-        binding.editorActions.buttonDiscard.setOnClickListener { finish() }
+        binding.editorActions.buttonDiscard.setOnClickListener { requestDiscard() }
+        val separator = DecimalFormatSymbols.getInstance().decimalSeparator
+        binding.targetInput.keyListener = android.text.method.DigitsKeyListener.getInstance("0123456789$separator")
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(binding.colorButton, getString(R.string.color))
+    }
 
+    override fun onStart() {
+        super.onStart()
         for (fragment in supportFragmentManager.fragments) {
-            (fragment as DialogFragment).dismiss()
+            when (fragment) {
+                is FrequencyPickerDialog -> fragment.onFrequencyPicked = { num, den ->
+                    freqNum = num
+                    freqDen = den
+                    populateFrequency()
+                }
+                is WeekdayPickerDialog -> fragment.setListener { days ->
+                    reminderDays = if (days.isEmpty) WeekdayList.EVERY_DAY else days
+                    populateReminder()
+                }
+                is org.isoron.uhabits.activities.common.dialogs.ColorPickerDialog -> fragment.setListener { picked ->
+                    color = picked
+                    updateColors()
+                    updateIconButton()
+                }
+                is TimePickerDialog -> fragment.setOnTimeSetListener(object : TimePickerDialog.OnTimeSetListener {
+                    override fun onTimeSet(view: RadialPickerLayout?, hourOfDay: Int, minute: Int) {
+                        reminderHour = hourOfDay
+                        reminderMin = minute
+                        populateReminder()
+                    }
+                    override fun onTimeCleared(view: RadialPickerLayout?) {
+                        reminderHour = -1
+                        reminderMin = -1
+                        populateReminder()
+                    }
+                })
+            }
         }
     }
 
     private fun save() {
+        saving = true
+        binding.editorActions.buttonSave.isEnabled = false
         val component = (application as HabitsApplication).component
         val habit = component.modelFactory.buildHabit()
 
@@ -332,8 +388,10 @@ class EditHabitActivity : FlowActivity() {
         habit.name = binding.nameInput.text.trim().toString()
         habit.question = binding.questionInput.text.trim().toString()
         habit.description = binding.notesInput.text.trim().toString()
+        // Use the first visible character of the name when no custom icon is selected
         habit.icon = icon.ifBlank { firstGrapheme(habit.name) }
         habit.color = color
+        habit.skipsCountTowardsStreaks = binding.skipsCountTowardsStreaks.isChecked
         if (reminderHour >= 0) {
             habit.reminder = Reminder(reminderHour, reminderMin, reminderDays)
         } else {
@@ -342,12 +400,13 @@ class EditHabitActivity : FlowActivity() {
 
         habit.frequency = Frequency(freqNum, freqDen)
         if (habitType == HabitType.NUMERICAL) {
-            habit.targetValue = binding.targetInput.text.toString().toDouble()
+            habit.targetValue = validatedTarget
             habit.targetType = targetType
             habit.unit = binding.unitInput.text.trim().toString()
         }
         habit.type = habitType
 
+        // Route creates and edits through commands so all progress surfaces refresh
         val command = if (habitId >= 0) {
             EditHabitCommand(
                 component.habitList,
@@ -367,15 +426,35 @@ class EditHabitActivity : FlowActivity() {
 
     private fun validate(): Boolean {
         var isValid = true
-        if (binding.nameInput.text.isEmpty()) {
-            binding.nameInput.error = getFormattedValidationError(R.string.validation_cannot_be_blank)
+        binding.nameInput.error = null
+        binding.targetInput.error = null
+        if (binding.nameInput.text.isBlank()) {
+            binding.nameInput.error = getString(R.string.validation_cannot_be_blank)
             isValid = false
         }
         if (habitType == HabitType.NUMERICAL) {
-            if (binding.targetInput.text.isEmpty()) {
-                binding.targetInput.error = getString(R.string.validation_cannot_be_blank)
+            val text = binding.targetInput.text.toString().trim()
+            val position = ParsePosition(0)
+            val parsed = NumberFormat.getNumberInstance().parse(text, position)?.toDouble()
+            val invalidRange = parsed != null && (parsed < 0 || (targetType == NumericalHabitType.AT_LEAST && parsed == 0.0))
+            if (parsed == null || !parsed.isFinite() || position.index != text.length || invalidRange) {
+                binding.targetInput.error = getString(
+                    when {
+                        text.isEmpty() -> R.string.validation_cannot_be_blank
+                        invalidRange && targetType == NumericalHabitType.AT_LEAST -> R.string.flow_goal_positive
+                        invalidRange -> R.string.flow_goal_non_negative
+                        else -> R.string.flow_invalid_number
+                    }
+                )
                 isValid = false
+            } else {
+                validatedTarget = parsed
             }
+        }
+        if (!isValid) {
+            val field = if (binding.nameInput.error != null) binding.nameInput else binding.targetInput
+            field.requestFocus()
+            field.post { field.requestRectangleOnScreen(android.graphics.Rect(0, 0, field.width, field.height), false) }
         }
         return isValid
     }
@@ -468,11 +547,11 @@ class EditHabitActivity : FlowActivity() {
             minimumHeight = 0
             includeFontPadding = false
             setPadding(largeSpacing, 0, largeSpacing, 0)
-            setTextColor(Color.WHITE)
+            setTextColor(styledResources.getColor(R.attr.flowTextPrimaryColor))
             setHintTextColor(tertiaryText)
             backgroundTintList = null
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(Color.BLACK)
+                setColor(secondarySurface)
                 cornerRadius = resources.getDimension(R.dimen.flow_control_radius)
             }
             setText(icon.ifBlank { firstGrapheme(binding.nameInput.text.toString()) })
@@ -495,7 +574,7 @@ class EditHabitActivity : FlowActivity() {
         val emojiKeyboardButton = ImageButton(this).apply {
             contentDescription = getString(R.string.flow_open_emoji_keyboard)
             setImageResource(R.drawable.flow_ic_emoji)
-            setColorFilter(Color.WHITE)
+            setColorFilter(styledResources.getColor(R.attr.flowTextPrimaryColor))
             scaleType = ImageView.ScaleType.CENTER
             minimumWidth = 0
             minimumHeight = 0
@@ -503,7 +582,7 @@ class EditHabitActivity : FlowActivity() {
             background = RippleDrawable(
                 ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor)),
                 GradientDrawable().apply {
-                    setColor(Color.BLACK)
+                    setColor(secondarySurface)
                     cornerRadius = resources.getDimension(R.dimen.flow_control_radius)
                 },
                 null
@@ -539,29 +618,29 @@ class EditHabitActivity : FlowActivity() {
             row.forEach { emoji ->
                 suggestionRow.addView(
                     MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
-                    gravity = Gravity.CENTER
-                    text = emoji
-                    textAlignment = View.TEXT_ALIGNMENT_CENTER
-                    textSize = 26f
-                    isAllCaps = false
-                    contentDescription = emoji
-                    minimumWidth = 0
-                    minWidth = 0
-                    minimumHeight = 0
-                    minHeight = 0
-                    setPadding(0, 0, 0, 0)
-                    insetTop = 0
-                    insetBottom = 0
-                    cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
-                    backgroundTintList = ColorStateList.valueOf(
-                        ColorUtils.blendARGB(secondarySurface, Color.BLACK, 0.10f)
-                    )
-                    rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
-                    strokeWidth = 0
-                    setOnClickListener {
-                        input.setText(emoji)
-                        input.setSelection(input.text.length)
-                    }
+                        gravity = Gravity.CENTER
+                        text = emoji
+                        textAlignment = View.TEXT_ALIGNMENT_CENTER
+                        textSize = 26f
+                        isAllCaps = false
+                        contentDescription = emoji
+                        minimumWidth = 0
+                        minWidth = 0
+                        minimumHeight = 0
+                        minHeight = 0
+                        setPadding(0, 0, 0, 0)
+                        insetTop = 0
+                        insetBottom = 0
+                        cornerRadius = resources.getDimensionPixelSize(R.dimen.flow_control_radius)
+                        backgroundTintList = ColorStateList.valueOf(
+                            ColorUtils.blendARGB(secondarySurface, Color.BLACK, 0.10f)
+                        )
+                        rippleColor = ColorStateList.valueOf(styledResources.getColor(R.attr.flowRippleColor))
+                        strokeWidth = 0
+                        setOnClickListener {
+                            input.setText(emoji)
+                            input.setSelection(input.text.length)
+                        }
                     },
                     LinearLayout.LayoutParams(emojiKeySize, emojiKeySize).apply {
                         setMargins(smallSpacing / 2, smallSpacing / 2, smallSpacing / 2, smallSpacing / 2)
@@ -611,6 +690,7 @@ class EditHabitActivity : FlowActivity() {
         dialog.dismissCurrentAndShow()
     }
 
+    // Read a whole visible character so combined emoji are not split into code units
     private fun firstGrapheme(value: String): String {
         val trimmed = value.trim()
         if (trimmed.isEmpty()) return ""
@@ -620,12 +700,29 @@ class EditHabitActivity : FlowActivity() {
         return if (end == BreakIterator.DONE) "" else trimmed.substring(0, end)
     }
 
-    private fun getFormattedValidationError(@StringRes resId: Int): Spanned {
-        val html = "<font color=#FFFFFF>${getString(resId)}</font>"
-        return Html.fromHtml(html)
+    private fun draftSignature() = listOf(
+        binding.nameInput.text.toString(), binding.questionInput.text.toString(),
+        binding.notesInput.text.toString(), binding.unitInput.text.toString(),
+        binding.targetInput.text.toString(), icon, color.paletteIndex.toString(),
+        freqNum.toString(), freqDen.toString(), reminderHour.toString(), reminderMin.toString(),
+        reminderDays.toInteger().toString(), targetType.value.toString(),
+        binding.skipsCountTowardsStreaks.isChecked.toString()
+    ).joinToString("\u0000")
+
+    private fun requestDiscard() {
+        if (saving || draftSignature() == initialDraft) {
+            finish()
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.flow_unsaved_changes_title)
+            .setMessage(R.string.flow_unsaved_changes_message)
+            .setNegativeButton(R.string.flow_keep_editing, null)
+            .setPositiveButton(R.string.flow_discard) { _, _ -> finish() }
+            .show()
     }
 
-    /** A habit-coloured emoji preview used by the icon picker row. */
+    // Draw the selected icon over a faint circle using the habit color
     private class EmojiCircleDrawable(
         private val emoji: String,
         color: Int,
@@ -672,6 +769,14 @@ class EditHabitActivity : FlowActivity() {
             putInt("reminderMin", reminderMin)
             putInt("reminderDays", reminderDays.toInteger())
             putString("icon", icon)
+            putString("initialDraft", initialDraft)
+            putInt("targetType", targetType.value)
+            putString("draftName", binding.nameInput.text.toString())
+            putString("draftQuestion", binding.questionInput.text.toString())
+            putString("draftNotes", binding.notesInput.text.toString())
+            putString("draftUnit", binding.unitInput.text.toString())
+            putString("draftTarget", binding.targetInput.text.toString())
+            putBoolean("skipsCountTowardsStreaks", binding.skipsCountTowardsStreaks.isChecked)
         }
     }
 }

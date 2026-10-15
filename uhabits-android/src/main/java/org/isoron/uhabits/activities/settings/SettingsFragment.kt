@@ -50,6 +50,7 @@ import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
+import org.isoron.uhabits.activities.about.AboutActivity
 import org.isoron.uhabits.activities.habits.list.RESULT_BUG_REPORT
 import org.isoron.uhabits.activities.habits.list.RESULT_EXPORT_CSV
 import org.isoron.uhabits.activities.habits.list.RESULT_EXPORT_DB
@@ -86,6 +87,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                 val uri = data?.data ?: return
                 val flags =
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                // Keep access to the chosen backup folder after the app restarts
                 requireContext().contentResolver.takePersistableUriPermission(uri, flags)
                 sharedPrefs?.edit()?.putString("publicBackupFolder", uri.toString())?.apply()
                 updatePublicBackupFolderSummary()
@@ -111,7 +113,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     override fun onCreatePreferences(bundle: Bundle?, s: String?) {
-        // NOP
+        // Preferences are loaded in onCreate to use the shared application setup
     }
 
     override fun onPause() {
@@ -160,6 +162,10 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         val key = preference.key ?: return false
         when (key) {
+            "about" -> {
+                startActivity(Intent(requireContext(), AboutActivity::class.java))
+                return true
+            }
             "reminderSound" -> {
                 showRingtonePicker()
                 return true
@@ -226,6 +232,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         updatePublicBackupFolderSummary()
         updateNowbarPreferences()
 
+        // Sound customization uses the Android notification channel settings
         findPreference("reminderSound").isVisible = false
     }
 
@@ -248,6 +255,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             Log.d("SettingsFragment", "updating widgets")
             widgetUpdater!!.updateWidgets()
         }
+        // Apply check in preference changes to pending alarms immediately
         if (key == HabitCheckInManager.KEY_ENABLED || key == HabitCheckInManager.KEY_TIME) {
             updateNowbarPreferences()
             (requireContext().applicationContext as HabitsApplication).checkInManager.configure()

@@ -116,13 +116,20 @@ class CheckmarkButtonView(
         return true
     }
 
+    override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.className = "android.widget.CheckBox"
+        info.isCheckable = true
+        info.isChecked = value == YES_MANUAL || value == YES_AUTO
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         drawer.draw(canvas)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val height = resources.getDimensionPixelSize(R.dimen.checkmarkHeight)
+        val height = (resources.getDimension(R.dimen.checkmarkHeight) * maxOf(1f, resources.configuration.fontScale)).toInt()
         val width = resources.getDimensionPixelSize(R.dimen.checkmarkWidth)
         super.onMeasure(
             width.toMeasureSpec(EXACTLY),

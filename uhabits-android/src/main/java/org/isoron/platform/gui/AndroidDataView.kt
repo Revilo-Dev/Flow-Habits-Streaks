@@ -21,6 +21,8 @@ package org.isoron.platform.gui
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -31,13 +33,14 @@ import kotlin.math.max
 /**
  * An AndroidView that implements scrolling.
  */
-class AndroidDataView(
+open class AndroidDataView(
     context: Context,
     attrs: AttributeSet? = null
 ) : AndroidView<DataView>(context, attrs),
     GestureDetector.OnGestureListener,
     ValueAnimator.AnimatorUpdateListener {
 
+    private var restoredOffset: Int? = null
     private val detector = GestureDetector(context, this)
     private val scroller = Scroller(context, null, true)
     private val scrollAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
@@ -45,7 +48,51 @@ class AndroidDataView(
     }
 
     override fun onTouchEvent(event: MotionEvent) = detector.onTouchEvent(event)
-    override fun onDown(e: MotionEvent) = true
+    var lastTouchX: Float = 0f
+        private set
+    var lastTouchY: Float = 0f
+        private set
+
+    protected fun setInteractionPoint(x: Float, y: Float) {
+        lastTouchX = x
+        lastTouchY = y
+    }
+
+    override fun onDraw(canvas: android.graphics.Canvas) {
+        restoredOffset?.let { offset -> view?.dataOffset = offset }
+        super.onDraw(canvas)
+        if (view != null && restoredOffset != null) {
+            alignScrollerWithView()
+            restoredOffset = null
+        }
+    }
+
+    override fun onSaveInstanceState(): Parcelable = Bundle().apply {
+        putParcelable("parent", super.onSaveInstanceState())
+        putInt("dataOffset", view?.dataOffset ?: restoredOffset ?: 0)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state is Bundle) {
+            restoredOffset = state.getInt("dataOffset")
+            super.onRestoreInstanceState(state.getParcelable("parent"))
+        } else {
+            super.onRestoreInstanceState(state)
+        }
+    }
+
+    private fun alignScrollerWithView() {
+        val chart = view ?: return
+        val x = (chart.dataOffset * chart.dataColumnWidth * resources.displayMetrics.density).toInt()
+        scroller.startScroll(x, 0, 0, 0, 0)
+        scroller.forceFinished(true)
+    }
+
+    override fun onDown(e: MotionEvent): Boolean {
+        scrollAnimator.cancel()
+        alignScrollerWithView()
+        return true
+    }
     override fun onShowPress(e: MotionEvent) = Unit
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
@@ -131,13 +178,12 @@ class AndroidDataView(
         val x: Float
         val y: Float
         try {
-            val pointerId = e.getPointerId(0)
-            x = e.getX(pointerId)
-            y = e.getY(pointerId)
+            x = e.getX(0)
+            y = e.getY(0)
+            lastTouchX = x
+            lastTouchY = y
         } catch (ex: RuntimeException) {
-            // Android often throws IllegalArgumentException here. Apparently,
-            // the pointer id may become invalid shortly after calling
-            // e.getPointerId.
+            // Ignore taps whose pointer is no longer available
             return false
         }
         if (isSingleTap) {

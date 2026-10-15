@@ -25,6 +25,7 @@ import android.util.Log
 import me.tatarka.inject.annotations.Component
 import org.isoron.platform.time.computeToday
 import org.isoron.platform.time.setToday
+import org.isoron.uhabits.BuildConfig
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.core.ui.widgets.WidgetBehavior
 import org.isoron.uhabits.inject.HabitsApplicationComponent
@@ -114,11 +115,11 @@ class WidgetReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val ACTION_ADD_REPETITION = "dev.revilodev.flow.ACTION_ADD_REPETITION"
-        const val ACTION_DISMISS_REMINDER = "dev.revilodev.flow.ACTION_DISMISS_REMINDER"
-        const val ACTION_REMOVE_REPETITION = "dev.revilodev.flow.ACTION_REMOVE_REPETITION"
-        const val ACTION_TOGGLE_REPETITION = "dev.revilodev.flow.ACTION_TOGGLE_REPETITION"
-        const val ACTION_UPDATE_WIDGETS_VALUE = "dev.revilodev.flow.ACTION_UPDATE_WIDGETS_VALUE"
+        const val ACTION_ADD_REPETITION = BuildConfig.APPLICATION_ID + ".ACTION_ADD_REPETITION"
+        const val ACTION_DISMISS_REMINDER = BuildConfig.APPLICATION_ID + ".ACTION_DISMISS_REMINDER"
+        const val ACTION_REMOVE_REPETITION = BuildConfig.APPLICATION_ID + ".ACTION_REMOVE_REPETITION"
+        const val ACTION_TOGGLE_REPETITION = BuildConfig.APPLICATION_ID + ".ACTION_TOGGLE_REPETITION"
+        const val ACTION_UPDATE_WIDGETS_VALUE = BuildConfig.APPLICATION_ID + ".ACTION_UPDATE_WIDGETS_VALUE"
         private const val TAG = "WidgetReceiver"
         var lastReceivedIntent: Intent? = null
             private set

@@ -1,88 +1,148 @@
-# Build the project
+# Building Flow
 
-This page describes how to download and build the app from the source code. If you are having trouble building the project, please do not hesitate to open a new issue.
+Run commands from the repository root. This guide describes Flow's current Gradle configuration, not the upstream Loop release process.
 
-## Contents
+## Required tools
 
-* [Build using Android Studio](#build-using-android-studio)
-* [Build from the command line](#build-from-the-command-line)
+| Tool | Checked-in requirement |
+| --- | --- |
+| Java | JDK 17 for the configured JVM toolchains |
+| Gradle | Use the included wrapper, pinned to 8.11.1 |
+| Android Gradle Plugin | 8.9.2 |
+| Kotlin | 2.3.20 |
+| Android SDK | Compile SDK 36 and target SDK 36 |
+| Supported devices | Android 6.0 / API 23 or later |
+| Android Studio | An installation able to open the configured Android Gradle Plugin project |
+| Browser | Chrome or Chromium when running the core browser tests |
 
-## Build using Android Studio
+Plugin and library versions live in [gradle/libs.versions.toml](../gradle/libs.versions.toml). SDK levels, application identity, and release settings live in [uhabits-android/build.gradle.kts](../uhabits-android/build.gradle.kts).
 
-### Step 1: Install git
+Install SDK platform 36, platform tools, and the build tools requested during Gradle sync. For emulator tests also install the emulator and an appropriate system image. An initial build needs network access to obtain dependencies that are not already cached.
 
-The package `git` is required for downloading the source code of the app and submitting changes to GitHub. Please see [the git book](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) for further instructions. If you are planning to submit pull requests in the future, it is recommended to [generate and configure your SSH keys](https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+## Android Studio
 
-### Step 2: Download and install Android Studio
+1. Clone this Flow repository and open its root directory.
+2. Configure the Gradle JDK and Java 17 toolchain. Set a valid local SDK location through Android Studio.
+3. Sync the project and install any missing SDK components reported by the IDE.
+4. Choose the `uhabits-android` run configuration.
+5. Run on an emulator or device with API 23 or later.
 
-Although Android Studio can be downloaded [from their official website](https://developer.android.com/studio/), a much better option is to install it through [JetBrains Toolbox](https://www.jetbrains.com/toolbox-app/). This tool, developed by the same developers of Android Studio, allows you to easily upgrade and downgrade the IDE, or switch between stable, beta and canary versions. After downloading and installing JetBrains Toolbox, simply click the install button near Android Studio to install the newest stable version of IDE. Beta and canary versions have not been tested and may not work correctly.
+The Android namespace and existing classes use `org.isoron.uhabits`. Release Flow uses `dev.revilodev.flow`; the debug variant uses `dev.revilodev.flow.debug` and the launcher name **Flow Test**. Debug storage, provider authority, reminder and widget action names, and settings navigation are isolated from the release app. Do not replace the application ID with the source namespace.
 
-After installation, launch Android Studio. If this is the first time you launch it, you will need to go through a wizard to setup the IDE. The default options should work fine. The wizard will download all additional components necessary for development, including the emulator, so it may take a while.
+## Command line setup
 
-### Step 3: Download the source code
+Set `JAVA_HOME` to a valid JDK 17 installation. Make the Android SDK available through your environment or a local `local.properties` containing `sdk.dir`. Do not commit machine-specific paths.
 
-To create a complete copy of the source code repository, open the terminal (Linux/macOS) or Git Bash (Windows), navigate to the desired folder, then run:
-```bash
-git clone https://github.com/iSoron/uhabits.git
-```
-The repository will be downloaded to the directory `uhabits`.
+For example, if the SDK is installed in the usual Windows user directory:
 
-### Step 4: Open and run the project on Android Studio
-
-1. Launch Android Studio and select "Open an existing Android Studio project".
-2. When the IDE asks you for the project location, select `uhabits` and click "Ok".
-3. Android Studio will spend some time indexing the project. When this is complete, click the toolbar icon "Sync Project with Gradle File", located near the right corner of the top toolbar.
-4. The operation will likely fail several times due to missing Android SDK components. Each time it fails, click the link "Install missing platforms", "Install build tools", etc, and try again.
-5. To test the application, create a virtual Android device using the menu "Tools" and "AVD Manager". The default options should work fine, but feel free to customize the device.
-6. Click the menu "Run" and "uhabits-android". The application should launch.
-
-
-## Build from the command line
-
-The following instructions were tested on **Ubuntu Linux 24.04 LTS** and may need to be modified for other operating systems.
-
-### Step 1: Install basic packages
-
-To build the application, some basic packages are required. The package `git` is required to download the source code, while `openjdk-17-jdk-headless` is required for compiling Java and Kotlin files.
-
-```bash
-sudo apt-get update
-sudo apt-get install -y git openjdk-17-jdk-headless
+```powershell
+$env:ANDROID_HOME = Join-Path $env:LOCALAPPDATA "Android\Sdk"
+$env:Path = "$env:ANDROID_HOME\platform-tools;$env:Path"
 ```
 
-**IMPORTANT:** Newer JDK versions have not been tested and may not work correctly.
+On Linux or macOS, use the actual installed SDK path:
 
-### Step 2: Install Android SDK tools
-
-The Android SDK tools contain many of the necessary tools for developing and debugging Android applications. They can be obtained as part of Android Studio, but, for simple command line usage, it is recommended to install the **command-line tools** directly, since that is what `build.sh` and the CI pipeline expect.
-
-1. Download the latest `commandlinetools-linux-*.zip` from <https://developer.android.com/studio#command-line-tools-only>, and extract it to `/opt/android-sdk/cmdline-tools/latest` so that the script `/opt/android-sdk/cmdline-tools/latest/bin/sdkmanager` exists.
-
-2. Append the following lines to `~/.profile`, so that other tools can locate your Android SDK installation. It is necessary to restart your terminal for these changes to take effect.
-```bash
-export ANDROID_HOME="/opt/android-sdk"
-export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
-export PATH="$PATH:$ANDROID_HOME/platform-tools"
+```sh
+export ANDROID_HOME=/path/to/android-sdk
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 ```
 
-3. Accept all Android SDK licenses by running:
-```bash
-yes | sdkmanager --licenses
+Accept the required Android SDK licenses through Android Studio or `sdkmanager --licenses`.
+
+## Build tasks
+
+| Task | Result |
+| --- | --- |
+| `:uhabits-android:assembleDebug` | Debug APK signed with the local debug key |
+| `:uhabits-android:assembleRelease` | Release APK with minification |
+| `:uhabits-android:bundleRelease` | Release Android App Bundle |
+| `:uhabits-core:jvmTest` | Shared and JVM core tests |
+| `:uhabits-android:testDebugUnitTest` | Android module JVM tests |
+| `ktlintCheck` | Kotlin formatting checks |
+| `:uhabits-android:connectedDebugAndroidTest` | Android instrumented tests on a connected emulator |
+
+Windows:
+
+```powershell
+.\gradlew.bat :uhabits-android:assembleDebug
 ```
 
-### Step 3: Download the source code
+Linux or macOS:
 
-To create a complete copy of the source code repository, navigate to your home directory and run:
-```bash
-git clone https://github.com/iSoron/uhabits.git
+```sh
+./gradlew :uhabits-android:assembleDebug
 ```
-The repository will be downloaded to the directory `uhabits`.
 
-### Step 4: Compile the source code
+Use `--stacktrace` to diagnose failures. Use `--offline` only when the required Gradle distribution, plugins, toolchains, and dependencies are already present locally.
 
-1. Navigate to the directory `uhabits`
-2. Run `./gradlew assembleDebug --stacktrace`
+The current build sets `versionName` to `1.0.0` and `versionCode` to `20304`. APK names follow `Flow-Habits-Streaks-v<versionName>-<variant>.apk`:
 
-If the compilation is successful, a debug APK will be generated somewhere inside the folder `uhabits-android/build/`. Currently, the full path is `./uhabits-android/build/outputs/apk/debug/uhabits-android-debug.apk`, but it may change in the future.
+| Output | Current path |
+| --- | --- |
+| Debug APK | `uhabits-android/build/outputs/apk/debug/Flow-Habits-Streaks-v1.0.0-debug.apk` |
+| Release APK | `uhabits-android/build/outputs/apk/release/Flow-Habits-Streaks-v1.0.0-release.apk` |
+| Release bundle | `uhabits-android/build/outputs/bundle/release/uhabits-android-release.aab` |
 
-The APK can be installed using the tool `adb`, which should have been automatically installed at `/opt/android-sdk/platform-tools/adb` during compilation of the project.
+A file under `uhabits-android/release/` is an existing artifact, not proof that a fresh build succeeded.
+
+To install the current debug output after enabling device debugging:
+
+```powershell
+adb install -r uhabits-android/build/outputs/apk/debug/Flow-Habits-Streaks-v1.0.0-debug.apk
+```
+
+## Keeping existing app data
+
+Debug builds install as Flow Test beside the existing Flow app. Updating Flow Test with the same local debug key retains its own data. It does not replace, import, or erase the release app database. To try existing habits, export a full database backup from Flow and import that copy into Flow Test.
+
+If Android reports `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, the installed package and the APK use different signing certificates. Do not uninstall the installed app or clear its data as a workaround. A direct update of the same package needs its existing app signing key. A Google Play installation normally needs an update delivered through the same Play app; the upload key and the Play app signing key can differ. See [Android app signing](https://developer.android.com/studio/publish/app-signing).
+
+Keep the existing Play app on `dev.revilodev.flow`. Creating Flow Test changes only the debug application ID, not the release identity or signing keys. A real Play update also needs a version code higher than the versions already uploaded to that Play app.
+
+## Release signing
+
+The build creates its release signing configuration when `LOOP_KEY_ALIAS` is present. These inherited environment variable names remain in use:
+
+| Variable | Meaning |
+| --- | --- |
+| `LOOP_KEY_ALIAS` | Signing key alias |
+| `LOOP_KEY_PASSWORD` | Key password |
+| `LOOP_KEY_STORE` | Path to the keystore |
+| `LOOP_STORE_PASSWORD` | Keystore password |
+
+Configure all four together outside tracked files. Without them, a release build does not have the configured private release signature. Building an artifact does not publish it.
+
+## Shared core and browser target
+
+The core is Kotlin Multiplatform with JVM and JavaScript browser targets. JavaScript dependencies include SQL.js, sprintf-js, and JSZip. Browser tests use Karma and headless Chrome.
+
+```powershell
+.\gradlew.bat :uhabits-core:jvmTest
+.\gradlew.bat :uhabits-core:jsBrowserTest
+```
+
+A full core build can also run browser tasks and provision JavaScript tooling. Choose the narrower JVM test task when browser coverage is not required. See [TEST.md](TEST.md) for test locations and fixtures.
+
+## Inherited build script
+
+`build.sh` is an upstream Bash helper with emulator setup, parallel emulator tests, logging, and screenshot collection. It is not the preferred entry point for the current Flow build.
+
+Its implementation still hardcodes the upstream package `org.isoron.uhabits`, expects APK filenames such as `uhabits-android-debug.apk`, and copies files using Loop names. These do not match Flow's application ID and renamed APK outputs. Its release path also expects a local `.secret/env` file. Do not use its build, install, or test paths without reviewing and adapting those assumptions.
+
+The script also requires Unix tools such as `flock`, `timeout`, `ts`, `rsync`, `pgrep`, and `pkill`. It manages and terminates its own named emulator processes. Gradle's direct tasks avoid those script-specific requirements.
+
+## Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| Java cannot be launched | Make sure JAVA_HOME names an existing JDK directory rather than an old installation |
+| Java 17 toolchain missing | Install JDK 17 and make it discoverable to Gradle |
+| Missing SDK or platform | Configure sdk.dir or ANDROID_HOME and install SDK platform 36 |
+| Dependency unavailable offline | Run with network access once to populate the cache |
+| Gradle lock access denied | Check access to the configured user Gradle cache and other processes holding the lock |
+| Browser executable missing | Install Chrome or Chromium and configure CHROME_BIN when needed |
+| Update rejected due to a different signature | Use Flow Test for local testing or the original signing route for an in-place release update; keep the installed app and data |
+| Helper script cannot find the APK | Use the renamed Flow output paths and direct Gradle tasks |
+| Formatting check fails | Inspect the reported files before applying a formatter; avoid unrelated rewrites |
+
+Do not change dependencies or checked-in build settings merely to work around a local environment issue. Report the exact failing task and distinguish missing tools from a compilation or test failure.

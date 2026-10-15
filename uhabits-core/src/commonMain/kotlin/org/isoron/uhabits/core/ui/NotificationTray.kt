@@ -119,6 +119,7 @@ open class NotificationTray(
 
         override fun onPostExecute() {
             systemTray.log("Showing notification for habit=" + habit.id)
+            // Keep at most reminders eligible because more entries can still change the result
             if (isCompleted && habit.targetType != NumericalHabitType.AT_MOST) {
                 systemTray.log("Habit ${habit.id} already checked. Skipping.")
                 return

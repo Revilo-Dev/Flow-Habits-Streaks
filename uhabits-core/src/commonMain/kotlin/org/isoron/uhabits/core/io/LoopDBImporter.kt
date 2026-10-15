@@ -40,9 +40,7 @@ import org.isoron.uhabits.core.models.ModelFactory
 import org.isoron.uhabits.core.models.sqlite.SQLiteHabitList
 import org.isoron.uhabits.core.utils.isSQLite3File
 
-/**
- * Class that imports data from database files exported by Loop Habit Tracker.
- */
+// Import compatible Flow and Loop databases into the current habit list
 @Inject
 class LoopDBImporter(
     @AppScope val habitList: HabitList,
@@ -83,6 +81,7 @@ class LoopDBImporter(
 
         val habitDataList = loadHabits(db)
         for (habitData in habitDataList) {
+            // Use the stable habit identity to update matching habits during import
             var habit = habitList.getByUUID(habitData.uuid)
 
             if (habit == null) {
@@ -108,6 +107,7 @@ class LoopDBImporter(
                 val notes = stmt.getTextOrNull(2) ?: ""
                 val date = LocalDate.fromUnixTime(timestamp)
                 val (_, existingValue, existingNotes) = entries.get(date)
+                // Imported answers replace matching dates while other dates remain intact
                 if (existingValue != value || existingNotes != notes) {
                     entries.add(Entry(date, value, notes))
                 }
@@ -123,7 +123,7 @@ class LoopDBImporter(
         db.query(
             "SELECT id, name, description, question, freq_num, freq_den, color, " +
                 "position, reminder_hour, reminder_min, reminder_days, highlight, " +
-                "archived, type, target_value, target_type, unit, uuid, icon " +
+                "archived, type, target_value, target_type, unit, uuid, icon, skips_count_towards_streaks " +
                 "FROM Habits ORDER BY position"
         ) { stmt ->
             result.add(
@@ -146,7 +146,8 @@ class LoopDBImporter(
                     targetType = stmt.getIntOrNull(15) ?: 0,
                     unit = stmt.getTextOrNull(16) ?: "",
                     uuid = stmt.getTextOrNull(17),
-                    icon = stmt.getTextOrNull(18) ?: ""
+                    icon = stmt.getTextOrNull(18) ?: "",
+                    skipsCountTowardsStreaks = stmt.getIntOrNull(19) ?: 0
                 )
             )
         }

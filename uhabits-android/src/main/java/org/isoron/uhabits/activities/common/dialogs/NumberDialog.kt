@@ -19,34 +19,43 @@ import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
-import java.text.ParseException
+import kotlin.math.roundToInt
 
 class NumberDialog : AppCompatDialogFragment() {
 
-    var onToggle: (Double, String) -> Unit = { _, _ -> }
+    var onToggle: ((Double, String) -> Unit)? = null
     var onDismiss: () -> Unit = {}
 
     private var originalNotes: String = ""
     private var originalValue: Double = 0.0
+    private var valueEdited = false
     private lateinit var view: CheckmarkPopupBinding
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val appComponent = (requireActivity().application as HabitsApplication).component
         val prefs = appComponent.preferences
         view = CheckmarkPopupBinding.inflate(LayoutInflater.from(context))
+        view.prepareEntryActions(requireActivity(), requireArguments())
         if (!prefs.isSkipEnabled) view.skipBtnNumber.visibility = View.GONE
+        view.valueLabel.visibility = View.VISIBLE
         view.numberButtons.visibility = View.VISIBLE
         view.numberFooter.visibility = View.VISIBLE
         fixDecimalSeparator(view)
         originalNotes = requireArguments().getString("notes")!!
         originalValue = requireArguments().getDouble("value")
-        view.notes.setText(originalNotes)
+        view.notes.setText(savedInstanceState?.getString("draftNotes") ?: originalNotes)
         view.value.setText(
-            when {
-                originalValue < 0.01 -> "0"
+            savedInstanceState?.getString("draftValue") ?: when {
+                originalValue == Entry.UNKNOWN / 1000.0 || originalValue == Entry.SKIP / 1000.0 -> ""
                 else -> DecimalFormat("#.##").format(originalValue)
             }
         )
+        valueEdited = savedInstanceState?.getBoolean("valueEdited") ?: false
+        view.value.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { valueEdited = true }
+            override fun afterTextChanged(s: android.text.Editable?) = Unit
+        })
         view.value.setOnKeyListener { _, keyCode, event ->
             if (event.action == MotionEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 save()
@@ -61,13 +70,17 @@ class NumberDialog : AppCompatDialogFragment() {
             requireDialog().dismiss()
         }
         view.skipBtnNumber.setOnClickListener {
-            onToggle(Entry.SKIP.toDouble() / 1000, view.notes.text.toString().trim())
+            submit(Entry.SKIP.toDouble() / 1000, view.notes.text.toString().trim())
             requireDialog().dismiss()
         }
 
-        view.notes.setOnEditorActionListener { v, actionId, event ->
-            save()
-            true
+        view.notes.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                save()
+                true
+            } else {
+                false
+            }
         }
         view.value.requestFocusWithKeyboard()
         val dialog = Dialog(requireContext())
@@ -86,35 +99,59 @@ class NumberDialog : AppCompatDialogFragment() {
     }
 
     private fun fixDecimalSeparator(view: CheckmarkPopupBinding) {
-        // https://stackoverflow.com/a/34256139
+        // Accept the decimal separator used by the current locale
         val separator = DecimalFormatSymbols.getInstance().decimalSeparator
         view.value.keyListener = DigitsKeyListener.getInstance("0123456789$separator")
 
-        // https://github.com/flutter/flutter/issues/61175
+        // Some keyboards need text input to allow the local decimal separator
         val currKeyboard = Settings.Secure.getString(
             requireContext().contentResolver,
             Settings.Secure.DEFAULT_INPUT_METHOD
         )
-        if (currKeyboard.contains("swiftkey") || currKeyboard.contains("samsung")) {
+        if (currKeyboard.orEmpty().contains("swiftkey") || currKeyboard.orEmpty().contains("samsung")) {
             view.value.inputType = EditorInfo.TYPE_CLASS_TEXT
         }
     }
 
-    fun save() {
-        var value = originalValue
-        try {
-            val numberFormat = NumberFormat.getInstance()
-            val valueStr = view.value.text.toString()
-            value = if (valueStr.isNotEmpty()) {
-                numberFormat.parse(valueStr)!!.toDouble()
-            } else {
-                Entry.UNKNOWN.toDouble() / 1000
-            }
-        } catch (e: ParseException) {
-            // NOP
+    override fun onStart() {
+        super.onStart()
+        requireDialog().prepareEntryWindow(requireActivity())
+    }
+
+    override fun onSaveInstanceState(state: Bundle) {
+        super.onSaveInstanceState(state)
+        if (::view.isInitialized) {
+            state.putString("draftNotes", view.notes.text.toString())
+            state.putString("draftValue", view.value.text.toString())
+            state.putBoolean("valueEdited", valueEdited)
         }
-        val notes = view.notes.text.toString().trim()
-        onToggle(value, notes)
+    }
+
+    private fun submit(value: Double, notes: String) {
+        val callback = onToggle
+        if (callback != null) {
+            callback(value, notes)
+        } else {
+            requireArguments().saveRestoredEntry(requireContext(), (value * 1000).roundToInt(), notes)
+        }
+    }
+
+    fun save() {
+        val text = view.value.text.toString().trim()
+        val position = java.text.ParsePosition(0)
+        val parsed = when {
+            text.isEmpty() && !valueEdited && originalValue == Entry.SKIP / 1000.0 -> originalValue
+            text.isEmpty() -> Entry.UNKNOWN / 1000.0
+            else -> NumberFormat.getInstance().parse(text, position)?.toDouble()
+        }
+        if (parsed == null || !parsed.isFinite() ||
+            (text.isNotEmpty() && (position.index != text.length || parsed < 0 || parsed > Int.MAX_VALUE / 1000.0))
+        ) {
+            view.value.error = getString(R.string.flow_invalid_number)
+            view.value.requestFocus()
+            return
+        }
+        submit(parsed, view.notes.text.toString().trim())
         requireDialog().dismiss()
     }
 }

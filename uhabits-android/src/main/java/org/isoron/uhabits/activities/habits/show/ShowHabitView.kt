@@ -24,34 +24,34 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.view.Gravity
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.google.android.material.appbar.AppBarLayout
 import org.isoron.platform.gui.toInt
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.ShowHabitState
 import org.isoron.uhabits.databinding.ShowHabitBinding
-import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.bindFlowHeader
-import kotlin.math.abs
 
 class ShowHabitView(context: Context) : FrameLayout(context) {
     private val binding = ShowHabitBinding.inflate(LayoutInflater.from(context))
+
+    val historyChartView get() = binding.historyCard.chartView
 
     private var headerCollapsed = false
     private var contentScrolled = false
@@ -60,7 +60,7 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         textSize = 20f
     }
     private val compactName = TextView(context).apply {
-        setTextAppearance(R.style.TextAppearance_Flow_Body)
+        setTextAppearance(R.style.TextAppearance_Flow_CompactTitle)
         setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
         maxLines = 1
         ellipsize = android.text.TextUtils.TruncateAt.END
@@ -70,9 +70,12 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         orientation = LinearLayout.HORIZONTAL
         val size = (36 * resources.displayMetrics.density).toInt()
         addView(compactIcon, LinearLayout.LayoutParams(size, size))
-        addView(compactName, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply {
-            marginStart = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
-        })
+        addView(
+            compactName,
+            LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply {
+                marginStart = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+            }
+        )
         visibility = GONE
     }
     init {
@@ -93,9 +96,14 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
             view.setPadding(0, contentTop, 0, contentBottom + maxOf(bars.bottom, keyboard.bottom))
             insets
         }
-        binding.toolbar.addView(compactIdentity, androidx.appcompat.widget.Toolbar.LayoutParams(
-            MATCH_PARENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
-        ))
+        binding.toolbar.addView(
+            compactIdentity,
+            androidx.appcompat.widget.Toolbar.LayoutParams(
+                MATCH_PARENT,
+                WRAP_CONTENT,
+                Gravity.START or Gravity.CENTER_VERTICAL
+            )
+        )
         binding.appBar.bindFlowHeader(binding.toolbar, compact = true) { collapsed, scrolled ->
             binding.largeHeader.visibility = if (collapsed) INVISIBLE else VISIBLE
             compactIdentity.visibility = if (collapsed) VISIBLE else GONE
@@ -156,15 +164,20 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         binding.frequencyCard.setState(data.frequency)
         binding.historyCard.setState(data.history)
         binding.barCard.setState(data.bar)
+        // Numerical habits show target totals while boolean habits show an overview
         binding.overviewCard.visibility = if (data.isNumerical) GONE else VISIBLE
         binding.targetCard.visibility = if (data.isNumerical) VISIBLE else GONE
-        binding.largeHeader.minimumHeight = resources.getDimensionPixelSize(
-            if (data.isNumerical) {
-                R.dimen.flow_header_content_numerical_min_height
-            } else {
-                R.dimen.flow_header_content_min_height
-            }
-        )
+        binding.largeHeader.minimumHeight = if (resources.configuration.screenHeightDp < 480) {
+            0
+        } else {
+            resources.getDimensionPixelSize(
+                if (data.isNumerical) {
+                    R.dimen.flow_header_content_numerical_min_height
+                } else {
+                    R.dimen.flow_header_content_min_height
+                }
+            )
+        }
         binding.largeHeader.requestLayout()
 
         val cardElevation = if (isLight) dim(R.dimen.flow_card_elevation) else 0f
@@ -181,6 +194,13 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         ).forEach {
             it.clipToOutline = true
             ViewCompat.setElevation(it, cardElevation)
+        }
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        if (h / resources.displayMetrics.density < 480) {
+            binding.appBar.setExpanded(false, false)
         }
     }
 

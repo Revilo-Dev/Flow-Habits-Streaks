@@ -23,6 +23,7 @@ import android.content.Context
 import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
+import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Entry.Companion.UNKNOWN
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.inject.ActivityContext
@@ -41,6 +42,12 @@ class CheckmarkPanelView(
     preferences: Preferences,
     private val buttonFactory: CheckmarkButtonViewFactory
 ) : ButtonPanelView<CheckmarkButtonView>(context, preferences) {
+
+    var habitName = ""
+        set(value) {
+            field = value
+            setupButtons()
+        }
 
     var values = IntArray(0)
         set(values) {
@@ -89,6 +96,18 @@ class CheckmarkPanelView(
                 else -> ""
             }
             button.color = color
+            val status = resources.getString(
+                when (button.value) {
+                    org.isoron.uhabits.core.models.Entry.YES_MANUAL -> R.string.flow_calendar_completed
+                    org.isoron.uhabits.core.models.Entry.YES_AUTO -> R.string.flow_calendar_scheduled
+                    org.isoron.uhabits.core.models.Entry.SKIP -> R.string.flow_calendar_skipped
+                    org.isoron.uhabits.core.models.Entry.NO -> R.string.flow_calendar_missed
+                    else -> R.string.flow_calendar_unrecorded
+                }
+            )
+            val formatter = java.text.DateFormat.getDateInstance().apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
+            button.contentDescription = resources.getString(R.string.flow_checkin_description, habitName, formatter.format(java.util.Date(date.unixTime)), status)
+            androidx.core.view.ViewCompat.setStateDescription(button, status)
             button.onToggle = { value, notes -> onToggle(date, value, notes) }
             button.onEdit = { onEdit(date) }
         }

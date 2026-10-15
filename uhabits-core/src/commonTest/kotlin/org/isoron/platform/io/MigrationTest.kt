@@ -8,7 +8,7 @@ class MigrationTest {
     @Test
     fun testMigrateFromScratch() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
-        assertEquals(26, db.getVersion())
+        assertEquals(27, db.getVersion())
 
         db.run(
             """
@@ -23,10 +23,11 @@ class MigrationTest {
             """
         )
 
-        val stmt = db.prepareStatement("select name, icon from Habits where id = 1")
+        val stmt = db.prepareStatement("select name, icon, skips_count_towards_streaks from Habits where id = 1")
         assertEquals(StepResult.ROW, stmt.step())
         assertEquals("Test", stmt.getText(0))
         assertEquals("", stmt.getText(1))
+        assertEquals(0, stmt.getInt(2))
         stmt.finalize()
 
         db.close()
@@ -38,6 +39,24 @@ class MigrationTest {
         val version = db.getVersion()
         db.migrateTo(version) { v -> TestDatabaseHelper.loadMigrationSQL(v) }
         assertEquals(version, db.getVersion())
+        db.close()
+    }
+
+    @Test
+    fun legacyHabitsKeepTheirDataAndDefaultToUncountedSkips() = runTest {
+        val db = TestDatabaseHelper.createEmptyDatabase()
+        db.run("ALTER TABLE Habits DROP COLUMN skips_count_towards_streaks")
+        db.setVersion(26)
+        db.run("INSERT INTO Habits(name, icon) VALUES ('Walking', 'W')")
+
+        db.migrateTo(27) { version -> TestDatabaseHelper.loadMigrationSQL(version) }
+
+        val stmt = db.prepareStatement("SELECT name, icon, skips_count_towards_streaks FROM Habits")
+        assertEquals(StepResult.ROW, stmt.step())
+        assertEquals("Walking", stmt.getText(0))
+        assertEquals("W", stmt.getText(1))
+        assertEquals(0, stmt.getInt(2))
+        stmt.finalize()
         db.close()
     }
 }

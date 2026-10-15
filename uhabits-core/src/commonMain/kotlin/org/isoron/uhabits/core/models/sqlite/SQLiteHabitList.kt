@@ -34,9 +34,7 @@ import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.core.models.memory.MemoryHabitList
 
-/**
- * Implementation of a [HabitList] that is backed by SQLite.
- */
+// Persist habit changes in SQLite while keeping the displayed list in memory
 @Inject
 class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
     private val repository: HabitRepository = (modelFactory as SQLModelFactory).habitRepository
@@ -56,6 +54,7 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
             (h.originalEntries as SQLiteEntryList).habitId = h.id
             list.add(h)
         }
+        // Repair gaps in saved positions before using manual order
         if (shouldRebuildOrder) rebuildOrder()
     }
 
@@ -232,7 +231,8 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
                 targetType = habit.targetType.value,
                 unit = habit.unit,
                 uuid = habit.uuid,
-                icon = habit.icon
+                icon = habit.icon,
+                skipsCountTowardsStreaks = if (habit.skipsCountTowardsStreaks) 1 else 0
             )
         }
 
@@ -251,6 +251,7 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
             habit.position = data.position
             habit.uuid = data.uuid
             habit.icon = data.icon
+            habit.skipsCountTowardsStreaks = data.skipsCountTowardsStreaks != 0
             if (data.reminderHour != null && data.reminderMin != null) {
                 habit.reminder = Reminder(
                     data.reminderHour!!,

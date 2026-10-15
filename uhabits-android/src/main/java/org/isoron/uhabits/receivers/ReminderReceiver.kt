@@ -27,15 +27,11 @@ import android.os.Build.VERSION.SDK_INT
 import android.util.Log
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
+import org.isoron.uhabits.BuildConfig
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.core.models.Habit
 
-/**
- * The Android BroadcastReceiver for Loop Habit Tracker.
- *
- *
- * All broadcast messages are received and processed by this class.
- */
+// Route reminder actions and restore schedules after clock timezone or boot changes
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
@@ -106,9 +102,9 @@ class ReminderReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val ACTION_DISMISS_REMINDER = "dev.revilodev.flow.ACTION_DISMISS_REMINDER"
-        const val ACTION_SHOW_REMINDER = "dev.revilodev.flow.ACTION_SHOW_REMINDER"
-        const val ACTION_SNOOZE_REMINDER = "dev.revilodev.flow.ACTION_SNOOZE_REMINDER"
+        const val ACTION_DISMISS_REMINDER = BuildConfig.APPLICATION_ID + ".ACTION_DISMISS_REMINDER"
+        const val ACTION_SHOW_REMINDER = BuildConfig.APPLICATION_ID + ".ACTION_SHOW_REMINDER"
+        const val ACTION_SNOOZE_REMINDER = BuildConfig.APPLICATION_ID + ".ACTION_SNOOZE_REMINDER"
         private const val TAG = "ReminderReceiver"
         var lastReceivedIntent: Intent? = null
             private set

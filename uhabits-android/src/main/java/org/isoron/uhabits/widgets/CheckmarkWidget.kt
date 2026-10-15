@@ -43,6 +43,7 @@ open class CheckmarkWidget(
     override val defaultWidth: Int = 125
 
     override fun getOnClickPendingIntent(context: Context): PendingIntent? {
+        // Open the number editor for measured habits and toggle boolean habits directly
         return if (habit.isNumerical) {
             pendingIntentFactory.showNumberPicker(habit, getToday())
         } else {

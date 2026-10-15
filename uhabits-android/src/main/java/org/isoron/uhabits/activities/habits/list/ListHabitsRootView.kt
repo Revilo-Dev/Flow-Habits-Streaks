@@ -45,8 +45,8 @@ import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.ScrollableChart
 import org.isoron.uhabits.activities.common.views.TaskProgressBar
 import org.isoron.uhabits.activities.habits.list.views.EmptyListView
-import org.isoron.uhabits.activities.habits.list.views.FlowLargeHeaderView
 import org.isoron.uhabits.activities.habits.list.views.FlowHomeSearchBar
+import org.isoron.uhabits.activities.habits.list.views.FlowLargeHeaderView
 import org.isoron.uhabits.activities.habits.list.views.FlowSelectionActionBar
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListView
@@ -61,15 +61,14 @@ import org.isoron.uhabits.core.ui.screens.habits.list.HintListFactory
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
-import org.isoron.uhabits.utils.applyToolbarInsets
 import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.buildFlowToolbar
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.bindFlowHeader
-import kotlin.math.abs
 
 const val MAX_CHECKMARK_COUNT = 60
 const val HOME_CHECKMARK_COUNT = 4
@@ -86,7 +85,7 @@ class ListHabitsRootView(
     habitCardListViewFactory: HabitCardListViewFactory
 ) : FrameLayout(context), ModelObservable.Listener {
 
-    val listView: HabitCardListView = habitCardListViewFactory.create()
+    val listView: HabitCardListView = habitCardListViewFactory.create().apply { id = R.id.flowHabitList }
     val llEmpty = EmptyListView(context)
     val tbar = buildFlowToolbar()
     val konfettiView = KonfettiView(context).apply {
@@ -94,7 +93,9 @@ class ListHabitsRootView(
     }
     val progressBar = TaskProgressBar(context, runner)
     val hintView: HintView
-    val header = HeaderView(context, preferences, midnightTimer)
+    val header = HeaderView(context, preferences, midnightTimer).apply { id = R.id.flowTimelineHeader }
+    private val previousDays = timelineAction(R.string.flow_previous_days, 1)
+    private val recentDays = timelineAction(R.string.flow_recent_days, -1)
     val largeHeader = FlowLargeHeaderView(context, midnightTimer, preferences)
     val selectionActions = FlowSelectionActionBar(context).apply {
         id = R.id.flowSelectionActions
@@ -111,18 +112,15 @@ class ListHabitsRootView(
         id = R.id.flowHomeSearchBar
     }
     private val collapsedBrand = TextView(context).apply {
-        text = resources.getString(R.string.flow_app_title)
-        setTextAppearance(R.style.TextAppearance_Flow_Body)
+        text = resources.getString(R.string.flow_today_title)
+        setTextAppearance(R.style.TextAppearance_Flow_CompactTitle)
         setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
-        val icon = AppCompatResources.getDrawable(context, R.drawable.onboarding_appicon)
-        val size = (28 * resources.displayMetrics.density).toInt()
-        icon?.setBounds(0, 0, size, size)
-        setCompoundDrawablesRelative(icon, null, null, null)
-        compoundDrawablePadding = (8 * resources.displayMetrics.density).toInt()
         gravity = Gravity.CENTER_VERTICAL
         visibility = GONE
     }
     var onCreateHabit: (() -> Unit)? = null
+    var onClearFilters: (() -> Unit)? = null
+    val isSearchOpen get() = homeSearchBar.isOpen
 
     private val addButton = FloatingActionButton(context).apply {
         id = R.id.actionCreateHabit
@@ -150,6 +148,7 @@ class ListHabitsRootView(
         val flowBackground = sres.getColor(R.attr.flowBackgroundColor)
         val toolbarHeight = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
         val appBar = AppBarLayout(context).apply {
+            id = R.id.flowHomeAppBar
             setBackgroundColor(flowBackground)
             elevation = 0f
             applyToolbarInsets()
@@ -188,20 +187,37 @@ class ListHabitsRootView(
             }
         )
         appBar.addView(
-            header,
+            FrameLayout(context).apply {
+                addView(header, LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+                addView(
+                    android.widget.LinearLayout(context).apply {
+                        addView(previousDays)
+                        addView(recentDays)
+                    },
+                    LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL).apply {
+                        marginStart = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+                    }
+                )
+            },
             AppBarLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                 scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
                     AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
             }
         )
-        tbar.addView(collapsedBrand, androidx.appcompat.widget.Toolbar.LayoutParams(
-            WRAP_CONTENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
-        ).apply {
-            marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
-        })
+        tbar.addView(
+            collapsedBrand,
+            androidx.appcompat.widget.Toolbar.LayoutParams(
+                WRAP_CONTENT,
+                WRAP_CONTENT,
+                Gravity.START or Gravity.CENTER_VERTICAL
+            ).apply {
+                marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
+            }
+        )
         var previousCollapsed: Boolean? = null
         appBar.bindFlowHeader(tbar) { collapsed, _ ->
             if (previousCollapsed == collapsed) return@bindFlowHeader
+            largeHeader.importantForAccessibility = if (collapsed) IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS else IMPORTANT_FOR_ACCESSIBILITY_AUTO
             val animate = previousCollapsed != null
             previousCollapsed = collapsed
             if (!animate) {
@@ -257,10 +273,14 @@ class ListHabitsRootView(
         }
         content.addFlowScrollFades(listView)
         val rootView = CoordinatorLayout(context).apply {
+            id = R.id.flowHomeCoordinator
             setBackgroundColor(flowBackground)
-            addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                behavior = AppBarLayout.Behavior()
-            })
+            addView(
+                appBar,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    behavior = AppBarLayout.Behavior()
+                }
+            )
             addView(
                 content,
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
@@ -278,8 +298,10 @@ class ListHabitsRootView(
             )
             addView(
                 selectionActions,
-                CoordinatorLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+                    marginStart = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+                    marginEnd = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
                     bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_selection_actions_bottom_margin)
                 }
             )
@@ -306,8 +328,23 @@ class ListHabitsRootView(
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             )
         }
-        homeSearchBar.onOpen = { addButton.visibility = INVISIBLE }
-        homeSearchBar.onDismiss = { addButton.visibility = VISIBLE }
+        llEmpty.onCreateHabit = { onCreateHabit?.invoke() }
+        llEmpty.onClearFilters = {
+            homeSearchBar.close()
+            onClearFilters?.invoke()
+        }
+        selectionActions.onExit = { listAdapter.clearSelection() }
+        homeSearchBar.onOpen = {
+            listAdapter.clearSelection()
+            addButton.visibility = INVISIBLE
+            updateBottomClearance()
+        }
+        homeSearchBar.onDismiss = {
+            addButton.visibility = if (listAdapter.isSelectionEmpty) VISIBLE else INVISIBLE
+            updateBottomClearance()
+        }
+        viewTreeObserver.addOnGlobalLayoutListener { updateBottomClearance() }
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(addButton, resources.getString(R.string.add_habit))
         val baseFabBottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
         ViewCompat.setOnApplyWindowInsetsListener(addButton) { button, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -361,6 +398,7 @@ class ListHabitsRootView(
     override fun onModelChange() {
         updateEmptyView()
         updateHeader()
+        alignSelectionControls(!listAdapter.isSelectionEmpty)
     }
 
     private fun setupControllers() {
@@ -368,6 +406,8 @@ class ListHabitsRootView(
             object : ScrollableChart.ScrollController {
                 override fun onDataOffsetChanged(newDataOffset: Int) {
                     listView.dataOffset = newDataOffset
+                    previousDays.isEnabled = newDataOffset < MAX_CHECKMARK_COUNT - listView.checkmarkCount
+                    recentDays.isEnabled = newDataOffset > 0
                 }
             }
         )
@@ -376,7 +416,6 @@ class ListHabitsRootView(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         setupControllers()
-        listView.dataOffset = 0
         listAdapter.observable.addListener(this)
     }
 
@@ -385,12 +424,16 @@ class ListHabitsRootView(
         super.onDetachedFromWindow()
     }
 
-    /** Restores the home timeline to today whenever the screen becomes active. */
+    // Reset the visible history only when the user asks to return to today
     fun showMostRecentDays() {
-        listView.dataOffset = 0
+        header.scrollToDataOffset(0)
     }
 
     fun alignSelectionControls(selected: Boolean) {
+        addButton.visibility = if (selected || homeSearchBar.isOpen) INVISIBLE else VISIBLE
+        homeSearchBar.visibility = if (!selected && homeSearchBar.isOpen) VISIBLE else GONE
+        if (selected) homeSearchBar.hideKeyboard()
+        selectionActions.setSelectionCount(listAdapter.selected.size)
         val actionsParams = selectionActions.layoutParams as CoordinatorLayout.LayoutParams
         actionsParams.gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
         selectionActions.translationX = 0f
@@ -398,14 +441,22 @@ class ListHabitsRootView(
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        val count = if (resources.configuration.orientation ==
-            android.content.res.Configuration.ORIENTATION_LANDSCAPE) 7 else HOME_CHECKMARK_COUNT
+        val density = resources.displayMetrics.density
+        val usableWidth = w - paddingLeft - paddingRight - 2 * resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+        val labelWidth = (96 * density * resources.configuration.fontScale).toInt()
+        val iconWidth = resources.getDimensionPixelSize(R.dimen.flow_icon_container_size) + (24 * density).toInt()
+        val columns = (usableWidth - labelWidth - iconWidth) / resources.getDimensionPixelSize(R.dimen.checkmarkWidth)
+        val count = columns.coerceIn(1, if (usableWidth / density >= 600) 7 else HOME_CHECKMARK_COUNT)
+        val compact = h / density < 480
+        largeHeader.setCompactWindow(compact)
+        if (compact) findViewById<AppBarLayout>(R.id.flowHomeAppBar)?.setExpanded(false, false)
         header.buttonCount = count
         header.setMaxDataOffset(MAX_CHECKMARK_COUNT - count)
         listView.checkmarkCount = count
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
+    // Close selection or search before allowing back navigation to leave the screen
     fun dismissTransientUi(): Boolean {
         if (!listAdapter.isSelectionEmpty) {
             listAdapter.clearSelection()
@@ -432,8 +483,27 @@ class ListHabitsRootView(
         return super.dispatchTouchEvent(event)
     }
 
-    fun openSearch(initialQuery: String, onQueryChanged: (String) -> Unit) {
-        homeSearchBar.open(initialQuery, onQueryChanged)
+    fun openSearch(initialQuery: String, onQueryChanged: (String) -> Unit, requestKeyboard: Boolean = true) {
+        homeSearchBar.open(initialQuery, onQueryChanged, requestKeyboard)
+    }
+
+    private fun updateBottomClearance() {
+        val overlays = listOf(addButton, selectionActions, homeSearchBar)
+        val clearance = overlays.filter { it.visibility == VISIBLE && it.height > 0 }
+            .maxOfOrNull { height - it.top } ?: 0
+        listView.setBottomClearance(clearance + resources.getDimensionPixelSize(R.dimen.flow_medium_spacing))
+    }
+
+    private fun timelineAction(label: Int, direction: Int) = android.widget.ImageButton(context).apply {
+        val size = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+        layoutParams = android.widget.LinearLayout.LayoutParams(size, size)
+        background = null
+        setImageResource(R.drawable.flow_ic_back)
+        imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextSecondaryColor))
+        if (direction < 0) scaleX = -1f
+        contentDescription = resources.getString(label)
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(this, contentDescription)
+        setOnClickListener { header.scrollToDataOffset(header.dataOffset + direction * listView.checkmarkCount) }
     }
 
     private fun updateHeader() {
@@ -447,8 +517,14 @@ class ListHabitsRootView(
         if (listAdapter.itemCount == 0) {
             if (listAdapter.hasNoHabit()) {
                 llEmpty.showEmpty()
-            } else {
+            } else if (listAdapter.currentFilter.searchQuery.isNotBlank()) {
+                llEmpty.showNoResults(listAdapter.currentFilter.searchQuery)
+            } else if (!listAdapter.currentFilter.isCompletedAllowed &&
+                listAdapter.getCompletionSummary().let { it.total > 0 && it.completed == it.total }
+            ) {
                 llEmpty.showDone()
+            } else {
+                llEmpty.showFiltered()
             }
         } else {
             llEmpty.hide()

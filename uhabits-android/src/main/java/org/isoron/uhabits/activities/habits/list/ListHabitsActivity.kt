@@ -33,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseExceptionHandler
+import org.isoron.uhabits.BuildConfig
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
@@ -45,7 +46,6 @@ import org.isoron.uhabits.inject.HabitsActivityComponent
 import org.isoron.uhabits.inject.HabitsApplicationComponent
 import org.isoron.uhabits.inject.create
 import org.isoron.uhabits.utils.applyRootViewInsets
-import org.isoron.uhabits.utils.dismissCurrentDialog
 import org.isoron.uhabits.utils.restartWithFade
 
 class ListHabitsActivity : FlowActivity(), Preferences.Listener {
@@ -98,32 +98,43 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
         taskRunner = appComponent.taskRunner
         menu = component.listHabitsMenu
         rootView.onCreateHabit = { menu.behavior.onCreateHabit() }
+        rootView.onClearFilters = { menu.behavior.clearFilters() }
         Thread.setDefaultUncaughtExceptionHandler(BaseExceptionHandler(this))
         component.listHabitsBehavior.onStartup()
         rootView.applyRootViewInsets()
         setContentView(rootView)
-        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (rootView.dismissTransientUi()) return
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-                isEnabled = true
+        if (savedInstanceState != null) {
+            val query = savedInstanceState.getString("searchQuery", "")
+            menu.behavior.onSearchQueryChanged(query)
+            if (savedInstanceState.getBoolean("searchOpen")) {
+                rootView.openSearch(query, menu.behavior::onSearchQueryChanged, requestKeyboard = false)
             }
-        })
+            val selected = savedInstanceState.getLongArray("selectedHabits")?.map { appComponent.habitList.getById(it) }?.filterNotNull()
+            if (!selected.isNullOrEmpty()) rootView.listView.restoreSelection(selected)
+        }
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : androidx.activity.OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (rootView.dismissTransientUi()) return
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
+        )
     }
 
     override fun onPause() {
         midnightTimer.onPause()
         screen.onDetached()
         adapter.cancelRefresh()
-        dismissCurrentDialog()
         super.onPause()
     }
 
     override fun onResume() {
         adapter.refresh()
         screen.onAttached()
-        rootView.showMostRecentDays()
         rootView.postInvalidate()
         midnightTimer.onResume()
 
@@ -134,9 +145,7 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
                 if (checkSelfPermission(this, POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
                     scheduleReminders()
                 } else {
-                    // If we have not requested the permission yet, request it. Otherwide do
-                    // nothing. This check is necessary to avoid an infinite onResume loop in case
-                    // the user denies the permission.
+                    // Ask once per activity to avoid reopening the permission prompt after denial
                     if (!permissionAlreadyRequested) {
                         Log.i("ListHabitsActivity", "Requestion permission: POST_NOTIFICATIONS")
                         permissionLauncher.launch(POST_NOTIFICATIONS)
@@ -146,6 +155,7 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
             }
         }
 
+        // Check daily backups and refresh widgets when returning to the home screen
         taskRunner.run {
             try {
                 AutoBackup(this@ListHabitsActivity).run()
@@ -159,6 +169,13 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
         }
         parseIntents()
         super.onResume()
+    }
+
+    override fun onSaveInstanceState(state: Bundle) {
+        state.putString("searchQuery", menu.behavior.searchQuery)
+        state.putBoolean("searchOpen", rootView.isSearchOpen)
+        state.putLongArray("selectedHabits", adapter.selected.mapNotNull { it.id }.toLongArray())
+        super.onSaveInstanceState(state)
     }
 
     private fun scheduleReminders() {
@@ -191,8 +208,10 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
                 val date = LocalDate.fromUnixTime(timestampMillis)
                 component.listHabitsBehavior.onEdit(habit, date, 0f, 0f)
             }
+            intent.action = null
+            intent.removeExtra("habit")
+            intent.removeExtra("timestamp")
         }
-        intent = null
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -201,6 +220,6 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
     }
 
     companion object {
-        const val ACTION_EDIT = "dev.revilodev.flow.ACTION_EDIT"
+        const val ACTION_EDIT = BuildConfig.APPLICATION_ID + ".ACTION_EDIT"
     }
 }

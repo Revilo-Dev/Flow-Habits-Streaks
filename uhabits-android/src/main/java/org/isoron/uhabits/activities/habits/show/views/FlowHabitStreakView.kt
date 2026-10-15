@@ -149,7 +149,9 @@ class FlowHabitStreakView(
             0 -> resources.getString(R.string.flow_perfect_streak_start)
             else -> resources.getString(R.string.flow_day_number, state.currentStreak)
         }
-        messageView.text = if (state.todayComplete) {
+        messageView.text = if (state.lastSevenDaysSkipped.lastOrNull() == true && state.skipsCountTowardsStreaks) {
+            resources.getString(R.string.flow_skipped_counting_message)
+        } else if (state.todayComplete) {
             val messages = resources.getStringArray(R.array.flow_habit_streak_messages)
             messages[getToday().daysSince2000.absoluteValue % messages.size]
         } else {
@@ -160,12 +162,15 @@ class FlowHabitStreakView(
         val recentCompletions = state.lastSevenDays.mapIndexed { index, complete ->
             today.minus(6 - index) to complete
         }.toMap()
+        // Map recent completions into the displayed calendar week and dim future days
         val weekStart = today.startOfWeek(state.firstWeekday)
         (0..6).map { offset ->
             val date = weekStart.plus(offset)
             date to (recentCompletions[date] ?: false)
         }.forEachIndexed { index, (date, complete) ->
             val isFutureDay = date.daysSince2000 > today.daysSince2000
+            val skipOffset = date.daysUntil(today)
+            val skipped = skipOffset in 0..6 && state.lastSevenDaysSkipped.getOrElse(6 - skipOffset) { false }
             val weekday = dayFormatter.shortWeekdayName(date)
             dayLabels[index].apply {
                 text = weekday.take(1).uppercase(Locale.getDefault())
@@ -175,10 +180,18 @@ class FlowHabitStreakView(
             }
             dayMarks[index].apply {
                 setImageResource(
-                    if (complete) R.drawable.checkbox_checked else R.drawable.checkbox_unchecked
+                    when {
+                        skipped -> R.drawable.flow_ic_skip
+                        complete -> R.drawable.checkbox_checked
+                        else -> R.drawable.checkbox_unchecked
+                    }
                 )
                 contentDescription = resources.getString(
-                    if (complete) R.string.flow_day_completed else R.string.flow_day_not_completed,
+                    when {
+                        skipped -> R.string.flow_skipped_day_description
+                        complete -> R.string.flow_day_completed
+                        else -> R.string.flow_day_not_completed
+                    },
                     weekday
                 )
                 alpha = if (isFutureDay) 0.35f else 1f

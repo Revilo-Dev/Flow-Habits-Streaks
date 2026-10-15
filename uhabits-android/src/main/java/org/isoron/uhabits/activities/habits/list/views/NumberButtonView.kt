@@ -126,6 +126,11 @@ class NumberButtonView(
         return true
     }
 
+    override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.className = "android.widget.Button"
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         drawer.draw(canvas)
@@ -133,7 +138,7 @@ class NumberButtonView(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val width = getDimension(context, R.dimen.checkmarkWidth).toInt()
-        val height = getDimension(context, R.dimen.checkmarkHeight).toInt()
+        val height = (getDimension(context, R.dimen.checkmarkHeight) * maxOf(1f, resources.configuration.fontScale)).toInt()
         setMeasuredDimension(width, height)
     }
 

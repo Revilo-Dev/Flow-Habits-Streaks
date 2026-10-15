@@ -154,7 +154,9 @@ class FlowPerfectStreakView(
             0 -> resources.getString(R.string.flow_perfect_streak_start)
             else -> resources.getString(R.string.flow_day_number, summary.currentStreak)
         }
-        messageView.text = if (summary.todayComplete) perfectMessage(summary.currentStreak) else {
+        messageView.text = if (summary.todayComplete) {
+            perfectMessage(summary.currentStreak)
+        } else {
             resources.getString(R.string.flow_perfect_incomplete_message)
         }
 
@@ -162,6 +164,7 @@ class FlowPerfectStreakView(
         val recentCompletions = summary.lastSevenDays.mapIndexed { index, complete ->
             today.minus(6 - index) to complete
         }.toMap()
+        // Map the rolling completions into the calendar week chosen in settings
         val weekStart = today.startOfWeek(preferences.firstWeekday)
         val orderedDays = (0..6).map { offset ->
             val date = weekStart.plus(offset)
@@ -193,6 +196,7 @@ class FlowPerfectStreakView(
         }
     }
 
+    // Prefer milestone messages before choosing the rotating daily encouragement
     private fun perfectMessage(streak: Int): String {
         return when {
             streak > 0 && streak % 100 == 0 ->

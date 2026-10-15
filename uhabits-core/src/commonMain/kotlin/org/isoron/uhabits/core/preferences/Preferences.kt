@@ -183,6 +183,7 @@ open class Preferences(private val storage: Storage) {
             for (l in listeners) l.onCheckmarkSequenceChanged()
         }
 
+    // The optional day boundary moves from midnight to three in the morning
     open val midnightDelayHours: Int
         get() = if (isMidnightDelayEnabled) MIDNIGHT_DELAY_HOURS else 0
 
@@ -218,12 +219,7 @@ open class Preferences(private val storage: Storage) {
             for (l in listeners) l.onQuestionMarksChanged()
         }
 
-    /**
-     * @return An integer representing the first day of the week. Sunday
-     * corresponds to 1, Monday to 2, and so on, until Saturday, which is
-     * represented by 7. By default, this is based on the current system locale,
-     * unless the user changed this in the settings.
-     */
+    // Use the saved first weekday or fall back to the device locale
     @get:Deprecated("")
     open val firstWeekdayInt: Int
         get() {

@@ -83,7 +83,7 @@ abstract class ButtonPanelView<T : View>(
 
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val buttonWidth = dim(R.dimen.checkmarkWidth)
-        val buttonHeight = dim(R.dimen.checkmarkHeight)
+        val buttonHeight = dim(R.dimen.checkmarkHeight) * maxOf(1f, resources.configuration.fontScale)
         val width = (buttonWidth * buttonCount)
         super.onMeasure(
             width.toMeasureSpec(EXACTLY),

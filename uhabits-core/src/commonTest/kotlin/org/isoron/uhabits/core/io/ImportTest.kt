@@ -19,8 +19,11 @@
 package org.isoron.uhabits.core.io
 
 import kotlinx.coroutines.test.runTest
+import org.isoron.platform.io.migrateTo
+import org.isoron.platform.io.run
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.core.BaseUnitTest
+import org.isoron.uhabits.core.DATABASE_VERSION
 import org.isoron.uhabits.core.models.Entry
 import org.isoron.uhabits.core.models.Frequency
 import org.isoron.uhabits.core.models.Habit
@@ -157,10 +160,18 @@ class ImportTest : BaseUnitTest() {
         return h.originalEntries.get(LocalDate(year, month, day)).notes == notes
     }
 
-    private suspend fun importFromFile(assetFilename: String) {
+    private suspend fun importFromFile(assetFilename: String, countSkips: Boolean = false) {
         val userFile = copyResourceToTempFile(assetFilename)
         assertTrue(userFile.exists())
         val dbOpener = databaseOpener()
+        if (countSkips) {
+            val db = dbOpener.open(userFile.pathString)
+            db.migrateTo(DATABASE_VERSION) { version ->
+                fileOpener.openResourceFile("migrations/${version.toString().padStart(2, '0')}.sql").lines().joinToString("\n")
+            }
+            db.run("UPDATE Habits SET skips_count_towards_streaks = 1")
+            db.close()
+        }
         val importer = GenericImporter(
             LoopDBImporter(
                 habitList,
@@ -177,5 +188,19 @@ class ImportTest : BaseUnitTest() {
         assertTrue(importer.canHandle(userFile))
         importer.importHabitsFromFile(userFile)
         userFile.delete()
+    }
+
+    @Test
+    fun importsPerHabitSkipPolicyFromNewBackups() = runTest {
+        importFromFile("loop.db", countSkips = true)
+        assertTrue(habitList.size() > 0)
+        assertTrue(habitList.all { it.skipsCountTowardsStreaks })
+    }
+
+    @Test
+    fun importingOldBackupsKeepsSkippedDaysUncounted() = runTest {
+        importFromFile("loop.db")
+        assertTrue(habitList.size() > 0)
+        assertTrue(habitList.none { it.skipsCountTowardsStreaks })
     }
 }

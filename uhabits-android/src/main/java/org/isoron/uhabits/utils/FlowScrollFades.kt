@@ -14,7 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.isoron.uhabits.R
 
-/** Softly fades scroll content into the screen background at its visible edges. */
+// Blend scrollable content into the screen background at the visible edges
 class FlowScrollFades internal constructor(
     private val scrollable: View,
     private val topFade: View,
@@ -93,6 +93,7 @@ fun ViewGroup.addFlowScrollFades(
         }
         else -> error("Flow scroll fades require a FrameLayout or CoordinatorLayout container")
     }
+    // Keep the top fade below system bars and display cutouts
     if (includeTopInset) {
         ViewCompat.setOnApplyWindowInsetsListener(topFade) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

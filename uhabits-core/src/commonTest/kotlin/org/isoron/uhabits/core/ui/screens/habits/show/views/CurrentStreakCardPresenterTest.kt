@@ -41,4 +41,32 @@ class CurrentStreakCardPresenterTest : BaseUnitTest() {
 
         assertEquals(0, state.currentStreak)
     }
+
+    @Test
+    fun countedSkipsIncreaseCurrentStreakWithoutMarkingTheDayComplete() {
+        val today = getToday()
+        val habit = fixtures.createEmptyHabit()
+        habit.skipsCountTowardsStreaks = true
+        habit.originalEntries.add(Entry(today, Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(2), Entry.SKIP))
+        habit.recompute()
+
+        val state = CurrentStreakCardPresenter.buildState(habit, DayOfWeek.MONDAY)
+
+        assertEquals(3, state.currentStreak)
+        assertEquals(false, state.todayComplete)
+    }
+
+    @Test
+    fun unansweredTodayKeepsTheStreakThroughCountedSkipsYesterday() {
+        val today = getToday()
+        val habit = fixtures.createEmptyHabit()
+        habit.skipsCountTowardsStreaks = true
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(2), Entry.YES_MANUAL))
+        habit.recompute()
+
+        assertEquals(2, CurrentStreakCardPresenter.buildState(habit, DayOfWeek.MONDAY).currentStreak)
+    }
 }

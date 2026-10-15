@@ -36,19 +36,7 @@ import org.isoron.uhabits.core.models.NumericalHabitType
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
 
-/**
- * A HabitCardListCache fetches and keeps a cache of all the data necessary to
- * render a HabitCardListView.
- *
- *
- * This is needed since performing database lookups during scrolling can make
- * the ListView very slow. It also registers itself as an observer of the
- * models, in order to update itself automatically.
- *
- *
- * Note that this class is singleton-scoped, therefore it is shared among all
- * activities.
- */
+// Cache list data so scrolling does not repeatedly query the database
 @AppScope
 @Inject
 class HabitCardListCache(
@@ -118,12 +106,7 @@ class HabitCardListCache(
         return allHabits.isEmpty
     }
 
-    /**
-     * Returns the habits that occupies a certain position on the list.
-     *
-     * @param position the position of the habit
-     * @return the habit at given position or null if position is invalid
-     */
+    // Return the habit at the displayed position or null outside the list
     @Synchronized
     fun getHabitByPosition(position: Int): Habit? {
         return if (position < 0 || position >= data.habits.size) null else data.habits[position]
@@ -227,10 +210,7 @@ class HabitCardListCache(
         this.listener = listener
     }
 
-    /**
-     * Interface definition for a callback to be invoked when the data on the
-     * cache has been modified.
-     */
+    // Notify the adapter when cached rows or summary data change
     interface Listener {
         fun onItemChanged(position: Int) {}
         fun onItemInserted(position: Int) {}
@@ -306,6 +286,7 @@ class HabitCardListCache(
 
         @Synchronized
         fun fetchCompletionSummary() {
+            // Home summaries use every active habit regardless of search or visibility filters
             val activeHabits = allHabits.filter { !it.isArchived }
             val today = getToday()
             activeHabitCount = activeHabits.size
@@ -316,6 +297,7 @@ class HabitCardListCache(
             }
             val todayComplete = lastSevenDays.last()
             var currentStreak = 0
+            // Allow an unfinished today while preserving the perfect streak through yesterday
             var date = today.minus(if (todayComplete) 0 else 1)
             while (isPerfectDay(activeHabits, date)) {
                 currentStreak++
@@ -324,9 +306,7 @@ class HabitCardListCache(
             perfectStreakSummary = PerfectStreakSummary(currentStreak, lastSevenDays)
         }
 
-        /**
-         * Creates a new CacheData without any content.
-         */
+        // Start a refresh with empty row data and summary values
         init {
             habits = mutableListOf()
             checkmarks = mutableMapOf()
@@ -362,6 +342,7 @@ class HabitCardListCache(
         override suspend fun doInBackground() {
             newData.fetchHabits()
             newData.fetchCompletionSummary()
+            // Keep existing row values visible while refreshed values arrive
             newData.copyScoresFrom(data)
             newData.copyCheckmarksFrom(data)
             newData.copyCurrentStreaksFrom(data)
@@ -375,6 +356,7 @@ class HabitCardListCache(
                 if (targetId != null && targetId != habit.id) continue
                 newData.scores[habit.id] = habit.scores[today].value
                 val latestStreak = habit.streaks.getBest(Int.MAX_VALUE).firstOrNull()
+                // An explicit failure today clears the streak while an unanswered today allows yesterday
                 newData.currentStreaks[habit.id] = when {
                     isExplicitFailure(habit, today) -> 0
                     latestStreak == null -> 0
@@ -429,7 +411,7 @@ class HabitCardListCache(
         ) {
             data.habits.removeAt(fromPosition)
 
-            // Workaround for https://github.com/iSoron/uhabits/issues/968
+            // Clamp the destination after removals to keep moves inside the current list
             val checkedToPosition = if (toPosition > data.habits.size) {
                 logger.error("performMove: $toPosition is strictly higher than ${data.habits.size}")
                 data.habits.size
@@ -486,6 +468,7 @@ class HabitCardListCache(
 
         @Synchronized
         private fun processRemovedHabits() {
+            // Publish summaries with the refreshed list before notifying changed rows
             data.activeHabitCount = newData.activeHabitCount
             data.completedHabitCount = newData.completedHabitCount
             data.perfectStreakSummary = newData.perfectStreakSummary
@@ -509,8 +492,7 @@ class HabitCardListCache(
 
     private fun isCompleteForPerfectDay(habit: Habit, date: LocalDate): Boolean {
         val value = habit.computedEntries.get(date).value
-        // A skip can preserve an individual habit's streak, but it is not a
-        // completion and therefore cannot make a day perfect.
+        // Skips preserve individual streaks but never count toward a perfect day
         if (value == Entry.SKIP) return false
         if (!habit.isNumerical) {
             return value == Entry.YES_MANUAL || value == Entry.YES_AUTO

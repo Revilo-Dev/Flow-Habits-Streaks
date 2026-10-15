@@ -25,6 +25,7 @@ import kotlin.math.min
 class StreakList {
     private val list = ArrayList<Streak>()
 
+    // Choose the longest streaks and return the selected streaks with newest first
     @Synchronized
     fun getBest(limit: Int): List<Streak> {
         list.sortWith { s1: Streak, s2: Streak -> s2.compareLonger(s1) }
@@ -40,23 +41,26 @@ class StreakList {
         to: LocalDate,
         isNumerical: Boolean,
         targetValue: Double,
-        targetType: NumericalHabitType
+        targetType: NumericalHabitType,
+        skipsCountTowardsStreaks: Boolean = false
     ) {
         list.clear()
         var start: LocalDate? = null
         var end: LocalDate? = null
         var completedDays = 0
+        var lastRelevantDate: LocalDate? = null
 
         fun finishStreak() {
-            val streakStart = start ?: return
-            list.add(Streak(streakStart, end!!, completedDays))
+            start?.let { list.add(Streak(it, end!!, completedDays, lastRelevantDate ?: end!!)) }
             start = null
             end = null
             completedDays = 0
+            lastRelevantDate = null
         }
 
+        // Count skipped days only when the habit includes them in streaks
         computedEntries.getByInterval(from, to).forEach { entry ->
-            val complete = entry.value != Entry.SKIP && if (isNumerical) {
+            val complete = entry.value != Entry.SKIP && entry.value != Entry.UNKNOWN && if (isNumerical) {
                 when (targetType) {
                     NumericalHabitType.AT_LEAST -> entry.value / 1000.0 >= targetValue
                     NumericalHabitType.AT_MOST ->
@@ -67,18 +71,19 @@ class StreakList {
             }
 
             when {
-                complete -> {
+                complete || (entry.value == Entry.SKIP && skipsCountTowardsStreaks) -> {
                     if (start == null) {
                         start = entry.date
                         end = entry.date
+                        if (lastRelevantDate == null) lastRelevantDate = entry.date
                     } else {
                         start = entry.date
                     }
                     completedDays++
                 }
                 entry.value == Entry.SKIP -> {
-                    // A skip is only a filler inside a streak. It cannot extend
-                    // a streak past a failed day or start one by itself.
+                    // Trailing skips keep an existing streak current without adding days
+                    if (lastRelevantDate == null) lastRelevantDate = entry.date
                 }
                 else -> finishStreak()
             }

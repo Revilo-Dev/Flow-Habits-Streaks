@@ -55,6 +55,7 @@ class HabitRepositoryTest {
         data.id = repo.insert(data)
 
         data.name = "Exercise daily"
+        data.skipsCountTowardsStreaks = 1
         data.freqNum = 1
         data.freqDen = 1
         repo.update(data)
@@ -63,6 +64,7 @@ class HabitRepositoryTest {
         assertEquals(1, updated.size)
         assertEquals("Exercise daily", updated[0].name)
         assertEquals(1, updated[0].freqDen)
+        assertEquals(1, updated[0].skipsCountTowardsStreaks)
 
         db.close()
     }
@@ -178,7 +180,8 @@ class HabitRepositoryTest {
             targetType = 1,
             unit = "minutes",
             uuid = "550e8400-e29b-41d4-a716-446655440000",
-            icon = "🧘"
+            icon = "🧘",
+            skipsCountTowardsStreaks = 1
         )
         original.id = repo.insert(original)
 
@@ -201,6 +204,7 @@ class HabitRepositoryTest {
         assertEquals(original.unit, loaded.unit)
         assertEquals(original.uuid, loaded.uuid)
         assertEquals(original.icon, loaded.icon)
+        assertEquals(original.skipsCountTowardsStreaks, loaded.skipsCountTowardsStreaks)
         assertNotNull(loaded.id)
         assertEquals(original.id, loaded.id)
 

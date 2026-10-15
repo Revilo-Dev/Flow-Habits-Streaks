@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flow_today_title">Today</string>
+    <string name="flow_skips_count_towards_streaks">Skips count towards streaks</string>
+    <string name="flow_skips_count_towards_streaks_summary">Add past and future skipped days to this habit’s streak length without marking those days completed</string>
+    <string name="flow_note_for_date">Note for %1$s</string>
+    <string name="flow_close_note">Close note</string>
+    <string name="flow_edit_entry">Edit entry</string>
+    <string name="flow_clear_search">Clear search</string>
+    <string name="flow_no_search_results">No habits match “%1$s”</string>
+    <string name="flow_no_filter_results">No habits match these filters</string>
+    <string name="flow_clear_filters">Clear filters</string>
+    <string name="flow_exit_selection">Exit selection</string>
+    <string name="flow_unsaved_changes_title">Discard changes?</string>
+    <string name="flow_unsaved_changes_message">Your changes to this habit have not been saved</string>
+    <string name="flow_keep_editing">Keep editing</string>
+    <string name="flow_goal_positive">Enter a goal greater than zero</string>
+    <string name="flow_goal_non_negative">Enter a goal of zero or more</string>
+    <string name="flow_invalid_number">Enter a number of zero or more</string>
+    <string name="flow_calendar_completed">Completed</string>
+    <string name="flow_calendar_scheduled">Covered by schedule</string>
+    <string name="flow_calendar_partial">Goal not reached</string>
+    <string name="flow_calendar_skipped">Skipped</string>
+    <string name="flow_calendar_unrecorded">No completion recorded</string>
+    <string name="flow_calendar_has_note">Note available</string>
+    <string name="flow_calendar_day_description">%1$s · %2$s</string>
+    <string name="flow_calendar_legend">Filled day completed · striped day skipped · dot has a note</string>
+    <string name="flow_skipped_counting_message">Today is skipped and counts towards your streak</string>
+    <string name="flow_skipped_day_description">%1$s skipped</string>
+    <string name="flow_previous_days">Previous days</string>
+    <string name="flow_recent_days">More recent days</string>
+    <plurals name="flow_selection_count">
+        <item quantity="one">%d habit selected</item>
+        <item quantity="other">%d habits selected</item>
+    </plurals>
+    <string name="flow_select_visible_habits">Select visible habits</string>
+    <string name="flow_move_up">Move up</string>
+    <string name="flow_move_down">Move down</string>
+    <string name="flow_calendar_missed">Not completed</string>
+    <string name="flow_checkin_description">%1$s · %2$s · %3$s</string>
+    <string name="flow_value_progress">%1$s of %2$s %3$s</string>
+    <string name="flow_value_at_most">%1$s of maximum %2$s %3$s</string>
+    <string name="flow_entry_value">Value</string>
+    <string name="flow_entry_title">%1$s
+%2$s</string>
+    <string name="flow_entry_value_unit">Value in %1$s</string>
+    <string name="flow_invalid_frequency">Enter a whole number between 1 and %1$d</string>
+</resources>

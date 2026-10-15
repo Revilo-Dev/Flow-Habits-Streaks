@@ -36,6 +36,15 @@ class ListHabitsMenuBehavior(
     var searchQuery: String = ""
         private set
 
+    fun clearFilters() {
+        showArchived = false
+        showCompleted = true
+        searchQuery = ""
+        preferences.showArchived = false
+        preferences.showCompleted = true
+        updateAdapterFilter()
+    }
+
     fun onCreateHabit() {
         screen.showSelectHabitTypeDialog()
     }
@@ -89,6 +98,7 @@ class ListHabitsMenuBehavior(
         onSortToggleBy(HabitList.Order.BY_STATUS_ASC, HabitList.Order.BY_STATUS_DESC)
     }
 
+    // Keep the previous sort as a secondary order when switching to a new field
     private fun onSortToggleBy(defaultOrder: HabitList.Order, reversedOrder: HabitList.Order) {
         if (adapter.primaryOrder != defaultOrder) {
             if (adapter.primaryOrder != reversedOrder) {
@@ -109,6 +119,7 @@ class ListHabitsMenuBehavior(
         updateAdapterFilter()
     }
 
+    // Combine search with archive and completion visibility preferences
     private fun updateAdapterFilter() {
         if (preferences.areQuestionMarksEnabled) {
             adapter.setFilter(

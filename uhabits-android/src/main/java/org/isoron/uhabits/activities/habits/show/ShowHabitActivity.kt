@@ -53,7 +53,6 @@ import org.isoron.uhabits.intents.IntentFactory
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dismissCurrentAndShow
-import org.isoron.uhabits.utils.dismissCurrentDialog
 import org.isoron.uhabits.utils.showMessage
 import org.isoron.uhabits.utils.showSendFileScreen
 import org.isoron.uhabits.widgets.WidgetUpdater
@@ -71,6 +70,7 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
     private val scope = CoroutineScope(Dispatchers.Main)
     private lateinit var presenter: ShowHabitPresenter
     private val screen = Screen()
+    private var notePopup: org.isoron.uhabits.activities.common.views.EntryNotePopup? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,7 +133,7 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
     }
 
     override fun onPause() {
-        dismissCurrentDialog()
+        notePopup?.dismiss()
         commandRunner.removeListener(this)
         super.onPause()
     }
@@ -143,6 +143,11 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
     }
 
     inner class Screen : ShowHabitMenuPresenter.Screen, ShowHabitPresenter.Screen {
+        private var entryDate: org.isoron.platform.time.LocalDate? = null
+
+        override fun setEntryContext(habit: Habit, date: org.isoron.platform.time.LocalDate) {
+            entryDate = date
+        }
         override fun updateWidgets() {
             widgetUpdater.updateWidgets()
         }
@@ -168,6 +173,13 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
             dialog.show(supportFragmentManager, "historyEditor")
         }
 
+        override fun showNote(date: org.isoron.platform.time.LocalDate, notes: String, onEdit: () -> Unit) {
+            val anchor = getPopupAnchor() as? org.isoron.platform.gui.AndroidDataView ?: view.historyChartView
+            notePopup?.dismiss()
+            notePopup = org.isoron.uhabits.activities.common.views.EntryNotePopup(anchor, date, notes, onEdit)
+            notePopup?.show()
+        }
+
         override fun showFeedback() {
             window.decorView.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
@@ -179,6 +191,8 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
         ) {
             val dialog = NumberDialog()
             dialog.arguments = Bundle().apply {
+                putLong("habit", habit.id!!)
+                entryDate?.let { putLong("date", it.unixTime) }
                 putDouble("value", value)
                 putString("notes", notes)
             }
@@ -195,6 +209,8 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
             val theme = view.currentTheme()
             val dialog = CheckmarkDialog()
             dialog.arguments = Bundle().apply {
+                putLong("habit", habit.id!!)
+                entryDate?.let { putLong("date", it.unixTime) }
                 putInt("color", theme.color(color).toInt())
                 putInt("value", selectedValue)
                 putString("notes", notes)

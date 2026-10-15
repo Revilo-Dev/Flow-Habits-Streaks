@@ -70,7 +70,7 @@ class WeekdayPickerDialog :
                 selectedDays,
                 this
             )
-            .setPositiveButton(android.R.string.yes, this)
+            .setPositiveButton(R.string.save, this)
             .setNegativeButton(
                 android.R.string.cancel
             ) { _: DialogInterface?, _: Int -> dismiss() }
@@ -79,7 +79,7 @@ class WeekdayPickerDialog :
             setOnShowListener {
                 getButton(AlertDialog.BUTTON_POSITIVE).apply {
                     setBackgroundResource(R.drawable.flow_dialog_save_action_background)
-                    setTextColor(android.graphics.Color.WHITE)
+                    setTextColor(sres.getColor(R.attr.flowOnAccentColor))
                     minHeight = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
                 }
                 getButton(AlertDialog.BUTTON_NEGATIVE).apply {

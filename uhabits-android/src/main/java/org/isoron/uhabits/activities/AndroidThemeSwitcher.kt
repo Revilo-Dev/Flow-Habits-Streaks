@@ -65,7 +65,7 @@ constructor(
     }
 
     override fun applyPureBlackTheme() {
-        // Temporarily unavailable, including for previously saved selections.
+        // Previously saved pure black selections use the Flow dark theme
         applyDarkTheme()
     }
 

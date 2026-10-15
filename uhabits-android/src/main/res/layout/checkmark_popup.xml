@@ -18,20 +18,40 @@
   -->
 
 
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false">
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/flow_dialog_background"
-    android:minWidth="280dp"
+    android:minWidth="0dp"
     android:orientation="vertical"
     android:padding="@dimen/flow_large_spacing">
+
+    <TextView
+        android:id="@+id/entryTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Flow.Body"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/notes"
+        android:text="@string/notes"
+        android:textAppearance="@style/TextAppearance.Flow.Supporting" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/notes"
         android:layout_width="match_parent"
-        android:layout_height="132dp"
+        android:layout_height="wrap_content"
+        android:minLines="3"
+        android:maxLines="6"
         android:background="@drawable/flow_input_background"
         android:backgroundTint="@null"
         app:backgroundTint="@null"
@@ -47,7 +67,8 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/booleanButtons"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
         android:layout_marginTop="@dimen/flow_large_spacing"
         android:orientation="horizontal"
         android:visibility="gone"
@@ -57,6 +78,7 @@
             android:id="@+id/yesBtn"
             style="@style/CheckmarkPopupBtn"
             android:background="@drawable/flow_surface_secondary_selectable_background"
+            android:contentDescription="@string/yes"
             android:text="@string/fa_check" />
 
 
@@ -66,15 +88,27 @@
             style="@style/CheckmarkPopupBtn"
             android:layout_marginStart="@dimen/flow_small_spacing"
             android:background="@drawable/flow_surface_secondary_selectable_background"
+            android:contentDescription="@string/no"
             android:text="@string/fa_times" />
 
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
+    <TextView
+        android:id="@+id/valueLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/flow_medium_spacing"
+        android:labelFor="@id/value"
+        android:text="@string/flow_entry_value"
+        android:textAppearance="@style/TextAppearance.Flow.Supporting"
+        android:visibility="gone" />
+
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/numberButtons"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
         android:layout_marginTop="@dimen/flow_medium_spacing"
         android:orientation="horizontal"
         android:visibility="gone"
@@ -83,13 +117,15 @@
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/value"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/flow_min_touch_target"
             android:layout_weight="2"
             android:background="@drawable/flow_input_background"
         android:backgroundTint="@null"
         app:backgroundTint="@null"
         android:textColor="?attr/flowTextPrimaryColor"
         android:textColorHint="?attr/flowTextSecondaryColor"
+            android:contentDescription="@string/flow_entry_value"
             android:inputType="numberDecimal"
             android:selectAllOnFocus="true"
             android:textAlignment="center"
@@ -100,7 +136,8 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/numberFooter"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
         android:layout_marginTop="@dimen/flow_medium_spacing"
         android:background="@android:color/transparent"
         android:orientation="horizontal"
@@ -132,6 +169,8 @@
             android:background="@drawable/flow_dialog_save_action_background"
             android:fontFamily="sans-serif-medium"
             android:textSize="17sp"
-            android:textColor="@android:color/white" />
+            android:textColor="?attr/flowOnAccentColor" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>
+
+</ScrollView>

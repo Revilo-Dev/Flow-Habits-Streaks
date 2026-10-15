@@ -36,6 +36,7 @@ class HabitsDatabaseOpener(
 
     override fun onCreate(db: SQLiteDatabase) {
         db.disableWriteAheadLogging()
+        // Start a new database at the baseline expected by the numbered migrations
         db.version = 8
         onUpgrade(db, -1, version)
     }
@@ -50,6 +51,7 @@ class HabitsDatabaseOpener(
         oldVersion: Int,
         newVersion: Int
     ) {
+        // Use the main database file for copies and reject schemas older than the migration baseline
         db.disableWriteAheadLogging()
         if (db.version < 8) throw UnsupportedDatabaseVersionException()
         val wrappedDb = AndroidDatabase(db)

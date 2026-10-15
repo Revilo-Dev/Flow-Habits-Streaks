@@ -27,13 +27,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
+import org.isoron.uhabits.activities.habits.list.views.FlowHomeSearchBar
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsMenuBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
-import org.isoron.uhabits.activities.habits.list.views.FlowHomeSearchBar
 import org.isoron.uhabits.utils.StyledResources
 
 @Inject
@@ -91,6 +91,10 @@ class ListHabitsMenu(
 
     fun onItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.actionSelectVisibleHabits -> {
+                (activity as? ListHabitsActivity)?.rootView?.listView?.selectVisibleHabits()
+                return true
+            }
             R.id.actionToggleNightMode -> {
                 behavior.onToggleNightMode()
                 return true

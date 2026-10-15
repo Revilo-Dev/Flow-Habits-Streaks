@@ -35,20 +35,13 @@ open class EntryList {
 
     private val entriesByDate: HashMap<LocalDate, Entry> = HashMap()
 
-    /**
-     * Returns the entry corresponding to the given date. If no entry with such date
-     * has been previously added, returns Entry(date, UNKNOWN).
-     */
+    // Return an unknown answer when no entry exists for the date
     @Synchronized
     open fun get(date: LocalDate): Entry {
         return entriesByDate[date] ?: Entry(date, UNKNOWN)
     }
 
-    /**
-     * Returns one entry for each day in the given interval. The first element corresponds to the
-     * newest entry, and the last element corresponds to the oldest. The interval endpoints are
-     * included.
-     */
+    // Include both endpoints and return entries with the newest date first
     @Synchronized
     open fun getByInterval(from: LocalDate, to: LocalDate): List<Entry> {
         val result = mutableListOf<Entry>()
@@ -61,30 +54,19 @@ open class EntryList {
         return result
     }
 
-    /**
-     * Adds the given entry to the list. If another entry with the same date already exists,
-     * replaces it.
-     */
+    // Replace any existing answer for the same date
     @Synchronized
     open fun add(entry: Entry) {
         entriesByDate[entry.date] = entry
     }
 
-    /**
-     * Returns all entries whose values are known, sorted by date. The first element
-     * corresponds to the newest entry, and the last element corresponds to the oldest.
-     */
+    // Return the entries held in memory with the newest date first
     @Synchronized
     open fun getKnown(): List<Entry> {
         return entriesByDate.values.sortedBy { it.date }.reversed()
     }
 
-    /**
-     * Replaces all entries in this list by entries computed automatically from another list.
-     *
-     * For boolean habits, this function creates additional entries (with value YES_AUTO) according
-     * to the frequency of the habit. For numerical habits, this function simply copies all entries.
-     */
+    // Copy numerical answers or derive automatic boolean completions from the schedule
     @Synchronized
     open fun recomputeFrom(
         originalEntries: EntryList,
@@ -103,26 +85,13 @@ open class EntryList {
         }
     }
 
-    /**
-     * Removes all known entries.
-     */
+    // Discard the entries held in this list
     @Synchronized
     open fun clear() {
         entriesByDate.clear()
     }
 
-    /**
-     * Returns the total number of successful entries for each month, grouped by day of week.
-     * <p>
-     * The checkmarks are returned in a HashMap. The key is the timestamp for
-     * the first day of the month, at midnight (00:00). The value is an integer
-     * array with 7 entries. The first entry contains the total number of
-     * successful checkmarks during the specified month that occurred on a Saturday. The
-     * second entry corresponds to Sunday, and so on. If there are no
-     * successful checkmarks during a certain month, the value is null.
-     *
-     * @return total number of checkmarks by month versus day of week
-     */
+    // Group monthly totals into weekday slots starting with Saturday
     @Synchronized
     fun computeWeekdayFrequency(isNumerical: Boolean): HashMap<LocalDate, Array<Int>> {
         val entries = getKnown()
@@ -152,14 +121,7 @@ open class EntryList {
     }
 
     companion object {
-        /**
-         * Converts a list of intervals into a list of entries. Entries that fall outside of any
-         * interval receive value UNKNOWN. Entries that fall within an interval but do not appear
-         * in [original] receive value YES_AUTO. Entries provided in [original] are copied over.
-         *
-         * The intervals should be sorted by date. The first element in the list should
-         * correspond to the newest interval.
-         */
+        // Fill schedule intervals before applying original completions skips and notes
         fun buildEntriesFromInterval(
             original: List<Entry>,
             intervals: List<Interval>
@@ -214,14 +176,7 @@ open class EntryList {
             return result
         }
 
-        /**
-         * Starting from the second newest interval, this function tries to slide the
-         * intervals backwards into the past, so that gaps are eliminated and
-         * streaks are maximized.
-         *
-         * The intervals should be sorted by date. The first element in the list should
-         * correspond to the newest interval.
-         */
+        // Slide older intervals backwards to close gaps without passing their completed dates
         fun snapIntervalsTogether(intervals: ArrayList<Interval>) {
             for (i in 1 until intervals.size) {
                 val curr = intervals[i]
@@ -239,6 +194,7 @@ open class EntryList {
             }
         }
 
+        // Build covered date ranges when enough manual completions meet the schedule
         fun buildIntervals(
             freq: Frequency,
             entries: List<Entry>
@@ -251,6 +207,7 @@ open class EntryList {
                 val begin = filtered[i].date
                 val center = filtered[i - num + 1].date
                 var size = den
+                // Monthly schedules use the actual month length when building covered ranges
                 if (den == 30 || den == 31) {
                     size = if (begin.day == begin.monthLength) {
                         begin.plus(1).monthLength
@@ -282,23 +239,7 @@ private fun truncateDate(
     }
 }
 
-/**
- * Given a list of entries, truncates the date of each entry (according to the field given),
- * groups the entries according to this truncated date, then creates a new entry (d,v) for
- * each group, where d is the truncated date and v is the sum of the values of all entries in
- * the group.
- *
- * For numerical habits, non-positive entry values are converted to zero. For boolean habits, each
- * YES_MANUAL value is converted to 1000 and all other values are converted to zero.
- *
- * SKIP values are converted to zero (if they weren't, each SKIP day would count as 0.003).
- *
- * The returned list is sorted by date, with the newest entry coming first and the oldest entry
- * coming last. If the original list has gaps in it (for example, weeks or months without any
- * entries), then the list produced by this method will also have gaps.
- *
- * The argument [firstWeekday] is only relevant when truncating by week.
- */
+// Sum numerical values or manual completions by period with newest periods first
 fun List<Entry>.groupedSum(
     truncateField: TruncateField,
     firstWeekday: Int = 7,
@@ -324,9 +265,7 @@ fun List<Entry>.groupedSum(
     }
 }
 
-/**
- * Counts the number of days with value SKIP in the given period.
- */
+// Count skipped days by period so charts can account for paused days
 fun List<Entry>.countSkippedDays(
     truncateField: TruncateField,
     firstWeekday: Int = 7

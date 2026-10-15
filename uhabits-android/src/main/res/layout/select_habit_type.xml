@@ -22,6 +22,11 @@
         app:cardElevation="12dp"
         app:strokeWidth="0dp">
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,8 +95,9 @@
                 android:layout_marginTop="@dimen/flow_medium_spacing"
                 android:text="@android:string/cancel"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white"
+                android:textColor="?attr/flowOnAccentColor"
                 app:rippleColor="?attr/flowRippleColor" />
         </LinearLayout>
+        </ScrollView>
     </com.google.android.material.card.MaterialCardView>
 </FrameLayout>

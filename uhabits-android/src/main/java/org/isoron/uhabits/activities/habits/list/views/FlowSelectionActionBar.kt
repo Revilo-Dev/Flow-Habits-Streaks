@@ -1,53 +1,65 @@
-/*
- * Copyright (C) 2016-2025 Álinson Santos Xavier <git@axavier.org>
- *
- * This file is part of Loop Habit Tracker.
- *
- * Loop Habit Tracker is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- */
-
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
-import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.core.graphics.ColorUtils
+import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.TooltipCompat
 import androidx.core.view.ViewCompat
+import com.google.android.material.button.MaterialButton
 import org.isoron.uhabits.R
-import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.sres
 
 class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
-    private val edit = addAction(R.drawable.flow_ic_edit, R.string.edit)
-    private val color = addAction(R.drawable.palette, R.string.color)
-    private val archive = addAction(R.drawable.archive, R.string.archive)
-    private val unarchive = addAction(R.drawable.flow_ic_unarchive, R.string.unarchive)
-    private val delete = addAction(R.drawable.delete, R.string.delete)
+    var onExit: (() -> Unit)? = null
+    private val count = TextView(context).apply {
+        setTextAppearance(R.style.TextAppearance_Flow_Supporting)
+        accessibilityLiveRegion = ACCESSIBILITY_LIVE_REGION_POLITE
+    }
+    private val actions = LinearLayout(context)
+    private val edit = action(R.drawable.flow_ic_edit, R.string.edit)
+    private val color = action(R.drawable.palette, R.string.color)
+    private val archive = action(R.drawable.archive, R.string.archive)
+    private val unarchive = action(R.drawable.flow_ic_unarchive, R.string.unarchive)
+    private val delete = action(R.drawable.delete, R.string.delete)
 
     init {
-        orientation = HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        val inset = dim(R.dimen.flow_small_spacing).toInt()
-        setPadding(inset, inset, inset, inset)
-        background = resources.getDrawable(R.drawable.flow_selection_actions_background, context.theme)
-        clipToOutline = true
-        ViewCompat.setElevation(
-            this,
-            if (ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5) {
-                dim(R.dimen.flow_card_elevation)
-            } else {
-                0f
-            }
+        orientation = VERTICAL
+        val padding = resources.getDimensionPixelSize(R.dimen.flow_medium_spacing)
+        setPadding(padding, 0, padding, padding)
+        setBackgroundResource(R.drawable.flow_selection_actions_background)
+        val target = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+        val heading = LinearLayout(context).apply { gravity = Gravity.CENTER_VERTICAL }
+        heading.addView(count, LayoutParams(0, WRAP_CONTENT, 1f))
+        heading.addView(
+            ImageButton(context).apply {
+                setImageResource(R.drawable.flow_ic_close)
+                background = null
+                setColorFilter(sres.getColor(R.attr.flowTextPrimaryColor))
+                contentDescription = resources.getString(R.string.flow_exit_selection)
+                TooltipCompat.setTooltipText(this, contentDescription)
+                setOnClickListener { onExit?.invoke() }
+            },
+            LayoutParams(target, target)
+        )
+        addView(heading, LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+        addView(
+            HorizontalScrollView(context).apply {
+                isHorizontalScrollBarEnabled = true
+                addView(actions)
+            },
+            LayoutParams(MATCH_PARENT, WRAP_CONTENT)
         )
         visibility = GONE
+    }
+
+    fun setSelectionCount(selected: Int) {
+        count.text = resources.getQuantityString(R.plurals.flow_selection_count, selected, selected)
     }
 
     fun setActions(
@@ -61,10 +73,8 @@ class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
         onDelete: () -> Unit
     ) {
         edit.visibility = if (canEdit) VISIBLE else GONE
-        color.visibility = VISIBLE
         archive.visibility = if (canArchive) VISIBLE else GONE
         unarchive.visibility = if (canUnarchive) VISIBLE else GONE
-        delete.visibility = VISIBLE
         edit.setOnClickListener { onEdit() }
         color.setOnClickListener { onColor() }
         archive.setOnClickListener { onArchive() }
@@ -73,42 +83,25 @@ class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
     }
 
     fun show() {
-        if (visibility == VISIBLE) return
-        animate().cancel()
         visibility = VISIBLE
-        alpha = 0f
-        translationY = dim(R.dimen.flow_large_spacing)
-        animate().alpha(1f).translationY(0f).setDuration(180).start()
+        ViewCompat.requestApplyInsets(this)
     }
 
     fun hide() {
-        if (visibility != VISIBLE) return
-        animate().cancel()
-        animate().alpha(0f).translationY(dim(R.dimen.flow_large_spacing)).setDuration(140)
-            .withEndAction {
-                visibility = GONE
-                alpha = 1f
-                translationY = 0f
-            }.start()
+        visibility = GONE
     }
 
-    private fun addAction(icon: Int, description: Int): ImageButton {
-        return ImageButton(context).apply {
-            layoutParams = LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.flow_min_touch_target),
-                resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
-            )
-            background = resources.getDrawable(R.drawable.flow_selection_action_background, context.theme)
-            contentDescription = resources.getString(description)
-            setImageResource(icon)
-            imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextPrimaryColor))
-            setPadding(
-                dim(R.dimen.flow_medium_spacing).toInt(),
-                dim(R.dimen.flow_medium_spacing).toInt(),
-                dim(R.dimen.flow_medium_spacing).toInt(),
-                dim(R.dimen.flow_medium_spacing).toInt()
-            )
-            addView(this)
-        }
+    private fun action(iconResource: Int, label: Int) = MaterialButton(
+        context,
+        null,
+        com.google.android.material.R.attr.materialButtonOutlinedStyle
+    ).apply {
+        text = resources.getString(label)
+        isAllCaps = false
+        icon = AppCompatResources.getDrawable(context, iconResource)
+        iconTint = android.content.res.ColorStateList.valueOf(sres.getColor(R.attr.flowTextPrimaryColor))
+        setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
+        minHeight = resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)
+        actions.addView(this, LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
     }
 }

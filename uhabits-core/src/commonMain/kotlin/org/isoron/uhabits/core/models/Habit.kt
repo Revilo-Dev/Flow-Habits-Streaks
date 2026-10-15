@@ -29,6 +29,7 @@ data class Habit(
     var frequency: Frequency = Frequency.DAILY,
     var id: Long? = null,
     var isArchived: Boolean = false,
+    var skipsCountTowardsStreaks: Boolean = false,
     var icon: String = "",
     var name: String = "",
     var position: Int = 0,
@@ -58,6 +59,7 @@ data class Habit(
 
     fun hasReminder(): Boolean = reminder != null
 
+    // At most habits stay open because later entries can exceed the limit
     fun isCompletedToday(): Boolean {
         val today = getToday()
         val value = computedEntries.get(today).value
@@ -77,6 +79,7 @@ data class Habit(
         return value != Entry.UNKNOWN
     }
 
+    // Rebuild derived entries scores and streaks from the saved answers
     fun recompute() {
         computedEntries.recomputeFrom(
             originalEntries = originalEntries,
@@ -106,7 +109,8 @@ data class Habit(
             to,
             isNumerical,
             targetValue,
-            targetType
+            targetType,
+            skipsCountTowardsStreaks
         )
     }
 
@@ -114,8 +118,9 @@ data class Habit(
         this.color = other.color
         this.description = other.description
         this.frequency = other.frequency
-        // this.id should not be copied
+        // Keep the database identity of the destination habit
         this.isArchived = other.isArchived
+        this.skipsCountTowardsStreaks = other.skipsCountTowardsStreaks
         this.icon = other.icon
         this.name = other.name
         this.position = other.position
@@ -137,6 +142,7 @@ data class Habit(
         if (frequency != other.frequency) return false
         if (id != other.id) return false
         if (isArchived != other.isArchived) return false
+        if (skipsCountTowardsStreaks != other.skipsCountTowardsStreaks) return false
         if (icon != other.icon) return false
         if (name != other.name) return false
         if (position != other.position) return false
@@ -157,6 +163,7 @@ data class Habit(
         result = 31 * result + frequency.hashCode()
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + isArchived.hashCode()
+        result = 31 * result + skipsCountTowardsStreaks.hashCode()
         result = 31 * result + icon.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + position

@@ -59,6 +59,7 @@ class FireSettingReceiver : BroadcastReceiver() {
         val today = getToday()
         val controller = component.widgetController
 
+        // Use the shared widget behavior so automation updates follow the same save path
         when (args.action) {
             ACTION_CHECK -> controller.onAddRepetition(args.habit, today)
             ACTION_UNCHECK -> controller.onRemoveRepetition(args.habit, today)

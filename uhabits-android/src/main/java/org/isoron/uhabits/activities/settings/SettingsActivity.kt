@@ -32,8 +32,8 @@ import org.isoron.uhabits.databinding.SettingsActivityBinding
 import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
-import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.bindFlowHeader
+import org.isoron.uhabits.utils.setupToolbar
 
 class SettingsActivity : FlowActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +57,15 @@ class SettingsActivity : FlowActivity() {
         binding.collapsingToolbar.setStatusBarScrimColor(Color.TRANSPARENT)
         binding.toolbar.setBackgroundColor(Color.TRANSPARENT)
         binding.toolbar.elevation = 0f
-        binding.appBar.bindFlowHeader(binding.toolbar)
+        binding.toolbar.setTitleTextAppearance(this, R.style.TextAppearance_Flow_CompactTitle)
+        binding.appBar.bindFlowHeader(binding.toolbar) { collapsed, _ ->
+            binding.toolbar.title = if (collapsed) getString(R.string.settings) else ""
+        }
+        binding.root.addOnLayoutChangeListener { _, _, top, _, bottom, _, _, _, _ ->
+            if ((bottom - top) / resources.displayMetrics.density < 480) {
+                binding.appBar.setExpanded(false, false)
+            }
+        }
         val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
         WindowInsetsControllerCompat(window, binding.root).isAppearanceLightStatusBars =
             ColorUtils.calculateLuminance(flowBackground) > 0.5

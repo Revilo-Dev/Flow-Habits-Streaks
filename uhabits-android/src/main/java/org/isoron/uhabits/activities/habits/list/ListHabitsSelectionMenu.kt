@@ -25,8 +25,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
-import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.activities.habits.list.views.FlowSelectionActionBar
+import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.core.ui.screens.habits.list.ListHabitsSelectionMenuBehavior
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
@@ -55,12 +55,14 @@ class ListHabitsSelectionMenu(
         rootView()?.alignSelectionControls(false)
     }
 
+    // Offer only the bulk actions allowed by the current selection
     private fun updateActions() {
         if (listAdapter.isSelectionEmpty) {
             onSelectionFinish()
             return
         }
         selectionActions()?.apply {
+            setSelectionCount(listAdapter.selected.size)
             setActions(
                 canEdit = behavior.canEdit(),
                 canArchive = behavior.canArchive(),
@@ -74,7 +76,7 @@ class ListHabitsSelectionMenu(
             show()
         }
         rootView()?.alignSelectionControls(true)
-        reorderPrompt()?.visibility = View.VISIBLE
+        reorderPrompt()?.visibility = View.GONE
     }
 
     private fun selectionActions(): FlowSelectionActionBar? {

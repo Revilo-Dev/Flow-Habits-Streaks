@@ -21,29 +21,36 @@ import org.isoron.uhabits.core.models.NumericalHabitType
 data class CurrentStreakCardState(
     val currentStreak: Int,
     val lastSevenDays: List<Boolean>,
-    val firstWeekday: DayOfWeek
+    val firstWeekday: DayOfWeek,
+    val lastSevenDaysSkipped: List<Boolean> = List(7) { false },
+    val skipsCountTowardsStreaks: Boolean = false
 ) {
     val todayComplete: Boolean
         get() = lastSevenDays.lastOrNull() == true
 }
 
+// Build the individual streak card independently from the best streak chart
 object CurrentStreakCardPresenter {
     fun buildState(
         habit: Habit,
         firstWeekday: DayOfWeek
     ): CurrentStreakCardState {
         val today = getToday()
+        // Keep the rolling week ordered from oldest to newest
         val lastSevenDays = (6 downTo 0).map { offset ->
             isComplete(habit, today.minus(offset))
         }
         val todayComplete = lastSevenDays.last()
         var currentStreak = 0
+        // An unanswered today allows the streak through yesterday but a recorded failure resets it
         if (!isExplicitFailure(habit, today)) {
             var date = today.minus(if (todayComplete || isSkipped(habit, today)) 0 else 1)
             while (true) {
                 when {
                     isComplete(habit, date) -> currentStreak++
-                    isSkipped(habit, date) -> Unit
+                    isSkipped(habit, date) -> {
+                        if (habit.skipsCountTowardsStreaks) currentStreak++
+                    }
                     else -> break
                 }
                 date = date.minus(1)
@@ -52,7 +59,9 @@ object CurrentStreakCardPresenter {
         return CurrentStreakCardState(
             currentStreak = currentStreak,
             lastSevenDays = lastSevenDays,
-            firstWeekday = firstWeekday
+            firstWeekday = firstWeekday,
+            lastSevenDaysSkipped = (6 downTo 0).map { isSkipped(habit, today.minus(it)) },
+            skipsCountTowardsStreaks = habit.skipsCountTowardsStreaks
         )
     }
 

@@ -28,9 +28,7 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import kotlin.math.min
 
-/**
- * Class that exports the application data to CSV files inside a ZIP archive.
- */
+// Package habit metadata scores and checkmarks into a CSV archive
 class HabitsCSVExporter(
     private val allHabits: HabitList,
     private val selectedHabits: List<Habit>
@@ -39,6 +37,7 @@ class HabitsCSVExporter(
 
     suspend fun writeArchive(): ByteArray {
         val zip = ZipWriter()
+        // The metadata file includes all habits even when the history selection is smaller
         zip.addEntry("Habits.csv", allHabits.writeCSV())
         for (h in selectedHabits) {
             val habitDirName = habitDirName(h)
@@ -75,6 +74,7 @@ class HabitsCSVExporter(
 
     private fun writeEntries(entries: EntryList): String {
         val sb = StringBuilder()
+        // Daily notes are included in the individual habit history files
         sb.append(csvLine(arrayOf("Date", "Value", "Notes")))
         for (entry in entries.getKnown()) {
             sb.append(csvLine(arrayOf(entry.date.toCSVString(), entry.formattedValue, entry.notes)))

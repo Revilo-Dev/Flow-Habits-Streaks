@@ -33,11 +33,14 @@ import java.util.Locale
 class HistoryCardView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
 
     private var binding = ShowHabitHistoryBinding.inflate(LayoutInflater.from(context), this)
+    private var presenter: HistoryCardPresenter? = null
+    val chartView get() = binding.historyChart
 
     fun setState(state: HistoryCardState) {
         val androidColor = state.theme.color(state.color).toInt()
         binding.title.setTextColor(androidColor)
-        binding.chart.view = HistoryChart(
+        val previousOffset = binding.historyChart.view?.dataOffset ?: 0
+        binding.historyChart.view = HistoryChart(
             today = state.today,
             paletteColor = state.color,
             theme = state.theme,
@@ -45,12 +48,15 @@ class HistoryCardView(context: Context, attrs: AttributeSet) : LinearLayout(cont
             series = state.series,
             defaultSquare = state.defaultSquare,
             notesIndicators = state.notesIndicators,
-            firstWeekday = state.firstWeekday
-        )
-        binding.chart.postInvalidate()
+            firstWeekday = state.firstWeekday,
+            onDateClickedListener = presenter ?: object : org.isoron.uhabits.core.ui.views.OnDateClickedListener {}
+        ).apply { dataOffset = previousOffset }
+        binding.historyChart.postInvalidate()
     }
 
     fun setListener(presenter: HistoryCardPresenter) {
+        this.presenter = presenter
+        (binding.historyChart.view as? HistoryChart)?.onDateClickedListener = presenter
         binding.edit.setOnClickListener { presenter.onClickEditButton() }
     }
 }

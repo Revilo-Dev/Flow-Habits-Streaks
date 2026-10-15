@@ -1,82 +1,74 @@
-/*
- * Copyright (C) 2016-2025 Álinson Santos Xavier <git@axavier.org>
- *
- * This file is part of Loop Habit Tracker.
- *
- * Loop Habit Tracker is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- *
- * Loop Habit Tracker is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.view.Gravity.CENTER
-import android.view.View
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
+import com.google.android.material.button.MaterialButton
 import org.isoron.uhabits.R
-import org.isoron.uhabits.utils.dp
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.str
 
 class EmptyListView(context: Context) : LinearLayout(context) {
-    var textTextView: TextView
-    var iconView: AppCompatImageView
+    var onCreateHabit: (() -> Unit)? = null
+    var onClearFilters: (() -> Unit)? = null
+    val iconView = AppCompatImageView(context).apply {
+        imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextSecondaryColor))
+        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+    }
+    val textTextView = TextView(context).apply {
+        setTextAppearance(R.style.TextAppearance_Flow_Body)
+        gravity = Gravity.CENTER
+        accessibilityLiveRegion = ACCESSIBILITY_LIVE_REGION_POLITE
+    }
+    private val action = MaterialButton(
+        context,
+        null,
+        com.google.android.material.R.attr.materialButtonOutlinedStyle
+    ).apply { isAllCaps = false }
 
     init {
         orientation = VERTICAL
-        gravity = CENTER
-        visibility = View.GONE
-
-        iconView = AppCompatImageView(context).apply {
-            setImageResource(R.drawable.flow_ic_calendar_task)
-            imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextSecondaryColor))
-            contentDescription = null
-        }
-
-        addView(
-            iconView,
-            MATCH_PARENT,
-            dp(48.0f).toInt()
-        )
-
-        textTextView = TextView(context).apply {
-            text = str(R.string.no_habits_found)
-            gravity = CENTER
-            setPadding(0, dp(20.0f).toInt(), 0, 0)
-            setTextColor(sres.getColor(R.attr.contrast60))
-        }
-        addView(
-            textTextView,
-            MATCH_PARENT,
-            WRAP_CONTENT
-        )
+        gravity = Gravity.CENTER
+        val padding = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
+        setPadding(padding, padding, padding, padding)
+        addView(iconView, LayoutParams(LayoutParams.MATCH_PARENT, resources.getDimensionPixelSize(R.dimen.flow_min_touch_target)))
+        addView(textTextView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply { topMargin = padding })
+        addView(action, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        visibility = GONE
     }
 
     fun showDone() {
-        visibility = VISIBLE
-        iconView.setImageResource(R.drawable.checkbox_checked)
-        textTextView.text = str(R.string.no_habits_left_to_do)
+        show(R.drawable.checkbox_checked, resources.getString(R.string.no_habits_left_to_do), R.string.flow_clear_filters) {
+            onClearFilters?.invoke()
+        }
     }
 
     fun showEmpty() {
+        show(R.drawable.flow_ic_calendar_task, resources.getString(R.string.no_habits_found), R.string.add_habit) {
+            onCreateHabit?.invoke()
+        }
+    }
+
+    fun showNoResults(query: String) {
+        show(R.drawable.search, resources.getString(R.string.flow_no_search_results, query), R.string.flow_clear_filters) {
+            onClearFilters?.invoke()
+        }
+    }
+
+    fun showFiltered() {
+        show(R.drawable.flow_ic_filter, resources.getString(R.string.flow_no_filter_results), R.string.flow_clear_filters) {
+            onClearFilters?.invoke()
+        }
+    }
+
+    private fun show(icon: Int, message: String, label: Int, callback: () -> Unit) {
         visibility = VISIBLE
-        iconView.setImageResource(R.drawable.flow_ic_calendar_task)
-        textTextView.text = str(R.string.no_habits_found)
+        iconView.setImageResource(icon)
+        textTextView.text = message
+        action.setText(label)
+        action.setOnClickListener { callback() }
     }
 
     fun hide() {

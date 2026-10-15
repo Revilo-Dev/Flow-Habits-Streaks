@@ -80,6 +80,7 @@ android {
         }
 
         debug {
+            applicationIdSuffix = ".debug"
             enableUnitTestCoverage = true
         }
     }

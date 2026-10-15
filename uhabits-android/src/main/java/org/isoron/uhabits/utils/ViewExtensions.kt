@@ -122,7 +122,12 @@ fun View.showMessage(msg: String) {
         snackbar.view.elevation = dim(R.dimen.flow_card_elevation)
         val tvId = R.id.snackbar_text
         val tv = snackbar.view.findViewById<TextView>(tvId)
-        tv?.setTextColor(Color.WHITE)
+        tv?.setTextColor(sres.getColor(R.attr.flowTextPrimaryColor))
+        val host = rootView
+        val actionAnchor = listOf(R.id.flowSelectionActions, R.id.bottomActionBar, R.id.flowHomeSearchBar, R.id.actionCreateHabit)
+            .mapNotNull { host.findViewById<View>(it) }
+            .firstOrNull { it.visibility == View.VISIBLE }
+        if (actionAnchor != null) snackbar.anchorView = actionAnchor
         snackbar.show()
     } catch (e: IllegalArgumentException) {
         return
@@ -234,7 +239,9 @@ fun Toolbar.updateFlowStickyControls(isSticky: Boolean, compact: Boolean = false
                         0,
                         verticalInset
                     )
-                } else null
+                } else {
+                    null
+                }
                 child.setPadding(inset, 0, inset, 0)
                 child.translationX = if (isSticky && compact) -inset.toFloat() else 0f
             }
@@ -247,7 +254,9 @@ fun Toolbar.updateFlowStickyControls(isSticky: Boolean, compact: Boolean = false
                     },
                     inset
                 )
-            } else null
+            } else {
+                null
+            }
         }
     }
 }
@@ -311,21 +320,30 @@ fun View.getCenter(): PointF {
 }
 
 fun View.applyRootViewInsets() {
+    addOnLayoutChangeListener { view, left, _, right, _, oldLeft, _, oldRight, _ ->
+        if (right - left != oldRight - oldLeft) ViewCompat.requestApplyInsets(view)
+    }
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
         val displayCutoutInsets = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
         val left = maxOf(systemBarsInsets.left, displayCutoutInsets.left)
         val right = maxOf(systemBarsInsets.right, displayCutoutInsets.right)
-        view.setPadding(left, 0, right, 0)
+        val maximumWidth = resources.getDimensionPixelSize(R.dimen.flow_content_max_width)
+        val columnInset = ((view.width - left - right - maximumWidth) / 2).coerceAtLeast(0)
+        view.setPadding(left + columnInset, 0, right + columnInset, 0)
         insets
     }
 }
 
 fun View.applyBottomInset() {
+    val originalLeft = paddingLeft
+    val originalTop = paddingTop
+    val originalRight = paddingRight
+    val originalBottom = paddingBottom
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
         val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-        view.setPadding(0, 0, 0, maxOf(systemBarsInsets.bottom, imeInsets.bottom))
+        view.setPadding(originalLeft, originalTop, originalRight, originalBottom + maxOf(systemBarsInsets.bottom, imeInsets.bottom))
         insets
     }
 }
@@ -338,4 +356,32 @@ fun View.applyToolbarInsets() {
         view.setPadding(0, top, 0, 0)
         insets
     }
+}
+
+// Measure the action region so enlarged labels and the keyboard keep content reachable
+fun View.bindBottomActionClearance(scrollable: View, gap: Int) {
+    var bottomInset = 0
+    fun update() {
+        val params = layoutParams as? ViewGroup.MarginLayoutParams ?: return
+        val margin = gap + bottomInset
+        if (params.bottomMargin != margin) {
+            params.bottomMargin = margin
+            layoutParams = params
+        }
+        val clearance = height + gap * 2 + bottomInset
+        if (scrollable.paddingBottom != clearance) {
+            scrollable.setPadding(scrollable.paddingLeft, scrollable.paddingTop, scrollable.paddingRight, clearance)
+        }
+    }
+    addOnLayoutChangeListener { _, _, top, _, bottom, _, oldTop, _, oldBottom ->
+        if (bottom - top != oldBottom - oldTop) update()
+    }
+    ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+        val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        val keyboard = insets.getInsets(WindowInsetsCompat.Type.ime())
+        bottomInset = maxOf(bars.bottom, keyboard.bottom)
+        update()
+        insets
+    }
+    post { update() }
 }

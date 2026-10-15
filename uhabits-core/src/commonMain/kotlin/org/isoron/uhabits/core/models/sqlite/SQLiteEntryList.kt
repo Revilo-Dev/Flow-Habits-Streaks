@@ -30,6 +30,7 @@ class SQLiteEntryList(val repository: EntryRepository) : EntryList() {
     var habitId: Long? = null
     var isLoaded = false
 
+    // Load saved entries once when the habit history is first needed
     private fun loadRecords() {
         if (isLoaded) return
         val habitId = habitId ?: throw IllegalStateException("habitId must be set")
@@ -54,6 +55,7 @@ class SQLiteEntryList(val repository: EntryRepository) : EntryList() {
         loadRecords()
         val habitId = habitId ?: throw IllegalStateException("habitId must be set")
 
+        // Replace the saved answer so each habit has one entry per date
         repository.deleteByHabitIdAndTimestamp(habitId, entry.date.unixTime)
 
         val data = EntryData(

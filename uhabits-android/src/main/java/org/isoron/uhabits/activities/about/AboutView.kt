@@ -29,14 +29,14 @@ import androidx.core.view.WindowInsetsControllerCompat
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.databinding.AboutBinding
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.applyBottomInset
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
-import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.bindFlowHeader
 
 @SuppressLint("ViewConstructor")
 class AboutView(
@@ -65,7 +65,9 @@ class AboutView(
             topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
             includeTopInset = true
         )
+        binding.toolbar.setTitleTextAppearance(context, R.style.TextAppearance_Flow_CompactTitle)
         binding.appBar.bindFlowHeader(binding.toolbar) { collapsed, _ ->
+            binding.toolbar.title = if (collapsed) resources.getString(R.string.about) else ""
             binding.aboutHeader.visibility = if (collapsed) View.INVISIBLE else View.VISIBLE
             scrollFades.update(topAllowed = collapsed)
         }
@@ -91,6 +93,11 @@ class AboutView(
         binding.tvTranslate.setOnClickListener { screen.showTranslationWebsite() }
         binding.tvVersion.setOnClickListener { screen.onPressDeveloperCountdown() }
         binding.tvVersion.text = resources.getString(R.string.version_n, "1.0.0")
+        binding.root.addOnLayoutChangeListener { _, _, top, _, bottom, _, _, _, _ ->
+            if ((bottom - top) / resources.displayMetrics.density < 480) {
+                binding.appBar.setExpanded(false, false)
+            }
+        }
         binding.outerLinearLayout.applyBottomInset()
         applyRootViewInsets()
     }

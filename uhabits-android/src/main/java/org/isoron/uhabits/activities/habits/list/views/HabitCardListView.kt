@@ -22,8 +22,6 @@ package org.isoron.uhabits.activities.habits.list.views
 import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -64,7 +62,6 @@ class HabitCardListView(
             attachedHolders.forEach { (it.itemView as HabitCardView).buttonCount = value }
         }
 
-
     var dataOffset: Int = 0
         set(value) {
             field = value
@@ -87,12 +84,33 @@ class HabitCardListView(
         super.setAdapter(adapter)
     }
 
+    private var bottomInset = 0
+    private var overlayClearance = 0
+
+    fun setBottomClearance(clearance: Int) {
+        overlayClearance = clearance
+        val bottom = maxOf(bottomInset, overlayClearance)
+        if (paddingBottom != bottom) setPadding(paddingLeft, paddingTop, paddingRight, bottom)
+    }
+
+    fun restoreSelection(habits: List<Habit>) {
+        adapter.selected.clear()
+        adapter.selected.addAll(habits)
+        controller.value.onModelChange()
+        adapter.notifyDataSetChanged()
+        adapter.observable.notifyListeners()
+    }
+
+    fun selectVisibleHabits() {
+        restoreSelection((0 until adapter.itemCount).mapNotNull { adapter.getItem(it) })
+    }
+
     private fun applyBottomInset() {
         clipToPadding = false
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            setPadding(paddingLeft, paddingTop, paddingRight,
-                bars.bottom + resources.getDimensionPixelSize(R.dimen.flow_fab_clearance))
+            bottomInset = bars.bottom
+            setBottomClearance(overlayClearance)
             insets
         }
     }
@@ -124,11 +142,31 @@ class HabitCardListView(
         cardView.notes = notes
         cardView.requestLayout()
 
-        val detector = GestureDetector(context, CardViewGestureDetector(holder))
-        cardView.setOnTouchListener { _, ev ->
-            detector.onTouchEvent(ev)
+        cardView.isFocusable = true
+        cardView.setOnClickListener {
+            val index = holder.adapterPosition
+            if (index != NO_POSITION) controller.value.onItemClick(index)
+        }
+        cardView.setOnLongClickListener {
+            val index = holder.adapterPosition
+            if (index != NO_POSITION) {
+                controller.value.onItemLongClick(index)
+                if (adapter.isSortable) touchHelper.startDrag(holder)
+            }
             true
         }
+        cardView.setReorderActions(
+            canMoveUp = adapter.isSortable && holder.adapterPosition > 0,
+            canMoveDown = adapter.isSortable && holder.adapterPosition < adapter.itemCount - 1,
+            onMoveUp = {
+                val index = holder.adapterPosition
+                if (adapter.isSortable && index > 0) controller.value.drop(index, index - 1)
+            },
+            onMoveDown = {
+                val index = holder.adapterPosition
+                if (adapter.isSortable && index in 0 until adapter.itemCount - 1) controller.value.drop(index, index + 1)
+            }
+        )
 
         return cardView
     }
@@ -174,23 +212,6 @@ class HabitCardListView(
         fun onItemClick(pos: Int) {}
         fun onItemLongClick(pos: Int) {}
         fun startDrag(position: Int) {}
-    }
-
-    private inner class CardViewGestureDetector(
-        private val holder: HabitCardViewHolder
-    ) : GestureDetector.SimpleOnGestureListener() {
-
-        override fun onLongPress(e: MotionEvent) {
-            val position = holder.adapterPosition
-            controller.value.onItemLongClick(position)
-            if (adapter.isSortable) touchHelper.startDrag(holder)
-        }
-
-        override fun onSingleTapUp(e: MotionEvent): Boolean {
-            val position = holder.adapterPosition
-            controller.value.onItemClick(position)
-            return true
-        }
     }
 
     inner class TouchHelperCallback : ItemTouchHelper.Callback() {

@@ -12,7 +12,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 
-/** Reaching the top of the list ends this gesture; a fresh pull opens the header. */
+// Require a fresh pull from the top before allowing the header to expand
 class FlowHeaderBehavior @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -50,7 +50,7 @@ class FlowHeaderBehavior @JvmOverloads constructor(
     }
 }
 
-/** Collapsing the header and scrolling the page are separate visual states. */
+// Track header collapse separately from whether the page content has scrolled
 fun AppBarLayout.bindFlowHeader(
     toolbar: Toolbar,
     compact: Boolean = false,
@@ -87,6 +87,7 @@ fun AppBarLayout.bindFlowHeader(
             view.post { update() }
         }
         override fun onViewDetachedFromWindow(view: View) {
+            // Remove the scroll listener from the same observer used during attachment
             observer?.takeIf { it.isAlive }?.removeOnScrollChangedListener(scrollListener)
             observer = null
         }

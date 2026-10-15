@@ -85,6 +85,7 @@ open class ReminderScheduler(
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
         var reminderTime = calendar.timeInMillis
+        // Use a saved snooze only while its time is still in the future
         val snoozeReminderTime = widgetPreferences.getSnoozeTime(habit.id!!)
         if (snoozeReminderTime != 0L) {
             val now = DateUtils.applyTimezone(DateUtils.getLocalTime())

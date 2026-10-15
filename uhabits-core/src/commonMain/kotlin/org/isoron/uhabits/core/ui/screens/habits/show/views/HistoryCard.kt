@@ -65,6 +65,10 @@ class HistoryCardPresenter(
 ) : OnDateClickedListener {
 
     override fun onDateLongPress(date: LocalDate) {
+        if (habit.computedEntries.get(date).notes.isNotBlank()) {
+            onEditEntry(date)
+            return
+        }
         screen.showFeedback()
         if (habit.isNumerical) {
             showNumberPopup(date)
@@ -78,6 +82,11 @@ class HistoryCardPresenter(
     }
 
     override fun onDateShortPress(date: LocalDate) {
+        val notes = habit.computedEntries.get(date).notes
+        if (notes.isNotBlank()) {
+            screen.showNote(date, notes) { onEditEntry(date) }
+            return
+        }
         screen.showFeedback()
         if (habit.isNumerical) {
             showNumberPopup(date)
@@ -90,7 +99,13 @@ class HistoryCardPresenter(
         }
     }
 
+    fun onEditEntry(date: LocalDate) {
+        screen.showFeedback()
+        if (habit.isNumerical) showNumberPopup(date) else showCheckmarkPopup(date)
+    }
+
     private fun showCheckmarkPopup(date: LocalDate) {
+        screen.setEntryContext(habit, date)
         val entry = habit.computedEntries.get(date)
         screen.showCheckmarkPopup(
             entry.value,
@@ -128,6 +143,7 @@ class HistoryCardPresenter(
     }
 
     private fun showNumberPopup(date: LocalDate) {
+        screen.setEntryContext(habit, date)
         val entry = habit.computedEntries.get(date)
         val oldValue = entry.value
         screen.showNumberPopup(
@@ -200,7 +216,9 @@ class HistoryCardPresenter(
     }
 
     interface Screen {
+        fun setEntryContext(habit: Habit, date: LocalDate) {}
         fun showHistoryEditorDialog(listener: OnDateClickedListener)
+        fun showNote(date: LocalDate, notes: String, onEdit: () -> Unit)
         fun showFeedback()
         fun showNumberPopup(
             value: Double,

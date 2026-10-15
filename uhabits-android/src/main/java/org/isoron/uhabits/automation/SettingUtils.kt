@@ -26,6 +26,7 @@ import org.isoron.uhabits.core.models.HabitList
 object SettingUtils {
     @JvmStatic
     fun parseIntent(intent: Intent, allHabits: HabitList): Arguments? {
+        // Ignore automation requests with missing data or unknown habits
         val bundle = intent.getBundleExtra(EXTRA_BUNDLE) ?: return null
         val action = bundle.getInt("action")
         if (action < 0 || action > 4) return null

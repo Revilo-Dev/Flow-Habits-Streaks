@@ -54,8 +54,10 @@ open class ListHabitsBehavior(
     }
 
     open fun onEdit(habit: Habit, date: LocalDate, x: Float, y: Float) {
+        screen.setEntryContext(habit, date)
         val entry = habit.computedEntries.get(date)
         if (habit.type == HabitType.NUMERICAL) {
+            // Convert stored thousandths to display units before opening the number editor
             val oldValue = entry.value.toDouble() / 1000
             screen.showNumberPopup(oldValue, entry.notes) { newValue: Double, newNotes: String ->
                 val value = (newValue * 1000).roundToInt()
@@ -159,6 +161,7 @@ open class ListHabitsBehavior(
     }
 
     interface Screen {
+        fun setEntryContext(habit: Habit, date: LocalDate) {}
         fun showHabitScreen(h: Habit)
         fun showIntroScreen()
         fun showMessage(m: Message)

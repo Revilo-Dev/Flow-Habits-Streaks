@@ -23,6 +23,7 @@ import android.content.Context
 import me.tatarka.inject.annotations.Inject
 import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
+import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.NumericalHabitType
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.inject.ActivityContext
@@ -41,6 +42,12 @@ class NumberPanelView(
     preferences: Preferences,
     private val buttonFactory: NumberButtonViewFactory
 ) : ButtonPanelView<NumberButtonView>(context, preferences) {
+
+    var habitName = ""
+        set(value) {
+            field = value
+            setupButtons()
+        }
 
     var values = DoubleArray(0)
         set(values) {
@@ -94,7 +101,7 @@ class NumberPanelView(
             val date = today.minus(index + dataOffset)
             button.value = when {
                 index + dataOffset < values.size -> values[index + dataOffset]
-                else -> 0.0
+                else -> org.isoron.uhabits.core.models.Entry.UNKNOWN / 1000.0
             }
             button.notes = when {
                 index + dataOffset < notes.size -> notes[index + dataOffset]
@@ -104,6 +111,18 @@ class NumberPanelView(
             button.targetType = targetType
             button.threshold = threshold
             button.units = units
+            val status = when (button.value) {
+                org.isoron.uhabits.core.models.Entry.SKIP / 1000.0 -> resources.getString(R.string.flow_calendar_skipped)
+                org.isoron.uhabits.core.models.Entry.UNKNOWN / 1000.0 -> resources.getString(R.string.flow_calendar_unrecorded)
+                else -> resources.getString(
+                    if (targetType == NumericalHabitType.AT_MOST) R.string.flow_value_at_most else R.string.flow_value_progress,
+                    java.text.NumberFormat.getNumberInstance().format(button.value),
+                    java.text.NumberFormat.getNumberInstance().format(threshold),
+                    units
+                )
+            }
+            val formatter = java.text.DateFormat.getDateInstance().apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
+            button.contentDescription = resources.getString(R.string.flow_checkin_description, habitName, formatter.format(java.util.Date(date.unixTime)), status)
             button.onEdit = { onEdit(date) }
         }
     }

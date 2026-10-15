@@ -111,4 +111,82 @@ class StreakListTest : BaseUnitTest() {
         assertEquals(2, streak.length)
         assertEquals(today.minus(4), streak.lastRelevantDate)
     }
+
+    @Test
+    fun skipPolicyChangesLengthWithoutChangingAnswersOrScores() {
+        habit.originalEntries.clear()
+        habit.originalEntries.add(Entry(today, Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP, "Rest day"))
+        habit.originalEntries.add(Entry(today.minus(2), Entry.YES_MANUAL))
+        habit.recompute()
+        val score = habit.scores[today].value
+        assertEquals(2, habit.streaks.getBest(1).single().length)
+
+        habit.skipsCountTowardsStreaks = true
+        habit.recompute()
+        assertEquals(3, habit.streaks.getBest(1).single().length)
+        assertEquals(score, habit.scores[today].value)
+        assertEquals("Rest day", habit.originalEntries.get(today.minus(1)).notes)
+        assertEquals(Entry.SKIP, habit.computedEntries.get(today.minus(1)).value)
+
+        habit.skipsCountTowardsStreaks = false
+        habit.recompute()
+        assertEquals(2, habit.streaks.getBest(1).single().length)
+    }
+
+    @Test
+    fun skipsCanStartAStreakOnlyWhenCountingIsEnabled() {
+        habit.originalEntries.clear()
+        habit.originalEntries.add(Entry(today, Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.recompute()
+        assertEquals(0, habit.streaks.getBest(1).size)
+
+        habit.skipsCountTowardsStreaks = true
+        habit.recompute()
+        val streak = habit.streaks.getBest(1).single()
+        assertEquals(2, streak.length)
+        assertEquals(today, streak.end)
+    }
+
+    @Test
+    fun numericalSkipPolicyAppliesToBothTargetTypes() {
+        for (targetType in NumericalHabitType.values()) {
+            val numerical = fixtures.createEmptyNumericalHabit(targetType)
+            numerical.targetValue = 2.0
+            numerical.skipsCountTowardsStreaks = true
+            numerical.originalEntries.add(Entry(today, 2000))
+            numerical.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+            numerical.originalEntries.add(Entry(today.minus(2), 2000))
+            numerical.recompute()
+            assertEquals(3, numerical.streaks.getBest(1).single().length)
+        }
+    }
+
+    @Test
+    fun trailingSkippedDaysKeepAnExistingStreakCurrent() {
+        habit.originalEntries.clear()
+        habit.originalEntries.add(Entry(today, Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(2), Entry.YES_MANUAL))
+        habit.recompute()
+        val streak = habit.streaks.getBest(1).single()
+        assertEquals(1, streak.length)
+        assertEquals(today.minus(2), streak.end)
+        assertEquals(today, streak.lastRelevantDate)
+    }
+
+    @Test
+    fun missedDaysStillBreakStreaksWhenSkipsCount() {
+        habit.originalEntries.clear()
+        habit.skipsCountTowardsStreaks = true
+        habit.originalEntries.add(Entry(today, Entry.YES_MANUAL))
+        habit.originalEntries.add(Entry(today.minus(1), Entry.SKIP))
+        habit.originalEntries.add(Entry(today.minus(2), Entry.NO))
+        habit.originalEntries.add(Entry(today.minus(3), Entry.YES_MANUAL))
+        habit.recompute()
+        val latest = habit.streaks.getBest(Int.MAX_VALUE).first()
+        assertEquals(2, latest.length)
+        assertEquals(today.minus(1), latest.start)
+    }
 }

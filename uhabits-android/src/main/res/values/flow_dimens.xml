@@ -2,7 +2,8 @@
 <resources>
     <!-- Layout rhythm -->
     <dimen name="flow_screen_padding">24dp</dimen>
-    <dimen name="flow_body_padding">16dp</dimen>
+    <dimen name="flow_body_padding">24dp</dimen>
+    <dimen name="flow_content_max_width">840dp</dimen>
     <dimen name="flow_section_spacing">24dp</dimen>
     <dimen name="flow_card_spacing">12dp</dimen>
     <dimen name="flow_card_padding">16dp</dimen>
@@ -55,8 +56,9 @@
     <dimen name="flow_editor_action_clearance">116dp</dimen>
     <dimen name="flow_switch_min_width">52dp</dimen>
 
-    <!-- Type scale; sp preserves the user's font-scale preference. -->
-    <dimen name="flow_text_screen_title">36sp</dimen>
+    <!-- Text sizes respect the system font scale -->
+    <dimen name="flow_text_screen_title">32sp</dimen>
+    <dimen name="flow_text_compact_title">20sp</dimen>
     <dimen name="flow_text_section_title">15sp</dimen>
     <dimen name="flow_text_body">16sp</dimen>
     <dimen name="flow_text_supporting">14sp</dimen>

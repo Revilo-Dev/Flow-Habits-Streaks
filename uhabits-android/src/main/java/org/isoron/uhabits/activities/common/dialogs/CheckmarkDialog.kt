@@ -36,17 +36,19 @@ import org.isoron.uhabits.utils.InterfaceUtils.getFontAwesome
 import org.isoron.uhabits.utils.sres
 
 class CheckmarkDialog : AppCompatDialogFragment() {
-    var onToggle: (Int, String) -> Unit = { _, _ -> }
+    var onToggle: ((Int, String) -> Unit)? = null
     var onDismiss: () -> Unit = {}
 
     private var originalNotes: String = ""
     private var originalValue: Int = 0
+    private var selectedValue: Int = 0
     private lateinit var view: CheckmarkPopupBinding
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val appComponent = (requireActivity().application as HabitsApplication).component
         val prefs = appComponent.preferences
         view = CheckmarkPopupBinding.inflate(LayoutInflater.from(context))
+        view.prepareEntryActions(requireActivity(), requireArguments())
         val color = requireArguments().getInt("color")
         arrayOf(view.yesBtn).forEach {
             it.setTextColor(color)
@@ -59,7 +61,7 @@ class CheckmarkDialog : AppCompatDialogFragment() {
         }
         originalNotes = requireArguments().getString("notes")!!
         originalValue = requireArguments().getInt("value")
-        view.notes.setText(originalNotes)
+        view.notes.setText(savedInstanceState?.getString("draftNotes") ?: originalNotes)
         view.booleanButtons.visibility = VISIBLE
         view.numberFooter.visibility = VISIBLE
         view.skipBtnNumber.visibility = if (prefs.isSkipEnabled) VISIBLE else GONE
@@ -71,27 +73,48 @@ class CheckmarkDialog : AppCompatDialogFragment() {
         }
         fun onClick(v: Int) {
             val notes = view.notes.text.toString().trim()
-            onToggle(v, notes)
+            val callback = onToggle
+            if (callback != null) callback(v, notes) else requireArguments().saveRestoredEntry(requireContext(), v, notes)
             requireDialog().dismiss()
         }
-        var selectedValue = originalValue
+        // Keep answer changes local until the save action commits them
+        selectedValue = savedInstanceState?.getInt("selectedValue") ?: originalValue
         fun select(value: Int) {
             selectedValue = value
+            view.yesBtn.isSelected = value == YES_MANUAL
+            view.noBtn.isSelected = value == NO
             view.yesBtn.alpha = if (value == YES_MANUAL) 1f else 0.45f
             view.noBtn.alpha = if (value == NO) 1f else 0.45f
         }
-        select(originalValue)
+        select(selectedValue)
         view.yesBtn.setOnClickListener { select(YES_MANUAL) }
         view.noBtn.setOnClickListener { select(NO) }
         view.dismissBtn.setOnClickListener { requireDialog().dismiss() }
         view.skipBtnNumber.setOnClickListener { onClick(SKIP) }
         view.saveBtn.setOnClickListener { onClick(selectedValue) }
-        view.notes.setOnEditorActionListener { v, actionId, event ->
-            onClick(selectedValue)
-            true
+        view.notes.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                onClick(selectedValue)
+                true
+            } else {
+                false
+            }
         }
 
         return dialog
+    }
+
+    override fun onStart() {
+        super.onStart()
+        requireDialog().prepareEntryWindow(requireActivity())
+    }
+
+    override fun onSaveInstanceState(state: Bundle) {
+        super.onSaveInstanceState(state)
+        if (::view.isInitialized) {
+            state.putString("draftNotes", view.notes.text.toString())
+            state.putInt("selectedValue", selectedValue)
+        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {

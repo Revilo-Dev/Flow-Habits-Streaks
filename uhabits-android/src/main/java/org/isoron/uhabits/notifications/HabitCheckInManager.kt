@@ -26,7 +26,7 @@ import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.NumericalHabitType
 import java.util.Calendar
 
-/** A daily check-in notification for active habits. */
+// Show daily progress for active habits during a limited check in window
 class HabitCheckInManager(
     private val context: Context,
     private val habits: HabitList,
@@ -45,6 +45,7 @@ class HabitCheckInManager(
     fun stop() = commands.removeListener(this)
 
     @Synchronized
+    // Replace the pending daily alarm and clear progress when the feature is disabled
     fun configure() {
         alarms.cancel(dailyIntent())
         if (!settings.getBoolean(KEY_ENABLED, false)) {
@@ -79,6 +80,7 @@ class HabitCheckInManager(
     }
 
     @Synchronized
+    // Ignore expiry events that belong to an older check in
     fun expire(occurrence: Long) {
         if (prefs.getLong(KEY_OCCURRENCE, 0) == occurrence) finish()
     }
@@ -94,11 +96,13 @@ class HabitCheckInManager(
         val occurrence = prefs.getLong(KEY_OCCURRENCE, 0)
         if (occurrence == 0L) return
         val now = System.currentTimeMillis()
+        // Keep the completion message briefly before closing the check in
         val completionEnd = prefs.getLong(KEY_COMPLETION_END, 0)
         if (completionEnd != 0L) {
             if (now >= completionEnd) finish() else scheduleExpiry(occurrence, completionEnd)
             return
         }
+        // Expire stale progress and discard sessions after the clock moves backwards
         if (now >= occurrence + WINDOW_MILLIS || now < occurrence - 60_000) {
             finish()
             return
@@ -146,7 +150,7 @@ class HabitCheckInManager(
             .setProgress(due.size, done, false)
 
         if (Build.VERSION.SDK_INT >= 36) {
-            // Native ProgressStyle is required for the Android 16 Live Update presentation.
+            // Android 16 uses the native progress style to request a promoted live update
             val promotion = Bundle().apply { putBoolean("android.requestPromotedOngoing", true) }
             val native = Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
@@ -172,6 +176,7 @@ class HabitCheckInManager(
         Log.d(TAG, "Check-in updated: $done/${due.size}")
     }
 
+    // Check ins include every active habit rather than only habits with reminders
     private fun dueHabits(): List<Habit> = habits.filter { !it.isArchived }
 
     private fun dailyIntent(): PendingIntent = PendingIntent.getBroadcast(
@@ -181,6 +186,7 @@ class HabitCheckInManager(
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
+    // Use local wall time and fall back to an inexact alarm when exact alarms are unavailable
     private fun scheduleDaily() {
         val minuteOfDay = settings.getInt(KEY_TIME, DEFAULT_TIME)
         val next = Calendar.getInstance().apply {
@@ -202,6 +208,7 @@ class HabitCheckInManager(
         }
     }
 
+    // Use the calendar date of the check in occurrence without the delayed day boundary
     private fun localDate(occurrence: Long): LocalDate =
         LocalDate.fromUnixTime(DateUtils.removeTimezone(occurrence))
 
@@ -211,6 +218,7 @@ class HabitCheckInManager(
             entry.value == org.isoron.uhabits.core.models.Entry.YES_MANUAL ||
                 entry.value == org.isoron.uhabits.core.models.Entry.YES_AUTO
         } else if (habit.targetType == NumericalHabitType.AT_MOST) {
+            // The check in treats an at most habit as answered once its value is known
             entry.value != org.isoron.uhabits.core.models.Entry.UNKNOWN
         } else {
             entry.value / 1000.0 >= habit.targetValue
@@ -297,6 +305,8 @@ class HabitCheckInManager(
         private const val NOTIFICATION_ID = 0x464C4F57
         private const val KEY_OCCURRENCE = "occurrence"
         private const val KEY_COMPLETION_END = "completion_end"
+
+        // A check in stays active for one hour and completion stays visible for ten seconds
         private const val WINDOW_MILLIS = 60 * 60 * 1000L
         private const val COMPLETION_DISPLAY_MILLIS = 10_000L
         const val KEY_ENABLED = "pref_nowbar_enabled"

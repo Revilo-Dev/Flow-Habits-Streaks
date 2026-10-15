@@ -74,7 +74,6 @@ import org.isoron.uhabits.utils.ColorUtils
 import org.isoron.uhabits.utils.copyTo
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dismissCurrentAndShow
-import org.isoron.uhabits.utils.restartWithFade
 import org.isoron.uhabits.utils.showMessage
 import org.isoron.uhabits.utils.showSendEmailScreen
 import org.isoron.uhabits.utils.showSendFileScreen
@@ -111,6 +110,11 @@ class ListHabitsScreen(
     ListHabitsSelectionMenuBehavior.Screen {
 
     val activity = (context as AppCompatActivity)
+    private var entryContext: Pair<Habit, org.isoron.platform.time.LocalDate>? = null
+
+    override fun setEntryContext(habit: Habit, date: org.isoron.platform.time.LocalDate) {
+        entryContext = habit to date
+    }
 
     fun onAttached() {
         commandRunner.addListener(this)
@@ -138,6 +142,7 @@ class ListHabitsScreen(
         try {
             val inStream = activity.contentResolver.openInputStream(data.data!!)!!
             val cacheDir = activity.externalCacheDir
+            // Copy the selected document locally because importers open files by path
             val tempFile = File.createTempFile("import", "", cacheDir)
             inStream.copyTo(tempFile)
             onImportData(JavaUserFile(tempFile.toPath())) { tempFile.delete() }
@@ -159,7 +164,7 @@ class ListHabitsScreen(
 
     override fun applyTheme() {
         themeSwitcher.apply()
-        activity.restartWithFade(ListHabitsActivity::class.java)
+        activity.recreate()
     }
 
     override fun showAboutScreen() {
@@ -228,6 +233,7 @@ class ListHabitsScreen(
 
     override fun showConfetti(color: PaletteColor, x: Float, y: Float) {
         if (x == 0f && y == 0f) return
+        // Respect both the app confetti preference and the system animation setting
         if (preferences.isConfettiAnimationDisabled) return
         if (Settings.Global.getFloat(
                 activity.contentResolver,
@@ -277,6 +283,10 @@ class ListHabitsScreen(
         val fm = (context as AppCompatActivity).supportFragmentManager
         val dialog = NumberDialog()
         dialog.arguments = Bundle().apply {
+            entryContext?.let { (habit, date) ->
+                putLong("habit", habit.id!!)
+                putLong("date", date.unixTime)
+            }
             putDouble("value", value)
             putString("notes", notes)
         }
@@ -294,6 +304,10 @@ class ListHabitsScreen(
         val fm = (context as AppCompatActivity).supportFragmentManager
         val dialog = CheckmarkDialog()
         dialog.arguments = Bundle().apply {
+            entryContext?.let { (habit, date) ->
+                putLong("habit", habit.id!!)
+                putLong("date", date.unixTime)
+            }
             putInt("color", theme.color(color).toInt())
             putInt("value", selectedValue)
             putString("notes", notes)

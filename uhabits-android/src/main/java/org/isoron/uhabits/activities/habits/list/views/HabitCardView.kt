@@ -29,7 +29,6 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Handler
 import android.os.Looper
-import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -145,6 +144,7 @@ class HabitCardView(
     private var habitInitial: TextView
     private var numberPanel: NumberPanelView
     private var innerFrame: LinearLayout
+    private var labelContainer: LinearLayout
     private var label: TextView
     private var streakLabel: TextView
     private var scoreRing: RingView
@@ -210,8 +210,6 @@ class HabitCardView(
         label = TextView(context).apply {
             setTextAppearance(R.style.TextAppearance_Flow_Body)
             setTypeface(typeface, Typeface.BOLD)
-            maxLines = 1
-            ellipsize = TextUtils.TruncateAt.END
             if (SDK_INT >= Build.VERSION_CODES.Q) {
                 breakStrategy = BREAK_STRATEGY_BALANCED
             }
@@ -219,11 +217,9 @@ class HabitCardView(
 
         streakLabel = TextView(context).apply {
             setTextAppearance(R.style.TextAppearance_Flow_Supporting)
-            maxLines = 1
-            ellipsize = TextUtils.TruncateAt.END
         }
 
-        val labelContainer = LinearLayout(context).apply {
+        labelContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
             layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply {
@@ -386,6 +382,9 @@ class HabitCardView(
         }
 
         val c = getActiveColor(h)
+        checkmarkPanel.habitName = h.name
+        numberPanel.habitName = h.name
+        contentDescription = h.name
         val labelColorAttr = if (h.isArchived) {
             R.attr.flowTextSecondaryColor
         } else {
@@ -459,6 +458,22 @@ class HabitCardView(
         Handler().postDelayed({ background.state = intArrayOf() }, 25)
     }
 
+    fun setReorderActions(canMoveUp: Boolean, canMoveDown: Boolean, onMoveUp: () -> Unit, onMoveDown: () -> Unit) {
+        dragHandle.isFocusable = true
+        dragHandle.setOnClickListener {
+            androidx.appcompat.widget.PopupMenu(context, dragHandle).apply {
+                menu.add(0, 1, 0, R.string.flow_move_up).isEnabled = canMoveUp
+                menu.add(0, 2, 1, R.string.flow_move_down).isEnabled = canMoveDown
+                setOnMenuItemClickListener { item ->
+                    if (item.itemId == 1) onMoveUp() else onMoveDown()
+                    true
+                }
+                show()
+            }
+        }
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(dragHandle, resources.getString(R.string.flow_reorder_habit))
+    }
+
     private fun updateBackground(isSelected: Boolean) {
         val background = when (isSelected) {
             true -> R.drawable.flow_card_selected_background
@@ -481,6 +496,12 @@ class HabitCardView(
         checkmarkPanel.visibility = if (!selectionActive && !numerical) VISIBLE else GONE
         numberPanel.visibility = if (!selectionActive && numerical) VISIBLE else GONE
         dragHandle.visibility = if (selectionActive) VISIBLE else GONE
+        labelContainer.setPaddingRelative(
+            0,
+            0,
+            if (selectionActive) resources.getDimensionPixelSize(R.dimen.flow_min_touch_target) else 0,
+            0
+        )
         streakLabel.visibility = if (selectionActive) GONE else VISIBLE
 
         val showSelectionCheck = selectionActive && isSelected
