@@ -10,6 +10,20 @@ import kotlin.test.assertTrue
 
 class HabitRepositoryTest {
     @Test
+    fun skipSettingsSurviveInsertUpdateAndExplicitIdentity() = runTest {
+        val db = TestDatabaseHelper.createEmptyDatabase()
+        val repo = HabitRepository(db)
+        val data = HabitData(id = 42, name = "Read", skipsCountTowardsStreaks = true)
+        repo.insert(data)
+        assertEquals(data, repo.findAll().single())
+        data.skipsCountTowardsStreaks = false
+        data.skipsCountTowardsWeeklyStreak = true
+        repo.update(data)
+        assertEquals(data, repo.findAll().single())
+        db.close()
+    }
+
+    @Test
     fun testInsertAndFindAll() = runTest {
         val db = TestDatabaseHelper.createEmptyDatabase()
         val repo = HabitRepository(db)

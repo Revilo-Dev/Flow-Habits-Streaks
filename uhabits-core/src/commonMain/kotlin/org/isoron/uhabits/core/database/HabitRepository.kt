@@ -25,7 +25,9 @@ data class HabitData(
     var targetType: Int = 0,
     var unit: String = "",
     var uuid: String? = null,
-    var icon: String = ""
+    var icon: String = "",
+    var skipsCountTowardsStreaks: Boolean = false,
+    var skipsCountTowardsWeeklyStreak: Boolean = false
 )
 
 class HabitRepository(private val db: Database) {
@@ -33,7 +35,8 @@ class HabitRepository(private val db: Database) {
         db.prepareStatement(
             """SELECT id, name, description, question, freq_num, freq_den, color,
                position, reminder_hour, reminder_min, reminder_days, highlight,
-               archived, type, target_value, target_type, unit, uuid, icon
+               archived, type, target_value, target_type, unit, uuid, icon,
+               skips_count_towards_streaks, skips_count_towards_weekly_streak
                FROM Habits ORDER BY position"""
         )
     }
@@ -42,8 +45,9 @@ class HabitRepository(private val db: Database) {
         db.prepareStatement(
             """INSERT INTO Habits(name, description, question, freq_num, freq_den,
                color, position, reminder_hour, reminder_min, reminder_days,
-               highlight, archived, type, target_value, target_type, unit, uuid, icon)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+               highlight, archived, type, target_value, target_type, unit, uuid, icon,
+               skips_count_towards_streaks, skips_count_towards_weekly_streak)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
         )
     }
 
@@ -51,8 +55,9 @@ class HabitRepository(private val db: Database) {
         db.prepareStatement(
             """INSERT INTO Habits(id, name, description, question, freq_num, freq_den,
                color, position, reminder_hour, reminder_min, reminder_days,
-               highlight, archived, type, target_value, target_type, unit, uuid, icon)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+               highlight, archived, type, target_value, target_type, unit, uuid, icon,
+               skips_count_towards_streaks, skips_count_towards_weekly_streak)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
         )
     }
 
@@ -61,7 +66,8 @@ class HabitRepository(private val db: Database) {
             """UPDATE Habits SET name=?, description=?, question=?, freq_num=?,
                freq_den=?, color=?, position=?, reminder_hour=?, reminder_min=?,
                reminder_days=?, highlight=?, archived=?, type=?, target_value=?,
-               target_type=?, unit=?, uuid=?, icon=? WHERE id=?"""
+               target_type=?, unit=?, uuid=?, icon=?, skips_count_towards_streaks=?,
+               skips_count_towards_weekly_streak=? WHERE id=?"""
         )
     }
 
@@ -95,7 +101,7 @@ class HabitRepository(private val db: Database) {
     fun update(data: HabitData) {
         updateStmt.reset()
         bindForInsert(updateStmt, data)
-        updateStmt.bindLong(19, data.id!!)
+        updateStmt.bindLong(21, data.id!!)
         updateStmt.step()
     }
 
@@ -129,6 +135,8 @@ class HabitRepository(private val db: Database) {
         stmt.bindText(16 + o, data.unit)
         if (data.uuid != null) stmt.bindText(17 + o, data.uuid!!) else stmt.bindNull(17 + o)
         stmt.bindText(18 + o, data.icon)
+        stmt.bindInt(19 + o, if (data.skipsCountTowardsStreaks) 1 else 0)
+        stmt.bindInt(20 + o, if (data.skipsCountTowardsWeeklyStreak) 1 else 0)
     }
 
     private fun readRow(stmt: PreparedStatement): HabitData {
@@ -151,7 +159,9 @@ class HabitRepository(private val db: Database) {
             targetType = stmt.getInt(15),
             unit = stmt.getText(16),
             uuid = stmt.getTextOrNull(17),
-            icon = stmt.getTextOrNull(18) ?: ""
+            icon = stmt.getTextOrNull(18) ?: "",
+            skipsCountTowardsStreaks = stmt.getInt(19) != 0,
+            skipsCountTowardsWeeklyStreak = stmt.getInt(20) != 0
         )
     }
 }

@@ -2,8 +2,28 @@
 
 This page describes how to download and build the app from the source code. If you are having trouble building the project, please do not hesitate to open a new issue.
 
+## Safe local testing
+
+Use Java 17 and the checked-in Gradle wrapper. The Android module requires SDK 36.
+In Android Studio, select the `debug` variant for `uhabits-android` in the Build
+Variants panel, then sync and run. It installs as **Flow Test** with application ID
+`dev.revilodev.flow.debug` and separate app data. The release application ID remains
+`dev.revilodev.flow`.
+
+If installation asks to uninstall an existing app because of a signature mismatch,
+cancel. Do not uninstall the release app or clear its data. Rebuild the debug variant
+and make sure the selected APK has the debug application ID. Updating an existing
+release installation requires its original signing key.
+
+On Windows, build with:
+
+```powershell
+.\gradlew.bat :uhabits-android:assembleDebug
+```
+
 ## Contents
 
+* [Safe local testing](#safe-local-testing)
 * [Build using Android Studio](#build-using-android-studio)
 * [Build from the command line](#build-from-the-command-line)
 
@@ -83,6 +103,6 @@ The repository will be downloaded to the directory `uhabits`.
 1. Navigate to the directory `uhabits`
 2. Run `./gradlew assembleDebug --stacktrace`
 
-If the compilation is successful, a debug APK will be generated somewhere inside the folder `uhabits-android/build/`. Currently, the full path is `./uhabits-android/build/outputs/apk/debug/uhabits-android-debug.apk`, but it may change in the future.
+If compilation succeeds, the debug APK is generated at `uhabits-android/build/outputs/apk/debug/Flow-Habits-Streaks-v1.0.0-debug.apk`. The filename includes the version name defined in the Android module build file.
 
 The APK can be installed using the tool `adb`, which should have been automatically installed at `/opt/android-sdk/platform-tools/adb` during compilation of the project.

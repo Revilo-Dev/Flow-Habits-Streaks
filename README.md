@@ -41,12 +41,23 @@ Flow is completely ad-free and open source.
 
 * **Works offline and respects your privacy.** Loop doesn't require an Internet connection or online account registration. Your confidential data is never sent to anyone. Neither the developers nor any third-parties have access to it.
 
+When **Enable skip days** is on, each habit editor has **Count skips towards weekly
+streak** and **Count skips towards streak** switches. The first fills skipped days
+in that habit's seven-day streak display; the second adds skipped days to its
+streak length. Both default to off. Skips still bridge streaks when counting is
+off, and neither option changes habit scores or the home perfect-day summary.
+Both settings are included in database backups and habit CSV metadata.
+Home and habit headers fade their content as they collapse.
+
+
 ## Installing
 
-The easiest way to install Loop is through the [Google Play Store][playstore] or [F-Droid][fdroid].
-You may also download and install the APK from the [releases page][releases];
-note, however, that the app will not be updated automatically.  To build this
-app from the source code, see [build instructions][build].
+To build Flow from source, see the [build instructions](docs/BUILD.md).
+Debug builds install as **Flow Test** (`dev.revilodev.flow.debug`) alongside the
+release app (`dev.revilodev.flow`), with separate habits and settings. Select the
+`debug` build variant for local testing. If Android Studio asks to uninstall an
+existing app because its signature differs, cancel and check the selected variant;
+uninstalling removes that app's data.
 
 ## Contributing
 

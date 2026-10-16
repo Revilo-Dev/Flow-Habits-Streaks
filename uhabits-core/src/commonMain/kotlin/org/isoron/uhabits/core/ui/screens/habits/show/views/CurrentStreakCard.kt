@@ -34,16 +34,17 @@ object CurrentStreakCardPresenter {
     ): CurrentStreakCardState {
         val today = getToday()
         val lastSevenDays = (6 downTo 0).map { offset ->
-            isComplete(habit, today.minus(offset))
+            val date = today.minus(offset)
+            isComplete(habit, date) || (habit.skipsCountTowardsWeeklyStreak && isSkipped(habit, date))
         }
-        val todayComplete = lastSevenDays.last()
+        val todayComplete = isComplete(habit, today)
         var currentStreak = 0
         if (!isExplicitFailure(habit, today)) {
             var date = today.minus(if (todayComplete || isSkipped(habit, today)) 0 else 1)
             while (true) {
                 when {
                     isComplete(habit, date) -> currentStreak++
-                    isSkipped(habit, date) -> Unit
+                    isSkipped(habit, date) -> if (habit.skipsCountTowardsStreaks) currentStreak++
                     else -> break
                 }
                 date = date.minus(1)

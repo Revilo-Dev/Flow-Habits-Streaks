@@ -33,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.BaseExceptionHandler
+import org.isoron.uhabits.BuildConfig
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
@@ -201,6 +202,6 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
     }
 
     companion object {
-        const val ACTION_EDIT = "dev.revilodev.flow.ACTION_EDIT"
+        const val ACTION_EDIT = BuildConfig.APPLICATION_ID + ".ACTION_EDIT"
     }
 }

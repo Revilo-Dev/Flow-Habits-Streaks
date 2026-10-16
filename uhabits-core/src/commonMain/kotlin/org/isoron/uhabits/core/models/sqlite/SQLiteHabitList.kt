@@ -232,7 +232,9 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
                 targetType = habit.targetType.value,
                 unit = habit.unit,
                 uuid = habit.uuid,
-                icon = habit.icon
+                icon = habit.icon,
+                skipsCountTowardsStreaks = habit.skipsCountTowardsStreaks,
+                skipsCountTowardsWeeklyStreak = habit.skipsCountTowardsWeeklyStreak
             )
         }
 
@@ -251,6 +253,8 @@ class SQLiteHabitList(private val modelFactory: ModelFactory) : HabitList() {
             habit.position = data.position
             habit.uuid = data.uuid
             habit.icon = data.icon
+            habit.skipsCountTowardsStreaks = data.skipsCountTowardsStreaks
+            habit.skipsCountTowardsWeeklyStreak = data.skipsCountTowardsWeeklyStreak
             if (data.reminderHour != null && data.reminderMin != null) {
                 habit.reminder = Reminder(
                     data.reminderHour!!,

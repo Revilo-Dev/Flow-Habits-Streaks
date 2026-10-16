@@ -125,6 +125,7 @@ class EditHabitActivity : FlowActivity() {
         themeSwitcher.apply()
 
         binding = ActivityEditHabitBinding.inflate(layoutInflater)
+        binding.skipOptions.visibility = if (component.preferences.isSkipEnabled) View.VISIBLE else View.GONE
         binding.root.applyRootViewInsets()
         binding.appBar.applyToolbarInsets()
         val baseActionMargin = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
@@ -156,6 +157,8 @@ class EditHabitActivity : FlowActivity() {
             freqDen = habit.frequency.denominator
             targetType = habit.targetType
             icon = habit.icon
+            binding.countSkipsWeekly.isChecked = habit.skipsCountTowardsWeeklyStreak
+            binding.countSkipsStreak.isChecked = habit.skipsCountTowardsStreaks
             habit.reminder?.let {
                 reminderHour = it.hour
                 reminderMin = it.minute
@@ -181,6 +184,8 @@ class EditHabitActivity : FlowActivity() {
             reminderMin = state.getInt("reminderMin")
             reminderDays = WeekdayList(state.getInt("reminderDays"))
             icon = state.getString("icon", "")
+            binding.countSkipsWeekly.isChecked = state.getBoolean("countSkipsWeekly")
+            binding.countSkipsStreak.isChecked = state.getBoolean("countSkipsStreak")
         }
 
         updateColors()
@@ -334,6 +339,8 @@ class EditHabitActivity : FlowActivity() {
         habit.description = binding.notesInput.text.trim().toString()
         habit.icon = icon.ifBlank { firstGrapheme(habit.name) }
         habit.color = color
+        habit.skipsCountTowardsWeeklyStreak = binding.countSkipsWeekly.isChecked
+        habit.skipsCountTowardsStreaks = binding.countSkipsStreak.isChecked
         if (reminderHour >= 0) {
             habit.reminder = Reminder(reminderHour, reminderMin, reminderDays)
         } else {
@@ -672,6 +679,8 @@ class EditHabitActivity : FlowActivity() {
             putInt("reminderMin", reminderMin)
             putInt("reminderDays", reminderDays.toInteger())
             putString("icon", icon)
+            putBoolean("countSkipsWeekly", binding.countSkipsWeekly.isChecked)
+            putBoolean("countSkipsStreak", binding.countSkipsStreak.isChecked)
         }
     }
 }

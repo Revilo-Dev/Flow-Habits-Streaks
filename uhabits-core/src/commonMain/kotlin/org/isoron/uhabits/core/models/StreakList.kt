@@ -40,23 +40,27 @@ class StreakList {
         to: LocalDate,
         isNumerical: Boolean,
         targetValue: Double,
-        targetType: NumericalHabitType
+        targetType: NumericalHabitType,
+        skipsCountTowardsStreaks: Boolean = false
     ) {
         list.clear()
         var start: LocalDate? = null
         var end: LocalDate? = null
         var completedDays = 0
+        var lastRelevantDate: LocalDate? = null
 
         fun finishStreak() {
-            val streakStart = start ?: return
-            list.add(Streak(streakStart, end!!, completedDays))
+            start?.let { list.add(Streak(it, end!!, completedDays, lastRelevantDate ?: end!!)) }
             start = null
             end = null
             completedDays = 0
+            lastRelevantDate = null
         }
 
         computedEntries.getByInterval(from, to).forEach { entry ->
-            val complete = entry.value != Entry.SKIP && if (isNumerical) {
+            val complete = if (entry.value == Entry.SKIP) {
+                skipsCountTowardsStreaks
+            } else if (isNumerical) {
                 when (targetType) {
                     NumericalHabitType.AT_LEAST -> entry.value / 1000.0 >= targetValue
                     NumericalHabitType.AT_MOST ->
@@ -68,6 +72,7 @@ class StreakList {
 
             when {
                 complete -> {
+                    if (lastRelevantDate == null) lastRelevantDate = entry.date
                     if (start == null) {
                         start = entry.date
                         end = entry.date
@@ -77,8 +82,8 @@ class StreakList {
                     completedDays++
                 }
                 entry.value == Entry.SKIP -> {
-                    // A skip is only a filler inside a streak. It cannot extend
-                    // a streak past a failed day or start one by itself.
+                    // Keep trailing skips attached without increasing the streak length
+                    if (lastRelevantDate == null) lastRelevantDate = entry.date
                 }
                 else -> finishStreak()
             }

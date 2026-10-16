@@ -96,8 +96,11 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         binding.toolbar.addView(compactIdentity, androidx.appcompat.widget.Toolbar.LayoutParams(
             MATCH_PARENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
         ))
-        binding.appBar.bindFlowHeader(binding.toolbar, compact = true) { collapsed, scrolled ->
-            binding.largeHeader.visibility = if (collapsed) INVISIBLE else VISIBLE
+        binding.appBar.bindFlowHeader(
+            binding.toolbar,
+            compact = true,
+            expandedContent = binding.largeHeader
+        ) { collapsed, scrolled ->
             compactIdentity.visibility = if (collapsed) VISIBLE else GONE
             binding.toolbar.title = ""
             headerCollapsed = collapsed

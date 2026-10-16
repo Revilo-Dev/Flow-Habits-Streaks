@@ -220,13 +220,9 @@
         </Preference>
 
         <Preference
+                android:key="about"
                 android:title="@string/about"
-                app:iconSpaceReserved="false">
-            <intent
-                    android:action="android.intent.action.VIEW"
-                    android:targetClass="org.isoron.uhabits.activities.about.AboutActivity"
-                    android:targetPackage="dev.revilodev.flow" />
-        </Preference>
+                app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flow_skip_options">Skips</string>
+    <string name="flow_count_skips_weekly">Count skips towards weekly streak</string>
+    <string name="flow_count_skips_streak">Count skips towards streak</string>
+</resources>

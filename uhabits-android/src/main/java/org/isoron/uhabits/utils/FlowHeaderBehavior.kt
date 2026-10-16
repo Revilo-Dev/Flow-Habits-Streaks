@@ -54,6 +54,7 @@ class FlowHeaderBehavior @JvmOverloads constructor(
 fun AppBarLayout.bindFlowHeader(
     toolbar: Toolbar,
     compact: Boolean = false,
+    expandedContent: View? = null,
     onStateChanged: (collapsed: Boolean, contentScrolled: Boolean) -> Unit = { _, _ -> }
 ) {
     var collapsed = false
@@ -76,6 +77,15 @@ fun AppBarLayout.bindFlowHeader(
 
     addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { bar, offset ->
         collapsed = bar.totalScrollRange > 0 && -offset >= bar.totalScrollRange
+        expandedContent?.apply {
+            val progress = if (bar.totalScrollRange > 0) {
+                (-offset.toFloat() / bar.totalScrollRange).coerceIn(0f, 1f)
+            } else {
+                0f
+            }
+            alpha = 1f - progress
+            visibility = if (collapsed) View.INVISIBLE else View.VISIBLE
+        }
         update()
     })
     val scrollListener = ViewTreeObserver.OnScrollChangedListener { update() }

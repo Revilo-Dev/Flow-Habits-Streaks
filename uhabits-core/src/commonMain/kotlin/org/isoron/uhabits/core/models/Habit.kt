@@ -30,6 +30,8 @@ data class Habit(
     var id: Long? = null,
     var isArchived: Boolean = false,
     var icon: String = "",
+    var skipsCountTowardsWeeklyStreak: Boolean = false,
+    var skipsCountTowardsStreaks: Boolean = false,
     var name: String = "",
     var position: Int = 0,
     var question: String = "",
@@ -106,7 +108,8 @@ data class Habit(
             to,
             isNumerical,
             targetValue,
-            targetType
+            targetType,
+            skipsCountTowardsStreaks
         )
     }
 
@@ -117,6 +120,8 @@ data class Habit(
         // this.id should not be copied
         this.isArchived = other.isArchived
         this.icon = other.icon
+        this.skipsCountTowardsWeeklyStreak = other.skipsCountTowardsWeeklyStreak
+        this.skipsCountTowardsStreaks = other.skipsCountTowardsStreaks
         this.name = other.name
         this.position = other.position
         this.question = other.question
@@ -138,6 +143,8 @@ data class Habit(
         if (id != other.id) return false
         if (isArchived != other.isArchived) return false
         if (icon != other.icon) return false
+        if (skipsCountTowardsWeeklyStreak != other.skipsCountTowardsWeeklyStreak) return false
+        if (skipsCountTowardsStreaks != other.skipsCountTowardsStreaks) return false
         if (name != other.name) return false
         if (position != other.position) return false
         if (question != other.question) return false
@@ -158,6 +165,8 @@ data class Habit(
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + isArchived.hashCode()
         result = 31 * result + icon.hashCode()
+        result = 31 * result + skipsCountTowardsWeeklyStreak.hashCode()
+        result = 31 * result + skipsCountTowardsStreaks.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + position
         result = 31 * result + question.hashCode()

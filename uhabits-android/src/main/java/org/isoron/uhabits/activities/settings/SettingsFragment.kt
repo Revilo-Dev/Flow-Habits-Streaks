@@ -50,6 +50,7 @@ import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
+import org.isoron.uhabits.activities.about.AboutActivity
 import org.isoron.uhabits.activities.habits.list.RESULT_BUG_REPORT
 import org.isoron.uhabits.activities.habits.list.RESULT_EXPORT_CSV
 import org.isoron.uhabits.activities.habits.list.RESULT_EXPORT_DB
@@ -160,6 +161,10 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         val key = preference.key ?: return false
         when (key) {
+            "about" -> {
+                startActivity(Intent(requireContext(), AboutActivity::class.java))
+                return true
+            }
             "reminderSound" -> {
                 showRingtonePicker()
                 return true

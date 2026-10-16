@@ -200,23 +200,15 @@ class ListHabitsRootView(
             marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
         })
         var previousCollapsed: Boolean? = null
-        appBar.bindFlowHeader(tbar) { collapsed, _ ->
+        appBar.bindFlowHeader(tbar, expandedContent = largeHeader) { collapsed, _ ->
             if (previousCollapsed == collapsed) return@bindFlowHeader
             val animate = previousCollapsed != null
             previousCollapsed = collapsed
             if (!animate) {
-                largeHeader.visibility = if (collapsed) INVISIBLE else VISIBLE
-                largeHeader.alpha = 1f
                 collapsedBrand.visibility = if (collapsed) VISIBLE else GONE
                 collapsedBrand.alpha = 1f
                 collapsedBrand.translationY = 0f
             } else if (collapsed) {
-                largeHeader.animate().cancel()
-                largeHeader.animate()
-                    .alpha(0f)
-                    .setDuration(150)
-                    .withEndAction { largeHeader.visibility = INVISIBLE }
-                    .start()
                 collapsedBrand.apply {
                     visibility = VISIBLE
                     alpha = 0f
@@ -236,11 +228,6 @@ class ListHabitsRootView(
                     .setDuration(110)
                     .withEndAction { collapsedBrand.visibility = GONE }
                     .start()
-                largeHeader.apply {
-                    visibility = VISIBLE
-                    alpha = 0f
-                    animate().alpha(1f).setDuration(170).start()
-                }
             }
             tbar.title = ""
         }

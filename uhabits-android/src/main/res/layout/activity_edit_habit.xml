@@ -224,6 +224,37 @@
                 </FrameLayout>
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/skipOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    style="@style/Flow.Form.SectionLabel"
+                    android:layout_marginTop="@dimen/flow_section_spacing"
+                    android:text="@string/flow_skip_options" />
+                <LinearLayout
+                    style="@style/Flow.Form.Card"
+                    android:orientation="vertical">
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/countSkipsWeekly"
+                        style="@style/Widget.Flow.Switch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/flow_count_skips_weekly"
+                        android:textColor="?attr/flowTextPrimaryColor" />
+                    <View style="@style/Flow.Form.Divider" />
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/countSkipsStreak"
+                        style="@style/Widget.Flow.Switch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/flow_count_skips_streak"
+                        android:textColor="?attr/flowTextPrimaryColor" />
+                </LinearLayout>
+            </LinearLayout>
+
             <TextView
                 style="@style/Flow.Form.SectionLabel"
                 android:layout_marginTop="@dimen/flow_section_spacing"

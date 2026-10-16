@@ -81,6 +81,22 @@ class SQLiteHabitListTest : BaseUnitTest() {
     }
 
     @Test
+    fun skipSettingsSurviveReloadAndHabitCopy() = dbTest {
+        val habit = habitsArray.first()
+        habit.skipsCountTowardsWeeklyStreak = true
+        habit.skipsCountTowardsStreaks = true
+        habitList.update(habit)
+        (habitList as SQLiteHabitList).reload()
+        val loaded = habitList.getById(habit.id!!)!!
+        assertEquals(true, loaded.skipsCountTowardsWeeklyStreak)
+        assertEquals(true, loaded.skipsCountTowardsStreaks)
+        val copy = modelFactory.buildHabit()
+        copy.copyFrom(loaded)
+        assertEquals(true, copy.skipsCountTowardsWeeklyStreak)
+        assertEquals(true, copy.skipsCountTowardsStreaks)
+    }
+
+    @Test
     fun testAdd_withDuplicate() = dbTest {
         val habit = modelFactory.buildHabit()
         habitList.add(habit)

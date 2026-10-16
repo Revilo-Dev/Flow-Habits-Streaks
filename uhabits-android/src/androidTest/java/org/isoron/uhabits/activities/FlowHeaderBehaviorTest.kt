@@ -3,6 +3,7 @@ package org.isoron.uhabits.activities
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,6 +11,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.material.appbar.AppBarLayout
 import org.isoron.uhabits.R
 import org.isoron.uhabits.utils.FlowHeaderBehavior
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -17,6 +19,72 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class FlowHeaderBehaviorTest {
+    @Test
+    fun expandedContentFadesDuringCollapseAndReturnsOnExpansion() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.FlowTheme_Light)
+            val parent = CoordinatorLayout(context)
+            val behavior = FlowHeaderBehavior(context)
+            val header = AppBarLayout(context)
+            val expanded = View(context).apply { minimumHeight = 56 }
+            header.addView(
+                expanded,
+                AppBarLayout.LayoutParams(MATCH_PARENT, 300).apply {
+                    scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                        AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+                }
+            )
+            parent.addView(
+                header,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, 300).apply { this.behavior = behavior }
+            )
+            val content = View(context)
+            parent.addView(content, CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            header.bindFlowHeader(Toolbar(context), expandedContent = expanded)
+            parent.measure(
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.EXACTLY)
+            )
+            parent.layout(0, 0, 400, 800)
+            behavior.onStartNestedScroll(
+                parent,
+                header,
+                content,
+                content,
+                ViewCompat.SCROLL_AXIS_VERTICAL,
+                ViewCompat.TYPE_TOUCH
+            )
+            behavior.onNestedPreScroll(parent, header, content, 0, 100, IntArray(2), ViewCompat.TYPE_TOUCH)
+            assertTrue(expanded.alpha > 0f && expanded.alpha < 1f)
+            assertEquals(View.VISIBLE, expanded.visibility)
+            behavior.onNestedPreScroll(parent, header, content, 0, 300, IntArray(2), ViewCompat.TYPE_TOUCH)
+            assertEquals(0f, expanded.alpha, 0.001f)
+            assertEquals(View.INVISIBLE, expanded.visibility)
+            behavior.onStartNestedScroll(
+                parent,
+                header,
+                content,
+                content,
+                ViewCompat.SCROLL_AXIS_VERTICAL,
+                ViewCompat.TYPE_TOUCH
+            )
+            behavior.onNestedScroll(
+                parent,
+                header,
+                content,
+                0,
+                0,
+                0,
+                -400,
+                ViewCompat.TYPE_TOUCH,
+                IntArray(2)
+            )
+            assertEquals(1f, expanded.alpha, 0.001f)
+            assertEquals(View.VISIBLE, expanded.visibility)
+        }
+    }
+
     @Test
     fun reachingContentTopRequiresAnotherTouchBeforeExpanding() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
