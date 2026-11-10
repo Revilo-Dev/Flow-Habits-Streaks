@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="32dp"
+    android:layout_height="48dp"
+    android:src="@drawable/flow_ic_expand_more"
+    android:tint="?attr/flowTextSecondaryColor"
+    android:importantForAccessibility="no"
+    android:scaleType="center" />

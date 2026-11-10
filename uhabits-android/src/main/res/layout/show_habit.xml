@@ -8,10 +8,11 @@
     android:background="?attr/flowBackgroundColor">
 
     <com.google.android.material.appbar.AppBarLayout
+        app:layout_behavior="org.isoron.uhabits.utils.FlowHeaderBehavior"
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/flowBackgroundColor"
+        android:background="@android:color/transparent"
         android:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -90,7 +91,7 @@
         android:background="?attr/flowBackgroundColor"
         android:clipToPadding="false"
         android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="org.isoron.uhabits.utils.FlowScrollingBehavior">
 
         <LinearLayout
             android:id="@+id/linearLayout"

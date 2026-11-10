@@ -30,9 +30,12 @@ import org.isoron.uhabits.databinding.ShowHabitStreakBinding
 
 class StreakCardView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
     private val binding = ShowHabitStreakBinding.inflate(LayoutInflater.from(context), this)
+
+    fun setTitle(title: Int) = binding.title.setText(title)
     fun setState(state: StreakCardState) {
         val androidColor = state.theme.color(state.color).toInt()
         binding.title.setTextColor(androidColor)
+        binding.title.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(androidColor)
         binding.streakChart.setColor(androidColor)
         binding.streakChart.setStreaks(state.bestStreaks)
         val isEmpty = state.bestStreaks.isEmpty()

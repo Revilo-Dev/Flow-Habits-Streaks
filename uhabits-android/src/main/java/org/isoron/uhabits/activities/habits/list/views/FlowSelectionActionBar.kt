@@ -13,7 +13,6 @@ package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -22,6 +21,7 @@ import android.widget.LinearLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import org.isoron.uhabits.R
+import org.isoron.uhabits.utils.FlowHighlightDrawable
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.sres
 
@@ -37,7 +37,9 @@ class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
         gravity = Gravity.CENTER_VERTICAL
         val inset = dim(R.dimen.flow_small_spacing).toInt()
         setPadding(inset, inset, inset, inset)
-        background = resources.getDrawable(R.drawable.flow_selection_actions_background, context.theme)
+        background = FlowHighlightDrawable(context, dim(R.dimen.flow_dialog_radius)).apply {
+            setColor(sres.getColor(R.attr.flowSurfaceSecondaryColor))
+        }
         clipToOutline = true
         ViewCompat.setElevation(
             this,

@@ -29,8 +29,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.InsetDrawable
 import android.net.Uri
 import android.os.Handler
 import android.view.LayoutInflater
@@ -47,10 +45,8 @@ import android.widget.RelativeLayout.BELOW
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.FileProvider
-import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.snackbar.Snackbar
@@ -210,46 +206,6 @@ fun View.setupToolbar(
     activity.setSupportActionBar(toolbar)
     activity.supportActionBar?.setDisplayHomeAsUpEnabled(displayHomeAsUpEnabled)
     if (displayHomeAsUpEnabled) toolbar.setNavigationIcon(R.drawable.flow_ic_back)
-}
-
-/** Gives only sticky toolbar controls the translucent One UI surface. */
-fun Toolbar.updateFlowStickyControls(isSticky: Boolean, compact: Boolean = false) {
-    val isLight = ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
-    val surface = if (isLight) Color.WHITE else sres.getColor(R.attr.flowSurfaceSecondaryColor)
-    val backgroundColor = ColorUtils.setAlphaComponent(surface, if (isLight) 255 else 224)
-    val inset = dim(R.dimen.flow_sticky_control_inset).toInt() / 2
-    val verticalInset = if (compact) inset else 0
-    elevation = 0f
-    for (index in 0 until childCount) {
-        when (val child = getChildAt(index)) {
-            is ActionMenuView -> {
-                child.background = if (isSticky) {
-                    InsetDrawable(
-                        GradientDrawable().apply {
-                            cornerRadius = dim(R.dimen.flow_toolbar_pill_radius)
-                            setColor(backgroundColor)
-                        },
-                        0,
-                        verticalInset,
-                        0,
-                        verticalInset
-                    )
-                } else null
-                child.setPadding(inset, 0, inset, 0)
-                child.translationX = if (isSticky && compact) -inset.toFloat() else 0f
-            }
-
-            is android.widget.ImageButton -> child.background = if (isSticky) {
-                InsetDrawable(
-                    GradientDrawable().apply {
-                        shape = GradientDrawable.OVAL
-                        setColor(backgroundColor)
-                    },
-                    inset
-                )
-            } else null
-        }
-    }
 }
 
 fun View.currentTheme(): Theme {

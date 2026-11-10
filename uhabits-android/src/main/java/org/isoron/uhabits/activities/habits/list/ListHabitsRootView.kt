@@ -41,12 +41,11 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.tatarka.inject.annotations.Inject
 import nl.dionsegijn.konfetti.xml.KonfettiView
-import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.ScrollableChart
 import org.isoron.uhabits.activities.common.views.TaskProgressBar
 import org.isoron.uhabits.activities.habits.list.views.EmptyListView
-import org.isoron.uhabits.activities.habits.list.views.FlowLargeHeaderView
 import org.isoron.uhabits.activities.habits.list.views.FlowHomeSearchBar
+import org.isoron.uhabits.activities.habits.list.views.FlowLargeHeaderView
 import org.isoron.uhabits.activities.habits.list.views.FlowSelectionActionBar
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListAdapter
 import org.isoron.uhabits.activities.habits.list.views.HabitCardListView
@@ -61,14 +60,18 @@ import org.isoron.uhabits.core.ui.screens.habits.list.HintListFactory
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
-import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.R
 import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.applyFlowContentInsets
+import org.isoron.uhabits.utils.applyToolbarInsets
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.buildFlowToolbar
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dim
+import org.isoron.uhabits.utils.FlowHeaderBehavior
+import org.isoron.uhabits.utils.FlowScrollingBehavior
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.bindFlowHeader
 import kotlin.math.abs
 
 const val MAX_CHECKMARK_COUNT = 60
@@ -150,7 +153,7 @@ class ListHabitsRootView(
         val flowBackground = sres.getColor(R.attr.flowBackgroundColor)
         val toolbarHeight = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
         val appBar = AppBarLayout(context).apply {
-            setBackgroundColor(flowBackground)
+            setBackgroundColor(Color.TRANSPARENT)
             elevation = 0f
             applyToolbarInsets()
         }
@@ -194,6 +197,7 @@ class ListHabitsRootView(
                     AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
             }
         )
+        header.setBackgroundColor(flowBackground)
         tbar.addView(collapsedBrand, androidx.appcompat.widget.Toolbar.LayoutParams(
             WRAP_CONTENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
         ).apply {
@@ -242,18 +246,23 @@ class ListHabitsRootView(
                 }
             )
         }
-        content.addFlowScrollFades(listView)
+        llEmpty.applyFlowContentInsets()
         val rootView = CoordinatorLayout(context).apply {
             setBackgroundColor(flowBackground)
-            addView(appBar, CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                behavior = AppBarLayout.Behavior()
-            })
+            addView(
+                appBar,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    behavior = FlowHeaderBehavior(context)
+                }
+            )
             addView(
                 content,
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
-                    behavior = AppBarLayout.ScrollingViewBehavior()
+                    behavior = FlowScrollingBehavior(context)
                 }
             )
+            addFlowScrollFades(listView)
+            homeSearchBar.translationZ = appBar.z + 1f
             addView(
                 homeSearchBar,
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {

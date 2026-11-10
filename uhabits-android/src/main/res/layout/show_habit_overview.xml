@@ -35,6 +35,7 @@
         android:orientation="horizontal">
 
         <FrameLayout
+            android:id="@+id/scoreRingContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5">
@@ -62,6 +63,7 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
+                android:id="@+id/scoreCaption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/score"
@@ -81,6 +83,7 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
+                android:id="@+id/monthCaption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/month"
@@ -100,6 +103,7 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
+                android:id="@+id/yearCaption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/year"
@@ -119,6 +123,7 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
+                android:id="@+id/totalCaption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/total"

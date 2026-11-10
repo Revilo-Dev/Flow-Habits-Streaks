@@ -12,6 +12,9 @@
 package org.isoron.uhabits.activities.habits.list.views
 
 import android.content.Context
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.drawable.RippleDrawable
 import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.View
@@ -20,9 +23,11 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import org.isoron.platform.time.getToday
 import org.isoron.platform.time.toGregorianCalendar
 import org.isoron.uhabits.R
+import org.isoron.uhabits.activities.habits.list.StreakProgressActivity
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.list.HabitCardListCache
 import org.isoron.uhabits.core.utils.MidnightTimer
@@ -63,7 +68,23 @@ class FlowLargeHeaderView(
         }
     }
 
-    private val perfectStreakView = FlowPerfectStreakView(context, preferences)
+    private val perfectStreakView = FlowPerfectStreakView(context, preferences).apply {
+        setOnClickListener {
+            context.startActivity(Intent(context, StreakProgressActivity::class.java))
+        }
+        isFocusable = true
+        ViewCompat.replaceAccessibilityAction(
+            this,
+            AccessibilityActionCompat.ACTION_CLICK,
+            context.getString(R.string.flow_streak_open),
+            null
+        )
+        foreground = RippleDrawable(
+            ColorStateList.valueOf(sres.getColor(R.attr.flowRippleColor)),
+            null,
+            context.getDrawable(R.drawable.flow_card_background)
+        )
+    }
     private var hintView: HintView? = null
 
     init {

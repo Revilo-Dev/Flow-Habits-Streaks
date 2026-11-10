@@ -41,16 +41,55 @@ Flow is completely ad-free and open source.
 
 * **Works offline and respects your privacy.** Loop doesn't require an Internet connection or online account registration. Your confidential data is never sent to anyone. Neither the developers nor any third-parties have access to it.
 
-When **Enable skip days** is on, each habit editor has **Count skips towards weekly
-streak** and **Count skips towards streak** switches. The first fills skipped days
+Each habit editor has **Count skips towards weekly streak** and **Count skips
+towards daily streak** switches. The first fills skipped days
 in that habit's seven-day streak display; the second adds skipped days to its
 streak length. Both default to off. Skips still bridge streaks when counting is
 off, and neither option changes habit scores or the home perfect-day summary.
 Both settings are included in database backups and habit CSV metadata.
-Home and habit headers fade their content as they collapse.
+Under **Settings > Habits**, **Count skips towards perfect streak** applies globally
+to the home perfect-streak card and the Perfect streaks page. It defaults to off.
+When enabled, every active habit must be completed or explicitly skipped for a day
+to count as perfect. Missed and unanswered habits still prevent a perfect day.
+It does not change individual streak rules, completion totals, or scores.
+To reopen a collapsed header, scroll back to the first item, then pull down again.
+The back and action buttons float over the content, with a fade at the screen's top edge.
 
+The entry sheet shows **Done**, **Skip** when enabled, and **Missed**. Each action
+saves immediately. **Cancel** discards the draft. Numerical habits show **Save** and
+**Zero** in place of Done and Missed. Under **Settings → Appearance**, choose bottom
+or centre placement. Draft text and the selected date survive activity recreation.
+
+Appearance also includes the device accent on Android 12 and later, separate
+light and dark Flow accent choices, and controls for blur, blur intensity, and
+glass opacity. The accent applies to app controls independently of habit colours.
+Turn off **Use colour theming** to restore the default Flow colours. Streak cards
+always retain their own blue and purple palette. Back and action controls, overflow
+menus, Settings dropdowns, and entry sheets have a half-dp white border at 15% opacity.
+Glass defaults to 85% opacity. Existing opacity settings are raised by about 30%
+once on upgrade, then remain adjustable in Appearance. Overflow menus use a compact
+196 dp layout with white text in dark mode and 52 dp minimum row heights. They expand
+over the toolbar button from its top corner. Dialogs and floating controls use
+a thin white highlight that fades down the edge.
+Toolbar glass samples the content behind it, with a software blur fallback on
+older Android versions. Dropdowns use an opaque surface with a soft shadow.
+Settings includes clearance below its last card so the bottom fade does not cover it.
+
+Tap the home perfect-streak card to open **Perfect streaks**. Its **Streak totals** card shows the current
+and longest perfect streaks, total perfect days, a perfect-day calendar, previous
+streaks, and a completion chart using the same cards as habit details. Solid
+cards sit above a blended purple and aqua backdrop. The completed perfect-streak
+card casts a violet glow on Android 9 and later. Score and frequency cards are
+omitted. Swipe the calendar to browse history. Tap an active
+habit summary to open its normal detail page.
+All active habits contribute, regardless of home search or filters. Skips retain
+their individual habit rules and only make a day perfect when the global setting is on. The calendar position,
+chart grouping, and page scroll position survive screen recreation. Card heading
+icons consistently match the habit colour.
 
 ## Installing
+
+Flow requires Android 7.0 (API 24) or later.
 
 To build Flow from source, see the [build instructions](docs/BUILD.md).
 Debug builds install as **Flow Test** (`dev.revilodev.flow.debug`) alongside the

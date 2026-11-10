@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="flow_streak_start">#006EDB</color>
+    <color name="flow_streak_end">#7657E8</color>
+    <color name="flow_streak_aqua">#35D6D0</color>
+    <string name="flow_theming_enabled">Use colour theming</string>
+    <string name="flow_theming_enabled_summary">Apply wallpaper or custom accent colours. Turn off to use Flow colours.</string>
+    <string name="flow_streak_progress">Perfect streaks</string>
+    <string name="flow_streak_totals">Streak totals</string>
+    <string name="flow_streak_progress_description">Perfect days complete every active habit. Skips also count when enabled in Settings.</string>
+    <string name="flow_streak_current">Current</string>
+    <string name="flow_streak_best">Longest</string>
+    <string name="flow_streak_total">Perfect days</string>
+    <string name="flow_streak_calendar">Perfect streak calendar</string>
+    <string name="flow_streak_previous">Previous streaks</string>
+    <string name="flow_streak_empty">Complete every active habit on a day to begin your first perfect streak.</string>
+    <string name="flow_streak_no_previous">No previous streaks yet</string>
+    <string name="flow_streak_habits">Habit streaks</string>
+    <string name="flow_streak_habit_counts">Current: %1$d days · Longest: %2$d days</string>
+    <string name="flow_streak_range">%1$s – %2$s</string>
+    <string name="flow_streak_previous_month">Previous month</string>
+    <string name="flow_streak_next_month">Next month</string>
+    <string name="flow_streak_calendar_day">%1$s: %2$s</string>
+    <string name="flow_streak_perfect">Perfect day</string>
+    <string name="flow_streak_incomplete">Not a perfect day</string>
+    <string name="flow_streak_future">Future day</string>
+    <string name="flow_streak_open">View streak progress</string>
+    <string name="flow_streak_more">Show more streaks</string>
+    <string name="flow_streak_expanded">Streak history expanded</string>
+    <string name="flow_streak_collapsed">Streak history collapsed</string>
+</resources>

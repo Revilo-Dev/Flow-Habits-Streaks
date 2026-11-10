@@ -52,8 +52,7 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingBottom="@dimen/flow_editor_action_clearance"
-        app:behavior_overlapTop="@dimen/flow_toolbar_height"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="org.isoron.uhabits.utils.FlowScrollingBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -228,8 +227,7 @@
                 android:id="@+id/skipOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:orientation="vertical">
                 <TextView
                     style="@style/Flow.Form.SectionLabel"
                     android:layout_marginTop="@dimen/flow_section_spacing"
@@ -237,7 +235,7 @@
                 <LinearLayout
                     style="@style/Flow.Form.Card"
                     android:orientation="vertical">
-                    <com.google.android.material.switchmaterial.SwitchMaterial
+                    <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/countSkipsWeekly"
                         style="@style/Widget.Flow.Switch"
                         android:layout_width="match_parent"
@@ -245,7 +243,7 @@
                         android:text="@string/flow_count_skips_weekly"
                         android:textColor="?attr/flowTextPrimaryColor" />
                     <View style="@style/Flow.Form.Divider" />
-                    <com.google.android.material.switchmaterial.SwitchMaterial
+                    <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/countSkipsStreak"
                         style="@style/Widget.Flow.Switch"
                         android:layout_width="match_parent"

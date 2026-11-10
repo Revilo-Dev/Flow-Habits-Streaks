@@ -1,5 +1,6 @@
 package org.isoron.uhabits.activities
 
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.ContextThemeWrapper
@@ -13,6 +14,7 @@ import org.isoron.uhabits.databinding.AboutBinding
 import org.isoron.uhabits.databinding.CheckmarkPopupBinding
 import org.isoron.uhabits.databinding.SelectHabitTypeBinding
 import org.isoron.uhabits.utils.StyledResources
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,10 +39,15 @@ class FlowSurfaceTest {
                 input.numberButtons.visibility = View.VISIBLE
                 input.numberFooter.visibility = View.VISIBLE
                 input.value.setText("12")
+                input.habitName.text = "Morning walk"
                 input.skipBtnNumber.visibility = View.GONE
                 assertTrue(ColorUtils.calculateContrast(input.value.currentTextColor,
                     colors.getColor(R.attr.flowSurfaceSecondaryColor)) >= 4.5)
-                org.junit.Assert.assertEquals(android.graphics.Color.WHITE, input.saveBtn.currentTextColor)
+                assertEquals(
+                    colors.getColor(R.attr.flowAccentColor),
+                    input.yesBtn.compoundDrawableTintList!!.defaultColor
+                )
+                input.root.setBackgroundColor(colors.getColor(R.attr.flowSurfaceColor))
                 val directory = target.getExternalFilesDir("oneui-review")!!
                 directory.mkdirs()
                 fun render(view: View, file: String, heightDp: Int? = null) {
@@ -50,6 +57,7 @@ class FlowSurfaceTest {
                     view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(height, if (heightDp == null) View.MeasureSpec.AT_MOST else View.MeasureSpec.EXACTLY))
                     view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+                    view.viewTreeObserver.dispatchOnPreDraw()
                     val bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
                     view.draw(Canvas(bitmap))
                     File(directory, "$name-$file.png").outputStream().use {
@@ -58,6 +66,15 @@ class FlowSurfaceTest {
                     bitmap.recycle()
                 }
                 render(input.root, "input")
+                val largeConfig = Configuration(target.resources.configuration).apply { fontScale = 2f }
+                val largeContext = ContextThemeWrapper(target.createConfigurationContext(largeConfig), theme)
+                val largeInput = CheckmarkPopupBinding.inflate(LayoutInflater.from(largeContext))
+                largeInput.habitName.text = "Morning walk and stretch"
+                largeInput.numberButtons.visibility = View.VISIBLE
+                largeInput.value.setText("12.5")
+                largeInput.root.setBackgroundColor(colors.getColor(R.attr.flowSurfaceColor))
+                render(largeInput.root, "input-large-text")
+                assertTrue(largeInput.yesBtn.height >= largeInput.yesBtn.compoundPaddingTop + largeInput.yesBtn.layout.height)
                 val creation = SelectHabitTypeBinding.inflate(inflater)
                 render(creation.root, "create", 700)
                 assertTrue("Cancel label must be laid out", creation.buttonCancel.layout.lineCount > 0)

@@ -72,7 +72,7 @@
     </style>
 
     <style name="Widget.Flow.PreferenceItem" parent="Widget.Flow.ListItem">
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:foreground">@drawable/flow_touch_feedback</item>
     </style>
 
     <style name="ShapeAppearance.Flow.Card" parent="ShapeAppearance.MaterialComponents.MediumComponent">
@@ -103,10 +103,16 @@
         <item name="shapeAppearance">@style/ShapeAppearance.Flow.Control</item>
     </style>
 
-    <style name="Widget.Flow.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+    <style name="Widget.Flow.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
         <item name="android:minWidth">@dimen/flow_min_touch_target</item>
         <item name="android:minHeight">@dimen/flow_min_touch_target</item>
-        <item name="buttonTint">?attr/flowAccentColor</item>
+        <item name="android:thumb">@drawable/flow_preference_switch_thumb</item>
+        <item name="track">@drawable/flow_preference_switch_track</item>
+        <item name="thumbTint">@null</item>
+        <item name="trackTint">@null</item>
+        <item name="showText">false</item>
+        <item name="splitTrack">false</item>
+        <item name="switchMinWidth">48dp</item>
     </style>
 
     <style name="FlowPopupTheme" parent="ThemeOverlay.MaterialComponents">
@@ -116,6 +122,7 @@
         <item name="android:textColorPrimary">?attr/flowTextPrimaryColor</item>
         <item name="android:textColorSecondary">?attr/flowTextSecondaryColor</item>
         <item name="colorControlHighlight">?attr/flowRippleColor</item>
+        <item name="android:colorControlHighlight">?attr/flowRippleColor</item>
         <item name="popupMenuStyle">@style/Widget.Flow.PopupMenu</item>
     </style>
 
@@ -124,16 +131,22 @@
         <item name="android:dropDownVerticalOffset">8dp</item>
     </style>
 
+    <style name="Widget.Flow.PreferenceDropdown" parent="Widget.AppCompat.Spinner.DropDown">
+        <item name="android:popupBackground">@drawable/flow_popup_background</item>
+        <item name="android:dropDownSelector">@drawable/flow_touch_feedback</item>
+        <item name="android:popupElevation">@dimen/flow_popup_elevation</item>
+    </style>
+
     <style name="Widget.Flow.Dropdown" parent="Widget.AppCompat.Spinner.DropDown">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:background">@drawable/flow_dropdown_background</item>
-        <item name="android:dropDownSelector">?android:attr/selectableItemBackground</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:dropDownSelector">@drawable/flow_touch_feedback</item>
+        <item name="android:foreground">@drawable/flow_touch_feedback</item>
         <item name="android:popupBackground">@drawable/flow_popup_background</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">36dp</item>
-        <item name="android:popupElevation">8dp</item>
+        <item name="android:popupElevation">@dimen/flow_popup_elevation</item>
         <item name="android:textColor">?attr/flowTextSecondaryColor</item>
     </style>
 
@@ -141,12 +154,12 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:background">@android:color/transparent</item>
-        <item name="android:dropDownSelector">?android:attr/selectableItemBackground</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:dropDownSelector">@drawable/flow_touch_feedback</item>
+        <item name="android:foreground">@drawable/flow_touch_feedback</item>
         <item name="android:popupBackground">@drawable/flow_popup_background</item>
         <item name="android:paddingStart">4dp</item>
         <item name="android:paddingEnd">8dp</item>
-        <item name="android:popupElevation">8dp</item>
+        <item name="android:popupElevation">@dimen/flow_popup_elevation</item>
         <item name="android:textColor">?attr/flowTextSecondaryColor</item>
     </style>
 
@@ -231,7 +244,7 @@
         <item name="android:minHeight">@dimen/flow_min_touch_target</item>
         <item name="android:layout_marginTop">@dimen/flow_small_spacing</item>
         <item name="android:background">@drawable/flow_surface_secondary_background</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:foreground">@drawable/flow_touch_feedback</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingStart">@dimen/flow_large_spacing</item>
         <item name="android:paddingEnd">@dimen/flow_large_spacing</item>

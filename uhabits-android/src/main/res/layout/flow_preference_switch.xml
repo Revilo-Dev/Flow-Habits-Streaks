@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.AppCompatCheckBox
+<androidx.appcompat.widget.SwitchCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/switchWidget"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/flow_min_touch_target"
-    android:clickable="false"
+    android:clickable="true"
     android:focusable="false"
     android:gravity="center"
-    android:button="@drawable/flow_preference_checkbox"
-    android:buttonTint="@null"
-    android:minWidth="@dimen/flow_min_touch_target"
     android:padding="0dp"
-    app:buttonCompat="@drawable/flow_preference_checkbox" />
+    android:thumb="@drawable/flow_preference_switch_thumb"
+    app:showText="false"
+    app:splitTrack="false"
+    app:thumbTint="@null"
+    app:trackTint="@null"
+    app:switchMinWidth="48dp"
+    app:track="@drawable/flow_preference_switch_track" />

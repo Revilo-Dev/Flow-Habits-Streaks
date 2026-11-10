@@ -1,26 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/background"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#66000000"
-    android:clickable="true"
-    android:focusable="true"
-    android:padding="@dimen/flow_screen_padding">
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/dialogCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:clickable="true"
-        android:elevation="12dp"
-        app:cardBackgroundColor="?attr/flowSurfaceColor"
-        app:cardCornerRadius="@dimen/flow_dialog_radius"
-        app:cardElevation="12dp"
-        app:strokeWidth="0dp">
+    android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,11 +11,23 @@
             android:orientation="vertical"
             android:padding="@dimen/flow_card_padding">
 
+            <TextView
+                android:id="@+id/title"
+                style="@style/TextAppearance.Flow.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/flow_medium_spacing"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/create_habit"
+                android:textSize="20sp" />
+
             <LinearLayout
                 android:id="@+id/buttonYesNo"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:minHeight="88dp" android:paddingTop="16dp" android:paddingBottom="16dp"
-                android:background="@drawable/flow_surface_secondary_selectable_background"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:paddingVertical="12dp"
+                android:background="@drawable/flow_card_selectable_background"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -57,9 +52,11 @@
             <LinearLayout
                 android:id="@+id/buttonMeasurable"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:minHeight="88dp" android:paddingTop="16dp" android:paddingBottom="16dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:paddingVertical="12dp"
                 android:layout_marginTop="@dimen/flow_card_spacing"
-                android:background="@drawable/flow_surface_secondary_selectable_background"
+                android:background="@drawable/flow_card_selectable_background"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -81,17 +78,15 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/buttonCancel"
-                style="@style/Widget.Flow.DialogAction"
+                style="@style/Widget.Flow.EntryAction"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/flow_medium_spacing"
+                android:layout_weight="0"
+                android:layout_marginTop="@dimen/flow_small_spacing"
+                android:minHeight="48dp"
                 android:text="@android:string/cancel"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                app:rippleColor="?attr/flowRippleColor" />
+                android:textSize="16sp" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+</ScrollView>

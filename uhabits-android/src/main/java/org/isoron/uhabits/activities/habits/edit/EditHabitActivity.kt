@@ -23,20 +23,20 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.res.ColorStateList
 import android.content.res.Resources
-import android.graphics.Color
 import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PixelFormat
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.graphics.Paint
+import android.graphics.PixelFormat
 import android.os.Bundle
+import android.text.Editable
+import android.text.format.DateFormat
 import android.text.Html
 import android.text.InputType
 import android.text.Spanned
 import android.text.TextWatcher
-import android.text.Editable
-import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -58,13 +58,11 @@ import com.android.datetimepicker.time.RadialPickerLayout
 import com.android.datetimepicker.time.TimePickerDialog
 import com.google.android.material.button.MaterialButton
 import org.isoron.platform.gui.toInt
-import org.isoron.uhabits.HabitsApplication
-import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.AndroidThemeSwitcher
-import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
 import org.isoron.uhabits.activities.common.dialogs.FrequencyPickerDialog
 import org.isoron.uhabits.activities.common.dialogs.WeekdayPickerDialog
+import org.isoron.uhabits.activities.FlowActivity
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.commands.CreateHabitCommand
 import org.isoron.uhabits.core.commands.EditHabitCommand
@@ -76,15 +74,19 @@ import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.models.Reminder
 import org.isoron.uhabits.core.models.WeekdayList
 import org.isoron.uhabits.databinding.ActivityEditHabitBinding
-import org.isoron.uhabits.utils.StyledResources
+import org.isoron.uhabits.HabitsApplication
+import org.isoron.uhabits.R
+import org.isoron.uhabits.utils.FlowHighlightDrawable
+import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.applyFlowContentInsets
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
-import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.dismissCurrentAndShow
 import org.isoron.uhabits.utils.formatTime
 import org.isoron.uhabits.utils.requestFocusWithKeyboard
+import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.utils.toFormattedString
-import org.isoron.uhabits.utils.bindFlowHeader
 import java.text.BreakIterator
 import java.util.Locale
 
@@ -125,9 +127,9 @@ class EditHabitActivity : FlowActivity() {
         themeSwitcher.apply()
 
         binding = ActivityEditHabitBinding.inflate(layoutInflater)
-        binding.skipOptions.visibility = if (component.preferences.isSkipEnabled) View.VISIBLE else View.GONE
         binding.root.applyRootViewInsets()
         binding.appBar.applyToolbarInsets()
+        binding.editorScrollView.applyFlowContentInsets()
         val baseActionMargin = resources.getDimensionPixelSize(R.dimen.flow_large_spacing)
         ViewCompat.setOnApplyWindowInsetsListener(binding.editorActions.root) { actionBar, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -138,11 +140,7 @@ class EditHabitActivity : FlowActivity() {
             insets
         }
         setContentView(binding.root)
-        val scrollFades = binding.root.addFlowScrollFades(
-            scrollable = binding.editorScrollView,
-            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
-            includeTopInset = true
-        )
+        val scrollFades = binding.root.addFlowScrollFades(binding.editorScrollView)
         scrollFades.update(topAllowed = false)
         binding.editorActions.root.bringToFront()
         binding.appBar.bringToFront()
@@ -424,6 +422,10 @@ class EditHabitActivity : FlowActivity() {
         binding.colorButton.backgroundTintList = ColorStateList.valueOf(androidColor)
         val flowBackground = StyledResources(this).getColor(R.attr.flowBackgroundColor)
         binding.toolbar.setBackgroundColor(Color.TRANSPARENT)
+        binding.editorActions.root.foreground = FlowHighlightDrawable(
+            this,
+            resources.getDimension(R.dimen.flow_dialog_radius)
+        )
         binding.editorActions.root.cardElevation = if (ColorUtils.calculateLuminance(flowBackground) > 0.5) {
             resources.getDimension(R.dimen.flow_fab_elevation)
         } else {

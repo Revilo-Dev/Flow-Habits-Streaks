@@ -19,26 +19,22 @@
 
 package org.isoron.uhabits.activities.habits.edit
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.core.view.ViewCompat
 import org.isoron.uhabits.R
+import org.isoron.uhabits.activities.common.dialogs.configureFlowDialogBlur
+import org.isoron.uhabits.activities.common.dialogs.configureHabitDialogSize
 import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.databinding.SelectHabitTypeBinding
 import org.isoron.uhabits.intents.IntentFactory
 
 class HabitTypeDialog : AppCompatDialogFragment() {
-    override fun getTheme() = R.style.Translucent
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val themedInflater = LayoutInflater.from(requireActivity())
-        val binding = SelectHabitTypeBinding.inflate(themedInflater, container, false)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val binding = SelectHabitTypeBinding.inflate(LayoutInflater.from(requireActivity()))
+        ViewCompat.setAccessibilityHeading(binding.title, true)
 
         binding.buttonYesNo.setOnClickListener {
             val intent = IntentFactory().startEditActivity(requireActivity(), HabitType.YES_NO.value)
@@ -52,11 +48,17 @@ class HabitTypeDialog : AppCompatDialogFragment() {
             dismiss()
         }
 
-        binding.background.setOnClickListener {
-            dismiss()
-        }
         binding.buttonCancel.setOnClickListener { dismiss() }
 
-        return binding.root
+        return Dialog(requireContext(), R.style.FlowEntryDialog).apply {
+            setContentView(binding.root)
+            setCanceledOnTouchOutside(true)
+            configureFlowDialogBlur(requireActivity().findViewById(android.R.id.content))
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        configureHabitDialogSize(centered = true)
     }
 }

@@ -37,19 +37,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.children
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroupAdapter
+import androidx.preference.SeekBarPreference
 import androidx.recyclerview.widget.RecyclerView
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.google.android.material.appbar.AppBarLayout
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
-import org.isoron.uhabits.HabitsApplication
-import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.about.AboutActivity
 import org.isoron.uhabits.activities.habits.list.RESULT_BUG_REPORT
 import org.isoron.uhabits.activities.habits.list.RESULT_EXPORT_CSV
@@ -58,16 +56,20 @@ import org.isoron.uhabits.activities.habits.list.RESULT_IMPORT_DATA
 import org.isoron.uhabits.activities.habits.list.RESULT_REPAIR_DB
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
+import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.notifications.AndroidNotificationTray.Companion.createAndroidNotificationChannel
-import org.isoron.uhabits.notifications.RingtoneManager
 import org.isoron.uhabits.notifications.HabitCheckInManager
-import org.isoron.uhabits.utils.StyledResources
-import org.isoron.uhabits.utils.applyBottomInset
+import org.isoron.uhabits.notifications.RingtoneManager
+import org.isoron.uhabits.R
 import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.applyFlowContentInsets
+import org.isoron.uhabits.utils.FlowAccent
+import org.isoron.uhabits.utils.FlowBlurSettings
 import org.isoron.uhabits.utils.startActivitySafely
+import org.isoron.uhabits.utils.StyledResources
 import org.isoron.uhabits.widgets.WidgetUpdater
-import java.util.Locale
 import java.util.Calendar
+import java.util.Locale
 
 class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
     private var sharedPrefs: SharedPreferences? = null
@@ -115,6 +117,31 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         // NOP
     }
 
+    private fun setupAppearancePreferences() {
+        for ((key, dark) in listOf(FlowAccent.LIGHT to false, FlowAccent.DARK to true)) {
+            val preference = findPreference(key) as ListPreference
+            preference.entryValues = Array(preference.entries.size) { it.toString() }
+            preference.value = FlowAccent.choice(requireContext(), dark).toString()
+            preference.summary = preference.entry
+            preference.isVisible = !FlowAccent.usesSystem(requireContext())
+            preference.setOnPreferenceChangeListener { _, value ->
+                FlowAccent.select(requireContext(), dark, (value as String).toInt())
+                true
+            }
+        }
+        val opacity = findPreference(FlowBlurSettings.OPACITY) as SeekBarPreference
+        opacity.setOnPreferenceChangeListener { _, value ->
+            val requested = value as Int
+            val step = ((requested + 2) / 5) * 5
+            if (step == requested) {
+                true
+            } else {
+                opacity.value = step
+                false
+            }
+        }
+    }
+
     override fun onPause() {
         sharedPrefs!!.unregisterOnSharedPreferenceChangeListener(this)
         super.onPause()
@@ -124,22 +151,12 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         val sr = StyledResources(requireContext())
         view.setBackgroundColor(sr.getColor(R.attr.flowBackgroundColor))
         super.onViewCreated(view, savedInstanceState)
+        setupAppearancePreferences()
         view.post {
             val list = listView
             val host = activity ?: return@post
             val container = host.findViewById<CoordinatorLayout>(R.id.container) ?: return@post
-            val scrollFades = container.addFlowScrollFades(
-                scrollable = list,
-                topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
-                includeTopInset = true
-            )
-            container.findViewById<AppBarLayout>(R.id.appBar)
-                .addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { bar, offset ->
-                    scrollFades.update(
-                        topAllowed = bar.totalScrollRange > 0 && -offset >= bar.totalScrollRange
-                    )
-                })
-            scrollFades.update(topAllowed = false)
+            container.addFlowScrollFades(list)
         }
     }
 
@@ -150,11 +167,12 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     ): RecyclerView? {
         return super.onCreateRecyclerView(inflater, parent, savedInstanceState).also { list ->
             val horizontalPadding = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
-            list.setPadding(horizontalPadding, 0, horizontalPadding, 0)
+            val bottomSpace = resources.getDimensionPixelSize(R.dimen.flow_scroll_edge_fade_size)
+            list.setPadding(horizontalPadding, 0, horizontalPadding, bottomSpace)
             list.clipToPadding = false
             list.itemAnimator = null
             list.addItemDecoration(FlowPreferenceCardDecoration(requireContext()))
-            list.applyBottomInset()
+            list.applyFlowContentInsets(includeBottom = true)
         }
     }
 
@@ -259,6 +277,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
         }
         BackupManager.dataChanged(requireContext().packageName)
         updateWeekdayPreference()
+        if (FlowAccent.isAccentKey(key)) requireActivity().recreate()
     }
 
     private fun updateNowbarPreferences() {

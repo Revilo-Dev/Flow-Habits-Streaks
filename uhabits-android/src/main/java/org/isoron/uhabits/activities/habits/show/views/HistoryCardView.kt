@@ -19,6 +19,7 @@
 package org.isoron.uhabits.activities.habits.show.views
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
@@ -34,9 +35,20 @@ class HistoryCardView(context: Context, attrs: AttributeSet) : LinearLayout(cont
 
     private var binding = ShowHabitHistoryBinding.inflate(LayoutInflater.from(context), this)
 
+    val dataOffset: Int get() = binding.chart.view?.dataOffset ?: 0
+
+    fun restoreDataOffset(offset: Int) = binding.chart.restoreDataOffset(offset)
+
+    fun setReadOnly(title: Int) {
+        binding.edit.visibility = GONE
+        binding.title.setText(title)
+    }
+
     fun setState(state: HistoryCardState) {
         val androidColor = state.theme.color(state.color).toInt()
         binding.title.setTextColor(androidColor)
+        binding.title.compoundDrawableTintList = ColorStateList.valueOf(androidColor)
+        binding.edit.imageTintList = ColorStateList.valueOf(androidColor)
         binding.chart.view = HistoryChart(
             today = state.today,
             paletteColor = state.color,

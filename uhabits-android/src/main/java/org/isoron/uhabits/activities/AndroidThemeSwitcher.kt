@@ -32,6 +32,7 @@ import org.isoron.uhabits.core.ui.ThemeSwitcher
 import org.isoron.uhabits.core.ui.views.Theme
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
+import org.isoron.uhabits.utils.FlowAccent
 
 @ActivityScope
 class AndroidThemeSwitcher
@@ -55,12 +56,14 @@ constructor(
     override fun applyDarkTheme() {
         currentTheme = FlowDarkTheme()
         context.setTheme(R.style.FlowTheme_Dark)
+        FlowAccent.apply(context, dark = true)
         setLightNavigationBarIcons(false)
     }
 
     override fun applyLightTheme() {
         currentTheme = FlowLightTheme()
         context.setTheme(R.style.FlowTheme_Light)
+        FlowAccent.apply(context, dark = false)
         setLightNavigationBarIcons(true)
     }
 

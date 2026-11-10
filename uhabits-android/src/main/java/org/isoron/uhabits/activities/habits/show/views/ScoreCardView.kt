@@ -28,13 +28,19 @@ import org.isoron.platform.gui.toInt
 import org.isoron.uhabits.core.ui.screens.habits.show.views.ScoreCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.ScoreCardState
 import org.isoron.uhabits.databinding.ShowHabitScoreBinding
+import org.isoron.uhabits.utils.styleFlowPopup
 
 class ScoreCardView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
     private var binding = ShowHabitScoreBinding.inflate(LayoutInflater.from(context), this)
 
+    init {
+        binding.spinner.styleFlowPopup()
+    }
+
     fun setState(state: ScoreCardState) {
         val androidColor = state.theme.color(state.color).toInt()
         binding.title.setTextColor(androidColor)
+        binding.title.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(androidColor)
         binding.spinner.setSelection(state.spinnerPosition)
         binding.scoreView.setScores(state.scores)
         binding.scoreView.reset()

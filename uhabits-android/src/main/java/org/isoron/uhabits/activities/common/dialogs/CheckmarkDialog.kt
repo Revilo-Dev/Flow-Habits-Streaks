@@ -27,76 +27,53 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatDialogFragment
 import org.isoron.uhabits.HabitsApplication
-import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.Entry.Companion.NO
 import org.isoron.uhabits.core.models.Entry.Companion.SKIP
 import org.isoron.uhabits.core.models.Entry.Companion.YES_MANUAL
 import org.isoron.uhabits.databinding.CheckmarkPopupBinding
-import org.isoron.uhabits.utils.InterfaceUtils.getFontAwesome
-import org.isoron.uhabits.utils.sres
 
 class CheckmarkDialog : AppCompatDialogFragment() {
-    var onToggle: (Int, String) -> Unit = { _, _ -> }
+    var onToggle: ((Int, String) -> Unit)? = null
     var onDismiss: () -> Unit = {}
-
-    private var originalNotes: String = ""
-    private var originalValue: Int = 0
     private lateinit var view: CheckmarkPopupBinding
+    private var committed = false
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val appComponent = (requireActivity().application as HabitsApplication).component
-        val prefs = appComponent.preferences
+        val preferences = (requireActivity().application as HabitsApplication).component.preferences
         view = CheckmarkPopupBinding.inflate(LayoutInflater.from(context))
-        val color = requireArguments().getInt("color")
-        arrayOf(view.yesBtn).forEach {
-            it.setTextColor(color)
-        }
-        arrayOf(view.noBtn).forEach {
-            it.setTextColor(view.root.sres.getColor(R.attr.contrast60))
-        }
-        arrayOf(view.yesBtn, view.noBtn).forEach {
-            it.typeface = getFontAwesome(requireContext())
-        }
-        originalNotes = requireArguments().getString("notes")!!
-        originalValue = requireArguments().getInt("value")
-        view.notes.setText(originalNotes)
-        view.booleanButtons.visibility = VISIBLE
-        view.numberFooter.visibility = VISIBLE
-        view.skipBtnNumber.visibility = if (prefs.isSkipEnabled) VISIBLE else GONE
-        val dialog = Dialog(requireContext())
-        dialog.setContentView(view.root)
-        dialog.setCanceledOnTouchOutside(true)
-        dialog.window?.apply {
-            setBackgroundDrawableResource(android.R.color.transparent)
-        }
-        fun onClick(v: Int) {
-            val notes = view.notes.text.toString().trim()
-            onToggle(v, notes)
-            requireDialog().dismiss()
-        }
-        var selectedValue = originalValue
-        fun select(value: Int) {
-            selectedValue = value
-            view.yesBtn.alpha = if (value == YES_MANUAL) 1f else 0.45f
-            view.noBtn.alpha = if (value == NO) 1f else 0.45f
-        }
-        select(originalValue)
-        view.yesBtn.setOnClickListener { select(YES_MANUAL) }
-        view.noBtn.setOnClickListener { select(NO) }
-        view.dismissBtn.setOnClickListener { requireDialog().dismiss() }
-        view.skipBtnNumber.setOnClickListener { onClick(SKIP) }
-        view.saveBtn.setOnClickListener { onClick(selectedValue) }
-        view.notes.setOnEditorActionListener { v, actionId, event ->
-            onClick(selectedValue)
-            true
-        }
+        view.notes.setText(
+            savedInstanceState?.getString("draftNotes") ?: requireArguments().getString("notes", "")
+        )
+        view.skipBtnNumber.visibility = if (preferences.isSkipEnabled) VISIBLE else GONE
+        view.yesBtn.setOnClickListener { commit(YES_MANUAL) }
+        view.noBtn.setOnClickListener { commit(NO) }
+        view.skipBtnNumber.setOnClickListener { commit(SKIP) }
+        view.dismissBtn.setOnClickListener { dismiss() }
+        return createEntryDialog(view)
+    }
 
-        return dialog
+    override fun onStart() {
+        super.onStart()
+        configureEntryWindow()
+    }
+
+    private fun commit(value: Int) {
+        if (committed) return
+        val notes = view.notes.text.toString().trim()
+        val callback = onToggle
+        if (callback == null && !saveRestoredEntry(value, notes)) return
+        committed = true
+        callback?.invoke(value, notes)
+        dismiss()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::view.isInitialized) outState.putString("draftNotes", view.notes.text.toString())
     }
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-
         onDismiss()
     }
 }

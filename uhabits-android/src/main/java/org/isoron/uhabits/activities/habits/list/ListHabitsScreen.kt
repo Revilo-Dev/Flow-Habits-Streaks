@@ -31,6 +31,7 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import org.isoron.platform.gui.toInt
 import org.isoron.platform.io.JavaUserFile
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.dialogs.CheckmarkDialog
 import org.isoron.uhabits.activities.common.dialogs.ColorPickerDialogFactory
@@ -270,6 +271,8 @@ class ListHabitsScreen(
     }
 
     override fun showNumberPopup(
+        habit: Habit,
+        date: LocalDate,
         value: Double,
         notes: String,
         callback: NumberPickerCallback
@@ -277,6 +280,9 @@ class ListHabitsScreen(
         val fm = (context as AppCompatActivity).supportFragmentManager
         val dialog = NumberDialog()
         dialog.arguments = Bundle().apply {
+            putString("habitName", habit.name)
+            putLong("habitId", habit.id!!)
+            putLong("timestamp", date.unixTime)
             putDouble("value", value)
             putString("notes", notes)
         }
@@ -285,6 +291,8 @@ class ListHabitsScreen(
     }
 
     override fun showCheckmarkPopup(
+        habit: Habit,
+        date: LocalDate,
         selectedValue: Int,
         notes: String,
         color: PaletteColor,
@@ -294,6 +302,9 @@ class ListHabitsScreen(
         val fm = (context as AppCompatActivity).supportFragmentManager
         val dialog = CheckmarkDialog()
         dialog.arguments = Bundle().apply {
+            putString("habitName", habit.name)
+            putLong("habitId", habit.id!!)
+            putLong("timestamp", date.unixTime)
             putInt("color", theme.color(color).toInt())
             putInt("value", selectedValue)
             putString("notes", notes)

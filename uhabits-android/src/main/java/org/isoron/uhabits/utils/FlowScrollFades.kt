@@ -7,14 +7,11 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.FrameLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import org.isoron.uhabits.R
 
-/** Softly fades scroll content into the screen background at its visible edges. */
 class FlowScrollFades internal constructor(
     private val scrollable: View,
     private val topFade: View,
@@ -25,6 +22,8 @@ class FlowScrollFades internal constructor(
     private val scrollListener = ViewTreeObserver.OnScrollChangedListener { update() }
 
     init {
+        FlowBlurSettings.observe(scrollable) { update() }
+        scrollable.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> update() }
         scrollable.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             private var observer: ViewTreeObserver? = null
 
@@ -42,71 +41,49 @@ class FlowScrollFades internal constructor(
 
     fun update(topAllowed: Boolean = this.topAllowed) {
         this.topAllowed = topAllowed
-        topFade.visibility = if (topAllowed && scrollable.canScrollVertically(-1)) {
+        val enabled = FlowBlurSettings.isEnabled(scrollable.context)
+        topFade.visibility = if (enabled && topAllowed && scrollable.canScrollVertically(-1)) {
             View.VISIBLE
         } else {
             View.INVISIBLE
         }
-        bottomFade.visibility = if (scrollable.canScrollVertically(1)) View.VISIBLE else View.INVISIBLE
+        bottomFade.visibility = if (enabled && scrollable.canScrollVertically(1)) View.VISIBLE else View.INVISIBLE
     }
 }
 
-fun ViewGroup.addFlowScrollFades(
+fun CoordinatorLayout.addFlowScrollFades(
     scrollable: View,
-    topMargin: Int = 0,
-    bottomHeight: Int? = null,
-    includeTopInset: Boolean = false
+    bottomHeight: Int = resources.getDimensionPixelSize(R.dimen.flow_scroll_edge_fade_size)
 ): FlowScrollFades {
-    val height = resources.getDimensionPixelSize(R.dimen.flow_scroll_edge_fade_size)
-    val resolvedBottomHeight = bottomHeight ?: height
+    val height = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
     val background = sres.getColor(R.attr.flowBackgroundColor)
     val topFade = createScrollFade(context, background, top = true)
     val bottomFade = createScrollFade(context, background, top = false)
-
-    when (this) {
-        is CoordinatorLayout -> {
-            addView(topFade, CoordinatorLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                height
-            ).apply {
-                gravity = Gravity.TOP
-                this.topMargin = topMargin
-            })
-            addView(bottomFade, CoordinatorLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                resolvedBottomHeight
-            ).apply {
-                gravity = Gravity.BOTTOM
-            })
+    var content = scrollable
+    while (content.parent is View && content.parent !== this) content = content.parent as View
+    addView(
+        bottomFade,
+        indexOfChild(content) + 1,
+        CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, bottomHeight).apply {
+            gravity = Gravity.BOTTOM
         }
-        is FrameLayout -> {
-            addView(topFade, FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                height,
-                Gravity.TOP
-            ).apply { this.topMargin = topMargin })
-            addView(bottomFade, FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                resolvedBottomHeight,
-                Gravity.BOTTOM
-            ))
+    )
+    // Draw from the physical top edge with the controls above the fade
+    topFade.translationZ = 1f
+    addView(
+        topFade,
+        CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height).apply {
+            gravity = Gravity.TOP
         }
-        else -> error("Flow scroll fades require a FrameLayout or CoordinatorLayout container")
+    )
+    ViewCompat.setOnApplyWindowInsetsListener(topFade) { view, insets ->
+        val size = height + insets.flowTopInset()
+        if (view.layoutParams.height != size) {
+            view.layoutParams = view.layoutParams.apply { this.height = size }
+        }
+        insets
     }
-    if (includeTopInset) {
-        ViewCompat.setOnApplyWindowInsetsListener(topFade) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val cutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val insetTop = maxOf(bars.top, cutout.top)
-            when (val params = view.layoutParams) {
-                is CoordinatorLayout.LayoutParams -> params.topMargin = topMargin + insetTop
-                is FrameLayout.LayoutParams -> params.topMargin = topMargin + insetTop
-            }
-            view.layoutParams = view.layoutParams
-            insets
-        }
-        ViewCompat.requestApplyInsets(topFade)
-    }
+    ViewCompat.requestApplyInsets(topFade)
     return FlowScrollFades(scrollable, topFade, bottomFade).also { it.update() }
 }
 

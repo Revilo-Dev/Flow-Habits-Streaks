@@ -27,6 +27,7 @@ import org.isoron.uhabits.R
 import org.isoron.uhabits.core.AppScope
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.inject.AppContext
+import org.isoron.uhabits.utils.FlowBlurSettings
 
 @Inject
 @AppScope
@@ -40,6 +41,7 @@ class SharedPreferencesStorage(
     private var preferences: Preferences? = null
 
     init {
+        FlowBlurSettings.upgradeOpacity(context)
         sharedPrefs.registerOnSharedPreferenceChangeListener(this)
         PreferenceManager.setDefaultValues(context, R.xml.preferences, false)
     }

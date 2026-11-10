@@ -26,17 +26,18 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsControllerCompat
-import org.isoron.uhabits.R
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.databinding.AboutBinding
+import org.isoron.uhabits.R
+import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.applyBottomInset
+import org.isoron.uhabits.utils.applyFlowContentInsets
 import org.isoron.uhabits.utils.applyRootViewInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
-import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.bindFlowHeader
 
 @SuppressLint("ViewConstructor")
 class AboutView(
@@ -60,11 +61,9 @@ class AboutView(
         binding.toolbar.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         binding.toolbar.elevation = 0f
         binding.appBar.applyToolbarInsets()
-        val scrollFades = binding.root.addFlowScrollFades(
-            scrollable = binding.scrollView,
-            topMargin = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height),
-            includeTopInset = true
-        )
+        binding.scrollView.clipToPadding = false
+        binding.scrollView.applyFlowContentInsets()
+        val scrollFades = binding.root.addFlowScrollFades(binding.scrollView)
         binding.appBar.bindFlowHeader(binding.toolbar) { collapsed, _ ->
             binding.aboutHeader.visibility = if (collapsed) View.INVISIBLE else View.VISIBLE
             scrollFades.update(topAllowed = collapsed)

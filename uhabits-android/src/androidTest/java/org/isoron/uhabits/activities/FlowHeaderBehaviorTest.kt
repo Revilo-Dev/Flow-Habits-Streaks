@@ -11,6 +11,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.material.appbar.AppBarLayout
 import org.isoron.uhabits.R
 import org.isoron.uhabits.utils.FlowHeaderBehavior
+import org.isoron.uhabits.utils.FlowScrollingBehavior
 import org.isoron.uhabits.utils.bindFlowHeader
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -19,6 +20,47 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class FlowHeaderBehaviorTest {
+    @Test
+    fun collapsedScrollViewportReachesBothWindowEdges() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.FlowTheme_Light)
+            val parent = CoordinatorLayout(context)
+            val behavior = FlowHeaderBehavior(context)
+            val toolbarHeight = context.resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
+            val header = AppBarLayout(context).apply { setPadding(0, 24, 0, 0) }
+            header.addView(
+                View(context).apply { minimumHeight = toolbarHeight },
+                AppBarLayout.LayoutParams(MATCH_PARENT, toolbarHeight + 200).apply {
+                    scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                        AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+                }
+            )
+            parent.addView(
+                header,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, toolbarHeight + 224).apply {
+                    this.behavior = behavior
+                }
+            )
+            val content = View(context)
+            parent.addView(
+                content,
+                CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT).apply {
+                    this.behavior = FlowScrollingBehavior(context)
+                }
+            )
+            parent.measure(
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.EXACTLY)
+            )
+            parent.layout(0, 0, 400, 800)
+            behavior.setTopAndBottomOffset(-header.totalScrollRange)
+            parent.dispatchDependentViewsChanged(header)
+            assertEquals(0f, content.y, 0.01f)
+            assertEquals(parent.height, content.height)
+        }
+    }
+
     @Test
     fun expandedContentFadesDuringCollapseAndReturnsOnExpansion() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -86,7 +128,7 @@ class FlowHeaderBehaviorTest {
     }
 
     @Test
-    fun reachingContentTopRequiresAnotherTouchBeforeExpanding() {
+    fun reachingContentTopAllowsExpansionAfterAnExtraPull() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
             val context = ContextThemeWrapper(instrumentation.targetContext, R.style.FlowTheme_Light)
@@ -114,19 +156,24 @@ class FlowHeaderBehaviorTest {
             behavior.setTopAndBottomOffset(closedOffset)
             fun start(type: Int) = behavior.onStartNestedScroll(parent, header, content, content,
                 ViewCompat.SCROLL_AXIS_VERTICAL, type)
-            fun pull(type: Int) = behavior.onNestedScroll(parent, header, content,
-                0, 0, 0, -40, type, IntArray(2))
+            fun pull(type: Int, distance: Int) = behavior.onNestedScroll(parent, header, content,
+                0, 0, 0, -distance, type, IntArray(2))
+            val threshold = (16 * context.resources.displayMetrics.density).toInt().coerceAtLeast(1)
 
             assertTrue(start(ViewCompat.TYPE_TOUCH))
             scrolled = false // The same gesture has now reached the first card.
-            pull(ViewCompat.TYPE_TOUCH)
+            pull(ViewCompat.TYPE_TOUCH, threshold)
             assertEquals(closedOffset, behavior.topAndBottomOffset)
             start(ViewCompat.TYPE_NON_TOUCH)
-            pull(ViewCompat.TYPE_NON_TOUCH) // A fling cannot cross the boundary either.
+            pull(ViewCompat.TYPE_NON_TOUCH, threshold)
             assertEquals(closedOffset, behavior.topAndBottomOffset)
 
+            pull(ViewCompat.TYPE_TOUCH, 8)
+            assertEquals(closedOffset + 8, behavior.topAndBottomOffset)
+
+            behavior.setTopAndBottomOffset(closedOffset)
             assertTrue(start(ViewCompat.TYPE_TOUCH))
-            pull(ViewCompat.TYPE_TOUCH)
+            pull(ViewCompat.TYPE_TOUCH, 8)
             assertTrue(behavior.topAndBottomOffset > closedOffset)
         }
     }

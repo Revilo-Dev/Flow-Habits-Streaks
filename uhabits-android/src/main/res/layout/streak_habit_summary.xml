@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.isoron.uhabits.activities.habits.show.views.OverviewCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ShowHabit.Flow.BodyCard"
+    android:foreground="@drawable/flow_touch_feedback"
+    android:clickable="true"
+    android:focusable="true" />

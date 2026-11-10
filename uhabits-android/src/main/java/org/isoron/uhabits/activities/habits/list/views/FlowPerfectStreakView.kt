@@ -22,7 +22,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
-import androidx.core.view.ViewCompat
 import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
@@ -30,6 +29,7 @@ import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.list.HabitCardListCache
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.sres
+import org.isoron.uhabits.utils.updatePerfectStreakGlow
 import java.util.Locale
 import kotlin.math.absoluteValue
 
@@ -59,14 +59,6 @@ class FlowPerfectStreakView(
         val padding = dim(R.dimen.flow_large_spacing).toInt()
         setPadding(padding, padding, padding, padding)
         clipToOutline = true
-        ViewCompat.setElevation(
-            this,
-            if (ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5) {
-                dim(R.dimen.flow_card_elevation)
-            } else {
-                0f
-            }
-        )
 
         val heading = LinearLayout(context).apply {
             orientation = HORIZONTAL
@@ -124,8 +116,8 @@ class FlowPerfectStreakView(
     }
 
     fun update(summary: HabitCardListCache.PerfectStreakSummary) {
-        val accent = sres.getColor(R.attr.flowAccentColor)
-        val gradientEnd = sres.getColor(R.attr.flowAccentGradientEndColor)
+        val accent = context.getColor(R.color.flow_streak_start)
+        val gradientEnd = context.getColor(R.color.flow_streak_end)
         val surface = sres.getColor(R.attr.flowSurfaceSecondaryColor)
         val isLight = ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
         val inactiveStart = if (isLight) {
@@ -147,6 +139,7 @@ class FlowPerfectStreakView(
         background = GradientDrawable(GradientDrawable.Orientation.TL_BR, cardColors).apply {
             cornerRadius = dim(R.dimen.flow_card_radius)
         }
+        updatePerfectStreakGlow(summary.todayComplete)
         titleView.setTextColor(Color.WHITE)
         streakView.setTextColor(Color.WHITE)
         messageView.setTextColor(Color.WHITE)

@@ -30,6 +30,26 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PreferencesTest : BaseUnitTest() {
+    @Test
+    fun perfectStreakSkipCountingDefaultsOffAndPersists() {
+        assertFalse(prefs.skipsCountTowardsPerfectStreak)
+        prefs.skipsCountTowardsPerfectStreak = true
+        assertTrue(Preferences(storage).skipsCountTowardsPerfectStreak)
+        prefs.skipsCountTowardsPerfectStreak = false
+        assertFalse(Preferences(storage).skipsCountTowardsPerfectStreak)
+    }
+
+    @Test
+    fun entryDialogPositionPersistsAndRejectsUnknownValues() {
+        val storage = MemoryStorage()
+        val preferences = Preferences(storage)
+        assertEquals("bottom", preferences.entryDialogPosition)
+        preferences.entryDialogPosition = "center"
+        assertEquals("center", Preferences(storage).entryDialogPosition)
+        preferences.entryDialogPosition = "unexpected"
+        assertEquals("bottom", Preferences(storage).entryDialogPosition)
+    }
+
     private lateinit var prefs: Preferences
 
     private var listener: Preferences.Listener = object : Preferences.Listener {}

@@ -25,6 +25,65 @@
             android:title="@string/flow_settings_appearance">
 
         <SwitchPreferenceCompat
+            android:key="flow_theming_enabled"
+            android:defaultValue="true"
+            android:title="@string/flow_theming_enabled"
+            android:summary="@string/flow_theming_enabled_summary"
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
+
+        <SwitchPreferenceCompat
+            android:key="global_use_color_palette"
+            android:dependency="flow_theming_enabled"
+            android:defaultValue="true"
+            android:title="@string/flow_system_palette"
+            android:summary="@string/flow_system_palette_summary"
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
+
+        <org.isoron.uhabits.activities.settings.FlowChoicePreference
+            android:key="oneui_palette_primary_light"
+            android:dependency="flow_theming_enabled"
+            android:persistent="false"
+            android:title="@string/flow_accent_light"
+            android:entries="@array/flow_accent_entries"
+            app:iconSpaceReserved="false" />
+
+        <org.isoron.uhabits.activities.settings.FlowChoicePreference
+            android:key="oneui_palette_primary_dark"
+            android:dependency="flow_theming_enabled"
+            android:persistent="false"
+            android:title="@string/flow_accent_dark"
+            android:entries="@array/flow_accent_entries"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:key="global_blur_enabled"
+            android:defaultValue="true"
+            android:title="@string/flow_blur_enabled"
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
+
+        <SeekBarPreference
+            android:key="global_blur_intensity"
+            android:defaultValue="18"
+            android:dependency="global_blur_enabled"
+            android:max="40"
+            android:title="@string/flow_blur_intensity"
+            app:showSeekBarValue="true"
+            app:iconSpaceReserved="false" />
+
+        <SeekBarPreference
+            android:key="global_blur_alpha"
+            android:defaultValue="85"
+            android:dependency="global_blur_enabled"
+            android:max="100"
+            android:title="@string/flow_blur_opacity"
+            app:seekBarIncrement="5"
+            app:showSeekBarValue="true"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
                 android:defaultValue="false"
                 android:key="pref_pure_black"
                 android:enabled="false"
@@ -42,7 +101,7 @@
             app:iconSpaceReserved="false"
             app:widgetLayout="@layout/flow_preference_switch" />
 
-        <ListPreference
+        <org.isoron.uhabits.activities.settings.FlowChoicePreference
                 android:defaultValue="255"
                 android:entries="@array/widget_opacity_entries"
                 android:entryValues="@array/widget_opacity_values"
@@ -50,6 +109,15 @@
                 android:summary="@string/widget_opacity_description"
                 android:title="@string/widget_opacity_title"
                 app:iconSpaceReserved="false" />
+
+        <org.isoron.uhabits.activities.settings.FlowChoicePreference
+            android:key="pref_entry_dialog_position"
+            android:defaultValue="bottom"
+            android:title="@string/flow_entry_position"
+            android:entries="@array/flow_entry_position_entries"
+            android:entryValues="@array/flow_entry_position_values"
+            android:summary="@string/flow_entry_position_summary"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 
@@ -83,6 +151,14 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
+            android:key="pref_skips_count_perfect_streak"
+            android:summary="@string/flow_count_skips_perfect_summary"
+            android:title="@string/flow_count_skips_perfect"
+            app:iconSpaceReserved="false"
+            app:widgetLayout="@layout/flow_preference_switch" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
             android:key="pref_unknown_enabled"
             android:summary="@string/pref_unknown_description"
             android:title="@string/pref_unknown_title"
@@ -98,7 +174,7 @@
                 app:widgetLayout="@layout/flow_preference_switch" />
 
 
-        <ListPreference
+        <org.isoron.uhabits.activities.settings.FlowChoicePreference
                 android:key="pref_first_weekday"
                 android:title="@string/first_day_of_the_week"
                 app:iconSpaceReserved="false" />

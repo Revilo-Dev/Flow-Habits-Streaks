@@ -103,6 +103,6 @@ The repository will be downloaded to the directory `uhabits`.
 1. Navigate to the directory `uhabits`
 2. Run `./gradlew assembleDebug --stacktrace`
 
-If compilation succeeds, the debug APK is generated at `uhabits-android/build/outputs/apk/debug/Flow-Habits-Streaks-v1.0.0-debug.apk`. The filename includes the version name defined in the Android module build file.
+If compilation succeeds, the debug APK is generated under `uhabits-android/build/outputs/apk/debug/`. The filename includes the version name defined in the Android module build file.
 
 The APK can be installed using the tool `adb`, which should have been automatically installed at `/opt/android-sdk/platform-tools/adb` during compilation of the project.

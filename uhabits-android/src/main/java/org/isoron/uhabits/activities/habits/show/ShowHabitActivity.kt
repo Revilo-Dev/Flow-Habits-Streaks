@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.isoron.platform.gui.toInt
+import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.AndroidDirFinder
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
@@ -133,7 +134,7 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
     }
 
     override fun onPause() {
-        dismissCurrentDialog()
+        dismissCurrentDialog(preserveEntryDrafts = true)
         commandRunner.removeListener(this)
         super.onPause()
     }
@@ -173,12 +174,17 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
         }
 
         override fun showNumberPopup(
+            habit: Habit,
+            date: LocalDate,
             value: Double,
             notes: String,
             callback: NumberPickerCallback
         ) {
             val dialog = NumberDialog()
             dialog.arguments = Bundle().apply {
+                putString("habitName", habit.name)
+                putLong("habitId", habit.id!!)
+                putLong("timestamp", date.unixTime)
                 putDouble("value", value)
                 putString("notes", notes)
             }
@@ -187,6 +193,8 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
         }
 
         override fun showCheckmarkPopup(
+            habit: Habit,
+            date: LocalDate,
             selectedValue: Int,
             notes: String,
             color: PaletteColor,
@@ -195,6 +203,9 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
             val theme = view.currentTheme()
             val dialog = CheckmarkDialog()
             dialog.arguments = Bundle().apply {
+                putString("habitName", habit.name)
+                putLong("habitId", habit.id!!)
+                putLong("timestamp", date.unixTime)
                 putInt("color", theme.color(color).toInt())
                 putInt("value", selectedValue)
                 putString("notes", notes)

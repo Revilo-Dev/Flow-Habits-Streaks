@@ -205,6 +205,18 @@ open class Preferences(private val storage: Storage) {
         set(value) {
             storage.putString("pref_widget_opacity", value.toString())
         }
+    open var entryDialogPosition: String
+        get() = if (storage.getString("pref_entry_dialog_position", "bottom") == "center") "center" else "bottom"
+        set(value) {
+            storage.putString("pref_entry_dialog_position", if (value == "center") "center" else "bottom")
+        }
+
+    open var skipsCountTowardsPerfectStreak: Boolean
+        get() = storage.getBoolean("pref_skips_count_perfect_streak", false)
+        set(value) {
+            storage.putBoolean("pref_skips_count_perfect_streak", value)
+        }
+
     open var isSkipEnabled: Boolean
         get() = storage.getBoolean("pref_skip_enabled", false)
         set(value) {

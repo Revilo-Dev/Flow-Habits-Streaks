@@ -30,11 +30,17 @@ import org.isoron.uhabits.core.ui.screens.habits.show.views.BarCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.BarCardState
 import org.isoron.uhabits.core.ui.views.BarChart
 import org.isoron.uhabits.databinding.ShowHabitBarBinding
+import org.isoron.uhabits.utils.styleFlowPopup
 import java.util.Locale
 
 class BarCardView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
 
     private var binding = ShowHabitBarBinding.inflate(LayoutInflater.from(context), this)
+
+    init {
+        binding.boolSpinner.styleFlowPopup()
+        binding.numericalSpinner.styleFlowPopup()
+    }
 
     fun setState(state: BarCardState) {
         val androidColor = state.theme.color(state.color).toInt()
@@ -47,6 +53,7 @@ class BarCardView(context: Context, attrs: AttributeSet) : LinearLayout(context,
         binding.chart.postInvalidate()
 
         binding.title.setTextColor(androidColor)
+        binding.title.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(androidColor)
         if (state.isNumerical) {
             binding.boolSpinner.visibility = GONE
         } else {
@@ -85,5 +92,15 @@ class BarCardView(context: Context, attrs: AttributeSet) : LinearLayout(context,
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                 }
             }
+    }
+
+    fun setOnBucketSelected(listener: (Int) -> Unit) {
+        binding.boolSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                listener(position)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+        }
     }
 }

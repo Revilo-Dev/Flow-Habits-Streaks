@@ -35,10 +35,11 @@ import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.tatarka.inject.annotations.Inject
-import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.BundleSavedState
 import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.inject.ActivityContext
+import org.isoron.uhabits.R
+import org.isoron.uhabits.utils.flowChromeHeight
 
 @Inject
 class HabitCardListViewFactory(
@@ -91,8 +92,12 @@ class HabitCardListView(
         clipToPadding = false
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            setPadding(paddingLeft, paddingTop, paddingRight,
-                bars.bottom + resources.getDimensionPixelSize(R.dimen.flow_fab_clearance))
+            setPadding(
+                paddingLeft,
+                flowChromeHeight(insets),
+                paddingRight,
+                bars.bottom + resources.getDimensionPixelSize(R.dimen.flow_fab_clearance)
+            )
             insets
         }
     }

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flow_system_palette">Use system colour palette</string>
+    <string name="flow_system_palette_summary">Use the device accent for Flow controls</string>
+    <string name="flow_accent_light">Light mode accent</string>
+    <string name="flow_accent_dark">Dark mode accent</string>
+    <string name="flow_blur_enabled">Blur effects</string>
+    <string name="flow_blur_intensity">Blur intensity</string>
+    <string name="flow_blur_opacity">Glass opacity</string>
+    <string name="flow_accent_default">Flow default</string>
+    <string name="flow_accent_blue">Blue</string>
+    <string name="flow_accent_teal">Teal</string>
+    <string name="flow_accent_purple">Purple</string>
+
+    <string-array name="flow_accent_entries">
+        <item>@string/flow_accent_default</item>
+        <item>@string/flow_accent_blue</item>
+        <item>@string/flow_accent_teal</item>
+        <item>@string/flow_accent_purple</item>
+    </string-array>
+
+    <style name="FlowSystemAccentLight" />
+    <style name="FlowSystemAccentDark" />
+
+    <color name="flow_blue_light">#1756B3</color>
+    <color name="flow_blue_dark">#A9C7FF</color>
+    <style name="FlowBlueAccentLight">
+        <item name="flowAccentColor">@color/flow_blue_light</item>
+        <item name="flowAccentGradientEndColor">@color/flow_blue_light</item>
+        <item name="flowOnAccentColor">@android:color/white</item>
+    </style>
+    <style name="FlowBlueAccentDark">
+        <item name="flowAccentColor">@color/flow_blue_dark</item>
+        <item name="flowAccentGradientEndColor">@color/flow_blue_dark</item>
+        <item name="flowOnAccentColor">@android:color/black</item>
+    </style>
+
+    <color name="flow_teal_light">#006B60</color>
+    <color name="flow_teal_dark">#80D6C5</color>
+    <style name="FlowTealAccentLight">
+        <item name="flowAccentColor">@color/flow_teal_light</item>
+        <item name="flowAccentGradientEndColor">@color/flow_teal_light</item>
+        <item name="flowOnAccentColor">@android:color/white</item>
+    </style>
+    <style name="FlowTealAccentDark">
+        <item name="flowAccentColor">@color/flow_teal_dark</item>
+        <item name="flowAccentGradientEndColor">@color/flow_teal_dark</item>
+        <item name="flowOnAccentColor">@android:color/black</item>
+    </style>
+
+    <color name="flow_purple_light">#6441A3</color>
+    <color name="flow_purple_dark">#D1BCFF</color>
+    <style name="FlowPurpleAccentLight">
+        <item name="flowAccentColor">@color/flow_purple_light</item>
+        <item name="flowAccentGradientEndColor">@color/flow_purple_light</item>
+        <item name="flowOnAccentColor">@android:color/white</item>
+    </style>
+    <style name="FlowPurpleAccentDark">
+        <item name="flowAccentColor">@color/flow_purple_dark</item>
+        <item name="flowAccentGradientEndColor">@color/flow_purple_dark</item>
+        <item name="flowOnAccentColor">@android:color/black</item>
+    </style>
+</resources>

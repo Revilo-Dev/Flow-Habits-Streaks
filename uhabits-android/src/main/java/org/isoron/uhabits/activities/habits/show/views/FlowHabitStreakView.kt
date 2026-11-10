@@ -30,6 +30,7 @@ import org.isoron.uhabits.R
 import org.isoron.uhabits.core.ui.screens.habits.show.views.CurrentStreakCardState
 import org.isoron.uhabits.utils.dim
 import org.isoron.uhabits.utils.sres
+import org.isoron.uhabits.utils.updatePerfectStreakGlow
 import java.util.Locale
 import kotlin.math.absoluteValue
 
@@ -121,8 +122,8 @@ class FlowHabitStreakView(
     }
 
     fun setState(state: CurrentStreakCardState) {
-        val accent = sres.getColor(R.attr.flowAccentColor)
-        val gradientEnd = sres.getColor(R.attr.flowAccentGradientEndColor)
+        val accent = context.getColor(R.color.flow_streak_start)
+        val gradientEnd = context.getColor(R.color.flow_streak_end)
         val surface = sres.getColor(R.attr.flowSurfaceSecondaryColor)
         val isLight = ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
         val inactiveStart = if (isLight) {
@@ -183,6 +184,17 @@ class FlowHabitStreakView(
                 )
                 alpha = if (isFutureDay) 0.35f else 1f
             }
+        }
+    }
+
+    fun setPerfectState(state: CurrentStreakCardState) {
+        setState(state)
+        updatePerfectStreakGlow(state.todayComplete)
+        titleView.setText(R.string.flow_perfect_streak)
+        messageView.text = if (state.todayComplete) {
+            resources.getStringArray(R.array.flow_perfect_messages).first()
+        } else {
+            resources.getString(R.string.flow_perfect_incomplete_message)
         }
     }
 }

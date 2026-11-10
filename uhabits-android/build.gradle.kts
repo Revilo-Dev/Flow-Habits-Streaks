@@ -51,9 +51,9 @@ android {
     }
 
     defaultConfig {
-        versionCode = 20304
-        versionName = "1.0.0"
-        minSdk = 23
+        versionCode = 20305
+        versionName = "1.1"
+        minSdk = 24
         targetSdk = 36
         applicationId = "dev.revilodev.flow"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

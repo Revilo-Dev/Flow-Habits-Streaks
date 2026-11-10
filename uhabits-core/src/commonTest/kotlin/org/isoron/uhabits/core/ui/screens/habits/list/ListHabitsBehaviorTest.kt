@@ -77,14 +77,14 @@ class ListHabitsBehaviorTest : BaseUnitTest() {
     fun testOnEdit() {
         val today = getToday()
         every {
-            screen.showNumberPopup(any(), any(), any())
+            screen.showNumberPopup(any(), any(), any(), any(), any())
         } calls { args ->
-            capturedPicker = args.arg<NumberPickerCallback>(2)
+            capturedPicker = args.arg<NumberPickerCallback>(4)
             Unit
         }
         behavior.onEdit(habit2, today, 0f, 0f)
         verify {
-            screen.showNumberPopup(0.1, "", any())
+            screen.showNumberPopup(habit2, today, 0.1, "", any())
         }
         capturedPicker!!.onNumberPicked(100.0, "")
         assertEquals(100000, habit2.computedEntries.get(today).value)

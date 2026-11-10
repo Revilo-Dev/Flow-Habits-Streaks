@@ -18,6 +18,13 @@
     <attr name="flowToolbarTheme" format="reference" />
 
     <style name="FlowTheme.Light" parent="AppBaseTheme">
+        <item name="android:colorControlHighlight">?attr/flowRippleColor</item>
+        <item name="colorControlHighlight">?attr/flowRippleColor</item>
+        <item name="android:colorAccent">?attr/flowAccentColor</item>
+        <item name="colorAccent">?attr/flowAccentColor</item>
+        <item name="colorControlActivated">?attr/flowAccentColor</item>
+        <item name="spinnerStyle">@style/Widget.Flow.PreferenceDropdown</item>
+        <item name="android:spinnerStyle">@style/Widget.Flow.PreferenceDropdown</item>
         <item name="alertDialogTheme">@style/FlowDialog</item>
         <item name="android:alertDialogTheme">@style/FlowDialog</item>
         <item name="android:dialogTheme">@style/FlowDialog</item>
@@ -44,6 +51,13 @@
     </style>
 
     <style name="FlowTheme.Dark" parent="AppBaseThemeDark">
+        <item name="android:colorControlHighlight">?attr/flowRippleColor</item>
+        <item name="colorControlHighlight">?attr/flowRippleColor</item>
+        <item name="android:colorAccent">?attr/flowAccentColor</item>
+        <item name="colorAccent">?attr/flowAccentColor</item>
+        <item name="colorControlActivated">?attr/flowAccentColor</item>
+        <item name="spinnerStyle">@style/Widget.Flow.PreferenceDropdown</item>
+        <item name="android:spinnerStyle">@style/Widget.Flow.PreferenceDropdown</item>
         <item name="alertDialogTheme">@style/FlowDialog</item>
         <item name="android:alertDialogTheme">@style/FlowDialog</item>
         <item name="android:dialogTheme">@style/FlowDialog</item>

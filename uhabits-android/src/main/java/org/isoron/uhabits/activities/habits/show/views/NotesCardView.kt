@@ -28,6 +28,11 @@ import org.isoron.uhabits.databinding.ShowHabitNotesBinding
 
 class NotesCardView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
     private val binding = ShowHabitNotesBinding.inflate(LayoutInflater.from(context), this)
+
+    fun setColor(color: Int) {
+        binding.title.setTextColor(color)
+        binding.title.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(color)
+    }
     fun setState(state: NotesCardState) {
         if (state.description.isEmpty()) {
             visibility = GONE

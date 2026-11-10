@@ -32,7 +32,7 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.models.HabitList.Order
 import org.isoron.uhabits.core.models.HabitMatcher
-import org.isoron.uhabits.core.models.NumericalHabitType
+import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.tasks.Task
 import org.isoron.uhabits.core.tasks.TaskRunner
 
@@ -55,7 +55,8 @@ class HabitCardListCache(
     private val allHabits: HabitList,
     private val commandRunner: CommandRunner,
     taskRunner: TaskRunner,
-    logging: Logging
+    logging: Logging,
+    private val preferences: Preferences
 ) : CommandRunner.Listener {
 
     data class CompletionSummary(
@@ -504,23 +505,11 @@ class HabitCardListCache(
     }
 
     private fun isPerfectDay(activeHabits: List<Habit>, date: LocalDate): Boolean {
-        return activeHabits.isNotEmpty() && activeHabits.all { isCompleteForPerfectDay(it, date) }
+        return PerfectDays.isPerfect(activeHabits, date, preferences.skipsCountTowardsPerfectStreak)
     }
 
     private fun isCompleteForPerfectDay(habit: Habit, date: LocalDate): Boolean {
-        val value = habit.computedEntries.get(date).value
-        // A skip can preserve an individual habit's streak, but it is not a
-        // completion and therefore cannot make a day perfect.
-        if (value == Entry.SKIP) return false
-        if (!habit.isNumerical) {
-            return value == Entry.YES_MANUAL || value == Entry.YES_AUTO
-        }
-        if (value == Entry.UNKNOWN) return false
-        val enteredValue = value / 1000.0
-        return when (habit.targetType) {
-            NumericalHabitType.AT_LEAST -> enteredValue >= habit.targetValue
-            NumericalHabitType.AT_MOST -> enteredValue <= habit.targetValue
-        }
+        return PerfectDays.isComplete(habit, date)
     }
 
     private fun isExplicitFailure(habit: Habit, date: LocalDate): Boolean {

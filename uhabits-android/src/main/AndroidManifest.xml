@@ -82,6 +82,11 @@
         </activity>
 
         <activity
+            android:name=".activities.habits.list.StreakProgressActivity"
+            android:exported="false"
+            android:label="@string/flow_streak_progress" />
+
+        <activity
             android:name=".activities.intro.IntroActivity"
             android:label=""
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />

@@ -42,6 +42,11 @@ class OverviewCardView(context: Context, attrs: AttributeSet) : LinearLayout(con
     }
 
     fun setState(state: OverviewCardState) {
+        binding.scoreRingContainer.visibility = VISIBLE
+        (binding.scoreLabel.parent as android.view.View).visibility = VISIBLE
+        binding.monthCaption.setText(R.string.month)
+        binding.yearCaption.setText(R.string.year)
+        binding.totalCaption.setText(R.string.total)
         val androidColor = state.theme.color(state.color).toInt()
         val res = StyledResources(context)
         val inactiveColor = res.getColor(R.attr.contrast60)
@@ -53,10 +58,27 @@ class OverviewCardView(context: Context, attrs: AttributeSet) : LinearLayout(con
         binding.scoreRing.setPercentage(state.scoreToday)
 
         binding.title.setTextColor(androidColor)
+        binding.title.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(androidColor)
         binding.totalCountLabel.setTextColor(androidColor)
         binding.totalCountLabel.text = state.totalCount.toString()
         binding.yearDiffLabel.setTextColor(if (state.scoreYearDiff >= 0) androidColor else inactiveColor)
         binding.yearDiffLabel.text = formatPercentageDiff(state.scoreYearDiff)
         postInvalidate()
+    }
+
+    fun setStreakSummary(current: Int, longest: Int, total: Int, color: Int, title: String? = null) {
+        binding.scoreRingContainer.visibility = GONE
+        (binding.scoreLabel.parent as android.view.View).visibility = GONE
+        binding.title.text = title ?: context.getString(R.string.overview)
+        binding.title.setTextColor(color)
+        binding.title.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(color)
+        binding.monthCaption.setText(R.string.flow_streak_current)
+        binding.yearCaption.setText(R.string.flow_streak_best)
+        binding.totalCaption.setText(R.string.total)
+        listOf(binding.monthDiffLabel to current, binding.yearDiffLabel to longest, binding.totalCountLabel to total)
+            .forEach { (label, count) ->
+                label.text = count.toString()
+                label.setTextColor(color)
+            }
     }
 }

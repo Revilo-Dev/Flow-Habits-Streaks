@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="flow_glass_border_width">0.5dp</dimen>
+    <dimen name="flow_popup_elevation">6dp</dimen>
+    <color name="flow_glass_border">#26FFFFFF</color>
+    <style name="Animation.Flow.Menu" parent="">
+        <item name="android:windowEnterAnimation">@anim/flow_menu_expand</item>
+    </style>
+</resources>

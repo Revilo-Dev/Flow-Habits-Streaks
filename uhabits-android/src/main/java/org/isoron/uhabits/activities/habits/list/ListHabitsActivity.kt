@@ -117,7 +117,7 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
         midnightTimer.onPause()
         screen.onDetached()
         adapter.cancelRefresh()
-        dismissCurrentDialog()
+        dismissCurrentDialog(preserveEntryDrafts = true)
         super.onPause()
     }
 

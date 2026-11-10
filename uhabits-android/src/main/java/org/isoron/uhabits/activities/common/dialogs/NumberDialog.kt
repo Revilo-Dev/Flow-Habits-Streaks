@@ -7,7 +7,6 @@ import android.provider.Settings
 import android.text.method.DigitsKeyListener
 import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatDialogFragment
@@ -19,102 +18,112 @@ import org.isoron.uhabits.utils.requestFocusWithKeyboard
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
-import java.text.ParseException
+import java.text.ParsePosition
+import kotlin.math.roundToInt
 
 class NumberDialog : AppCompatDialogFragment() {
-
-    var onToggle: (Double, String) -> Unit = { _, _ -> }
+    var onToggle: ((Double, String) -> Unit)? = null
     var onDismiss: () -> Unit = {}
-
-    private var originalNotes: String = ""
-    private var originalValue: Double = 0.0
     private lateinit var view: CheckmarkPopupBinding
+    private var committed = false
+    private var restoreNotesFocus = false
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val appComponent = (requireActivity().application as HabitsApplication).component
-        val prefs = appComponent.preferences
+        val preferences = (requireActivity().application as HabitsApplication).component.preferences
         view = CheckmarkPopupBinding.inflate(LayoutInflater.from(context))
-        if (!prefs.isSkipEnabled) view.skipBtnNumber.visibility = View.GONE
         view.numberButtons.visibility = View.VISIBLE
-        view.numberFooter.visibility = View.VISIBLE
-        fixDecimalSeparator(view)
-        originalNotes = requireArguments().getString("notes")!!
-        originalValue = requireArguments().getDouble("value")
-        view.notes.setText(originalNotes)
-        view.value.setText(
-            when {
-                originalValue < 0.01 -> "0"
-                else -> DecimalFormat("#.##").format(originalValue)
-            }
+        view.skipBtnNumber.visibility = if (preferences.isSkipEnabled) View.VISIBLE else View.GONE
+        view.yesBtn.contentDescription = getString(R.string.flow_entry_save_value)
+        view.noBtn.contentDescription = getString(R.string.flow_entry_save_zero)
+        view.yesBtn.setText(R.string.save)
+        view.noBtn.setText(R.string.flow_entry_zero)
+        fixDecimalSeparator()
+        view.notes.setText(
+            savedInstanceState?.getString("draftNotes") ?: requireArguments().getString("notes", "")
         )
-        view.value.setOnKeyListener { _, keyCode, event ->
-            if (event.action == MotionEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+        val originalValue = requireArguments().getDouble("value")
+        val initialValue = if (originalValue < 0 || originalValue == Entry.SKIP / 1000.0) {
+            "0"
+        } else {
+            DecimalFormat("#.###").format(originalValue)
+        }
+        view.value.setText(savedInstanceState?.getString("draftValue") ?: initialValue)
+        restoreNotesFocus = savedInstanceState?.getBoolean("notesFocused") == true
+        view.yesBtn.setOnClickListener { save() }
+        view.noBtn.setOnClickListener { commit(0.0) }
+        view.skipBtnNumber.setOnClickListener { commit(Entry.SKIP / 1000.0) }
+        view.dismissBtn.setOnClickListener { dismiss() }
+        view.value.setOnEditorActionListener { _, action, event ->
+            val enter = event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP
+            if (action == EditorInfo.IME_ACTION_DONE || enter) {
                 save()
-                return@setOnKeyListener true
+                true
+            } else {
+                false
             }
-            return@setOnKeyListener false
         }
-        view.saveBtn.setOnClickListener {
-            save()
-        }
-        view.dismissBtn.setOnClickListener {
-            requireDialog().dismiss()
-        }
-        view.skipBtnNumber.setOnClickListener {
-            onToggle(Entry.SKIP.toDouble() / 1000, view.notes.text.toString().trim())
-            requireDialog().dismiss()
-        }
+        return createEntryDialog(view)
+    }
 
-        view.notes.setOnEditorActionListener { v, actionId, event ->
-            save()
-            true
+    override fun onStart() {
+        super.onStart()
+        configureEntryWindow()
+        if (restoreNotesFocus) view.notes.requestFocusWithKeyboard() else view.value.requestFocusWithKeyboard()
+    }
+
+    private fun fixDecimalSeparator() {
+        val separator = DecimalFormatSymbols.getInstance().decimalSeparator
+        view.value.keyListener = DigitsKeyListener.getInstance("0123456789$separator")
+        val keyboard = Settings.Secure.getString(
+            requireContext().contentResolver,
+            Settings.Secure.DEFAULT_INPUT_METHOD
+        ).orEmpty()
+        if (keyboard.contains("swiftkey") || keyboard.contains("samsung")) {
+            view.value.inputType = EditorInfo.TYPE_CLASS_TEXT
         }
-        view.value.requestFocusWithKeyboard()
-        val dialog = Dialog(requireContext())
-        dialog.setContentView(view.root)
-        dialog.setCanceledOnTouchOutside(true)
-        dialog.window?.apply {
-            setBackgroundDrawableResource(android.R.color.transparent)
+        view.value.imeOptions = EditorInfo.IME_ACTION_DONE
+    }
+
+    fun save() {
+        val text = view.value.text.toString().trim()
+        if (text.isEmpty()) {
+            commit(Entry.UNKNOWN / 1000.0)
+            return
         }
-        return dialog
+        val position = ParsePosition(0)
+        val format = NumberFormat.getInstance().apply { isGroupingUsed = false }
+        val value = format.parse(text, position)?.toDouble()
+        if (
+            value == null || position.index != text.length || !value.isFinite() ||
+            value < 0 || value * 1000 > Int.MAX_VALUE
+        ) {
+            view.value.error = getString(R.string.flow_entry_invalid_number)
+            return
+        }
+        commit(value)
+    }
+
+    private fun commit(value: Double) {
+        if (committed) return
+        val notes = view.notes.text.toString().trim()
+        val callback = onToggle
+        if (callback == null && !saveRestoredEntry((value * 1000).roundToInt(), notes)) return
+        committed = true
+        callback?.invoke(value, notes)
+        dismiss()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::view.isInitialized) {
+            outState.putString("draftNotes", view.notes.text.toString())
+            outState.putString("draftValue", view.value.text.toString())
+            outState.putBoolean("notesFocused", view.notes.hasFocus())
+        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-
         onDismiss()
-    }
-
-    private fun fixDecimalSeparator(view: CheckmarkPopupBinding) {
-        // https://stackoverflow.com/a/34256139
-        val separator = DecimalFormatSymbols.getInstance().decimalSeparator
-        view.value.keyListener = DigitsKeyListener.getInstance("0123456789$separator")
-
-        // https://github.com/flutter/flutter/issues/61175
-        val currKeyboard = Settings.Secure.getString(
-            requireContext().contentResolver,
-            Settings.Secure.DEFAULT_INPUT_METHOD
-        )
-        if (currKeyboard.contains("swiftkey") || currKeyboard.contains("samsung")) {
-            view.value.inputType = EditorInfo.TYPE_CLASS_TEXT
-        }
-    }
-
-    fun save() {
-        var value = originalValue
-        try {
-            val numberFormat = NumberFormat.getInstance()
-            val valueStr = view.value.text.toString()
-            value = if (valueStr.isNotEmpty()) {
-                numberFormat.parse(valueStr)!!.toDouble()
-            } else {
-                Entry.UNKNOWN.toDouble() / 1000
-            }
-        } catch (e: ParseException) {
-            // NOP
-        }
-        val notes = view.notes.text.toString().trim()
-        onToggle(value, notes)
-        requireDialog().dismiss()
     }
 }

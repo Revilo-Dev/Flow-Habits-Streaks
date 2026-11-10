@@ -27,6 +27,8 @@ import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.commands.CreateRepetitionCommand
 import org.isoron.uhabits.core.commands.DeleteHabitsCommand
 import org.isoron.uhabits.core.models.Entry
+import org.isoron.uhabits.core.preferences.MemoryStorage
+import org.isoron.uhabits.core.preferences.Preferences
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -37,6 +39,7 @@ import kotlin.test.assertTrue
 class HabitCardListCacheTest : BaseUnitTest() {
     private lateinit var cache: HabitCardListCache
     private lateinit var listener: HabitCardListCache.Listener
+    private lateinit var preferences: Preferences
     var today = LocalDate(2015, 1, 25)
 
     @BeforeTest
@@ -46,7 +49,8 @@ class HabitCardListCacheTest : BaseUnitTest() {
         for (i in 0..9) {
             if (i == 3) habitList.add(fixtures.createLongHabit()) else habitList.add(fixtures.createShortHabit())
         }
-        cache = HabitCardListCache(habitList, commandRunner, taskRunner, mock())
+        preferences = Preferences(MemoryStorage())
+        cache = HabitCardListCache(habitList, commandRunner, taskRunner, mock(), preferences)
         cache.setCheckmarkCount(10)
         cache.refreshAllHabits()
         cache.onAttached()
@@ -121,6 +125,18 @@ class HabitCardListCacheTest : BaseUnitTest() {
         cache.refreshAllHabits()
         assertFalse(cache.getPerfectStreakSummary().todayComplete)
         assertEquals(1, cache.getCompletionSummary().completed)
+
+        preferences.skipsCountTowardsPerfectStreak = true
+        cache.refreshAllHabits()
+        assertTrue(cache.getPerfectStreakSummary().todayComplete)
+        assertEquals(1, cache.getPerfectStreakSummary().currentStreak)
+        assertEquals(1, cache.getCompletionSummary().completed)
+        val progress = StreakProgress.build(habitList, preferences.firstWeekday, true)
+        assertEquals(progress.current?.length, cache.getPerfectStreakSummary().currentStreak)
+
+        preferences.skipsCountTowardsPerfectStreak = false
+        cache.refreshAllHabits()
+        assertFalse(cache.getPerfectStreakSummary().todayComplete)
     }
 
     @Test

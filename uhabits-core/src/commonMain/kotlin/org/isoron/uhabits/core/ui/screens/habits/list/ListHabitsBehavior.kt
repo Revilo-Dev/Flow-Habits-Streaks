@@ -57,7 +57,7 @@ open class ListHabitsBehavior(
         val entry = habit.computedEntries.get(date)
         if (habit.type == HabitType.NUMERICAL) {
             val oldValue = entry.value.toDouble() / 1000
-            screen.showNumberPopup(oldValue, entry.notes) { newValue: Double, newNotes: String ->
+            screen.showNumberPopup(habit, date, oldValue, entry.notes) { newValue: Double, newNotes: String ->
                 val value = (newValue * 1000).roundToInt()
                 if (newValue != oldValue) {
                     if (
@@ -71,6 +71,8 @@ open class ListHabitsBehavior(
             }
         } else {
             screen.showCheckmarkPopup(
+                habit,
+                date,
                 entry.value,
                 entry.notes,
                 habit.color
@@ -163,11 +165,15 @@ open class ListHabitsBehavior(
         fun showIntroScreen()
         fun showMessage(m: Message)
         fun showNumberPopup(
+            habit: Habit,
+            date: LocalDate,
             value: Double,
             notes: String,
             callback: NumberPickerCallback
         )
         fun showCheckmarkPopup(
+            habit: Habit,
+            date: LocalDate,
             selectedValue: Int,
             notes: String,
             color: PaletteColor,
