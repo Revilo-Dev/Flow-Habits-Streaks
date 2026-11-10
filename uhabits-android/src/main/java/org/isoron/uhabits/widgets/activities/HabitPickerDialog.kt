@@ -64,6 +64,7 @@ open class HabitPickerDialog : Activity() {
 
         val habitIds = ArrayList<Long>()
         val habitNames = ArrayList<String>()
+        // Offer active habits compatible with the widget type
         for (h in habitList) {
             if (h.isArchived) continue
             if (h.isNumerical and shouldHideNumerical()) continue

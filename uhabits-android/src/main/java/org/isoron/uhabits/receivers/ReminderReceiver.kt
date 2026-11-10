@@ -31,12 +31,7 @@ import org.isoron.uhabits.BuildConfig
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.core.models.Habit
 
-/**
- * The Android BroadcastReceiver for Loop Habit Tracker.
- *
- *
- * All broadcast messages are received and processed by this class.
- */
+// Route reminder actions and restore schedules after clock timezone or boot changes
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return

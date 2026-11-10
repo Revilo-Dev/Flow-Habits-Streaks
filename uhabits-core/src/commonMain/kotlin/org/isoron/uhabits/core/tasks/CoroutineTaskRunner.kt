@@ -46,6 +46,7 @@ class CoroutineTaskRunner(
         listeners.remove(listener)
     }
 
+    // Run background work on the IO dispatcher and callbacks on the main dispatcher
     override fun execute(task: Task) {
         task.onAttached(this)
         val job = scope.launch {

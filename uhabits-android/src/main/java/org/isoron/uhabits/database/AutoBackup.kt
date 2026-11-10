@@ -33,6 +33,7 @@ class AutoBackup(private val context: Context) {
 
     private val backupPattern = Regex("^Loop Habits Backup .+\\.db$")
 
+    // Prefer the selected document folder and otherwise use the app backup folder
     fun run(keep: Int = 5) {
         Log.i("AutoBackup", "Starting automatic backups...")
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -58,6 +59,7 @@ class AutoBackup(private val context: Context) {
         val files = dir.listFiles()?.toMutableList() ?: mutableListOf()
         files.sortBy { it.lastModified() }
         val newestTimestamp = files.lastOrNull()?.lastModified() ?: 0L
+        // Prune existing backups before checking whether a new daily copy is due
         removeOldestPrivate(files, keep)
         val now = DateUtils.getLocalTime()
         if (now - newestTimestamp > DateUtils.DAY_LENGTH) {
@@ -68,10 +70,12 @@ class AutoBackup(private val context: Context) {
     }
 
     private fun runInPublicDir(dir: DocumentFile, keep: Int) {
+        // Only rotate files matching the backup name in a shared folder
         val files = dir.listFiles()
             .filter { it.isFile && it.name?.matches(backupPattern) == true }
             .sortedBy { it.lastModified() }
         val newestTimestamp = files.lastOrNull()?.lastModified() ?: 0L
+        // Pruning before writing can leave one new backup above the retention count
         removeOldestPublic(files, keep)
         val now = DateUtils.getLocalTime()
         if (now - newestTimestamp > DateUtils.DAY_LENGTH) {

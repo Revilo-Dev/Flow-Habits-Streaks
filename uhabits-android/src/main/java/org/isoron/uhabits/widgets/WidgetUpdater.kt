@@ -34,10 +34,7 @@ import org.isoron.uhabits.core.tasks.TaskRunner
 import org.isoron.uhabits.inject.AppContext
 import org.isoron.uhabits.intents.IntentScheduler
 
-/**
- * A WidgetUpdater listens to the commands being executed by the application and
- * updates the home-screen widgets accordingly.
- */
+// Refresh home screen widgets after relevant commands finish
 @Inject
 class WidgetUpdater(
     @AppContext private val context: Context,
@@ -56,24 +53,18 @@ class WidgetUpdater(
         }
     }
 
-    /**
-     * Instructs the updater to start listening to commands. If any relevant
-     * commands are executed after this method is called, the corresponding
-     * widgets will get updated.
-     */
+    // Listen for habit changes that require widget updates
     fun startListening() {
         commandRunner.addListener(this)
     }
 
-    /**
-     * Instructs the updater to stop listening to commands. Every command
-     * executed after this method is called will be ignored by the updater.
-     */
+    // Stop listening when widget updates are no longer needed
     fun stopListening() {
         commandRunner.removeListener(this)
     }
 
     fun scheduleStartDayWidgetUpdate() {
+        // Refresh widgets when the next tracking day begins
         val timestamp = DateUtils.getStartOfTomorrowWithOffset(preferences.midnightDelayHours, 0)
         intentScheduler.scheduleWidgetUpdate(timestamp)
     }
@@ -94,6 +85,7 @@ class WidgetUpdater(
             ComponentName(context, providerClass)
         )
 
+        // Refresh only widgets containing the changed habit when its identity is known
         val modifiedWidgetIds = when (modifiedHabitId) {
             null -> widgetIds.toList()
             else -> widgetIds.filter { w ->

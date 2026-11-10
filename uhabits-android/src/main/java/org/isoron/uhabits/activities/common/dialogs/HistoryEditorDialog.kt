@@ -34,7 +34,6 @@ import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.show.views.HistoryCardPresenter
 import org.isoron.uhabits.core.ui.views.HistoryChart
-import org.isoron.uhabits.core.ui.views.LightTheme
 import org.isoron.uhabits.core.ui.views.OnDateClickedListener
 import java.util.Locale
 import kotlin.math.min
@@ -71,7 +70,8 @@ class HistoryEditorDialog : AppCompatDialogFragment(), CommandRunner.Listener {
             onDateClickedListener = onDateClickedListener ?: object : OnDateClickedListener {},
             padding = 10.0
         )
-        dataView = AndroidDataView(requireContext(), null)
+        dataView = org.isoron.uhabits.activities.common.views.AccessibleHistoryChartView(requireContext(), null)
+        dataView.id = R.id.historyChart
         dataView.view = chart!!
 
         val dialog = Dialog(requireContext()).apply {
@@ -110,7 +110,7 @@ class HistoryEditorDialog : AppCompatDialogFragment(), CommandRunner.Listener {
         val model = HistoryCardPresenter.buildState(
             habit,
             preferences.firstWeekday,
-            theme = LightTheme()
+            theme = chart!!.theme
         )
         chart?.series = model.series
         chart?.defaultSquare = model.defaultSquare

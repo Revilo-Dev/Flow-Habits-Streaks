@@ -36,33 +36,22 @@ data class Entry(
         }
 
     companion object {
-        /**
-         * Value indicating that the habit is not applicable for this timestamp.
-         */
+        // A skip pauses a habit without recording a completion
         const val SKIP = 3
 
-        /**
-         * Value indicating that the user has performed the habit at this timestamp.
-         */
+        // A manual completion records an action taken by the user
         const val YES_MANUAL = 2
 
-        /**
-         * Value indicating that the user did not perform the habit, but they were not
-         * expected to, because of the frequency of the habit.
-         */
+        // An automatic completion covers a day allowed by the habit frequency
         const val YES_AUTO = 1
 
-        /**
-         * Value indicating that the user did not perform the habit, even though they were
-         * expected to perform it.
-         */
+        // A zero value records a missed boolean habit
         const val NO = 0
 
-        /**
-         * Value indicating that no data is available for the given timestamp.
-         */
+        // An unknown value means no answer has been recorded
         const val UNKNOWN = -1
 
+        // Cycle through only the answer states enabled in settings
         fun nextToggleValue(
             value: Int,
             isSkipEnabled: Boolean,

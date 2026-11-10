@@ -33,9 +33,7 @@ import org.isoron.uhabits.utils.DatabaseUtils
 import org.isoron.uhabits.widgets.WidgetUpdater
 import java.io.File
 
-/**
- * The Android application for Loop Habit Tracker.
- */
+// Start the database and shared services used by Flow
 class HabitsApplication : Application() {
 
     private lateinit var context: Context
@@ -71,6 +69,7 @@ class HabitsApplication : Application() {
         val prefs = component.preferences
         prefs.lastAppVersion = BuildConfig.VERSION_CODE
 
+        // Set the tracking date before rebuilding any derived habit data
         setToday(computeToday(component.preferences.midnightDelayHours, 0))
 
         val habitList = component.habitList
@@ -87,6 +86,7 @@ class HabitsApplication : Application() {
         notificationTray = component.notificationTray
         notificationTray.startListening()
 
+        // Daily check ins listen to the same completed commands as widgets and reminders
         checkInManager = HabitCheckInManager(this, habitList, component.commandRunner)
         checkInManager.start()
 

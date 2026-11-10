@@ -118,12 +118,13 @@ abstract class BaseWidget(val context: Context, val id: Int, val stacked: Boolea
         val view = buildView()!!
         measureView(view, width, height)
         refreshData(view)
-        // Content is rasterized; only the launcher-visible root owns the surface.
+        // Draw content into a bitmap while leaving the surface on the launcher root
         view.findViewById<View>(android.R.id.background)?.background = null
+        // Measure again when refreshed text changes the required layout
         if (view.isLayoutRequested) measureView(view, width, height)
         val remoteViews = RemoteViews(context.packageName, R.layout.widget_wrapper)
         if (stacked || !showBackground) {
-            // Stack items sit inside the stack's single translucent surface.
+            // Stacked items share the single background owned by their parent
             remoteViews.setInt(android.R.id.background, "setBackgroundResource", 0)
         } else {
             WidgetSurface.apply(remoteViews, preferedBackgroundAlpha, completedBackgroundColor())

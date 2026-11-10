@@ -5,6 +5,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import org.isoron.uhabits.utils.FlowAccent
 
+// Enable drawing behind system bars before each Flow screen is created
 abstract class FlowActivity : AppCompatActivity() {
     private var accentAtCreation: FlowAccent.State? = null
 

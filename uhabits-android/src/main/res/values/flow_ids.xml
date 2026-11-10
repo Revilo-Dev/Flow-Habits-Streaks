@@ -4,4 +4,9 @@
     <item name="flowSelectionActions" type="id" />
     <item name="flowHomeSearchBar" type="id" />
     <item name="flowReorderPrompt" type="id" />
+    <item name="flowSearchInput" type="id" />
+    <item name="flowHomeAppBar" type="id" />
+    <item name="flowHabitList" type="id" />
+    <item name="flowTimelineHeader" type="id" />
+    <item name="flowHomeCoordinator" type="id" />
 </resources>

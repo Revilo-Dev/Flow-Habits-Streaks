@@ -30,6 +30,7 @@ data class CreateRepetitionCommand(
     val value: Int,
     val notes: String
 ) : Command {
+    // Save the original answer before rebuilding progress and the displayed order
     override fun run() {
         val entries = habit.originalEntries
         entries.add(Entry(date, value, notes))

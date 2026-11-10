@@ -62,6 +62,7 @@ object DatabaseUtils {
     fun saveDatabaseCopy(context: Context, dir: File): String {
         val dateFormat: SimpleDateFormat = getBackupDateFormat()
         val date = dateFormat.format(System.currentTimeMillis())
+        // Keep the legacy backup name so existing backup discovery still works
         val filename = "${dir.absolutePath}/Loop Habits Backup $date.db"
         Log.i("DatabaseUtils", "Writing: $filename")
         val db = getDatabaseFile(context)

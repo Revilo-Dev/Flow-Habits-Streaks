@@ -1,56 +1,66 @@
-# Developer Guidelines
+# Developer guidelines
 
-## Communication Channels
+These guidelines apply to the Flow fork in this repository. [AGENTS.md](../AGENTS.md) records the repository-wide commenting rules and implementation notes.
 
-* Our source code is [hosted on GitHub](https://github.com/iSoron/uhabits) and this is where all the main development takes place. We use [GitHub Issues](https://github.com/iSoron/uhabits/issues) for keeping track of open bugs and open development tasks.
-* Regular users are encouraged to post feature requests and support questions under [GitHub Discussions](https://github.com/iSoron/uhabits/discussions). This is also where major announcements about the project are made.
+## Scope and review
 
-* There is also a "Technical Discussion" section on GitHub Discussions for general technical issues (e.g., project fails to build). For technical discussions related to the implementation of a particular feature, please open a draft pull request instead.
+Keep changes focused on the requested behavior. Preserve unrelated local work. Avoid mixing fixes with dependency upgrades, broad formatting, identifier renames, or feature redesigns.
 
-* Translations are managed in a [separate translation platform](https://translate.loophabits.org/).
+Use the target branch and review process established for this repository. The inherited upstream Loop branching and release process is not automatically Flow's process. Flow's checked-in application ID is `dev.revilodev.flow`.
 
-## Building and Testing the Project
+Describe the concrete problem, resulting behavior, and verification in a change description. Explain meaningful compatibility constraints and identify any checks that could not run. Separate current implementation from plans or unverified device behavior.
 
-Please see `docs/BUILD.md` and `docs/TEST.md`
+## Code and comments
 
-## Branching Policy
+Use Kotlin for new app logic and follow the style of the existing module. The Android app uses Views, custom views, XML resources, and view binding. Shared business rules belong in the core module; Android-specific behavior belongs in Android code or an appropriate platform adapter.
 
-This repository uses the [git-flow branching model](https://nvie.com/posts/a-successful-git-branching-model/). Basically, there are two main branches, `dev` and `master`. All the development takes place in the `dev` branch. After the new features have been implemented and tested, they are merged into the `master` branch and a new version of the app is released. Please submit your pull requests against the `dev` branch.
+Use simple explanatory comments:
 
-## Submitting Code
+```kotlin
+// Keep skipped days from increasing the streak length
+// Refresh widgets after the habit change is saved
+```
 
-Proposed code changes should be submitted to the project through [GitHub pull requests](https://github.com/iSoron/uhabits/pulls). For the basic steps of creating a pull request, see [GitHub's documentation](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request). The following suggestions will help your pull request get merged quickly and with few changes.
+Keep each explanation on one line with no emojis or punctuation in its text. Do not introduce multiline or block explanations. Explain intent or a nonobvious rule instead of restating assignments. Preserve copyright, license, attribution, and necessary tool directives. Detailed explanations belong in the Markdown guides.
 
-* **Write a clear description of your proposed code changes:** Although it may look obvious to you, it's not always clear to others what your pull request is trying to accomplish. Please always describe what problem your pull request is trying to solve, and how it solves it (on a very high level). If you are fixing a bug that has not been reported before, please describe it first, including the steps to reproduce it.
+Kotlin formatting is checked with `ktlintCheck`. Review reported files before applying any formatter so unrelated existing formatting is not swept into the change.
 
-* If your pull request implements a completely new feature or contains large amounts of code, please **discuss it with other developers before writing it**. You are welcome to open a draft pull request outlining how you are planning to solve the problem. The draft pull request may not even contain any code.
+## Behavior and data
 
-* If your pull request involves changes to the user interface, **please work on a mockup first and submit a draft pull request with your proposed UI changes** before writing the code to make it functional, to gather feedback from other developers and users. [Inkscape](https://inkscape.org/) and [Figma](https://www.figma.com/) are good tools that you can use.
+Use the existing command and observer paths for normal habit edits so the list, widgets, and notifications stay synchronized.
 
-* **Keep your pull requests small.** Small pull requests are easy to review and can be quickly merged. The larger your pull request is, the longer it will take for others to review it and for it to get merged. Instead of submitting one large pull request that contains fixes for three separate issues, please submit three small pull requests instead.
+Keep original entries distinct from computed entries, scores, and streaks. Numerical values use thousandths of a unit, with dedicated skip and unknown sentinels. Read each consumer's completion rules before changing shared predicates.
 
-* **Keep your pull requests independent.** If you submit multiple pull requests, please make sure that each one can be merged independently of the others. If one of the pull requests needs to be rewritten, the other ones can be merged.
+Changes to storage may require a migration, schema version update, repository mappings, model mappings, import changes, and tests. Preserve stable habit UUIDs during imports and do not replace compatibility filenames without checking backup discovery.
 
-* **Keep refactoring separate.** While implementing bug fixes and new features, you will certainly realize that other parts of our existing code could be improved. Please do not change it yet. Get your bug fix or new feature merged first, then submit a separate pull request for improving the existing code. Avoid renaming classes, removing unnecessary statements, or doing any other refactoring work on pull requests that propose bug fixes or new functionality.
+Review the manifest, intent factories, parsers, and receivers together for integration changes. Application ID, source namespace, and URI authorities can differ.
 
-* **AI-assisted pull requests are welcome**, however, since they typically require additional review time to ensure code quality, they should follow the project guidelines even more strictly. In particular, keep them small, and discuss new features with other developers before writing any AI-assisted code. Large (500+ line) AI-assisted pull requests from first-time contributors that implement new features without prior discussion will be closed without consideration.
+## Appearance and resources
 
-Further resources:
+Reuse Flow colors, dimensions, styles, drawables, and shared header and scroll helpers. Check both light and dark mode and account for system bars, keyboards, accessibility labels, and font scaling.
 
-* [*How to Make Your Code Reviewer Fall in Love with You*](https://mtlynch.io/code-review-love), by Michael Lynch.
+Put user-visible strings in resources. Review relevant localized resources when adding or changing strings. Translation lists are stored in `translators-classic.csv` and `translators-crowdin.csv`; `gradle/translators.gradle.kts` generates translator credits.
 
-## Code Style
+Do not claim wallpaper blur based on a drawable name or translucent background. Do not advertise pure black mode while its control remains disabled. Distinguish the Android 16 promoted notification request from verified presentation on a particular phone.
 
-For Kotlin, we follow [ktlint](https://ktlint.github.io/) style with default settings. This code style is enforced by our automated build pipeline. To make sure that IntelliJ and Android Studio are configured according to ktlint, run `./gradlew ktlintApplyToIdea`. To check that all code is properly formatted, run `./gradlew ktlintCheck`. You can install a Git pre-commit hook to ensure that the code is properly formatted when you commit using `./gradlew addKtlintFormatGitPreCommitHook`. See more details in [ktlint-gradle](https://github.com/jlleitschuh/ktlint-gradle).
+## Documentation
 
-For legacy Java code, we don't have strict guidelines. Please follow a code style similar to the file you are modifying. Note that new classes should be written in Kotlin. Pull requests converting existing Java code to Kotlin are also welcome.
+Update [README.md](../README.md) for new features, changed settings, limitations, or installation steps. Update [ARCHITECTURE.md](ARCHITECTURE.md) when ownership or data flow changes.
 
-## Release Process
+Keep [BUILD.md](BUILD.md) aligned with the wrapper, dependency catalog, SDK levels, signing environment variables, and generated output names. Update [TEST.md](TEST.md) when test setup or locations change.
 
-The project loosely follows [semantic versioning](https://semver.org/), adapted for applications. Suppose, for example, that version `1.2.3` has just been released. The next version would be:
-* `1.2.4` if a bug is being fixed.
-* `1.3.0` if minor new features are being introduced.
-* `2.0.0` if major new features are being introduced.
+Treat the changelog, screenshots, store listings, translated strings, and widget handoff as inherited or historical resources where applicable. Verify claims against current source. Do not redirect Flow users to upstream distribution or support channels as if they were Flow-specific.
 
-Releases are first made available to beta testers on Google Play and to all F-Droid users. After no bugs are found, they are rolled out to the remaining users. Releases are also made available on [GitHub Releases](https://github.com/iSoron/uhabits/releases).
+## Verification
 
+Choose checks for the changed behavior using [TEST.md](TEST.md). For core logic run the relevant JVM tests; for Android changes run the Android JVM tests or relevant instrumented tests and compilation as appropriate.
+
+For documentation and comments, check source accuracy, local links, comment style, and that executable content is unchanged. Do not add tests that merely mirror implementation details or tests solely to cover a comment edit.
+
+Record existing formatting failures separately from failures introduced by a change. Do not silently replace screenshot baselines or describe an unavailable device check as passed.
+
+## Licensing and releases
+
+Flow is based on Loop Habit Tracker and remains GPL version 3 or later. Preserve [LICENSE.txt](../LICENSE.txt), [NOTICE.md](../NOTICE.md), and original file notices.
+
+Keep credentials, signing keys, passwords, and local SDK configuration out of tracked files. Release signing uses the inherited LOOP environment variable names documented in [BUILD.md](BUILD.md). Building an artifact and publishing it are separate actions.

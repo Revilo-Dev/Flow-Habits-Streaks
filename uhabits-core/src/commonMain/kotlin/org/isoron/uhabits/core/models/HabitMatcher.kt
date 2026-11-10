@@ -30,6 +30,7 @@ data class HabitMatcher(
         if (isReminderRequired && !habit.hasReminder()) return false
         if (!isCompletedAllowed && habit.isCompletedToday()) return false
         if (!isEnteredAllowed && habit.isEnteredToday()) return false
+        // Search habit names questions and descriptions without matching daily entry notes
         if (searchQuery.isNotEmpty()) {
             val q = searchQuery.trim()
             if (q.isNotEmpty() &&

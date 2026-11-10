@@ -48,6 +48,8 @@ class FrequencyPickerDialog(
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        freqNumerator = savedInstanceState?.getInt("numerator") ?: freqNumerator
+        freqDenominator = savedInstanceState?.getInt("denominator") ?: freqDenominator
         _binding = FrequencyPickerDialogBinding.inflate(LayoutInflater.from(requireActivity()))
 
         addBeforeAfterText(
@@ -115,10 +117,17 @@ class FrequencyPickerDialog(
             if (hasFocus) check(binding.xTimesPerYDaysRadioButton)
         }
 
+        populateViews()
         return AlertDialog.Builder(requireActivity())
             .setView(binding.root)
-            .setPositiveButton(R.string.save) { _, _ -> onSaveClicked() }
+            .setPositiveButton(R.string.save, null)
+            .setNegativeButton(android.R.string.cancel, null)
             .create()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        (requireDialog() as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener { onSaveClicked() }
     }
 
     private fun addBeforeAfterText(
@@ -135,43 +144,35 @@ class FrequencyPickerDialog(
     }
 
     private fun onSaveClicked() {
+        fun positiveValue(field: EditText, maximum: Int = Int.MAX_VALUE): Int? {
+            val value = field.text.toString().trim().toIntOrNull()
+            if (value == null || value !in 1..maximum) {
+                field.error = getString(R.string.flow_invalid_frequency, maximum)
+                field.requestFocus()
+                return null
+            }
+            return value
+        }
         var numerator = 1
         var denominator = 1
         when {
-            binding.everyDayRadioButton.isChecked -> {
-                // NOP
-            }
-
             binding.everyXDaysRadioButton.isChecked -> {
-                if (binding.everyXDaysTextView.text.isNotEmpty()) {
-                    denominator = Integer.parseInt(binding.everyXDaysTextView.text.toString())
-                }
+                denominator = positiveValue(binding.everyXDaysTextView) ?: return
             }
-
             binding.xTimesPerWeekRadioButton.isChecked -> {
-                if (binding.xTimesPerWeekTextView.text.isNotEmpty()) {
-                    numerator = Integer.parseInt(binding.xTimesPerWeekTextView.text.toString())
-                    denominator = 7
-                }
+                numerator = positiveValue(binding.xTimesPerWeekTextView, 7) ?: return
+                denominator = 7
             }
-
+            binding.xTimesPerMonthRadioButton.isChecked -> {
+                numerator = positiveValue(binding.xTimesPerMonthTextView, 30) ?: return
+                denominator = 30
+            }
             binding.xTimesPerYDaysRadioButton.isChecked -> {
-                if (binding.xTimesPerYDaysXTextView.text.isNotEmpty() && binding.xTimesPerYDaysYTextView.text.isNotEmpty()) {
-                    numerator =
-                        Integer.parseInt(binding.xTimesPerYDaysXTextView.text.toString())
-                    denominator =
-                        Integer.parseInt(binding.xTimesPerYDaysYTextView.text.toString())
-                }
-            }
-
-            else -> {
-                if (binding.xTimesPerMonthTextView.text.isNotEmpty()) {
-                    numerator = Integer.parseInt(binding.xTimesPerMonthTextView.text.toString())
-                    denominator = 30
-                }
+                denominator = positiveValue(binding.xTimesPerYDaysYTextView) ?: return
+                numerator = positiveValue(binding.xTimesPerYDaysXTextView, denominator) ?: return
             }
         }
-        if (numerator >= denominator || numerator < 1) {
+        if (numerator == denominator) {
             numerator = 1
             denominator = 1
         }
@@ -185,9 +186,10 @@ class FrequencyPickerDialog(
         view.requestFocus()
     }
 
-    override fun onResume() {
-        super.onResume()
-        populateViews()
+    override fun onSaveInstanceState(state: Bundle) {
+        super.onSaveInstanceState(state)
+        state.putInt("numerator", freqNumerator)
+        state.putInt("denominator", freqDenominator)
     }
 
     private fun populateViews() {

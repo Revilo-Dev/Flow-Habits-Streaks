@@ -74,7 +74,7 @@ class AndroidNotificationTray(
         try {
             notificationManager.notify(notificationId, notification)
         } catch (e: RuntimeException) {
-            // Some Xiaomi phones produce a RuntimeException if custom notification sounds are used.
+            // Retry without sound on devices that reject custom notification sounds
             Log.i(
                 "AndroidNotificationTray",
                 "Failed to show notification. Retrying without sound."
@@ -116,9 +116,7 @@ class AndroidNotificationTray(
 
         val wearableBg = decodeResource(context.resources, R.drawable.stripe)
 
-        // Even though the set of actions is the same on the phone and
-        // on the watch, Pebble requires us to add them to the
-        // WearableExtender.
+        // Add wearable actions explicitly so watch integrations receive the same controls
         val wearableExtender = WearableExtender().setBackground(wearableBg)
 
         val defaultText = context.getString(R.string.default_reminder_question)
@@ -149,6 +147,7 @@ class AndroidNotificationTray(
             builder.setSound(ringtoneManager.getURI())
         }
 
+        // Only older Android versions receive the snooze action in reminder notifications
         if (SDK_INT < Build.VERSION_CODES.S) {
             val snoozeAction = Action(
                 R.drawable.ic_action_snooze,

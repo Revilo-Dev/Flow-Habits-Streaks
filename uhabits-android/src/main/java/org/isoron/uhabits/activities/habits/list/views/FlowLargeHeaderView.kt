@@ -45,9 +45,10 @@ class FlowLargeHeaderView(
 
     private var hasPlayedIntro = false
     private var hasHabits = false
+    private var compactWindow = false
 
     private val titleView = TextView(context).apply {
-        text = resources.getString(R.string.flow_app_title)
+        text = resources.getString(R.string.flow_today_title)
         gravity = Gravity.CENTER_HORIZONTAL
         setTextAppearance(R.style.TextAppearance_Flow_ScreenTitle)
     }
@@ -137,10 +138,10 @@ class FlowLargeHeaderView(
 
     private fun updateStreakVisibility() {
         perfectStreakView.visibility =
-            if (hasHabits && hintView?.visibility != View.VISIBLE) View.VISIBLE else View.GONE
+            if (hasHabits && !compactWindow && hintView?.visibility != View.VISIBLE) View.VISIBLE else View.GONE
     }
 
-    /** Displays the dismissible tip in place of the streak card. */
+    // Show the dismissible hint in place of the perfect streak card
     fun setHintView(view: HintView) {
         hintView?.let {
             it.onHintVisibilityChanged = null
@@ -155,6 +156,11 @@ class FlowLargeHeaderView(
                 topMargin = dim(R.dimen.flow_large_spacing).toInt()
             }
         )
+        updateStreakVisibility()
+    }
+
+    fun setCompactWindow(compact: Boolean) {
+        compactWindow = compact
         updateStreakVisibility()
     }
 
@@ -190,6 +196,7 @@ class FlowLargeHeaderView(
         val locale = Locale.getDefault()
         val pattern = DateFormat.getBestDateTimePattern(locale, "EEEE d MMMM")
         val formatter = SimpleDateFormat(pattern, locale).apply {
+            // Format the tracking date without applying the device timezone again
             timeZone = TimeZone.getTimeZone("UTC")
         }
         dateView.text = formatter.format(getToday().toGregorianCalendar().time)

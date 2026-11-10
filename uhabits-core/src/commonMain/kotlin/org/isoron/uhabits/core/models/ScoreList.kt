@@ -28,22 +28,13 @@ class ScoreList {
 
     private val map = mutableMapOf<LocalDate, Score>()
 
-    /**
-     * Returns the score for a given day. If the date given happens before the first
-     * repetition of the habit or after the last computed score, returns a score with value zero.
-     */
+    // Missing score dates return zero
     @Synchronized
     operator fun get(date: LocalDate): Score {
         return map[date] ?: Score(date, 0.0)
     }
 
-    /**
-     * Returns the list of scores that fall within the given interval.
-     *
-     * There is exactly one score per day in the interval. The endpoints of the interval are
-     * included. The list is ordered by date (decreasing). That is, the first score
-     * corresponds to the newest date, and the last score corresponds to the oldest date.
-     */
+    // Return one score per day with both endpoints included and newest dates first
     @Synchronized
     fun getByInterval(
         from: LocalDate,
@@ -59,9 +50,7 @@ class ScoreList {
         return result
     }
 
-    /**
-     * Recomputes all scores between the provided [from] and [to] dates.
-     */
+    // Rebuild scores in date order so each day starts from the previous score
     @Synchronized
     fun recompute(
         frequency: Frequency,
@@ -80,14 +69,13 @@ class ScoreList {
         val values = computedEntries.getByInterval(from, to).map { it.value }.toIntArray()
         val isAtMost = numericalHabitType == NumericalHabitType.AT_MOST
 
-        // For non-daily boolean habits, we double the numerator and the denominator to smooth
-        // out irregular repetition schedules (for example, weekly habits performed on different
-        // days of the week)
+        // Widen the scoring window to smooth irregular schedules for boolean habits
         if (!isNumerical && freq < 1.0) {
             numerator *= 2
             denominator *= 2
         }
 
+        // Skipped days keep the previous score unchanged
         var previousValue = if (isNumerical && isAtMost) 1.0 else 0.0
         for (i in values.indices) {
             val offset = values.size - i - 1
@@ -97,6 +85,7 @@ class ScoreList {
                     rollingSum -= max(0, values[offset + denominator])
                 }
 
+                // Stored numerical values use thousandths of a unit
                 val normalizedRollingSum = rollingSum / 1000
                 if (values[offset] != Entry.SKIP) {
                     val percentageCompleted = if (!isAtMost) {

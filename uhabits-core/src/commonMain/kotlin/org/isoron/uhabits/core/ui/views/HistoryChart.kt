@@ -58,6 +58,33 @@ class HistoryChart(
         HATCHED
     }
 
+    data class DayCell(
+        val date: LocalDate,
+        val square: Square,
+        val hasNotes: Boolean,
+        val left: Double,
+        val top: Double,
+        val size: Double
+    )
+
+    fun visibleDays(): List<DayCell> {
+        if (squareSize <= 0) return emptyList()
+        return (0 until nColumns).flatMap { column ->
+            (0 until 7).mapNotNull { row ->
+                val offset = topLeftOffset - column * 7 - row
+                if (offset < 0) return@mapNotNull null
+                DayCell(
+                    date = today.minus(offset),
+                    square = series.getOrElse(offset) { defaultSquare },
+                    hasNotes = notesIndicators.getOrElse(offset) { false },
+                    left = padding + column * squareSize,
+                    top = padding + (row + 1) * squareSize,
+                    size = squareSize - squareSpacing
+                )
+            }
+        }
+    }
+
     var squareSpacing = 1.0
     override var dataOffset = 0
 
@@ -84,10 +111,10 @@ class HistoryChart(
 
     private fun onDateClicked(x: Double, y: Double, isLongClick: Boolean) {
         if (width <= 0.0) throw IllegalStateException("onClick must be called after draw(canvas)")
-        val col = ((x - padding) / squareSize).toInt()
-        val row = ((y - padding) / squareSize).toInt()
+        val col = floor((x - padding) / squareSize).toInt()
+        val row = floor((y - padding) / squareSize).toInt()
         val offset = col * 7 + (row - 1)
-        if (x - padding < 0 || row == 0 || row > 7 || col == nColumns) return
+        if (col !in 0 until nColumns || row !in 1..7) return
         val clickedDate = topLeftDate.plus(offset)
         if (clickedDate.isNewerThan(today)) return
         if (isLongClick) {

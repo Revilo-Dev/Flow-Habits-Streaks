@@ -30,6 +30,7 @@ open class CommandRunner(
 ) {
     private val listeners: MutableList<Listener> = mutableListOf()
 
+    // Finish the background change before notifying screens widgets and reminders
     open fun run(command: Command) {
         taskRunner.execute(
             object : Task {

@@ -34,13 +34,7 @@ import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityScope
 import java.util.LinkedList
 
-/**
- * Provides data that backs a [HabitCardListView].
- *
- *
- * The data if fetched and cached by a [HabitCardListCache]. This adapter
- * also holds a list of items that have been selected.
- */
+// Bind cached habit rows and track the current selection
 @Inject
 @ActivityScope
 class HabitCardListAdapter(
@@ -55,6 +49,8 @@ class HabitCardListAdapter(
     val observable: ModelObservable = ModelObservable()
     private var listView: HabitCardListView? = null
     val selected: LinkedList<Habit> = LinkedList()
+    var currentFilter = HabitMatcher()
+        private set
     override fun atMidnight() {
         cache.refreshAllHabits()
     }
@@ -67,9 +63,7 @@ class HabitCardListAdapter(
         return cache.hasNoHabit()
     }
 
-    /**
-     * Sets all items as not selected.
-     */
+    // Clear the current selection and refresh the visible rows
     override fun clearSelection() {
         if (selected.isEmpty()) return
 
@@ -82,12 +76,7 @@ class HabitCardListAdapter(
         return ArrayList(selected)
     }
 
-    /**
-     * Returns the item that occupies a certain position on the list
-     *
-     * @param position position of the item
-     * @return the item at given position or null if position is invalid
-     */
+    // Return the habit at a displayed position or null outside the list
     @Deprecated("")
     fun getItem(position: Int): Habit? {
         return cache.getHabitByPosition(position)
@@ -101,19 +90,13 @@ class HabitCardListAdapter(
         return getItem(position)!!.id!!
     }
 
-    /**
-     * Returns whether list of selected items is empty.
-     *
-     * @return true if selection is empty, false otherwise
-     */
+    // Report whether any habits are selected
     val isSelectionEmpty: Boolean
         get() = selected.isEmpty()
     val isSortable: Boolean
         get() = cache.primaryOrder == HabitList.Order.BY_POSITION
 
-    /**
-     * Notify the adapter that it has been attached to a ListView.
-     */
+    // Refresh cached data and listen for changes at the start of each tracking day
     fun onAttached() {
         cache.onAttached()
         midnightTimer.addListener(this)
@@ -158,9 +141,7 @@ class HabitCardListAdapter(
         return HabitCardViewHolder(view)
     }
 
-    /**
-     * Notify the adapter that it has been detached from a ListView.
-     */
+    // Stop cache and day boundary listeners when the list detaches
     fun onDetached() {
         cache.onDetached()
         midnightTimer.removeListener(this)
@@ -190,35 +171,12 @@ class HabitCardListAdapter(
         observable.notifyListeners()
     }
 
-    /**
-     * Removes a list of habits from the adapter.
-     *
-     *
-     * Note that this only has effect on the adapter cache. The database is not
-     * modified, and the change is lost when the cache is refreshed. This method
-     * is useful for making the ListView more responsive: while we wait for the
-     * database operation to finish, the cache can be modified to reflect the
-     * changes immediately.
-     *
-     * @param selected list of habits to be removed
-     */
+    // Remove rows from the cache while the database change finishes
     override fun performRemove(selected: List<Habit>) {
         for (habit in selected) cache.remove(habit.id!!)
     }
 
-    /**
-     * Changes the order of habits on the adapter.
-     *
-     *
-     * Note that this only has effect on the adapter cache. The database is not
-     * modified, and the change is lost when the cache is refreshed. This method
-     * is useful for making the ListView more responsive: while we wait for the
-     * database operation to finish, the cache can be modified to reflect the
-     * changes immediately.
-     *
-     * @param from the habit that should be moved
-     * @param to   the habit that currently occupies the desired position
-     */
+    // Preview a reordered list while the database change finishes
     fun performReorder(from: Int, to: Int) {
         cache.reorder(from, to)
     }
@@ -236,17 +194,11 @@ class HabitCardListAdapter(
     }
 
     override fun setFilter(matcher: HabitMatcher) {
+        currentFilter = matcher
         cache.setFilter(matcher)
     }
 
-    /**
-     * Sets the HabitCardListView that this adapter will provide data for.
-     *
-     *
-     * This object will be used to generated new HabitCardViews, upon demand.
-     *
-     * @param listView the HabitCardListView associated with this adapter
-     */
+    // Use the attached list to build and bind habit cards
     fun setListView(listView: HabitCardListView?) {
         this.listView = listView
     }
@@ -265,11 +217,7 @@ class HabitCardListAdapter(
             preferences.defaultSecondaryOrder = value
         }
 
-    /**
-     * Selects or deselects the item at a given position.
-     *
-     * @param position position of the item to be toggled
-     */
+    // Toggle the selected state of the habit at this position
     fun toggleSelection(position: Int) {
         val h = getItem(position) ?: return
         val k = selected.indexOf(h)

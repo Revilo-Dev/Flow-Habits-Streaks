@@ -30,10 +30,17 @@
         android:drawableStart="@drawable/calendar"
         android:text="@string/calendar"/>
 
-    <org.isoron.platform.gui.AndroidDataView
-        android:id="@+id/chart"
+    <org.isoron.uhabits.activities.common.views.AccessibleHistoryChartView
+        android:id="@+id/historyChart"
         android:layout_width="match_parent"
         android:layout_height="160dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/flow_medium_spacing"
+        android:text="@string/flow_calendar_legend"
+        android:textAppearance="@style/TextAppearance.Flow.Supporting" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/edit"
@@ -41,7 +48,7 @@
         android:layout_height="@dimen/flow_min_touch_target"
         android:layout_gravity="center"
         android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/edit"
+        android:contentDescription="@string/flow_edit_entry"
         android:padding="@dimen/flow_medium_spacing"
         android:src="@drawable/flow_ic_edit"
         android:tint="?attr/flowTextSecondaryColor" />

@@ -70,6 +70,9 @@ class HabitCardListController(
         if (adapter.isSelectionEmpty) {
             activeMode = NormalMode()
             selectionMenu.value.onSelectionFinish()
+        } else {
+            activeMode = SelectionMode()
+            selectionMenu.value.onSelectionChange()
         }
     }
 

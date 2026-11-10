@@ -391,10 +391,12 @@
     </style>
 
     <style name="CheckmarkPopupBtn">
+        <item name="android:minHeight">@dimen/flow_min_touch_target</item>
+        <item name="android:padding">@dimen/flow_medium_spacing</item>
         <item name="android:textColor">?attr/flowTextPrimaryColor</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
