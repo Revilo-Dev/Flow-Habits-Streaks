@@ -169,8 +169,10 @@ class ListHabitsScreen(
     }
 
     override fun showSelectHabitTypeDialog() {
-        val dialog = HabitTypeDialog()
-        dialog.show(activity.supportFragmentManager, "habitType")
+        val fragments = activity.supportFragmentManager
+        if (!fragments.isStateSaved && fragments.findFragmentByTag("habitType") == null) {
+            HabitTypeDialog().showNow(fragments, "habitType")
+        }
     }
 
     override fun showDeleteConfirmationScreen(callback: OnConfirmedCallback, quantity: Int) {

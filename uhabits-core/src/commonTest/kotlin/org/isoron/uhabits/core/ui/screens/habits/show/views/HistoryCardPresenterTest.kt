@@ -4,6 +4,7 @@ import org.isoron.platform.time.LocalDate
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.core.BaseUnitTest
 import org.isoron.uhabits.core.models.Entry
+import org.isoron.uhabits.core.models.Habit
 import org.isoron.uhabits.core.models.NumericalHabitType
 import org.isoron.uhabits.core.models.PaletteColor
 import org.isoron.uhabits.core.preferences.MemoryStorage
@@ -32,11 +33,19 @@ class HistoryCardPresenterTest : BaseUnitTest() {
         override fun showHistoryEditorDialog(listener: OnDateClickedListener) = Unit
         override fun showFeedback() = Unit
 
-        override fun showNumberPopup(value: Double, notes: String, callback: NumberPickerCallback) {
+        override fun showNumberPopup(
+            habit: Habit,
+            date: LocalDate,
+            value: Double,
+            notes: String,
+            callback: NumberPickerCallback
+        ) {
             numberEditors++
         }
 
         override fun showCheckmarkPopup(
+            habit: Habit,
+            date: LocalDate,
             selectedValue: Int,
             notes: String,
             color: PaletteColor,

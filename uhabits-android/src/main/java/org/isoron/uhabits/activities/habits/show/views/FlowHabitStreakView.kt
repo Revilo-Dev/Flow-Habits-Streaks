@@ -29,8 +29,8 @@ import org.isoron.platform.time.getToday
 import org.isoron.uhabits.R
 import org.isoron.uhabits.core.ui.screens.habits.show.views.CurrentStreakCardState
 import org.isoron.uhabits.utils.dim
+import org.isoron.uhabits.utils.perfectStreakBackground
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.updatePerfectStreakGlow
 import java.util.Locale
 import kotlin.math.absoluteValue
 
@@ -121,7 +121,7 @@ class FlowHabitStreakView(
         )
     }
 
-    fun setState(state: CurrentStreakCardState) {
+    fun setState(state: CurrentStreakCardState, perfect: Boolean = false) {
         val accent = context.getColor(R.color.flow_streak_start)
         val gradientEnd = context.getColor(R.color.flow_streak_end)
         val surface = sres.getColor(R.attr.flowSurfaceSecondaryColor)
@@ -136,11 +136,13 @@ class FlowHabitStreakView(
         } else {
             ColorUtils.blendARGB(surface, Color.WHITE, 0.06f)
         }
-        background = GradientDrawable(
-            GradientDrawable.Orientation.TL_BR,
-            if (state.todayComplete) intArrayOf(accent, gradientEnd) else intArrayOf(inactiveStart, inactiveEnd)
-        ).apply {
-            cornerRadius = dim(R.dimen.flow_card_radius)
+        val colors = if (state.todayComplete) intArrayOf(accent, gradientEnd) else intArrayOf(inactiveStart, inactiveEnd)
+        background = if (perfect) {
+            perfectStreakBackground(colors, state.todayComplete)
+        } else {
+            GradientDrawable(GradientDrawable.Orientation.TL_BR, colors).apply {
+                cornerRadius = dim(R.dimen.flow_card_radius)
+            }
         }
 
         titleView.setTextColor(Color.WHITE)
@@ -182,8 +184,8 @@ class FlowHabitStreakView(
             dayMarks[index].apply {
                 setImageResource(
                     when {
-                        skipped -> R.drawable.flow_ic_skip
                         complete -> R.drawable.checkbox_checked
+                        skipped -> R.drawable.flow_ic_skip
                         else -> R.drawable.checkbox_unchecked
                     }
                 )
@@ -201,8 +203,7 @@ class FlowHabitStreakView(
     }
 
     fun setPerfectState(state: CurrentStreakCardState) {
-        setState(state)
-        updatePerfectStreakGlow(state.todayComplete)
+        setState(state, perfect = true)
         titleView.setText(R.string.flow_perfect_streak)
         messageView.text = if (state.todayComplete) {
             resources.getStringArray(R.array.flow_perfect_messages).first()

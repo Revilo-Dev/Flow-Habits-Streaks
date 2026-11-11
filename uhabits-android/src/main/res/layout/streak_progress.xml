@@ -48,6 +48,7 @@
             android:id="@+id/streakContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
             android:orientation="vertical"
             android:paddingTop="@dimen/flow_large_spacing">
 

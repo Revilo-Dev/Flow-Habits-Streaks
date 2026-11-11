@@ -27,6 +27,7 @@ import android.view.View
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.isoron.platform.gui.AndroidDataView
 import org.isoron.platform.gui.toInt
 import org.isoron.platform.time.LocalDate
 import org.isoron.uhabits.AndroidDirFinder
@@ -39,6 +40,7 @@ import org.isoron.uhabits.activities.common.dialogs.CheckmarkDialog
 import org.isoron.uhabits.activities.common.dialogs.ConfirmDeleteDialog
 import org.isoron.uhabits.activities.common.dialogs.HistoryEditorDialog
 import org.isoron.uhabits.activities.common.dialogs.NumberDialog
+import org.isoron.uhabits.activities.common.views.EntryNotePopup
 import org.isoron.uhabits.core.commands.Command
 import org.isoron.uhabits.core.commands.CommandRunner
 import org.isoron.uhabits.core.models.Habit
@@ -72,6 +74,7 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
     private val scope = CoroutineScope(Dispatchers.Main)
     private lateinit var presenter: ShowHabitPresenter
     private val screen = Screen()
+    private var notePopup: EntryNotePopup? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,6 +137,8 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
     }
 
     override fun onPause() {
+        notePopup?.dismiss()
+        notePopup = null
         dismissCurrentDialog(preserveEntryDrafts = true)
         commandRunner.removeListener(this)
         super.onPause()
@@ -167,6 +172,12 @@ class ShowHabitActivity : FlowActivity(), CommandRunner.Listener {
             }
             dialog.setOnDateClickedListener(listener)
             dialog.show(supportFragmentManager, "historyEditor")
+        }
+
+        override fun showNote(date: LocalDate, notes: String, onEdit: () -> Unit) {
+            val anchor = (getPopupAnchor() as? AndroidDataView) ?: view.historyChartView
+            notePopup?.dismiss()
+            notePopup = EntryNotePopup(anchor, date, notes, onEdit).also { it.show() }
         }
 
         override fun showFeedback() {

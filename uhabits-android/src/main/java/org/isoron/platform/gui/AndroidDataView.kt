@@ -43,7 +43,6 @@ open class AndroidDataView(
     private var restoredOffset: Int? = null
     private val detector = GestureDetector(context, this)
     private val scroller = Scroller(context, null, true)
-    private var restoredOffset: Int? = null
     private val scrollAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
         addUpdateListener(this@AndroidDataView)
     }
@@ -86,7 +85,7 @@ open class AndroidDataView(
         val chart = view ?: return
         val x = (chart.dataOffset * chart.dataColumnWidth * resources.displayMetrics.density).toInt()
         scroller.startScroll(x, 0, 0, 0, 0)
-        scroller.forceFinished(true)
+        scroller.computeScrollOffset()
     }
 
     override fun onDown(e: MotionEvent): Boolean {
@@ -168,17 +167,6 @@ open class AndroidDataView(
         view?.dataOffset = next
         restoredOffset = next
         invalidate()
-    }
-
-    override fun onDraw(canvas: android.graphics.Canvas) {
-        super.onDraw(canvas)
-        val offset = restoredOffset ?: return
-        val columnWidth = view?.dataColumnWidth ?: return
-        val pixels = (offset * columnWidth * this.canvas.innerDensity).toInt()
-        scroller.forceFinished(true)
-        scroller.startScroll(0, 0, pixels, 0, 0)
-        scroller.computeScrollOffset()
-        restoredOffset = null
     }
 
     private fun updateDataOffset() {

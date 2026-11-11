@@ -21,10 +21,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.children
 import org.isoron.uhabits.R
+import java.util.WeakHashMap
 
 @SuppressLint("RestrictedApi", "ClickableViewAccessibility")
-internal class FlowGlassMenu(private val toolbar: Toolbar) {
+internal class FlowGlassMenu(private val toolbar: Toolbar, private val pillInset: Int) {
     private var popup: PopupWindow? = null
+    private val boundItems = WeakHashMap<View, MenuItem?>()
 
     init {
         toolbar.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -40,6 +42,8 @@ internal class FlowGlassMenu(private val toolbar: Toolbar) {
             val item = (child as? MenuView.ItemView)?.itemData
             val overflow = (child.layoutParams as? ActionMenuView.LayoutParams)?.isOverflowButton == true
             if (!overflow && item?.hasSubMenu() != true) continue
+            if (boundItems.containsKey(child) && boundItems[child] === item) continue
+            boundItems[child] = item
             val open = {
                 val items = if (overflow) {
                     (toolbar.menu as? MenuBuilder)?.nonActionItems.orEmpty()
@@ -90,6 +94,8 @@ internal class FlowGlassMenu(private val toolbar: Toolbar) {
         }
         val frame = Rect().also(anchor::getWindowVisibleDisplayFrame)
         val location = IntArray(2).also(anchor::getLocationOnScreen)
+        val pill = IntArray(2).also((anchor.parent as View)::getLocationOnScreen)
+        val pillTop = (pill[1] + pillInset).coerceAtLeast(frame.top)
         val width = dp(196).coerceAtMost((frame.width() - dp(16)).coerceAtLeast(1))
         val window = PopupWindow(scroll, width, WRAP_CONTENT, true).apply {
             setBackgroundDrawable(toolbar.flowPopupSurface(dp(24).toFloat()))
@@ -158,10 +164,10 @@ internal class FlowGlassMenu(private val toolbar: Toolbar) {
         }
         scroll.measure(
             MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec((frame.bottom - location[1]).coerceAtLeast(1), MeasureSpec.AT_MOST)
+            MeasureSpec.makeMeasureSpec((frame.bottom - pillTop).coerceAtLeast(1), MeasureSpec.AT_MOST)
         )
         window.height = scroll.measuredHeight
         popup = window
-        window.showAsDropDown(anchor, 0, -anchor.height, Gravity.END)
+        window.showAsDropDown(anchor, 0, pillTop - location[1] - anchor.height, Gravity.END)
     }
 }

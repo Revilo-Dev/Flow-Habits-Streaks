@@ -37,6 +37,8 @@ class HabitCheckInManager(
     private val alarms = context.getSystemService(AlarmManager::class.java)
     private val settings = PreferenceManager.getDefaultSharedPreferences(context)
 
+    enum class StartResult { DISABLED, NO_HABITS, COMPLETED, IN_PROGRESS }
+
     fun start() {
         commands.addListener(this)
         configure()
@@ -64,11 +66,10 @@ class HabitCheckInManager(
     }
 
     @Synchronized
-    fun showNow() {
-        if (!settings.getBoolean(KEY_ENABLED, false)) return
+    fun showNow(): StartResult {
+        if (!settings.getBoolean(KEY_ENABLED, false)) return StartResult.DISABLED
         val reminderTime = System.currentTimeMillis()
-        val due = dueHabits()
-        if (due.isEmpty()) return
+        if (dueHabits().isEmpty()) return StartResult.NO_HABITS
 
         val current = prefs.getLong(KEY_OCCURRENCE, 0)
         if (current != reminderTime) {
@@ -77,6 +78,11 @@ class HabitCheckInManager(
             Log.i(TAG, "Starting check-in")
         }
         refresh()
+        return if (prefs.getLong(KEY_COMPLETION_END, 0) != 0L) {
+            StartResult.COMPLETED
+        } else {
+            StartResult.IN_PROGRESS
+        }
     }
 
     @Synchronized
@@ -170,6 +176,7 @@ class HabitCheckInManager(
                 .addExtras(promotion)
                 .build()
             notifications.notify(NOTIFICATION_ID, native)
+            Log.d(TAG, "Live update eligible: ${native.hasPromotableCharacteristics()}")
         } else {
             notifications.notify(NOTIFICATION_ID, builder.build())
         }
@@ -225,8 +232,16 @@ class HabitCheckInManager(
         }
     }
 
-    private fun canPost() = Build.VERSION.SDK_INT < 33 ||
-        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    fun canPost(): Boolean {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return false
+        }
+        if (!notifications.areNotificationsEnabled()) return false
+        return Build.VERSION.SDK_INT < 26 ||
+            notifications.getNotificationChannel(CHANNEL_ID)?.importance != NotificationManager.IMPORTANCE_NONE
+    }
 
     private fun showCompleted(occurrence: Long, total: Int) {
         val end = System.currentTimeMillis() + COMPLETION_DISPLAY_MILLIS

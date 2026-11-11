@@ -37,8 +37,11 @@ they must not be used to reset a personal release installation.
 collapsed until a second touch and that the collapsed scrolling viewport reaches
 the window edges. On a Samsung device, check fast flings in Home, habit details,
 and Settings, then compare the top fade and control glass with blur enabled and
-disabled. Change the system and custom accents and confirm that the calendar icon
-continues to match its habit colour.
+disabled. Check that the toolbar stays transparent at the first item with the
+header expanded and collapsed. Change the blur intensity from minimum to maximum
+and check that the same area is sampled. Change the system and custom accents
+and confirm that the New habit pill updates and the calendar icon matches its
+habit colour.
 
 `StreakProgressTest` covers current and previous perfect streaks, archived habits,
 numerical at-most targets, empty histories, the global perfect-streak skip setting, and the distinction between a skipped
@@ -56,8 +59,10 @@ entry skip actions are disabled. Both skip-counting settings default to off.
 For the streak screen, open the home card, swipe to older calendar dates, rotate the
 device, open a habit summary, and check previous-streak pagination. Verify menus
 including nested sort choices, checked options, dismissal and Settings dropdowns
-with blur enabled and disabled in both themes. Confirm the overflow opens over
-its trigger, the top highlight fades down the edge, and the final Settings card
-scrolls clear of the bottom fade. Check that both habit dialogs scroll at large
-font sizes and that streak card content remains readable over the purple backdrop. Device
-rendering and touch checks are still needed when no emulator is available.
+with blur enabled and disabled in both themes. Confirm the overflow aligns with
+the top of the action pill and animates on dismissal. Open and close Search from
+the bottom corner, rotate with a query entered, and tap New habit to check the
+bottom-centred dialog animation. Check that both habit dialogs scroll at large
+font sizes and that the glow appears around a completed perfect-streak card.
+On Samsung hardware, try Nowbar's **Appear now** with an unfinished habit and
+check the notification drawer and lock screen.

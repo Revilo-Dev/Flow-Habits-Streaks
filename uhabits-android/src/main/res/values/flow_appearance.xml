@@ -19,17 +19,17 @@
         <item>@string/flow_accent_purple</item>
     </string-array>
 
-    <style name="FlowSystemAccentLight" />
-    <style name="FlowSystemAccentDark" />
+    <style name="FlowSystemAccentLight" parent="FlowTheme.Light" />
+    <style name="FlowSystemAccentDark" parent="FlowTheme.Dark" />
 
     <color name="flow_blue_light">#1756B3</color>
     <color name="flow_blue_dark">#A9C7FF</color>
-    <style name="FlowBlueAccentLight">
+    <style name="FlowBlueAccentLight" parent="FlowTheme.Light">
         <item name="flowAccentColor">@color/flow_blue_light</item>
         <item name="flowAccentGradientEndColor">@color/flow_blue_light</item>
         <item name="flowOnAccentColor">@android:color/white</item>
     </style>
-    <style name="FlowBlueAccentDark">
+    <style name="FlowBlueAccentDark" parent="FlowTheme.Dark">
         <item name="flowAccentColor">@color/flow_blue_dark</item>
         <item name="flowAccentGradientEndColor">@color/flow_blue_dark</item>
         <item name="flowOnAccentColor">@android:color/black</item>
@@ -37,12 +37,12 @@
 
     <color name="flow_teal_light">#006B60</color>
     <color name="flow_teal_dark">#80D6C5</color>
-    <style name="FlowTealAccentLight">
+    <style name="FlowTealAccentLight" parent="FlowTheme.Light">
         <item name="flowAccentColor">@color/flow_teal_light</item>
         <item name="flowAccentGradientEndColor">@color/flow_teal_light</item>
         <item name="flowOnAccentColor">@android:color/white</item>
     </style>
-    <style name="FlowTealAccentDark">
+    <style name="FlowTealAccentDark" parent="FlowTheme.Dark">
         <item name="flowAccentColor">@color/flow_teal_dark</item>
         <item name="flowAccentGradientEndColor">@color/flow_teal_dark</item>
         <item name="flowOnAccentColor">@android:color/black</item>
@@ -50,12 +50,12 @@
 
     <color name="flow_purple_light">#6441A3</color>
     <color name="flow_purple_dark">#D1BCFF</color>
-    <style name="FlowPurpleAccentLight">
+    <style name="FlowPurpleAccentLight" parent="FlowTheme.Light">
         <item name="flowAccentColor">@color/flow_purple_light</item>
         <item name="flowAccentGradientEndColor">@color/flow_purple_light</item>
         <item name="flowOnAccentColor">@android:color/white</item>
     </style>
-    <style name="FlowPurpleAccentDark">
+    <style name="FlowPurpleAccentDark" parent="FlowTheme.Dark">
         <item name="flowAccentColor">@color/flow_purple_dark</item>
         <item name="flowAccentGradientEndColor">@color/flow_purple_dark</item>
         <item name="flowOnAccentColor">@android:color/black</item>

@@ -37,6 +37,7 @@
     <string name="archive">Archive</string>
     <string name="unarchive">Unarchive</string>
     <string name="add_habit">Add habit</string>
+    <string name="flow_new_habit">New habit</string>
     <string name="color_picker_default_title">Change color</string>
     <string name="toast_habit_created">Habit created</string>
     <plurals name="toast_habits_changed">
@@ -76,6 +77,9 @@
     <string name="flow_checkin_open">Open check-in</string>
     <string name="flow_checkin_chip">Check in</string>
     <string name="flow_checkin_complete">Today’s check-in complete</string>
+    <string name="flow_checkin_no_habits">Add an active habit to start a check-in.</string>
+    <string name="flow_checkin_live_disabled">Allow live notifications to show the check-in in Now Bar.</string>
+    <string name="flow_checkin_notifications_disabled">Allow Flow’s habit check-in notifications in system settings.</string>
     <plurals name="flow_checkin_remaining">
         <item quantity="one">%d habit remaining</item>
         <item quantity="other">%d habits remaining</item>

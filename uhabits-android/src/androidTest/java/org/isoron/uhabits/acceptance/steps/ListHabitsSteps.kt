@@ -39,7 +39,7 @@ object ListHabitsSteps {
         when (item) {
             MenuItem.ABOUT -> clickTextInsideOverflowMenu(R.string.about)
             MenuItem.HELP -> clickTextInsideOverflowMenu(R.string.help)
-            MenuItem.SETTINGS -> clickTextInsideOverflowMenu(R.string.settings)
+            MenuItem.SETTINGS -> clickViewWithId(R.id.actionSettings)
             MenuItem.ADD -> clickViewWithId(R.id.actionCreateHabit)
             MenuItem.EDIT -> clickViewWithId(R.id.action_edit_habit)
             MenuItem.DELETE -> clickTextInsideOverflowMenu(R.string.delete)

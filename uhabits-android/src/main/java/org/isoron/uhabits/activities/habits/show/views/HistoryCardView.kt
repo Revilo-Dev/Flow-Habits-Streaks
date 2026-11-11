@@ -28,16 +28,19 @@ import org.isoron.platform.time.JavaLocalDateFormatter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.HistoryCardPresenter
 import org.isoron.uhabits.core.ui.screens.habits.show.views.HistoryCardState
 import org.isoron.uhabits.core.ui.views.HistoryChart
+import org.isoron.uhabits.core.ui.views.OnDateClickedListener
 import org.isoron.uhabits.databinding.ShowHabitHistoryBinding
 import java.util.Locale
 
 class HistoryCardView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
 
     private var binding = ShowHabitHistoryBinding.inflate(LayoutInflater.from(context), this)
+    private var presenter: HistoryCardPresenter? = null
+    val chartView get() = binding.historyChart
 
-    val dataOffset: Int get() = binding.chart.view?.dataOffset ?: 0
+    val dataOffset: Int get() = chartView.view?.dataOffset ?: 0
 
-    fun restoreDataOffset(offset: Int) = binding.chart.restoreDataOffset(offset)
+    fun restoreDataOffset(offset: Int) = chartView.restoreDataOffset(offset)
 
     fun setReadOnly(title: Int) {
         binding.edit.visibility = GONE
@@ -49,7 +52,8 @@ class HistoryCardView(context: Context, attrs: AttributeSet) : LinearLayout(cont
         binding.title.setTextColor(androidColor)
         binding.title.compoundDrawableTintList = ColorStateList.valueOf(androidColor)
         binding.edit.imageTintList = ColorStateList.valueOf(androidColor)
-        binding.chart.view = HistoryChart(
+        val offset = dataOffset
+        chartView.view = HistoryChart(
             today = state.today,
             paletteColor = state.color,
             theme = state.theme,
@@ -57,12 +61,15 @@ class HistoryCardView(context: Context, attrs: AttributeSet) : LinearLayout(cont
             series = state.series,
             defaultSquare = state.defaultSquare,
             notesIndicators = state.notesIndicators,
-            firstWeekday = state.firstWeekday
-        )
-        binding.chart.postInvalidate()
+            firstWeekday = state.firstWeekday,
+            onDateClickedListener = presenter ?: object : OnDateClickedListener {}
+        ).apply { dataOffset = offset }
+        chartView.postInvalidate()
     }
 
     fun setListener(presenter: HistoryCardPresenter) {
+        this.presenter = presenter
+        (chartView.view as? HistoryChart)?.onDateClickedListener = presenter
         binding.edit.setOnClickListener { presenter.onClickEditButton() }
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.net.Uri
+import androidx.appcompat.widget.SwitchCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,7 +13,6 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.switchmaterial.SwitchMaterial
 import org.isoron.platform.time.getToday
 import org.isoron.uhabits.BuildConfig
 import org.isoron.uhabits.HabitsApplication
@@ -83,8 +83,8 @@ class FlowHabitFeaturesTest {
         val editor = ActivityScenario.launch<EditHabitActivity>(intent)
         scenario = editor
         editor.onActivity {
-            assertFalse(it.findViewById<SwitchMaterial>(R.id.skipsCountTowardsStreaks).isChecked)
-            it.findViewById<SwitchMaterial>(R.id.skipsCountTowardsStreaks).performClick()
+            assertFalse(it.findViewById<SwitchCompat>(R.id.countSkipsStreak).isChecked)
+            it.findViewById<SwitchCompat>(R.id.countSkipsStreak).performClick()
         }
         editor.recreate()
         val saved = CountDownLatch(1)
@@ -94,7 +94,7 @@ class FlowHabitFeaturesTest {
             }
         }
         editor.onActivity {
-            assertTrue(it.findViewById<SwitchMaterial>(R.id.skipsCountTowardsStreaks).isChecked)
+            assertTrue(it.findViewById<SwitchCompat>(R.id.countSkipsStreak).isChecked)
             assertFalse(habit.skipsCountTowardsStreaks)
             app.component.commandRunner.addListener(listener)
             it.findViewById<android.view.View>(R.id.buttonSave).performClick()

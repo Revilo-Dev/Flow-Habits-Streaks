@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="FlowSystemAccentLight">
+    <style name="FlowSystemAccentLight" parent="FlowTheme.Light">
         <item name="flowAccentColor">@android:color/system_accent1_600</item>
         <item name="flowAccentGradientEndColor">@android:color/system_accent1_600</item>
         <item name="flowOnAccentColor">@android:color/white</item>
     </style>
-    <style name="FlowSystemAccentDark">
+    <style name="FlowSystemAccentDark" parent="FlowTheme.Dark">
         <item name="flowAccentColor">@android:color/system_accent1_200</item>
         <item name="flowAccentGradientEndColor">@android:color/system_accent1_200</item>
         <item name="flowOnAccentColor">@android:color/black</item>

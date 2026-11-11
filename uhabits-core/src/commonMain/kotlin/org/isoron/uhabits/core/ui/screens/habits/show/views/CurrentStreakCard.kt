@@ -21,7 +21,9 @@ import org.isoron.uhabits.core.models.NumericalHabitType
 data class CurrentStreakCardState(
     val currentStreak: Int,
     val lastSevenDays: List<Boolean>,
-    val firstWeekday: DayOfWeek
+    val firstWeekday: DayOfWeek,
+    val lastSevenDaysSkipped: List<Boolean> = List(7) { false },
+    val skipsCountTowardsStreaks: Boolean = false
 ) {
     val todayComplete: Boolean
         get() = lastSevenDays.lastOrNull() == true
@@ -53,7 +55,9 @@ object CurrentStreakCardPresenter {
         return CurrentStreakCardState(
             currentStreak = currentStreak,
             lastSevenDays = lastSevenDays,
-            firstWeekday = firstWeekday
+            firstWeekday = firstWeekday,
+            lastSevenDaysSkipped = (6 downTo 0).map { isSkipped(habit, today.minus(it)) },
+            skipsCountTowardsStreaks = habit.skipsCountTowardsStreaks
         )
     }
 

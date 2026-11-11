@@ -19,6 +19,7 @@
     <dimen name="flow_control_radius">16dp</dimen>
     <dimen name="flow_dialog_radius">28dp</dimen>
     <dimen name="flow_toolbar_pill_radius">28dp</dimen>
+    <dimen name="flow_preference_switch_width">46dp</dimen>
     <dimen name="flow_sticky_control_inset">8dp</dimen>
     <dimen name="flow_row_height">64dp</dimen>
     <dimen name="flow_min_touch_target">48dp</dimen>

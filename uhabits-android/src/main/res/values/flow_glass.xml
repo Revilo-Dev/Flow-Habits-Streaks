@@ -5,5 +5,10 @@
     <color name="flow_glass_border">#26FFFFFF</color>
     <style name="Animation.Flow.Menu" parent="">
         <item name="android:windowEnterAnimation">@anim/flow_menu_expand</item>
+        <item name="android:windowExitAnimation">@anim/flow_menu_collapse</item>
+    </style>
+    <style name="Animation.Flow.NewHabit" parent="">
+        <item name="android:windowEnterAnimation">@anim/flow_new_habit_expand</item>
+        <item name="android:windowExitAnimation">@anim/flow_new_habit_collapse</item>
     </style>
 </resources>

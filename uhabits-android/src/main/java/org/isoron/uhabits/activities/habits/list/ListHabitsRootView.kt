@@ -31,6 +31,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.TooltipCompat
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
@@ -38,9 +39,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.shape.ShapeAppearanceModel
 import me.tatarka.inject.annotations.Inject
 import nl.dionsegijn.konfetti.xml.KonfettiView
+import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.views.ScrollableChart
 import org.isoron.uhabits.activities.common.views.TaskProgressBar
 import org.isoron.uhabits.activities.habits.list.views.EmptyListView
@@ -60,7 +64,8 @@ import org.isoron.uhabits.core.ui.screens.habits.list.HintListFactory
 import org.isoron.uhabits.core.utils.MidnightTimer
 import org.isoron.uhabits.inject.ActivityContext
 import org.isoron.uhabits.inject.ActivityScope
-import org.isoron.uhabits.R
+import org.isoron.uhabits.utils.FlowHeaderBehavior
+import org.isoron.uhabits.utils.FlowScrollingBehavior
 import org.isoron.uhabits.utils.addFlowScrollFades
 import org.isoron.uhabits.utils.applyFlowContentInsets
 import org.isoron.uhabits.utils.applyToolbarInsets
@@ -68,11 +73,8 @@ import org.isoron.uhabits.utils.bindFlowHeader
 import org.isoron.uhabits.utils.buildFlowToolbar
 import org.isoron.uhabits.utils.currentTheme
 import org.isoron.uhabits.utils.dim
-import org.isoron.uhabits.utils.FlowHeaderBehavior
-import org.isoron.uhabits.utils.FlowScrollingBehavior
 import org.isoron.uhabits.utils.setupToolbar
 import org.isoron.uhabits.utils.sres
-import kotlin.math.abs
 
 const val MAX_CHECKMARK_COUNT = 60
 const val HOME_CHECKMARK_COUNT = 4
@@ -89,7 +91,7 @@ class ListHabitsRootView(
     habitCardListViewFactory: HabitCardListViewFactory
 ) : FrameLayout(context), ModelObservable.Listener {
 
-    val listView: HabitCardListView = habitCardListViewFactory.create()
+    val listView: HabitCardListView = habitCardListViewFactory.create().apply { id = R.id.flowHabitList }
     val llEmpty = EmptyListView(context)
     val tbar = buildFlowToolbar()
     val konfettiView = KonfettiView(context).apply {
@@ -97,7 +99,7 @@ class ListHabitsRootView(
     }
     val progressBar = TaskProgressBar(context, runner)
     val hintView: HintView
-    val header = HeaderView(context, preferences, midnightTimer)
+    val header = HeaderView(context, preferences, midnightTimer).apply { id = R.id.flowTimelineHeader }
     val largeHeader = FlowLargeHeaderView(context, midnightTimer, preferences)
     val selectionActions = FlowSelectionActionBar(context).apply {
         id = R.id.flowSelectionActions
@@ -126,14 +128,37 @@ class ListHabitsRootView(
         visibility = GONE
     }
     var onCreateHabit: (() -> Unit)? = null
+    var onSearch: (() -> Unit)? = null
+    val activeSearchQuery get() = homeSearchBar.query.takeIf { homeSearchBar.isOpen }
 
-    private val addButton = FloatingActionButton(context).apply {
+    private val addButton = MaterialButton(context).apply {
         id = R.id.actionCreateHabit
+        text = resources.getString(R.string.flow_new_habit)
+        isAllCaps = false
+        setTextAppearance(R.style.TextAppearance_Flow_Body)
+        val onAccent = sres.getColor(R.attr.flowOnAccentColor)
+        setTextColor(onAccent)
+        setIconResource(R.drawable.flow_ic_add)
+        iconTint = ColorStateList.valueOf(onAccent)
+        iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+        iconPadding = dim(R.dimen.flow_small_spacing).toInt()
+        insetTop = 0
+        insetBottom = 0
+        val padding = dim(R.dimen.flow_large_spacing).toInt()
+        setPaddingRelative(padding, 0, padding, 0)
+        shapeAppearanceModel = ShapeAppearanceModel.builder().setAllCornerSizes(ShapeAppearanceModel.PILL).build()
+        backgroundTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowAccentColor))
+        setOnClickListener { onCreateHabit?.invoke() }
+    }
+
+    private val searchButton = FloatingActionButton(context).apply {
+        id = R.id.actionSearch
         customSize = resources.getDimensionPixelSize(R.dimen.flow_fab_size)
-        setImageResource(R.drawable.flow_ic_add)
+        setImageResource(R.drawable.search)
         backgroundTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowSurfaceSecondaryColor))
-        imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowAccentColor))
-        contentDescription = resources.getString(R.string.add_habit)
+        imageTintList = ColorStateList.valueOf(sres.getColor(R.attr.flowTextPrimaryColor))
+        contentDescription = resources.getString(R.string.search)
+        TooltipCompat.setTooltipText(this, contentDescription)
         compatElevation = if (
             ColorUtils.calculateLuminance(sres.getColor(R.attr.flowBackgroundColor)) > 0.5
         ) {
@@ -141,8 +166,10 @@ class ListHabitsRootView(
         } else {
             0f
         }
-        setOnClickListener { onCreateHabit?.invoke() }
+        setOnClickListener { onSearch?.invoke() }
     }
+    private var selectingHabits = false
+    private var showingHabitType = false
 
     init {
         val hints = resources.getStringArray(R.array.hints)
@@ -153,6 +180,7 @@ class ListHabitsRootView(
         val flowBackground = sres.getColor(R.attr.flowBackgroundColor)
         val toolbarHeight = resources.getDimensionPixelSize(R.dimen.flow_toolbar_height)
         val appBar = AppBarLayout(context).apply {
+            id = R.id.flowHomeAppBar
             setBackgroundColor(Color.TRANSPARENT)
             elevation = 0f
             applyToolbarInsets()
@@ -198,11 +226,17 @@ class ListHabitsRootView(
             }
         )
         header.setBackgroundColor(flowBackground)
-        tbar.addView(collapsedBrand, androidx.appcompat.widget.Toolbar.LayoutParams(
-            WRAP_CONTENT, WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL
-        ).apply {
-            marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding)
-        })
+        tbar.addView(
+            collapsedBrand,
+            androidx.appcompat.widget.Toolbar.LayoutParams(
+                WRAP_CONTENT,
+                WRAP_CONTENT,
+                Gravity.START or Gravity.CENTER_VERTICAL
+            ).apply {
+                marginStart = resources.getDimensionPixelSize(R.dimen.flow_screen_padding) -
+                    resources.getDimensionPixelSize(R.dimen.flow_sticky_control_inset)
+            }
+        )
         var previousCollapsed: Boolean? = null
         appBar.bindFlowHeader(tbar, expandedContent = largeHeader) { collapsed, _ ->
             if (previousCollapsed == collapsed) return@bindFlowHeader
@@ -248,6 +282,7 @@ class ListHabitsRootView(
         }
         llEmpty.applyFlowContentInsets()
         val rootView = CoordinatorLayout(context).apply {
+            id = R.id.flowHomeCoordinator
             setBackgroundColor(flowBackground)
             addView(
                 appBar,
@@ -268,8 +303,8 @@ class ListHabitsRootView(
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     gravity = Gravity.BOTTOM
                     marginStart = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
-                    marginEnd = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
-                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_body_padding)
+                    marginEnd = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
                 }
             )
             addView(
@@ -287,7 +322,7 @@ class ListHabitsRootView(
                 }
             )
             addView(
-                addButton,
+                searchButton,
                 CoordinatorLayout.LayoutParams(
                     resources.getDimensionPixelSize(R.dimen.flow_fab_size),
                     resources.getDimensionPixelSize(R.dimen.flow_fab_size)
@@ -298,20 +333,35 @@ class ListHabitsRootView(
                 }
             )
             addView(
+                addButton,
+                CoordinatorLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
+                    val sideClearance = bottomMargin + resources.getDimensionPixelSize(R.dimen.flow_fab_size) +
+                        resources.getDimensionPixelSize(R.dimen.flow_small_spacing)
+                    marginStart = sideClearance
+                    marginEnd = sideClearance
+                }
+            )
+            addView(
                 konfettiView,
                 CoordinatorLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             )
         }
-        homeSearchBar.onOpen = { addButton.visibility = INVISIBLE }
-        homeSearchBar.onDismiss = { addButton.visibility = VISIBLE }
+        addButton.minimumHeight = resources.getDimensionPixelSize(R.dimen.flow_fab_size)
+        homeSearchBar.onOpen = ::updateBottomActions
+        homeSearchBar.onDismiss = ::updateBottomActions
+        selectionActions.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> positionSearchBar() }
         val baseFabBottomMargin = resources.getDimensionPixelSize(R.dimen.flow_fab_inline_margin)
-        ViewCompat.setOnApplyWindowInsetsListener(addButton) { button, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            (button.layoutParams as CoordinatorLayout.LayoutParams).apply {
-                bottomMargin = baseFabBottomMargin + systemBars.bottom
-                button.layoutParams = this
+        for (action in listOf(addButton, searchButton)) {
+            ViewCompat.setOnApplyWindowInsetsListener(action) { button, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                (button.layoutParams as CoordinatorLayout.LayoutParams).apply {
+                    bottomMargin = baseFabBottomMargin + systemBars.bottom
+                    button.layoutParams = this
+                }
+                insets
             }
-            insets
         }
         val baseSelectionBottomMargin =
             resources.getDimensionPixelSize(R.dimen.flow_selection_actions_bottom_margin)
@@ -372,7 +422,6 @@ class ListHabitsRootView(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         setupControllers()
-        listView.dataOffset = 0
         listAdapter.observable.addListener(this)
     }
 
@@ -381,12 +430,11 @@ class ListHabitsRootView(
         super.onDetachedFromWindow()
     }
 
-    /** Restores the home timeline to today whenever the screen becomes active. */
-    fun showMostRecentDays() {
-        listView.dataOffset = 0
-    }
-
     fun alignSelectionControls(selected: Boolean) {
+        selectingHabits = selected
+        if (selected && homeSearchBar.isOpen) homeSearchBar.hideKeyboard()
+        positionSearchBar()
+        updateBottomActions()
         val actionsParams = selectionActions.layoutParams as CoordinatorLayout.LayoutParams
         actionsParams.gravity = Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM
         selectionActions.translationX = 0f
@@ -428,8 +476,27 @@ class ListHabitsRootView(
         return super.dispatchTouchEvent(event)
     }
 
-    fun openSearch(initialQuery: String, onQueryChanged: (String) -> Unit) {
-        homeSearchBar.open(initialQuery, onQueryChanged)
+    fun openSearch(initialQuery: String, onQueryChanged: (String) -> Unit, requestKeyboard: Boolean = true) {
+        homeSearchBar.open(searchButton, initialQuery, onQueryChanged, requestKeyboard)
+    }
+
+    fun setHabitTypeDialogVisible(visible: Boolean) {
+        showingHabitType = visible
+        updateBottomActions()
+    }
+
+    private fun updateBottomActions() {
+        val searchVisible = homeSearchBar.visibility == VISIBLE
+        searchButton.visibility = if (searchVisible || selectingHabits) INVISIBLE else VISIBLE
+        addButton.visibility = if (searchVisible || selectingHabits || showingHabitType) INVISIBLE else VISIBLE
+    }
+
+    private fun positionSearchBar() {
+        homeSearchBar.translationY = if (selectingHabits) {
+            -selectionActions.height - dim(R.dimen.flow_small_spacing)
+        } else {
+            0f
+        }
     }
 
     private fun updateHeader() {

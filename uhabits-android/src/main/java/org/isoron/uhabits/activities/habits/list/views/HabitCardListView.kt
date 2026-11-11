@@ -88,6 +88,15 @@ class HabitCardListView(
         super.setAdapter(adapter)
     }
 
+    fun selectVisibleHabits() {
+        val visible = (0 until adapter.itemCount).mapNotNull(adapter::getItem)
+        adapter.selected.clear()
+        adapter.selected.addAll(visible)
+        controller.value.onModelChange()
+        adapter.notifyDataSetChanged()
+        adapter.observable.notifyListeners()
+    }
+
     private fun applyBottomInset() {
         clipToPadding = false
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->

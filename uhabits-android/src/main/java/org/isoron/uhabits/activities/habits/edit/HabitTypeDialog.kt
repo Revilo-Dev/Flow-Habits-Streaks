@@ -20,6 +20,7 @@
 package org.isoron.uhabits.activities.habits.edit
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatDialogFragment
@@ -27,6 +28,7 @@ import androidx.core.view.ViewCompat
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.common.dialogs.configureFlowDialogBlur
 import org.isoron.uhabits.activities.common.dialogs.configureHabitDialogSize
+import org.isoron.uhabits.activities.habits.list.ListHabitsActivity
 import org.isoron.uhabits.core.models.HabitType
 import org.isoron.uhabits.databinding.SelectHabitTypeBinding
 import org.isoron.uhabits.intents.IntentFactory
@@ -54,11 +56,18 @@ class HabitTypeDialog : AppCompatDialogFragment() {
             setContentView(binding.root)
             setCanceledOnTouchOutside(true)
             configureFlowDialogBlur(requireActivity().findViewById(android.R.id.content))
+            window?.setWindowAnimations(R.style.Animation_Flow_NewHabit)
         }
     }
 
     override fun onStart() {
+        configureHabitDialogSize(centered = false)
         super.onStart()
-        configureHabitDialogSize(centered = true)
+        (activity as? ListHabitsActivity)?.rootView?.setHabitTypeDialogVisible(true)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        (activity as? ListHabitsActivity)?.rootView?.setHabitTypeDialogVisible(false)
+        super.onDismiss(dialog)
     }
 }

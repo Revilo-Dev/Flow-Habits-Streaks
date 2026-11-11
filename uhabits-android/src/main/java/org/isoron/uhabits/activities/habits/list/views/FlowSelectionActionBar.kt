@@ -52,6 +52,13 @@ class FlowSelectionActionBar(context: Context) : LinearLayout(context) {
         visibility = GONE
     }
 
+    fun setSelectionCount(selected: Int) {
+        ViewCompat.setAccessibilityPaneTitle(
+            this,
+            resources.getQuantityString(R.plurals.flow_selection_count, selected, selected)
+        )
+    }
+
     fun setActions(
         canEdit: Boolean,
         canArchive: Boolean,

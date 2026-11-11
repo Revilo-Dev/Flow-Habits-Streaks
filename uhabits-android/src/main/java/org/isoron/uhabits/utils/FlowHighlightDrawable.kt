@@ -23,7 +23,7 @@ internal fun View.flowPopupSurface(radius: Float) =
         setColor(sres.getColor(R.attr.flowSurfaceSecondaryColor))
     }
 
-internal class FlowHighlightDrawable(context: Context, private val radius: Float) : GradientDrawable() {
+internal open class FlowHighlightDrawable(context: Context, private val radius: Float) : GradientDrawable() {
     private val highlight = FlowEdgeHighlight(context)
 
     init {
@@ -39,6 +39,7 @@ internal class FlowHighlightDrawable(context: Context, private val radius: Float
 
 internal class FlowEdgeHighlight(context: Context) {
     private val color = context.getColor(R.color.flow_glass_border)
+    private val radiusIncrease = context.resources.displayMetrics.density
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = context.resources.getDimension(R.dimen.flow_glass_border_width)
@@ -63,7 +64,8 @@ internal class FlowEdgeHighlight(context: Context) {
                 Shader.TileMode.CLAMP
             )
         }
-        val radius = (cornerRadius - paint.strokeWidth / 2f).coerceIn(0f, edge.height().coerceAtLeast(0f) / 2f)
+        val radius = (cornerRadius + radiusIncrease - paint.strokeWidth / 2f)
+            .coerceIn(0f, edge.height().coerceAtLeast(0f) / 2f)
         canvas.drawRoundRect(edge, radius, radius, paint)
     }
 }

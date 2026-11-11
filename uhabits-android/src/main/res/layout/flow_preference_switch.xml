@@ -5,6 +5,7 @@
     android:id="@+id/switchWidget"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/flow_min_touch_target"
+    android:minWidth="@dimen/flow_min_touch_target"
     android:clickable="true"
     android:focusable="false"
     android:gravity="center"
@@ -14,5 +15,5 @@
     app:splitTrack="false"
     app:thumbTint="@null"
     app:trackTint="@null"
-    app:switchMinWidth="48dp"
+    app:switchMinWidth="@dimen/flow_preference_switch_width"
     app:track="@drawable/flow_preference_switch_track" />

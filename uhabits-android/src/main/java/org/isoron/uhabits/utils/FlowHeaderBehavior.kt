@@ -9,9 +9,11 @@ import android.view.ViewTreeObserver
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
+import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import org.isoron.uhabits.R
 
 class FlowHeaderBehavior @JvmOverloads constructor(
     context: Context,
@@ -117,9 +119,11 @@ fun AppBarLayout.bindFlowHeader(
     elevation = 0f
     translationZ = 2f
     toolbar.setBackgroundColor(Color.TRANSPARENT)
+    val edgeMargin = resources.getDimensionPixelSize(R.dimen.flow_sticky_control_inset)
+    toolbar.updatePaddingRelative(start = toolbar.paddingStart + edgeMargin, end = toolbar.paddingEnd + edgeMargin)
     val glass = FlowToolbarGlass(toolbar, compact)
     var collapsed = false
-    var previousState: Pair<Boolean, View?>? = null
+    var previousState: Pair<Boolean, Boolean>? = null
 
     fun View.scrolledContent(): View? {
         if (this === this@bindFlowHeader || visibility != View.VISIBLE) return null
@@ -134,15 +138,15 @@ fun AppBarLayout.bindFlowHeader(
 
     fun update() {
         val source = (parent as? View)?.scrolledContent()
-        val state = collapsed to source
+        val contentScrolled = source?.canScrollVertically(-1) == true
+        glass.update(source.takeIf { contentScrolled })
+        glass.refresh()
+        val state = collapsed to contentScrolled
         if (state == previousState) {
-            glass.refresh()
             return
         }
         previousState = state
-        glass.update(source)
-        glass.refresh()
-        onStateChanged(collapsed, source?.canScrollVertically(-1) == true)
+        onStateChanged(collapsed, contentScrolled)
     }
 
     val offsetListener = AppBarLayout.OnOffsetChangedListener { bar, offset ->

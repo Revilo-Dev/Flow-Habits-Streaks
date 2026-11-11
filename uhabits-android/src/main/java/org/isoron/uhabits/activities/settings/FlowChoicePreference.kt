@@ -59,6 +59,7 @@ class FlowChoicePreference @JvmOverloads constructor(
             isOutsideTouchable = true
             elevation = anchor.dim(R.dimen.flow_popup_elevation)
             inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
+            animationStyle = R.style.Animation_Flow_Menu
         }
         entries.forEachIndexed { index, label ->
             rows.addView(

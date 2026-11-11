@@ -53,7 +53,12 @@ When enabled, every active habit must be completed or explicitly skipped for a d
 to count as perfect. Missed and unanswered habits still prevent a perfect day.
 It does not change individual streak rules, completion totals, or scores.
 To reopen a collapsed header, scroll back to the first item, then pull down again.
-The back and action buttons float over the content, with a fade at the screen's top edge.
+Back and toolbar actions gain their background and the top edge fades once the
+content scrolls beneath them.
+
+Open **Settings** from the Home toolbar. Tap **New habit** at the bottom centre
+to open the habit type dialog. The bottom-corner search button expands into a
+search field, and closing it clears the filter.
 
 The entry sheet shows **Done**, **Skip** when enabled, and **Missed**. Each action
 saves immediately. **Cancel** discards the draft. Numerical habits show **Save** and
@@ -68,24 +73,30 @@ always retain their own blue and purple palette. Back and action controls, overf
 menus, Settings dropdowns, and entry sheets have a half-dp white border at 15% opacity.
 Glass defaults to 85% opacity. Existing opacity settings are raised by about 30%
 once on upgrade, then remain adjustable in Appearance. Overflow menus use a compact
-196 dp layout with white text in dark mode and 52 dp minimum row heights. They expand
-over the toolbar button from its top corner. Dialogs and floating controls use
+196 dp layout with white text in dark mode and 52 dp minimum row heights. They open
+along the top of the action pill and shrink back on dismissal. Dialogs and floating controls use
 a thin white highlight that fades down the edge.
 Toolbar glass samples the content behind it, with a software blur fallback on
-older Android versions. Dropdowns use an opaque surface with a soft shadow.
+older Android versions. The intensity changes how much the sampled content is
+blurred across the full control. Dropdowns use an opaque surface with a soft shadow.
 Settings includes clearance below its last card so the bottom fade does not cover it.
 
 Tap the home perfect-streak card to open **Perfect streaks**. Its **Streak totals** card shows the current
 and longest perfect streaks, total perfect days, a perfect-day calendar, previous
 streaks, and a completion chart using the same cards as habit details. Solid
 cards sit above a blended purple and aqua backdrop. The completed perfect-streak
-card casts a violet glow on Android 9 and later. Score and frequency cards are
+card shows a blue-violet glow behind it. Score and frequency cards are
 omitted. Swipe the calendar to browse history. Tap an active
 habit summary to open its normal detail page.
 All active habits contribute, regardless of home search or filters. Skips retain
 their individual habit rules and only make a day perfect when the global setting is on. The calendar position,
 chart grouping, and page scroll position survive screen recreation. Card heading
 icons consistently match the habit colour.
+
+**Settings > Nowbar > Appear now** starts a check-in when you have unfinished
+habits. Flow requests a promoted live notification on Android 16 and later.
+The device decides whether to display it in Now Bar, based on device support and
+notification settings.
 
 ## Installing
 

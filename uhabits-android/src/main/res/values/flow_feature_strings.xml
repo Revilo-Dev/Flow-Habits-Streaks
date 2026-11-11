@@ -40,7 +40,6 @@
     <string name="flow_checkin_description">%1$s · %2$s · %3$s</string>
     <string name="flow_value_progress">%1$s of %2$s %3$s</string>
     <string name="flow_value_at_most">%1$s of maximum %2$s %3$s</string>
-    <string name="flow_entry_value">Value</string>
     <string name="flow_entry_title">%1$s
 %2$s</string>
     <string name="flow_entry_value_unit">Value in %1$s</string>

@@ -141,6 +141,8 @@ class ShowHabitView(context: Context) : FrameLayout(context) {
         }
     }
 
+    val historyChartView get() = binding.historyCard.chartView
+
     fun setListener(presenter: ShowHabitPresenter) {
         binding.scoreCard.setListener(presenter.scoreCardPresenter)
         binding.historyCard.setListener(presenter.historyCardPresenter)

@@ -10,7 +10,7 @@ This implementation keeps Flow's single habit list, detail pages, and Material c
 | --- | --- | --- |
 | Layout | Shared 24 dp content keyline and a centered content column up to 840 dp | BASE05, PAGE01, ADAPT01, ADAPT02 |
 | Headers | 32 sp expanded and 20 sp compact titles with persistent collapsed identity; compact headers in short windows | HEAD04, HEAD06, HEAD08, ACCESS03 |
-| Actions | Targets of at least 48 dp; measured editor and home action clearance; snackbars above active actions | CTRL08, ACT06, ACT08, DEPTH09 |
+| Actions | Targets of at least 48 dp, direct Settings access, a bottom-centred New habit pill, and bottom-corner search | CTRL08, ACT06, ACT08, DEPTH09 |
 | Habit rows | Row opens detail; trailing controls record the selected date; wrapping habit names and explicit accessibility states | LIST03, LIST10, LIST11, ACCESS07 |
 | Selection | Labeled actions, selected count, explicit exit, and a horizontally scrollable action region | ACT01, MENU08, LIST12 |
 | Reordering | Drag in manual order or use Move up and Move down from the reorder handle | GEST04, ACCESS11 |
@@ -20,7 +20,7 @@ This implementation keeps Flow's single habit list, detail pages, and Material c
 | Entry dialogs | Bottom placement with constrained width, scrolling content, localized numeric validation, and retained drafts | DIALOG07, DIALOG10, FORM09, ADAPT06 |
 | Calendar | Day labels include date, state, and note availability; noted days preview before explicit editing; a textual legend accompanies history | ACCESS09, HABIT03, PICK05 |
 | Colors | Semantic Flow foreground and surface roles, readable on accent actions, stronger supporting text contrast | THEME04, THEME09, ACCESS04 |
-| Effects | Existing scroll edge color fades remain color fades; no wallpaper or pixel blur claim | DEPTH02, DEPTH04 |
+| Effects | Color fades at scroll edges and backdrop sampling behind toolbar controls | DEPTH02, DEPTH04 |
 
 The calendar remains a dense history chart rather than a full size date picker. Individual virtual day nodes and the explicit edit path provide access to its records; physical cell targets are smaller than the standard action buttons.
 
@@ -74,4 +74,6 @@ The full rulebook remains the acceptance baseline. These checks still need the i
 - Notification permission denial, exact and inexact reminder delivery, widget refresh, and promoted notification presentation
 - Reduced motion and haptic preferences with real system settings
 
-Flow currently offers light, dark, and system appearance. Wallpaper derived palettes and the separate toolkit's glass components are not implemented features. Platform target upgrades and notification delivery require their own checks apart from this visual migration.
+Flow offers light, dark, and system appearance. Appearance settings include the
+Android 12 and later device accent, custom light and dark presets, blur strength,
+and glass opacity. Promoted notification presentation requires separate device checks.

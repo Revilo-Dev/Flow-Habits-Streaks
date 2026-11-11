@@ -2,10 +2,10 @@ package org.isoron.uhabits.activities
 
 import android.content.Intent
 import android.view.View
+import androidx.appcompat.widget.SwitchCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.android.material.switchmaterial.SwitchMaterial
 import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.habits.edit.EditHabitActivity
@@ -30,13 +30,13 @@ class HabitSkipOptionsTest {
                     scenario.onActivity { activity ->
                         val options = activity.findViewById<View>(R.id.skipOptions)
                         assertEquals(if (enabled) View.VISIBLE else View.GONE, options.visibility)
-                        activity.findViewById<SwitchMaterial>(R.id.countSkipsWeekly).isChecked = true
-                        activity.findViewById<SwitchMaterial>(R.id.countSkipsStreak).isChecked = false
+                        activity.findViewById<SwitchCompat>(R.id.countSkipsWeekly).isChecked = true
+                        activity.findViewById<SwitchCompat>(R.id.countSkipsStreak).isChecked = false
                     }
                     scenario.recreate()
                     scenario.onActivity { activity ->
-                        assertTrue(activity.findViewById<SwitchMaterial>(R.id.countSkipsWeekly).isChecked)
-                        assertFalse(activity.findViewById<SwitchMaterial>(R.id.countSkipsStreak).isChecked)
+                        assertTrue(activity.findViewById<SwitchCompat>(R.id.countSkipsWeekly).isChecked)
+                        assertFalse(activity.findViewById<SwitchCompat>(R.id.countSkipsStreak).isChecked)
                     }
                 }
             }

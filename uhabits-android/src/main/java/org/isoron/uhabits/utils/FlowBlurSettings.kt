@@ -12,6 +12,7 @@ internal object FlowBlurSettings {
     const val ENABLED = "global_blur_enabled"
     const val INTENSITY = "global_blur_intensity"
     const val OPACITY = "global_blur_alpha"
+    const val MAX_INTENSITY = 40
 
     fun upgradeOpacity(context: Context) {
         val prefs = preferences(context)
@@ -23,7 +24,7 @@ internal object FlowBlurSettings {
 
     fun isEnabled(context: Context) = preferences(context).getBoolean(ENABLED, true)
 
-    fun intensity(context: Context) = preferences(context).getInt(INTENSITY, 18).coerceIn(0, 40)
+    fun intensity(context: Context) = preferences(context).getInt(INTENSITY, 18).coerceIn(0, MAX_INTENSITY)
 
     fun tint(context: Context, color: Int): Int {
         val opacity = preferences(context).getInt(OPACITY, 85).coerceIn(0, 100)

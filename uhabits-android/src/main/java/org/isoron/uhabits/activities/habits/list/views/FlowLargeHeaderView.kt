@@ -90,6 +90,8 @@ class FlowLargeHeaderView(
 
     init {
         orientation = VERTICAL
+        clipChildren = false
+        clipToPadding = false
         setPadding(
             dim(R.dimen.flow_screen_padding).toInt(),
             dim(R.dimen.flow_header_top_spacing).toInt(),

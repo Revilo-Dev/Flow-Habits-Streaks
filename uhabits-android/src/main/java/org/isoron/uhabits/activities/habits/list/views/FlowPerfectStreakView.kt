@@ -14,7 +14,6 @@ package org.isoron.uhabits.activities.habits.list.views
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -28,8 +27,8 @@ import org.isoron.uhabits.R
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.screens.habits.list.HabitCardListCache
 import org.isoron.uhabits.utils.dim
+import org.isoron.uhabits.utils.perfectStreakBackground
 import org.isoron.uhabits.utils.sres
-import org.isoron.uhabits.utils.updatePerfectStreakGlow
 import java.util.Locale
 import kotlin.math.absoluteValue
 
@@ -58,7 +57,6 @@ class FlowPerfectStreakView(
         orientation = VERTICAL
         val padding = dim(R.dimen.flow_large_spacing).toInt()
         setPadding(padding, padding, padding, padding)
-        clipToOutline = true
 
         val heading = LinearLayout(context).apply {
             orientation = HORIZONTAL
@@ -136,10 +134,7 @@ class FlowPerfectStreakView(
         } else {
             intArrayOf(inactiveStart, inactiveEnd)
         }
-        background = GradientDrawable(GradientDrawable.Orientation.TL_BR, cardColors).apply {
-            cornerRadius = dim(R.dimen.flow_card_radius)
-        }
-        updatePerfectStreakGlow(summary.todayComplete)
+        background = perfectStreakBackground(cardColors, summary.todayComplete)
         titleView.setTextColor(Color.WHITE)
         streakView.setTextColor(Color.WHITE)
         messageView.setTextColor(Color.WHITE)

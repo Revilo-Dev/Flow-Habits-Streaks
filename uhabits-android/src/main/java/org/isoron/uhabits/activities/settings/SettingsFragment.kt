@@ -18,16 +18,20 @@
  */
 package org.isoron.uhabits.activities.settings
 
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.annotation.SuppressLint
-import android.app.backup.BackupManager
+import android.app.NotificationManager
 import android.app.TimePickerDialog
+import android.app.backup.BackupManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
@@ -37,7 +41,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.view.children
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -46,8 +52,11 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroupAdapter
 import androidx.preference.SeekBarPreference
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import org.isoron.platform.time.DayOfWeek
 import org.isoron.platform.time.JavaLocalDateFormatter
+import org.isoron.uhabits.HabitsApplication
+import org.isoron.uhabits.R
 import org.isoron.uhabits.activities.about.AboutActivity
 import org.isoron.uhabits.activities.habits.list.RESULT_BUG_REPORT
 import org.isoron.uhabits.activities.habits.list.RESULT_EXPORT_CSV
@@ -56,17 +65,15 @@ import org.isoron.uhabits.activities.habits.list.RESULT_IMPORT_DATA
 import org.isoron.uhabits.activities.habits.list.RESULT_REPAIR_DB
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.NotificationTray
-import org.isoron.uhabits.HabitsApplication
 import org.isoron.uhabits.notifications.AndroidNotificationTray.Companion.createAndroidNotificationChannel
 import org.isoron.uhabits.notifications.HabitCheckInManager
 import org.isoron.uhabits.notifications.RingtoneManager
-import org.isoron.uhabits.R
-import org.isoron.uhabits.utils.addFlowScrollFades
-import org.isoron.uhabits.utils.applyFlowContentInsets
 import org.isoron.uhabits.utils.FlowAccent
 import org.isoron.uhabits.utils.FlowBlurSettings
-import org.isoron.uhabits.utils.startActivitySafely
 import org.isoron.uhabits.utils.StyledResources
+import org.isoron.uhabits.utils.addFlowScrollFades
+import org.isoron.uhabits.utils.applyFlowContentInsets
+import org.isoron.uhabits.utils.startActivitySafely
 import org.isoron.uhabits.widgets.WidgetUpdater
 import java.util.Calendar
 import java.util.Locale
@@ -76,6 +83,9 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     private var ringtoneManager: RingtoneManager? = null
     private lateinit var prefs: Preferences
     private var widgetUpdater: WidgetUpdater? = null
+    private val requestCheckInPermission = registerForActivityResult(RequestPermission()) { granted ->
+        if (granted) showCheckIn() else showCheckInNotificationSettings()
+    }
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -118,6 +128,7 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
     }
 
     private fun setupAppearancePreferences() {
+        findPreference(FlowAccent.SYSTEM)?.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         for ((key, dark) in listOf(FlowAccent.LIGHT to false, FlowAccent.DARK to true)) {
             val preference = findPreference(key) as ListPreference
             preference.entryValues = Array(preference.entries.size) { it.toString() }
@@ -125,7 +136,9 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
             preference.summary = preference.entry
             preference.isVisible = !FlowAccent.usesSystem(requireContext())
             preference.setOnPreferenceChangeListener { _, value ->
-                FlowAccent.select(requireContext(), dark, (value as String).toInt())
+                val selected = (value as String).toInt()
+                FlowAccent.select(requireContext(), dark, selected)
+                preference.summary = preference.entries[selected]
                 true
             }
         }
@@ -229,11 +242,57 @@ class SettingsFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeLis
                 return true
             }
             "nowbarAppearNow" -> {
-                (requireContext().applicationContext as HabitsApplication).checkInManager.showNow()
+                if (Build.VERSION.SDK_INT >= 33 &&
+                    checkSelfPermission(requireContext(), POST_NOTIFICATIONS) != PERMISSION_GRANTED
+                ) {
+                    requestCheckInPermission.launch(POST_NOTIFICATIONS)
+                } else {
+                    showCheckIn()
+                }
                 return true
             }
         }
         return super.onPreferenceTreeClick(preference)
+    }
+
+    private fun showCheckIn() {
+        val context = requireContext()
+        val manager = (context.applicationContext as HabitsApplication).checkInManager
+        if (!manager.canPost()) {
+            showCheckInNotificationSettings()
+            return
+        }
+        when (manager.showNow()) {
+            HabitCheckInManager.StartResult.NO_HABITS ->
+                Snackbar.make(requireView(), R.string.flow_checkin_no_habits, Snackbar.LENGTH_LONG).show()
+            HabitCheckInManager.StartResult.COMPLETED ->
+                Snackbar.make(requireView(), R.string.flow_checkin_complete, Snackbar.LENGTH_LONG).show()
+            HabitCheckInManager.StartResult.IN_PROGRESS -> {
+                val notifications = context.getSystemService(NotificationManager::class.java)
+                if (Build.VERSION.SDK_INT >= 36 && !notifications.canPostPromotedNotifications()) {
+                    showCheckInNotificationSettings(promoted = true)
+                }
+            }
+            HabitCheckInManager.StartResult.DISABLED -> Unit
+        }
+    }
+
+    private fun showCheckInNotificationSettings(promoted: Boolean = false) {
+        val host = activity ?: return
+        val root = view ?: return
+        val notificationSettings = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .putExtra(Settings.EXTRA_APP_PACKAGE, host.packageName)
+        val settings = if (promoted) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, host.packageName)
+                .takeIf { it.resolveActivity(host.packageManager) != null } ?: notificationSettings
+        } else {
+            notificationSettings
+        }
+        val message = if (promoted) R.string.flow_checkin_live_disabled else R.string.flow_checkin_notifications_disabled
+        Snackbar.make(root, message, Snackbar.LENGTH_LONG)
+            .setAction(R.string.settings) { host.startActivitySafely(settings) }
+            .show()
     }
 
     override fun onResume() {

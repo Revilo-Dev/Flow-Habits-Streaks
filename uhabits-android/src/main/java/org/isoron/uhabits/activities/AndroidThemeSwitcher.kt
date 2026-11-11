@@ -55,15 +55,13 @@ constructor(
 
     override fun applyDarkTheme() {
         currentTheme = FlowDarkTheme()
-        context.setTheme(R.style.FlowTheme_Dark)
-        FlowAccent.apply(context, dark = true)
+        context.setTheme(FlowAccent.theme(context, dark = true))
         setLightNavigationBarIcons(false)
     }
 
     override fun applyLightTheme() {
         currentTheme = FlowLightTheme()
-        context.setTheme(R.style.FlowTheme_Light)
-        FlowAccent.apply(context, dark = false)
+        context.setTheme(FlowAccent.theme(context, dark = false))
         setLightNavigationBarIcons(true)
     }
 

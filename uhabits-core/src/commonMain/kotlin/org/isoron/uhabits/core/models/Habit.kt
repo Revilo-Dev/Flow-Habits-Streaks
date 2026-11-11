@@ -29,7 +29,6 @@ data class Habit(
     var frequency: Frequency = Frequency.DAILY,
     var id: Long? = null,
     var isArchived: Boolean = false,
-    var skipsCountTowardsStreaks: Boolean = false,
     var icon: String = "",
     var skipsCountTowardsWeeklyStreak: Boolean = false,
     var skipsCountTowardsStreaks: Boolean = false,
@@ -122,7 +121,6 @@ data class Habit(
         this.frequency = other.frequency
         // Keep the database identity of the destination habit
         this.isArchived = other.isArchived
-        this.skipsCountTowardsStreaks = other.skipsCountTowardsStreaks
         this.icon = other.icon
         this.skipsCountTowardsWeeklyStreak = other.skipsCountTowardsWeeklyStreak
         this.skipsCountTowardsStreaks = other.skipsCountTowardsStreaks
@@ -146,7 +144,6 @@ data class Habit(
         if (frequency != other.frequency) return false
         if (id != other.id) return false
         if (isArchived != other.isArchived) return false
-        if (skipsCountTowardsStreaks != other.skipsCountTowardsStreaks) return false
         if (icon != other.icon) return false
         if (skipsCountTowardsWeeklyStreak != other.skipsCountTowardsWeeklyStreak) return false
         if (skipsCountTowardsStreaks != other.skipsCountTowardsStreaks) return false
@@ -169,7 +166,6 @@ data class Habit(
         result = 31 * result + frequency.hashCode()
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + isArchived.hashCode()
-        result = 31 * result + skipsCountTowardsStreaks.hashCode()
         result = 31 * result + icon.hashCode()
         result = 31 * result + skipsCountTowardsWeeklyStreak.hashCode()
         result = 31 * result + skipsCountTowardsStreaks.hashCode()

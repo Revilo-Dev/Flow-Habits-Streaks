@@ -27,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import me.tatarka.inject.annotations.Inject
 import org.isoron.uhabits.R
-import org.isoron.uhabits.activities.habits.list.views.FlowHomeSearchBar
 import org.isoron.uhabits.core.models.HabitList
 import org.isoron.uhabits.core.preferences.Preferences
 import org.isoron.uhabits.core.ui.ThemeSwitcher
@@ -154,12 +153,6 @@ class ListHabitsMenu(
 
             R.id.actionSortStatus -> {
                 behavior.onSortByStatus()
-                return true
-            }
-
-            R.id.actionSearch -> {
-                activity.findViewById<FlowHomeSearchBar>(R.id.flowHomeSearchBar)
-                    ?.open(behavior.searchQuery, behavior::onSearchQueryChanged)
                 return true
             }
 

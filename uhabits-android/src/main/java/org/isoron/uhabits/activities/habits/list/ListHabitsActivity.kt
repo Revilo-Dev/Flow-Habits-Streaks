@@ -99,10 +99,15 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
         taskRunner = appComponent.taskRunner
         menu = component.listHabitsMenu
         rootView.onCreateHabit = { menu.behavior.onCreateHabit() }
+        rootView.onSearch = { rootView.openSearch(menu.behavior.searchQuery, menu.behavior::onSearchQueryChanged) }
         Thread.setDefaultUncaughtExceptionHandler(BaseExceptionHandler(this))
         component.listHabitsBehavior.onStartup()
         rootView.applyRootViewInsets()
         setContentView(rootView)
+        savedInstanceState?.getString(SEARCH_QUERY)?.let { query ->
+            menu.behavior.onSearchQueryChanged(query)
+            rootView.openSearch(query, menu.behavior::onSearchQueryChanged, requestKeyboard = false)
+        }
         onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (rootView.dismissTransientUi()) return
@@ -111,6 +116,11 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
                 isEnabled = true
             }
         })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        rootView.activeSearchQuery?.let { outState.putString(SEARCH_QUERY, it) }
     }
 
     override fun onPause() {
@@ -124,7 +134,6 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
     override fun onResume() {
         adapter.refresh()
         screen.onAttached()
-        rootView.showMostRecentDays()
         rootView.postInvalidate()
         midnightTimer.onResume()
 
@@ -203,5 +212,6 @@ class ListHabitsActivity : FlowActivity(), Preferences.Listener {
 
     companion object {
         const val ACTION_EDIT = BuildConfig.APPLICATION_ID + ".ACTION_EDIT"
+        private const val SEARCH_QUERY = "homeSearchQuery"
     }
 }
